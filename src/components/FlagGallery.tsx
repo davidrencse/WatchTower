@@ -13,9 +13,22 @@ type FlagGalleryProps = {
   onSelectFlag: (flag: FlagEntry) => void;
 };
 
+const FLAG_IMAGE_PRIORITY_FIRST = 24;
+
 export function FlagGallery({ onSelectFlag }: FlagGalleryProps) {
   const [viewMode, setViewMode] = useState<GalleryViewMode>('continents');
   const sections = useMemo(() => groupFlagsByViewMode(FLAGS, viewMode), [viewMode]);
+
+  const indexByFlagId = useMemo(() => {
+    let i = 0;
+    const m = new Map<string, number>();
+    for (const sec of sections) {
+      for (const f of sec.flags) {
+        m.set(f.id, i++);
+      }
+    }
+    return m;
+  }, [sections]);
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 pb-16 pt-6 sm:px-6">
@@ -39,7 +52,11 @@ export function FlagGallery({ onSelectFlag }: FlagGalleryProps) {
             <ul className={FLAG_GRID}>
               {section.flags.map((flag) => (
                 <li key={flag.id} className="flex min-w-0">
-                  <FlagButton flag={flag} onSelect={onSelectFlag} />
+                  <FlagButton
+                    flag={flag}
+                    onSelect={onSelectFlag}
+                    priority={(indexByFlagId.get(flag.id) ?? 0) < FLAG_IMAGE_PRIORITY_FIRST}
+                  />
                 </li>
               ))}
             </ul>

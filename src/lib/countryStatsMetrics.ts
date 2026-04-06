@@ -1,4 +1,7 @@
 import type { CountryStatMetric } from '../types/countryStats';
+import { getChristianPopulation } from './christianPopulationData';
+import { getJewishPopulation } from './jewishPopulationData';
+import { getMuslimPopulation } from './muslimPopulationData';
 import type { CountryWideRow } from './parseCountriesWideCsv';
 
 function isBlankOrNa(v: string): boolean {
@@ -170,6 +173,10 @@ export function wideRowToStatMetrics(
     immigrantBirthNotes = '';
   }
 
+  const christian = getChristianPopulation(iso3);
+  const muslim = getMuslimPopulation(iso3);
+  const jewish = getJewishPopulation(iso3);
+
   return [
     tile('GDP', fmtGdpBillions(row.gdp_current_usd), row.gdp_year, geo, row.gdp_source_url),
     tile(
@@ -195,6 +202,15 @@ export function wideRowToStatMetrics(
       nonEuroUrl,
       nonEuroNotes,
     ),
+    christian
+      ? tile('Christian population', christian.value, christian.referencePeriod, geo, '', christian.notes)
+      : tile('Christian population', 'N/A', '', geo, '', ''),
+    muslim
+      ? tile('Muslim population', muslim.value, muslim.referencePeriod, geo, '', muslim.notes)
+      : tile('Muslim population', 'N/A', '', geo, '', ''),
+    jewish
+      ? tile('Jewish population', jewish.value, jewish.referencePeriod, geo, '', jewish.notes)
+      : tile('Jewish population', 'N/A', '', geo, '', ''),
     tile(
       'Immigrants',
       fmtCount(row.immigrants_stock_total),

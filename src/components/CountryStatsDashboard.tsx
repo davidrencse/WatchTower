@@ -1,22 +1,29 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
 import { wideRowToStatMetrics } from '../lib/countryStatsMetrics';
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
+import { findCrimeRow } from '../lib/crimeCountryLookup';
 import {
   indexCountriesByCountryCode,
   indexCountriesByIso3,
   parseCountriesWideCsv,
 } from '../lib/parseCountriesWideCsv';
+import { collectCrimeSourceUrls, CrimeMetricsSection } from './CrimeMetricsSection';
+import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 
 const CSV_URL = '/data/countries_screenshot_stats_latest.csv';
 const PROXY_CSV_URL = '/data/countries_proxy_demographics_births.csv';
+const CRIME_CSV_URL = '/data/countries_crime_2000s_latest.csv';
 
 const METRIC_ORDER = [
   'GDP',
   'GDP per capita',
   'White (native) population',
   'Non-European population',
+  'Christian population',
+  'Muslim population',
+  'Jewish population',
   'Immigrants',
   'Total birth rate',
   'White (native) birth rate',
@@ -221,6 +228,59 @@ function orderMetrics(rows: CountryStatMetric[]): CountryStatMetric[] {
   return ordered;
 }
 
+/** Collapsible groups on the country stats page (order preserved). */
+const STATS_SECTIONS: { id: string; title: string; metrics: readonly string[] }[] = [
+  {
+    id: 'economic',
+    title: 'Economic statistics',
+    metrics: ['GDP', 'GDP per capita'],
+  },
+  {
+    id: 'population',
+    title: 'Population',
+    metrics: [
+      'White (native) population',
+      'Non-European population',
+      'Christian population',
+      'Muslim population',
+      'Jewish population',
+      'Immigrants',
+      'Top immigrant countries',
+    ],
+  },
+  {
+    id: 'birth',
+    title: 'Birth rates',
+    metrics: ['Total birth rate', 'White (native) birth rate', 'Immigrant birth rate'],
+  },
+];
+
+const STAT_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3';
+
+function renderStatTile(row: CountryStatMetric): ReactNode {
+  if (row.metric === 'Top immigrant countries') {
+    if (isUnavailable(row.value)) {
+      return <MetricTile row={row} />;
+    }
+    return <TopCountriesTile row={row} />;
+  }
+  if (row.metric === 'GDP') {
+    return <MetricTile row={row} largeValue accent />;
+  }
+  if (row.metric === 'GDP per capita') {
+    return <MetricTile row={row} largeValue />;
+  }
+  if (row.metric === 'Immigrant birth rate') {
+    const p = extractLeadingPercent(row.value);
+    return <MetricTile row={row} extra={p !== null ? <PercentRing percent={p} /> : undefined} />;
+  }
+  if (row.metric === 'White (native) birth rate') {
+    const p = extractLeadingPercent(row.value);
+    return <MetricTile row={row} extra={p !== null ? <PercentRing percent={p} /> : undefined} />;
+  }
+  return <MetricTile row={row} />;
+}
+
 type CountryStatsDashboardProps = {
   flag: FlagEntry;
   iso3: string;
@@ -231,15 +291,17 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [ordered, setOrdered] = useState<CountryStatMetric[] | null>(null);
   const [datasetNote, setDatasetNote] = useState('');
   const [proxyDatasetNote, setProxyDatasetNote] = useState('');
+  const [crimeRow, setCrimeRow] = useState<CountryWideRow | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [mainRes, proxyRes] = await Promise.all([
+        const [mainRes, proxyRes, crimeRes] = await Promise.all([
           fetch(CSV_URL),
           fetch(PROXY_CSV_URL),
+          fetch(CRIME_CSV_URL),
         ]);
         if (!mainRes.ok) throw new Error(`Could not load main data (${mainRes.status})`);
         const mainText = await mainRes.text();
@@ -250,6 +312,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         if (!row) {
           setError(`No statistics row for ISO3 “${iso3}”.`);
           setOrdered(null);
+          setCrimeRow(null);
           return;
         }
 
@@ -260,19 +323,30 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           proxyRow = indexCountriesByCountryCode(parsedProxy).get(iso3.toUpperCase()) ?? null;
         }
 
+        let crime: CountryWideRow | null = null;
+        if (crimeRes.ok) {
+          const crimeText = await crimeRes.text();
+          const parsedCrime = parseCountriesWideCsv(crimeText);
+          crime = findCrimeRow(parsedCrime, flag.label);
+        }
+
         if (cancelled) return;
         setDatasetNote(row.notes?.trim() || '');
         setProxyDatasetNote(proxyRow?.notes?.trim() || '');
+        setCrimeRow(crime);
         setOrdered(orderMetrics(wideRowToStatMetrics(row, iso3.toUpperCase(), proxyRow)));
         setError(null);
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load data.');
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load data.');
+          setCrimeRow(null);
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [iso3]);
+  }, [iso3, flag.label]);
 
   const sources = useMemo(() => {
     if (!ordered) return [];
@@ -299,10 +373,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         });
       }
     }
+    for (const c of collectCrimeSourceUrls(crimeRow)) {
+      if (map.has(c.url)) continue;
+      map.set(c.url, { name: c.label, url: c.url, date: '' });
+    }
     return [...map.values()];
-  }, [ordered]);
+  }, [ordered, crimeRow]);
 
   const displayTitle = flag.label.toUpperCase();
+
+  const metricsByName = useMemo(() => {
+    if (!ordered) return new Map<string, CountryStatMetric>();
+    return new Map(ordered.map((r) => [r.metric, r]));
+  }, [ordered]);
 
   return (
     <div className="min-h-full bg-[#0a0a0a] font-mono text-neutral-200">
@@ -351,8 +434,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           <>
             <p className="mb-4 max-w-2xl font-mono text-[11px] leading-relaxed text-neutral-500">
               Main file: World Bank Data360 (GDP, overall TFR, migrant stock, corridors). Proxy file: native /
-              foreign-born population and birth metrics (TFR split or % births by mother nativity). Open card
-              notes and methodology sections below for definitions.
+              foreign-born population and birth metrics. Crime file: police-recorded proxies (petty, rape, theft,
+              sexual violence) with 2000 reference vs latest where available. Open card notes for definitions.
             </p>
             {datasetNote ? (
               <details className="mb-3 max-w-2xl border border-neutral-800 bg-[#121212] p-3 font-mono text-[10px] text-neutral-500">
@@ -371,42 +454,37 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               </details>
             ) : null}
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {ordered.map((row) => {
-                if (row.metric === 'Top immigrant countries') {
-                  if (isUnavailable(row.value)) {
-                    return <MetricTile key={row.metric} row={row} />;
-                  }
-                  return <TopCountriesTile key={row.metric} row={row} />;
-                }
-                if (row.metric === 'GDP') {
-                  return <MetricTile key={row.metric} row={row} largeValue accent />;
-                }
-                if (row.metric === 'GDP per capita') {
-                  return <MetricTile key={row.metric} row={row} largeValue />;
-                }
-                if (row.metric === 'Immigrant birth rate') {
-                  const p = extractLeadingPercent(row.value);
-                  return (
-                    <MetricTile
-                      key={row.metric}
-                      row={row}
-                      extra={p !== null ? <PercentRing percent={p} /> : undefined}
-                    />
-                  );
-                }
-                if (row.metric === 'White (native) birth rate') {
-                  const p = extractLeadingPercent(row.value);
-                  return (
-                    <MetricTile
-                      key={row.metric}
-                      row={row}
-                      extra={p !== null ? <PercentRing percent={p} /> : undefined}
-                    />
-                  );
-                }
-                return <MetricTile key={row.metric} row={row} />;
+            <div className="flex flex-col gap-4">
+              {STATS_SECTIONS.map((section) => {
+                const rows = section.metrics
+                  .map((name) => metricsByName.get(name))
+                  .filter((r): r is CountryStatMetric => r != null);
+                if (rows.length === 0) return null;
+                return (
+                  <CollapsibleFlagSection
+                    key={section.id}
+                    title={section.title}
+                    count={rows.length}
+                    defaultOpen
+                  >
+                    <div className={STAT_GRID}>
+                      {rows.map((row) => (
+                        <Fragment key={row.metric}>{renderStatTile(row)}</Fragment>
+                      ))}
+                    </div>
+                  </CollapsibleFlagSection>
+                );
               })}
+            </div>
+
+            <div className="mt-4">
+              <CollapsibleFlagSection
+                title="Crime statistics"
+                count={crimeRow ? 8 : 0}
+                defaultOpen
+              >
+                <CrimeMetricsSection crimeRow={crimeRow} />
+              </CollapsibleFlagSection>
             </div>
 
             <section className="mt-10 border border-neutral-800 bg-[#121212] p-4 sm:p-6">

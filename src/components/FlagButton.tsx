@@ -1,12 +1,15 @@
+import { memo } from 'react';
 import type { FlagEntry } from '../types/flag';
 
 type FlagButtonProps = {
   flag: FlagEntry;
   onSelect: (flag: FlagEntry) => void;
+  /** First screen of tiles: eager + high fetch priority for faster first paint. */
+  priority?: boolean;
 };
 
 /** Fixed-height card: equal image well + label strip so every tile aligns in the grid. */
-export function FlagButton({ flag, onSelect }: FlagButtonProps) {
+function FlagButtonInner({ flag, onSelect, priority = false }: FlagButtonProps) {
   return (
     <button
       type="button"
@@ -18,8 +21,9 @@ export function FlagButton({ flag, onSelect }: FlagButtonProps) {
           src={flag.src}
           alt=""
           className="max-h-full max-w-full object-contain"
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
           decoding="async"
+          fetchPriority={priority ? 'high' : 'low'}
         />
       </div>
       <div className="flex min-h-[3.25rem] flex-1 items-center border-t border-[var(--line)] px-2 py-3">
@@ -30,3 +34,5 @@ export function FlagButton({ flag, onSelect }: FlagButtonProps) {
     </button>
   );
 }
+
+export const FlagButton = memo(FlagButtonInner);
