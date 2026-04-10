@@ -754,25 +754,25 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
   return (
     <div className="min-h-full bg-[#0a0a0a] font-mono text-neutral-200">
-      <div className="border-b border-neutral-800 bg-[#0c0c0c]">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div className="sticky top-0 z-40 border-b border-neutral-800 bg-[#0c0c0c]/95 backdrop-blur">
+        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-4 sm:px-6">
           <button
             type="button"
             onClick={onBack}
-            className="font-mono text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:text-white"
+            className="justify-self-start font-mono text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:text-white"
           >
             ← Back
           </button>
-          <div className="flex items-center gap-4">
+          <div className="justify-self-center text-center">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">Watch Tower</p>
+          </div>
+          <div className="flex items-center justify-self-end gap-3">
             <div className="hidden h-10 w-14 border border-neutral-800 bg-black/50 sm:flex sm:items-center sm:justify-center sm:px-2">
               <img src={flag.src} alt="" className="max-h-7 max-w-full object-contain" decoding="async" />
             </div>
-            <div className="text-right">
-              <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">Country stats</p>
-              <h1 className="text-sm font-semibold uppercase tracking-[0.12em] text-white sm:text-base">
-                {displayTitle}
-              </h1>
-            </div>
+            <h1 className="text-right text-sm font-semibold uppercase tracking-[0.12em] text-white sm:text-base">
+              {displayTitle}
+            </h1>
           </div>
         </div>
       </div>
@@ -927,9 +927,11 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 defaultOpen
               >
                 <div className="flex flex-col gap-4">
-                  <CrimeMetricsSection crimeRow={crimeRow} />
+                  <CollapsibleFlagSection title="Crime Comparison" count={crimeRow ? 8 : 0} defaultOpen>
+                    <CrimeMetricsSection crimeRow={crimeRow} />
+                  </CollapsibleFlagSection>
                   {iso3.toUpperCase() === 'DEU' ? (
-                    <CollapsibleFlagSection title="Migrant data" count={6} defaultOpen>
+                    <CollapsibleFlagSection title="Migrant data" count={15} defaultOpen>
                       <GermanyMigrantCrimeSection />
                     </CollapsibleFlagSection>
                   ) : null}

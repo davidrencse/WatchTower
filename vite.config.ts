@@ -98,6 +98,21 @@ function syncDataCsvToPublic() {
         fs.copyFileSync(germanyMigrantCrime, path.join(destDir, 'germany_migrant_crime_requested_metrics.csv'));
       }
 
+      const germanyMigrantCrimeAdditional = path.join(
+        __dirname,
+        'Assets',
+        'Data',
+        'Europe',
+        'Germany',
+        'germany_migrant_crime_additional_metrics.csv',
+      );
+      if (fs.existsSync(germanyMigrantCrimeAdditional)) {
+        fs.copyFileSync(
+          germanyMigrantCrimeAdditional,
+          path.join(destDir, 'germany_migrant_crime_additional_metrics.csv'),
+        );
+      }
+
       const germanyDirPublic = path.join(__dirname, 'public', 'germany');
       fs.mkdirSync(germanyDirPublic, { recursive: true });
       const poppyra = path.join(__dirname, 'Assets', 'Data', 'Europe', 'Germany', 'poppyra.png');

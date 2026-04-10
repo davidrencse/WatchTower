@@ -85,6 +85,7 @@ const asylumChartConfig: ChartConfig = {
 export function GermanyImmigrationSection() {
   const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRefugeeSectionOpen, setIsRefugeeSectionOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -169,51 +170,74 @@ export function GermanyImmigrationSection() {
       </p>
 
       <Card className="rounded-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">Refugee origins in Germany (2024)</CardTitle>
-          <CardDescription>Breakdown by country of origin.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="overflow-x-auto border border-neutral-800">
-            <table className="min-w-full border-collapse text-left font-mono text-xs">
-              <thead className="bg-neutral-900 text-neutral-300">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Country of origin</th>
-                  <th className="px-3 py-2 text-right font-medium">Number in Germany</th>
-                </tr>
-              </thead>
-              <tbody>
-                {REFUGEE_BREAKDOWN_2024.map((row) => (
-                  <tr key={row.country} className="border-t border-neutral-800">
-                    <td className="px-3 py-2 text-neutral-200">{row.country}</td>
-                    <td className="px-3 py-2 text-right text-neutral-100">{row.count.toLocaleString('en-US')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <CardHeader
+          role="button"
+          tabIndex={0}
+          onClick={() => setIsRefugeeSectionOpen((prev) => !prev)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setIsRefugeeSectionOpen((prev) => !prev);
+            }
+          }}
+          aria-expanded={isRefugeeSectionOpen}
+          className="cursor-pointer pb-2"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">
+                Refugee origins in Germany (2024)
+              </CardTitle>
+              <CardDescription>Breakdown by country of origin.</CardDescription>
+            </div>
+            <span className="font-mono text-[11px] text-neutral-400" aria-hidden>
+              {isRefugeeSectionOpen ? '▾' : '▸'}
+            </span>
           </div>
+        </CardHeader>
+        {isRefugeeSectionOpen ? (
+          <CardContent className="space-y-4">
+            <div className="overflow-x-auto border border-neutral-800">
+              <table className="min-w-full border-collapse text-left font-mono text-xs">
+                <thead className="bg-neutral-900 text-neutral-300">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Country of origin</th>
+                    <th className="px-3 py-2 text-right font-medium">Number in Germany</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {REFUGEE_BREAKDOWN_2024.map((row) => (
+                    <tr key={row.country} className="border-t border-neutral-800">
+                      <td className="px-3 py-2 text-neutral-200">{row.country}</td>
+                      <td className="px-3 py-2 text-right text-neutral-100">{row.count.toLocaleString('en-US')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <ChartContainer config={refugeesChartConfig} className="h-[780px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={[...REFUGEE_BREAKDOWN_2024].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2f2f2f" horizontal={false} />
-                <XAxis type="number" stroke="#8a8a8a" tick={{ fontSize: 11, fill: '#8a8a8a' }} tickFormatter={(v: number) => v.toLocaleString('en-US')} />
-                <YAxis
-                  type="category"
-                  dataKey="country"
-                  stroke="#8a8a8a"
-                  width={150}
-                  tick={{ fontSize: 11, fill: '#cfcfcf' }}
-                />
-                <ChartTooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                  content={<ChartTooltipContent formatter={(value) => Number(value).toLocaleString('en-US')} />}
-                />
-                <Bar dataKey="count" name="Refugees" fill="var(--uk-accent)" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
+            <ChartContainer config={refugeesChartConfig} className="h-[780px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[...REFUGEE_BREAKDOWN_2024].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2f2f2f" horizontal={false} />
+                  <XAxis type="number" stroke="#8a8a8a" tick={{ fontSize: 11, fill: '#8a8a8a' }} tickFormatter={(v: number) => v.toLocaleString('en-US')} />
+                  <YAxis
+                    type="category"
+                    dataKey="country"
+                    stroke="#8a8a8a"
+                    width={150}
+                    tick={{ fontSize: 11, fill: '#cfcfcf' }}
+                  />
+                  <ChartTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                    content={<ChartTooltipContent formatter={(value) => Number(value).toLocaleString('en-US')} />}
+                  />
+                  <Bar dataKey="count" name="Refugees" fill="var(--uk-accent)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        ) : null}
       </Card>
 
       <Card className="rounded-sm">
