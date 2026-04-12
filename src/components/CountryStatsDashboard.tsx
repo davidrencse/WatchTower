@@ -20,6 +20,12 @@ import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { GermanyImmigrationSection } from './GermanyImmigrationSection';
 import { GermanyGovernmentSection } from './GermanyGovernmentSection';
 import { GermanyMigrantCrimeSection } from './GermanyMigrantCrimeSection';
+import {
+  GermanyNewsRail,
+  useBundledGermanyNews,
+  type GermanyNewsRailSection,
+} from './GermanyNewsSidebar';
+import { bucketGermanyNewsItems } from '../lib/germanyNews';
 import { GermanyPopulationPyramid } from './GermanyPopulationPyramid';
 import germanyForeignStudentsRaw from '../../Assets/Data/Europe/Germany/foreign_students.csv?raw';
 import germanyBirthHealthRaw from '../../Assets/Data/Europe/Germany/germany_birth_health_indicators.csv?raw';
@@ -753,10 +759,27 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
   const statSections = useMemo(() => getStatSections(iso3), [iso3]);
 
+  const isGermany = iso3.toUpperCase() === 'DEU';
+  const germanyNewsItems = useBundledGermanyNews(isGermany);
+  const { germanyLeftNewsSections, germanyRightNewsSections } = useMemo(() => {
+    const b = bucketGermanyNewsItems(germanyNewsItems);
+    const left: GermanyNewsRailSection[] = [
+      { heading: 'Economy', items: b.economy },
+      { heading: 'Immigration', items: b.immigration },
+    ];
+    const right: GermanyNewsRailSection[] = [
+      { heading: 'Crime', items: b.crime },
+      { heading: 'Health', items: b.health },
+    ];
+    return { germanyLeftNewsSections: left, germanyRightNewsSections: right };
+  }, [germanyNewsItems]);
+  const germanyLeftRailVisible = germanyLeftNewsSections.some((s) => s.items.length > 0);
+  const germanyRightRailVisible = germanyRightNewsSections.some((s) => s.items.length > 0);
+
   return (
-    <div className="min-h-full bg-[#0a0a0a] font-mono text-neutral-200">
-      <div className="sticky top-0 z-40 border-b border-neutral-800 bg-[#0c0c0c]/95 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-4 sm:px-6">
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-[#0a0a0a] font-mono text-neutral-200">
+      <div className="sticky top-0 z-50 border-b border-neutral-800 bg-[#0c0c0c]/95 backdrop-blur">
+        <div className="grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={onBack}
@@ -778,7 +801,22 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="flex min-h-0 min-w-0 w-full flex-1 gap-0">
+        {isGermany && germanyLeftRailVisible ? (
+          <GermanyNewsRail side="left" sections={germanyLeftNewsSections} />
+        ) : null}
+        <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden">
+          <div
+            className={
+              isGermany
+                ? [
+                    'w-full max-w-none py-8 sm:py-10',
+                    germanyLeftRailVisible ? 'pl-[13rem]' : 'pl-2 sm:pl-3',
+                    germanyRightRailVisible ? 'pr-[13rem]' : 'pr-2 sm:pr-3',
+                  ].join(' ')
+                : 'mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10'
+            }
+          >
         {error ? (
           <p className="border border-neutral-800 bg-[#121212] p-6 font-mono text-sm text-red-400/90">
             {error}
@@ -972,6 +1010,11 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               </ul>
             </section>
           </>
+        ) : null}
+          </div>
+        </div>
+        {isGermany && germanyRightRailVisible ? (
+          <GermanyNewsRail side="right" sections={germanyRightNewsSections} />
         ) : null}
       </div>
     </div>

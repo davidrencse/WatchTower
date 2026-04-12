@@ -9,6 +9,7 @@ import {
   rowsForSubsection,
 } from '../lib/germanyGovernmentPolitics';
 import { GermanyBundestagSeatsVisualization } from './GermanyBundestagSeatsVisualization';
+import { GermanyPolicyCarousel } from './GermanyPolicyCarousel';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
@@ -356,6 +357,8 @@ export function GermanyGovernmentSection() {
             <CollapsibleFlagSection key={id} title={title} count={groups.length} defaultOpen uppercaseTitle>
               {key === 'Parliament' ? (
                 <ParliamentGroups groups={groups} />
+              ) : key === 'Policies' ? (
+                <GermanyPolicyCarousel policyRows={sorted} />
               ) : (
                 <div className={CARD_GRID}>{groups.map((g) => renderMetricGroup(g))}</div>
               )}

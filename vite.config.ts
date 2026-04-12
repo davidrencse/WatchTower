@@ -145,6 +145,11 @@ function syncDataCsvToPublic() {
       if (fs.existsSync(politicsPng)) {
         fs.copyFileSync(politicsPng, path.join(germanyDirPublic, 'politics.png'));
       }
+
+      const germanyNewsCsv = path.join(__dirname, 'Assets', 'Data', 'Europe', 'Germany', 'news.csv');
+      if (fs.existsSync(germanyNewsCsv)) {
+        fs.copyFileSync(germanyNewsCsv, path.join(destDir, 'news.csv'));
+      }
     },
   };
 }
