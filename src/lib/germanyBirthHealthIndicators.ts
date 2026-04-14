@@ -88,7 +88,7 @@ function formatValueByUnit(value: string, unit: string): string {
   }
 }
 
-/** Dashboard metric names must match `METRIC_ORDER` / birth section for DEU. */
+/** Dashboard metric names must match `METRIC_ORDER` / Health → Birth rates for DEU. */
 export function metricsFromGermanyBirthHealthCsv(raw: string): CountryStatMetric[] {
   const parsed = parseGermanyBirthHealthCsv(raw);
   const byKey = new Map(parsed.map((r) => [r.metric, r]));
@@ -143,6 +143,18 @@ export function metricsFromGermanyBirthHealthCsv(raw: string): CountryStatMetric
       rowToTile('Mean age of mothers at childbirth', formatValueByUnit(meanAge.value, meanAge.unit), meanAge),
     );
   }
+
+  out.push({
+    metric: 'Childhood overweight and obesity (Germany)',
+    value: '—',
+    reference_period: '2025',
+    geography_used: 'Germany',
+    source_name: '',
+    source_url: '',
+    source_publication_or_access_date: '2025',
+    notes:
+      'Destatis (Federal Statistical Office) – Current Population and 16th Coordinated Population Projection (Dec 2025). OECD and Eurostat data.',
+  });
 
   return out;
 }

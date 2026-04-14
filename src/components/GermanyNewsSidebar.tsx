@@ -185,7 +185,7 @@ export function GermanyNewsRail({ side, sections }: GermanyNewsRailProps) {
         <p className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-neutral-600">Germany</p>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+      <nav className="scrollbar-none min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
         {nonEmpty.length === 0 ? (
           <p className="px-2 py-3 font-mono text-[10px] text-neutral-600">No articles.</p>
         ) : (

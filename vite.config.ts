@@ -162,6 +162,61 @@ function syncDataCsvToPublic() {
       if (fs.existsSync(germanyLaborStats)) {
         fs.copyFileSync(germanyLaborStats, path.join(destDir, 'germany_labor_statistics.csv'));
       }
+
+      const germanyHealthBasic = path.join(
+        __dirname,
+        'Assets',
+        'Data',
+        'Europe',
+        'Germany',
+        'Health Section',
+        'germany_health_statistics_basic.csv',
+      );
+      if (fs.existsSync(germanyHealthBasic)) {
+        fs.copyFileSync(germanyHealthBasic, path.join(destDir, 'germany_health_statistics_basic.csv'));
+      }
+
+      const germanyAbortionStats = path.join(
+        __dirname,
+        'Assets',
+        'Data',
+        'Europe',
+        'Germany',
+        'Health Section',
+        'germany_abortion_statistics.csv',
+      );
+      if (fs.existsSync(germanyAbortionStats)) {
+        fs.copyFileSync(germanyAbortionStats, path.join(destDir, 'germany_abortion_statistics.csv'));
+      }
+
+      const germanyGenderCareStats = path.join(
+        __dirname,
+        'Assets',
+        'Data',
+        'Europe',
+        'Germany',
+        'Health Section',
+        'germany_gender_care_statistics.csv',
+      );
+      if (fs.existsSync(germanyGenderCareStats)) {
+        fs.copyFileSync(germanyGenderCareStats, path.join(destDir, 'germany_gender_care_statistics.csv'));
+      }
+
+      const germanyEconomicExpenditureTable = path.join(
+        __dirname,
+        'Assets',
+        'Data',
+        'Europe',
+        'Germany',
+        'Economic Statistics Section',
+        'table.csv',
+      );
+      if (fs.existsSync(germanyEconomicExpenditureTable)) {
+        fs.copyFileSync(
+          germanyEconomicExpenditureTable,
+          path.join(destDir, 'germany_economic_expenditure_table.csv'),
+        );
+      }
     },
   };
 }

@@ -1,9 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Separator } from './ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
@@ -21,16 +19,16 @@ const SEAT_CHART_PARTY_ORDER = [
 
 /** Party colors and seat change vs 2021 — only these stay chromatic. */
 const PARTY_CHART_META: Record<string, { color: string; deltaVs2021: number }> = {
-  spd: { color: '#E3000F', deltaVs2021: -86 },
-  cdu: { color: '#1a1a1a', deltaVs2021: 12 },
-  grüne: { color: '#46962B', deltaVs2021: -33 },
-  gruene: { color: '#46962B', deltaVs2021: -33 },
-  grune: { color: '#46962B', deltaVs2021: -33 },
-  afd: { color: '#009EE0', deltaVs2021: 69 },
-  csu: { color: '#008AC5', deltaVs2021: -1 },
-  'die linke': { color: '#BE3075', deltaVs2021: 25 },
+  spd: { color: '#c0003d', deltaVs2021: -86 },
+  cdu: { color: '#576164', deltaVs2021: 12 },
+  grüne: { color: '#008549', deltaVs2021: -33 },
+  gruene: { color: '#008549', deltaVs2021: -33 },
+  grune: { color: '#008549', deltaVs2021: -33 },
+  afd: { color: '#80cdec', deltaVs2021: 69 },
+  csu: { color: '#004b76', deltaVs2021: -1 },
+  'die linke': { color: '#5f316e', deltaVs2021: 25 },
   linke: { color: '#BE3075', deltaVs2021: 25 },
-  ssw: { color: '#C9A000', deltaVs2021: 0 },
+  ssw: { color: '#f9df3a', deltaVs2021: 0 },
 };
 
 function normPartyKey(s: string): string {
@@ -110,18 +108,13 @@ function buildSeatRows(rows: GermanyGovernmentPoliticsRow[]): BundestagSeatRow[]
   return ordered;
 }
 
-function formatDelta(d: number | null): string {
-  if (d === null) return '—';
-  if (d === 0) return '±0';
-  return d > 0 ? `+${d}` : `${d}`;
-}
-
 type Props = {
   rows: GermanyGovernmentPoliticsRow[];
 };
 
 export function GermanyBundestagSeatsVisualization({ rows }: Props) {
   const parties = useMemo(() => buildSeatRows(rows), [rows]);
+  const [activeParty, setActiveParty] = useState<string | null>(null);
   const total = useMemo(() => parties.reduce((s, p) => s + p.seats, 0), [parties]);
   const refYear = rows[0]?.referenceYear?.trim() ?? '2025';
   const sourceUrl = rows[0]?.sourceUrl?.trim() ?? '';
@@ -142,10 +135,11 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
   const cy = 198;
   const rOuter = 175;
   const rInner = 108;
+  const selected = parties.find((p) => p.label === activeParty) ?? null;
 
   return (
-    <Card className="overflow-hidden border-neutral-800 bg-neutral-950 text-neutral-200 shadow-none ring-1 ring-neutral-800/60 sm:col-span-2 lg:col-span-3">
-      <CardHeader className="space-y-3 border-b border-neutral-800 bg-black/40 pb-4">
+    <Card className="overflow-hidden border-neutral-800 bg-neutral-950 text-neutral-200 ring-1 ring-neutral-800/60 sm:col-span-2 lg:col-span-3">
+      <CardHeader className="space-y-2 border-b border-neutral-800 bg-black/30 pb-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <CardTitle className={`text-lg font-semibold tracking-tight text-white sm:text-xl ${UC_TITLE}`}>
@@ -154,123 +148,75 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
             <CardDescription className={`font-mono text-[11px] text-neutral-500 ${UC_META}`}>
               {refYear} Federal Election, Germany
             </CardDescription>
+            <CardDescription className={`font-mono text-[11px] text-neutral-500 ${UC_META}`}>Final Result</CardDescription>
           </div>
-          <Badge variant="outline" className={`w-fit shrink-0 border-neutral-600 text-neutral-400 ${UC_META}`}>
+          <Badge variant="outline" className={`w-fit shrink-0 border-neutral-700 text-neutral-400 ${UC_META}`}>
             Final Result
           </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="p-0">
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(280px,1fr)]">
-          {/* Chart column */}
-          <div className="flex flex-col items-center justify-center border-b border-neutral-800 bg-black px-6 py-8 lg:border-b-0 lg:border-r">
-            <div className="relative w-full max-w-[400px]">
-              <svg viewBox="0 0 400 210" className="h-auto w-full" role="img" aria-label="Seat distribution hemicycle chart">
-                {/* faint ground line */}
-                <line
-                  x1={cx - rOuter}
-                  y1={cy}
-                  x2={cx + rOuter}
-                  y2={cy}
-                  stroke="currentColor"
-                  className="text-neutral-800"
-                  strokeWidth={1}
-                />
-                {slices.map((p) => {
-                  const d = wedgePath(cx, cy, rInner, rOuter, p.t0, p.t1);
-                  return (
-                    <path
-                      key={p.label}
-                      d={d}
-                      fill={p.color}
-                      stroke="#0a0a0a"
-                      strokeWidth={1.5}
-                      className="outline-none transition-[filter] duration-200 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/30"
-                    >
-                      <title>{`${p.label}: ${p.seats} seats`}</title>
-                    </path>
-                  );
-                })}
-                <text
-                  x={cx}
-                  y={cy - rInner + 6}
-                  textAnchor="middle"
-                  className="fill-white font-mono text-[21px] font-semibold tabular-nums"
+      <CardContent className="px-4 py-5 sm:px-6">
+        <div className="mx-auto w-full max-w-[420px]">
+          <svg
+            viewBox="0 0 400 220"
+            className="h-auto w-full"
+            role="img"
+            aria-label="Seat distribution hemicycle chart"
+            onMouseLeave={() => setActiveParty(null)}
+          >
+            <line x1={cx - rOuter} y1={cy} x2={cx + rOuter} y2={cy} stroke="#2a2a2a" strokeWidth={1} />
+            {slices.map((p) => {
+              const d = wedgePath(cx, cy, rInner, rOuter, p.t0, p.t1);
+              const active = activeParty === p.label;
+              return (
+                <path
+                  key={p.label}
+                  d={d}
+                  fill={p.color}
+                  stroke="#111"
+                  strokeWidth={active ? 2.2 : 1.2}
+                  onMouseEnter={() => setActiveParty(p.label)}
+                  className="cursor-pointer transition-[filter,opacity] duration-150"
+                  style={{ filter: active ? 'brightness(1.14)' : 'none', opacity: activeParty && !active ? 0.65 : 1 }}
                 >
-                  {total.toLocaleString('de-DE')}
-                </text>
-                <text
-                  x={cx}
-                  y={cy - rInner + 26}
-                  textAnchor="middle"
-                  className={`fill-neutral-400 font-mono text-[11px] font-medium tracking-[0.14em] ${UC_META}`}
-                >
-                  Seats
-                </text>
-              </svg>
-            </div>
-            <p className={`mt-4 max-w-sm text-center font-mono text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
-              Hover a segment for a short summary. Colors follow usual German party colors.
-            </p>
-          </div>
-
-          {/* Table column */}
-          <div className="flex flex-col bg-neutral-950 px-4 py-6 sm:px-6">
-            <Separator className="mb-4 bg-neutral-800 lg:hidden" />
-            <Table>
-              <TableHeader>
-                <TableRow className="border-neutral-800 hover:bg-transparent">
-                  <TableHead
-                    className={`h-11 w-[42%] pl-0 font-mono text-[10px] font-semibold tracking-[0.12em] text-neutral-500 ${UC_TITLE}`}
-                  >
-                    Party
-                  </TableHead>
-                  <TableHead
-                    className={`h-11 w-[29%] text-right font-mono text-[10px] font-semibold tracking-[0.12em] text-neutral-500 ${UC_TITLE}`}
-                  >
-                    Seats
-                  </TableHead>
-                  <TableHead
-                    className={`h-11 w-[29%] pr-0 text-right font-mono text-[10px] font-semibold tracking-[0.12em] text-neutral-500 ${UC_TITLE}`}
-                    title="Difference vs 2021"
-                  >
-                    Δ 2021
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {parties.map((p) => (
-                  <TableRow key={p.label} className="border-neutral-800/90">
-                    <TableCell className="pl-0">
-                      <span className="inline-flex items-center gap-3">
-                        <span
-                          className="size-2.5 shrink-0 rounded-full ring-1 ring-black/40"
-                          style={{ backgroundColor: p.color }}
-                          aria-hidden
-                        />
-                        <span className={`font-medium text-neutral-100 ${UC_TITLE}`}>{p.label}</span>
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm tabular-nums text-white">
-                      {p.seats.toLocaleString('de-DE')}
-                    </TableCell>
-                    <TableCell className="pr-0 text-right font-mono text-sm tabular-nums text-neutral-400">
-                      {formatDelta(p.deltaVs2021)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                  <title>{`${p.label}: ${p.seats} seats`}</title>
+                </path>
+              );
+            })}
+            <text x={cx} y={cy - rInner + 2} textAnchor="middle" className="fill-white font-mono text-[22px] font-semibold">
+              {total.toLocaleString('de-DE')}
+            </text>
+            <text x={cx} y={cy - rInner + 22} textAnchor="middle" className={`fill-neutral-400 font-mono text-[11px] ${UC_META}`}>
+              Sitze
+            </text>
+          </svg>
         </div>
 
-        <Separator />
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {parties.map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onMouseEnter={() => setActiveParty(p.label)}
+              onFocus={() => setActiveParty(p.label)}
+              className="flex items-center justify-between gap-2 rounded border border-neutral-800 px-2 py-1 text-left hover:bg-neutral-900/60"
+            >
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-neutral-300">
+                <span className="h-2.5 w-2.5 rounded-[2px]" style={{ backgroundColor: p.color }} />
+                {p.label}
+              </span>
+              <span className="font-mono text-[10px] tabular-nums text-white">{p.seats}</span>
+            </button>
+          ))}
+        </div>
 
-        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className={`font-mono text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
-            © Die Bundeswahlleiterin, Wiesbaden {refYear}
-          </p>
+        <p className={`mt-3 text-center font-mono text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
+          {selected ? `${selected.label}: ${selected.seats.toLocaleString('de-DE')} seats` : 'Hover a party segment to inspect seat counts'}
+        </p>
+
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className={`font-mono text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>© Die Bundeswahlleiterin, Wiesbaden {refYear}</p>
           {sourceUrl ? (
             <a
               href={sourceUrl}

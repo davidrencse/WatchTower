@@ -273,6 +273,14 @@ export function wideRowToStatMetrics(
             '',
             'Military-aged males of migrant background / immigration history proxy (user-specified for DEU dashboard).',
           ),
+          tile(
+            'Median age',
+            '~47–48 years',
+            '2025 (est.)',
+            geo,
+            '',
+            'Source: Destatis (Federal Statistical Office) – Current Population and 16th Coordinated Population Projection (Dec 2025). OECD and Eurostat data.',
+          ),
         ]
       : []),
   ];

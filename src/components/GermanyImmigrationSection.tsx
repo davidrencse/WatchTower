@@ -197,7 +197,7 @@ export function GermanyImmigrationSection() {
         </CardHeader>
         {isRefugeeSectionOpen ? (
           <CardContent className="space-y-4">
-            <div className="overflow-x-auto border border-neutral-800">
+            <div className="scrollbar-none overflow-x-auto border border-neutral-800">
               <table className="min-w-full border-collapse text-left font-mono text-xs">
                 <thead className="bg-neutral-900 text-neutral-300">
                   <tr>
