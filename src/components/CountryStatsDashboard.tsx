@@ -632,17 +632,45 @@ function ReligionPopulationTriTile({
   muslim: CountryStatMetric;
   jewish: CountryStatMetric;
 }) {
+  const rows = [christian, muslim, jewish];
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] sm:flex-row sm:divide-x sm:divide-neutral-800">
-      <div className="flex flex-1 flex-col p-4 sm:min-w-0 sm:p-5">
-        <MetricTileColumn row={christian} />
-      </div>
-      <div className="flex flex-1 flex-col border-t border-neutral-800 p-4 sm:min-w-0 sm:border-t-0 sm:p-5">
-        <MetricTileColumn row={muslim} />
-      </div>
-      <div className="flex flex-1 flex-col border-t border-neutral-800 p-4 sm:min-w-0 sm:border-t-0 sm:p-5">
-        <MetricTileColumn row={jewish} />
-      </div>
+    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212]">
+      {rows.map((row, index) => {
+        const na = isUnavailable(row.value);
+        const cleanedGeography = row.geography_used.replace(/\bGermany\b/gi, '').replace(/\s{2,}/g, ' ').trim();
+        const rowMetaParts = [row.reference_period, cleanedGeography].filter(Boolean);
+        return (
+          <div
+            key={row.metric}
+            className={`p-4 sm:p-5 ${index > 0 ? 'border-t border-neutral-800' : ''}`}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                {row.metric}
+              </p>
+              <p
+                className={`font-mono text-base font-semibold leading-snug sm:text-lg ${
+                  na ? 'text-neutral-600' : 'text-neutral-100'
+                }`}
+              >
+                {na ? 'N/A' : row.value}
+              </p>
+            </div>
+            {rowMetaParts.length > 0 ? (
+              <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">{rowMetaParts.join(' · ')}</p>
+            ) : null}
+            {row.source_url ? (
+              <div className="mt-2">
+                <SourceLinks
+                  url={row.source_url}
+                  className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+                />
+              </div>
+            ) : null}
+            <NoteBlock text={row.notes} />
+          </div>
+        );
+      })}
     </article>
   );
 }

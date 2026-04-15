@@ -13,17 +13,6 @@ const UC_META = 'uppercase tracking-[0.03em]';
 /** >1 = same pointer movement scrolls farther (easier to move between slides). */
 const DRAG_SENSITIVITY = 2.4;
 
-function splitUrls(urlField: string): string[] {
-  return String(urlField ?? '')
-    .split('|')
-    .map((u) => u.trim())
-    .filter(Boolean);
-}
-
-function rowByMetric(rows: GermanyGovernmentPoliticsRow[], metricKey: string): GermanyGovernmentPoliticsRow | undefined {
-  return rows.find((r) => r.metric.trim() === metricKey);
-}
-
 type Props = {
   policyRows: GermanyGovernmentPoliticsRow[];
 };
@@ -32,6 +21,7 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
   const scRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const drag = useRef({ on: false, startX: 0, startScroll: 0 });
+  void policyRows;
 
   const count = GERMANY_POLICY_INFOGRAPHICS.length;
 
@@ -63,8 +53,14 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
     return () => el.removeEventListener('scroll', onScroll);
   }, [syncActiveFromScroll]);
 
+  const isInteractiveTarget = (target: EventTarget | null) => {
+    if (!(target instanceof HTMLElement)) return false;
+    return Boolean(target.closest('button, a, summary, details, input, select, textarea, label'));
+  };
+
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!e.isPrimary || !scRef.current) return;
+    if (isInteractiveTarget(e.target)) return;
     drag.current = { on: true, startX: e.clientX, startScroll: scRef.current.scrollLeft };
     scRef.current.setPointerCapture(e.pointerId);
   };
@@ -104,9 +100,9 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
         <div className="flex gap-1.5">
           {GERMANY_POLICY_INFOGRAPHICS.map((c, i) => (
             <button
-              key={c.metricKey}
+              key={c.sectorTitle}
               type="button"
-              aria-label={`Show ${c.metricKey}`}
+              aria-label={`Show ${c.sectorTitle}`}
               onClick={() => snapToIndex(i)}
               className={`h-1.5 rounded-full transition-all ${
                 i === active ? 'w-6 bg-white' : 'w-1.5 bg-neutral-600 hover:bg-neutral-500'
@@ -139,108 +135,55 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
           className="flex min-w-0 flex-1 flex-row cursor-grab touch-pan-x snap-x snap-mandatory overflow-x-auto scroll-smooth active:cursor-grabbing select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
         {GERMANY_POLICY_INFOGRAPHICS.map((card) => {
-          const row = rowByMetric(policyRows, card.metricKey);
-          const urls = row ? splitUrls(row.sourceUrl) : [];
-          const sourceName = row?.sourceName?.trim() ?? '';
-
           return (
             <div
-              key={card.metricKey}
+              key={card.sectorTitle}
               className="box-border min-w-full shrink-0 snap-start px-1 pb-2"
               aria-roledescription="slide"
             >
               <article
-                className={`mx-auto flex max-h-[min(72vh,680px)] min-h-[420px] max-w-2xl flex-col overflow-hidden rounded-[1.5rem] border border-neutral-800/90 bg-[#121212] text-neutral-200 ${
-                  card.showProxyBadge ? 'ring-1 ring-amber-900/35' : ''
-                }`}
+                className="mx-auto flex max-h-[min(72vh,680px)] min-h-[420px] max-w-2xl flex-col overflow-hidden rounded-[1.5rem] border border-neutral-800/90 bg-[#121212] text-neutral-200"
                 style={{ boxShadow: POLICY_CARD_SHADOW }}
               >
                 <div className="border-b border-neutral-800/80 px-6 pb-4 pt-6">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <h3 className={`max-w-[85%] text-base font-semibold leading-snug text-white sm:text-lg ${UC_TITLE}`}>
-                      {card.metricKey}
+                      {card.sectorTitle}
                     </h3>
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      {card.showProxyBadge ? (
-                        <Badge variant="outline" className={`border-amber-800/60 text-amber-200/90 ${UC_META}`}>
-                          Proxy
-                        </Badge>
-                      ) : null}
-                      {card.value === '0' && card.showProxyBadge ? (
-                        <Badge variant="outline" className={`border-neutral-600 text-neutral-400 ${UC_META}`}>
-                          Zero result
-                        </Badge>
-                      ) : null}
-                      {card.metricKey === 'emergency powers usage' && card.value === '0' ? (
-                        <Badge variant="outline" className={`border-neutral-600 text-neutral-300 ${UC_META}`}>
-                          No emergency declaration recorded
-                        </Badge>
-                      ) : null}
-                    </div>
                   </div>
-                  <p className={`mt-3 font-mono text-[11px] text-neutral-500 ${UC_META}`}>
-                    Year: {card.year} · Unit: {card.unit}
-                  </p>
-                  <p className="mt-2 font-mono text-3xl font-semibold tabular-nums tracking-tight text-white sm:text-4xl">
-                    {card.value}
-                  </p>
+                  <p className="mt-2 text-[13px] leading-relaxed text-neutral-300">{card.description}</p>
                 </div>
 
                 <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
                   <section>
-                    <h4 className={`mb-2 text-[10px] font-semibold text-neutral-500 ${UC_LABEL}`}>Law / measure</h4>
-                    <p
-                      className="line-clamp-4 text-[13px] leading-relaxed text-neutral-200"
-                      title={card.lawOrMeasure}
-                    >
-                      {card.lawOrMeasure}
-                    </p>
-                    <details className="mt-3 rounded-lg border border-neutral-800/80 bg-black/30 px-3 py-2">
-                      <summary
-                        className={`cursor-pointer font-mono text-[10px] text-neutral-500 hover:text-neutral-400 ${UC_META}`}
-                      >
-                        Full law / measure text
-                      </summary>
-                      <p className="mt-3 text-[12px] leading-relaxed text-neutral-300">{card.lawOrMeasure}</p>
-                    </details>
-                  </section>
-
-                  <section>
-                    <h4 className={`mb-2 text-[10px] font-semibold text-neutral-500 ${UC_LABEL}`}>What changed</h4>
-                    <p className="text-[13px] leading-relaxed text-neutral-200">{card.whatChanged}</p>
-                  </section>
-
-                  <section>
-                    <h4 className={`mb-2 text-[10px] font-semibold text-neutral-500 ${UC_LABEL}`}>Details</h4>
-                    <p className="text-[12px] leading-relaxed text-neutral-400">{card.details}</p>
-                  </section>
-
-                  {row?.notes?.trim() ? (
-                    <details className="rounded-lg border border-neutral-800/60 bg-neutral-950/50 px-3 py-2">
-                      <summary className={`cursor-pointer font-mono text-[10px] text-neutral-500 hover:text-neutral-400 ${UC_META}`}>
-                        Original dataset note
-                      </summary>
-                      <p className="mt-2 text-[11px] leading-relaxed text-neutral-500">{row.notes.trim()}</p>
-                    </details>
-                  ) : null}
-
-                  {urls.length > 0 ? (
-                    <div className="mt-auto space-y-1 border-t border-neutral-800/80 pt-4">
-                      <p className={`font-mono text-[10px] text-neutral-600 ${UC_META}`}>Source</p>
-                      {urls.map((u, i) => (
-                        <a
-                          key={u}
-                          href={u}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`block font-mono text-[11px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-                        >
-                          {sourceName ? (urls.length > 1 ? `${sourceName} (${i + 1})` : sourceName) : `Link ${i + 1}`}{' '}
-                          ↗
-                        </a>
+                    <h4 className={`mb-2 text-[10px] font-semibold text-neutral-500 ${UC_LABEL}`}>Key policies</h4>
+                    <div className="space-y-2">
+                      {card.policies.map((policy) => (
+                        <details key={policy.name} open className="rounded-lg border border-neutral-800/80 bg-black/30 px-3 py-2">
+                          <summary
+                            className={`cursor-pointer list-none font-mono text-[11px] text-neutral-300 hover:text-neutral-100 ${UC_META}`}
+                          >
+                            {policy.name}
+                          </summary>
+                          <div className="mt-3 space-y-3">
+                            <p className="text-[12px] leading-relaxed text-neutral-300">
+                              <strong className="text-neutral-100">Policy:</strong> {policy.name}
+                            </p>
+                            <p className="text-[12px] leading-relaxed text-neutral-300">
+                              <strong className="text-neutral-100">What Changed:</strong> {policy.whatChanged}
+                            </p>
+                            <p className="text-[12px] leading-relaxed text-neutral-400">{policy.details}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className={`border-neutral-600 text-neutral-200 ${UC_META}`}>
+                                {policy.status}
+                              </Badge>
+                            </div>
+                            <p className={`font-mono text-[10px] text-neutral-500 ${UC_META}`}>Source: {policy.source}</p>
+                          </div>
+                        </details>
                       ))}
                     </div>
-                  ) : null}
+                  </section>
                 </div>
               </article>
             </div>
