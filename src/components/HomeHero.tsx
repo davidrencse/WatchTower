@@ -37,7 +37,7 @@ export function HomeHero({ onExplore }: HomeHeroProps) {
             <button
               type="button"
               onClick={onExplore}
-              className="inline-flex items-center justify-center rounded-md border border-white/15 bg-white/10 px-5 py-2.5 text-[12px] font-medium uppercase tracking-[0.18em] text-white shadow-sm backdrop-blur transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="inline-flex items-center justify-center rounded-md border border-white/[0.18] bg-white/[0.08] px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.2em] text-white shadow-soft backdrop-blur-sm transition hover:border-white/25 hover:bg-white/[0.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               Explore
             </button>

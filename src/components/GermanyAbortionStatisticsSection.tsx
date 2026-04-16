@@ -25,7 +25,7 @@ function ManualAbortionStatCard({
   body: string;
 }) {
   return (
-    <Card className="flex flex-col overflow-hidden border-neutral-800 bg-[#121212]">
+    <Card className="flex flex-col overflow-hidden border-line bg-surface-metric">
       <CardHeader className="space-y-0.5 p-3 pb-0">
         <CardTitle className={`text-sm font-semibold leading-tight text-neutral-100 ${UC_TITLE}`}>{title}</CardTitle>
         <CardDescription className={`text-[10px] leading-snug text-neutral-500 ${UC_META}`}>
@@ -33,10 +33,10 @@ function ManualAbortionStatCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-2 p-3 pt-2">
-        <p className="font-mono text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
+        <p className="font-sans text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
           {valueDisplay}
         </p>
-        <p className={`font-mono text-[10px] leading-relaxed text-neutral-400 ${UC_META}`}>{body}</p>
+        <p className={`font-sans text-[10px] leading-relaxed text-neutral-400 ${UC_META}`}>{body}</p>
       </CardContent>
     </Card>
   );
@@ -75,12 +75,12 @@ export function GermanyAbortionStatisticsSection() {
   const otherGroups = splitTotal ? groups.slice(1) : groups;
 
   if (loadError) {
-    return <p className="font-mono text-xs text-amber-500/90">{loadError}</p>;
+    return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
   }
 
   if (groups.length === 0) {
     return (
-      <p className="font-mono text-xs text-neutral-500">
+      <p className="font-sans text-xs text-neutral-500">
         No rows in <code className="text-neutral-400">germany_abortion_statistics.csv</code>.
       </p>
     );
@@ -118,7 +118,7 @@ export function GermanyAbortionStatisticsSection() {
         </div>
       ) : null}
 
-      <Card className="overflow-hidden border-neutral-800 bg-[#121212]">
+      <Card className="overflow-hidden border-line bg-surface-metric">
         <CardHeader className="space-y-1 p-3 pb-2">
           <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
             Abortions by marital / relationship status [2021]
@@ -127,7 +127,7 @@ export function GermanyAbortionStatisticsSection() {
             Entered manually (not from abortion CSV).
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2 p-3 pt-0 font-mono text-[11px] leading-relaxed text-neutral-300">
+        <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-300">
           <p>
             <span className="tabular-nums text-base font-semibold text-white">55,075</span> abortions among single
             (unmarried) women.
@@ -143,7 +143,7 @@ export function GermanyAbortionStatisticsSection() {
         </CardContent>
       </Card>
 
-      <p className="font-mono text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
         Source: <code className="text-neutral-500">germany_abortion_statistics.csv</code> (other figures noted on-card).
       </p>
     </div>

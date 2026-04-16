@@ -11,7 +11,7 @@ export function AppLayout({ children, showHeader = true }: AppLayoutProps) {
   return (
     <div className="min-h-screen min-h-[100dvh] bg-[var(--bg)] text-[var(--fg)]">
       {showHeader ? (
-        <header className="relative z-50 border-b border-[var(--line)] bg-[var(--bg)]">
+        <header className="relative z-50 border-b border-[var(--line)] bg-[var(--bg)] shadow-header">
           <Header />
         </header>
       ) : null}

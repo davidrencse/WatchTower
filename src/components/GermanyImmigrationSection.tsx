@@ -126,44 +126,44 @@ export function GermanyImmigrationSection() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Refugees</p>
-          <p className="mt-4 font-mono text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Refugees</p>
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {REFUGEE_TOTAL_2024.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">Germany, 2024.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024.</p>
         </article>
 
-        <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Work Visas
           </p>
-          <p className="mt-4 font-mono text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {WORK_VISAS_2021_2025.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">Issued from 2021 to 2025.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Issued from 2021 to 2025.</p>
         </article>
 
-        <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Migrant Background
           </p>
-          <p className="mt-4 font-mono text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {MIGRANT_BACKGROUND_2024_2025.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">Germany, 2024–2025.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024–2025.</p>
         </article>
       </div>
 
       {loadError ? (
-        <p className="font-mono text-xs text-amber-500/90">{loadError}</p>
+        <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
       ) : null}
 
-      <div className="w-full min-w-0 rounded-sm border border-neutral-800 bg-neutral-950 p-3">
+      <div className="w-full min-w-0 rounded-md border border-line bg-surface-metric shadow-inset p-3">
         <GermanyImmigrationTreemap items={items} />
       </div>
 
-      <p className="font-mono text-[10px] leading-relaxed text-neutral-500">
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
         Immigrant counts by country of origin (2024 flow). Source metadata in CSV: PopulationPyramid.net Germany
         Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales
         to the panel width so the full treemap is visible without horizontal scrolling.
@@ -171,12 +171,12 @@ export function GermanyImmigrationSection() {
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">Contribution</CardTitle>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Contribution</CardTitle>
           <CardDescription>Tax contribution per group.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="scrollbar-none overflow-x-auto border border-neutral-800">
-            <table className="min-w-full border-collapse text-left font-mono text-xs">
+          <div className="scrollbar-none overflow-x-auto border border-line">
+            <table className="min-w-full border-collapse text-left font-sans text-xs">
               <thead className="bg-neutral-900 text-neutral-300">
                 <tr>
                   <th className="px-3 py-2 font-medium">Group</th>
@@ -186,19 +186,19 @@ export function GermanyImmigrationSection() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Natives</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 819</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 74</td>
                   <td className="px-3 py-2 text-right text-neutral-100">+EUR 745</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">1st-generation migrants</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 692</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 211</td>
                   <td className="px-3 py-2 text-right text-neutral-100">+EUR 481</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">2nd-generation migrants</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 504</td>
                   <td className="px-3 py-2 text-right text-neutral-100">EUR 94</td>
@@ -209,30 +209,30 @@ export function GermanyImmigrationSection() {
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            <article className="border border-neutral-800 bg-[#121212] p-3">
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Welfare Usage (2025)</p>
-              <p className="mt-2 font-mono text-xs leading-relaxed text-neutral-200">
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Welfare Usage (2025)</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
                 Foreigners (~14.8% of population) received 46.6% of all Burgergeld (main welfare benefit) spending,
                 approximately EUR 21.7 billion.
               </p>
             </article>
-            <article className="border border-neutral-800 bg-[#121212] p-3">
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Age-Controlled View</p>
-              <p className="mt-2 font-mono text-xs leading-relaxed text-neutral-200">
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Age-Controlled View</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
                 When controlling for age and demographics, 1st-generation migrants become less positive or net
                 negative, while natives and 2nd-generation migrants perform similarly.
               </p>
             </article>
-            <article className="border border-neutral-800 bg-[#121212] p-3">
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Raw View (No Age Control)</p>
-              <p className="mt-2 font-mono text-xs leading-relaxed text-neutral-200">
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Raw View (No Age Control)</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
                 Without controlling for age, migrants (especially 1st generation) appear as net contributors mainly
                 because they are younger on average and receive far less in pensions.
               </p>
             </article>
           </div>
 
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-500">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
             Source:{' '}
             <a
               className="underline underline-offset-2 hover:text-neutral-300"
@@ -248,14 +248,14 @@ export function GermanyImmigrationSection() {
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">
             2025 Burgergeld (Main Welfare Benefit) - How Much They Take
           </CardTitle>
           <CardDescription>Total Burgergeld paid: approximately EUR 47 billion.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="scrollbar-none overflow-x-auto border border-neutral-800">
-            <table className="min-w-full border-collapse text-left font-mono text-xs">
+          <div className="scrollbar-none overflow-x-auto border border-line">
+            <table className="min-w-full border-collapse text-left font-sans text-xs">
               <thead className="bg-neutral-900 text-neutral-300">
                 <tr>
                   <th className="px-3 py-2 font-medium">Nationality</th>
@@ -265,43 +265,43 @@ export function GermanyImmigrationSection() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">All Foreigners</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~2.57 - 2.81 million</td>
                   <td className="px-3 py-2 text-right text-neutral-100">100%</td>
                   <td className="px-3 py-2 text-neutral-100">46.6% of total Burgergeld budget</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Ukrainians</td>
                   <td className="px-3 py-2 text-right text-neutral-100">678,539 - 705,932</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~26-27%</td>
                   <td className="px-3 py-2 text-neutral-100">EUR 6.0 - 6.5 billion (published)</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Syrians</td>
                   <td className="px-3 py-2 text-right text-neutral-100">485,240 - 512,161</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~19%</td>
                   <td className="px-3 py-2 text-neutral-100">EUR 3.9 - 4.2 billion (published)</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Afghans</td>
                   <td className="px-3 py-2 text-right text-neutral-100">200,779</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~7.8%</td>
                   <td className="px-3 py-2 text-neutral-100">Not published individually</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Turks</td>
                   <td className="px-3 py-2 text-right text-neutral-100">189,595 - 192,077</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~7.4%</td>
                   <td className="px-3 py-2 text-neutral-100">Not published individually</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Iraqis</td>
                   <td className="px-3 py-2 text-right text-neutral-100">93,516 - 101,000</td>
                   <td className="px-3 py-2 text-right text-neutral-100">~3.6-3.9%</td>
                   <td className="px-3 py-2 text-neutral-100">Not published individually</td>
                 </tr>
-                <tr className="border-t border-neutral-800">
+                <tr className="border-t border-line">
                   <td className="px-3 py-2 text-neutral-200">Others (Bulgarians, Romanians, Poles, etc.)</td>
                   <td className="px-3 py-2 text-right text-neutral-100">Remaining ~800,000+</td>
                   <td className="px-3 py-2 text-right text-neutral-100">-</td>
@@ -311,7 +311,7 @@ export function GermanyImmigrationSection() {
             </table>
           </div>
 
-          <div className="space-y-2 font-mono text-[10px] leading-relaxed text-neutral-500">
+          <div className="space-y-2 font-sans text-[10px] leading-relaxed text-neutral-500">
             <p>
               Source (Statista / Bundesagentur fur Arbeit, June 2025):{' '}
               <a
@@ -355,20 +355,20 @@ export function GermanyImmigrationSection() {
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">
+              <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">
                 Refugee origins in Germany (2024)
               </CardTitle>
               <CardDescription>Breakdown by country of origin.</CardDescription>
             </div>
-            <span className="font-mono text-[11px] text-neutral-400" aria-hidden>
+            <span className="font-sans text-[11px] text-neutral-400" aria-hidden>
               {isRefugeeSectionOpen ? '▾' : '▸'}
             </span>
           </div>
         </CardHeader>
         {isRefugeeSectionOpen ? (
           <CardContent className="space-y-4">
-            <div className="scrollbar-none overflow-x-auto border border-neutral-800">
-              <table className="min-w-full border-collapse text-left font-mono text-xs">
+            <div className="scrollbar-none overflow-x-auto border border-line">
+              <table className="min-w-full border-collapse text-left font-sans text-xs">
                 <thead className="bg-neutral-900 text-neutral-300">
                   <tr>
                     <th className="px-3 py-2 font-medium">Country of origin</th>
@@ -377,7 +377,7 @@ export function GermanyImmigrationSection() {
                 </thead>
                 <tbody>
                   {REFUGEE_BREAKDOWN_2024.map((row) => (
-                    <tr key={row.country} className="border-t border-neutral-800">
+                    <tr key={row.country} className="border-t border-line">
                       <td className="px-3 py-2 text-neutral-200">{row.country}</td>
                       <td className="px-3 py-2 text-right text-neutral-100">{row.count.toLocaleString('en-US')}</td>
                     </tr>
@@ -412,7 +412,7 @@ export function GermanyImmigrationSection() {
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">Asylum applications [note for 2025]</CardTitle>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Asylum applications [note for 2025]</CardTitle>
           <CardDescription>
             Applicants by country of origin, includes &quot;Other&quot;.
           </CardDescription>

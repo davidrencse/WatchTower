@@ -44,7 +44,7 @@ export function GovStatCard({ row, title }: { row: GermanyGovernmentPoliticsRow;
   const label = title ?? row.metric;
   const extra = [row.breakdown, row.submetric].filter(Boolean).join(' · ');
   return (
-    <Card className="flex flex-col overflow-hidden border-neutral-800 bg-[#121212]">
+    <Card className="flex flex-col overflow-hidden border-line bg-surface-metric">
       <CardHeader className="space-y-0.5 p-3 pb-0">
         <CardTitle className={`text-sm font-semibold leading-tight text-neutral-100 ${UC_TITLE}`}>{label}</CardTitle>
         {extra ? (
@@ -53,7 +53,7 @@ export function GovStatCard({ row, title }: { row: GermanyGovernmentPoliticsRow;
         <CardDescription className={`text-[10px] leading-snug text-neutral-500 ${UC_META}`}>{metaParts(row)}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-2 p-3 pt-2">
-        <p className="font-mono text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
+        <p className="font-sans text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
           {formatValueDisplay(row)}
         </p>
         {urls.length > 0 ? (
@@ -64,7 +64,7 @@ export function GovStatCard({ row, title }: { row: GermanyGovernmentPoliticsRow;
                 href={u}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`block font-mono text-[10px] leading-snug text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+                className={`block font-sans text-[10px] leading-snug text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
               >
                 {row.sourceName ? (urls.length > 1 ? `${row.sourceName} (${i + 1})` : row.sourceName) : `Source ${i + 1}`}{' '}
                 ↗
@@ -73,11 +73,11 @@ export function GovStatCard({ row, title }: { row: GermanyGovernmentPoliticsRow;
           </div>
         ) : null}
         {row.notes ? (
-          <details className="rounded-md border border-neutral-800/80 bg-neutral-950/40 px-2 py-1.5">
-            <summary className="cursor-pointer font-mono text-[9px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
+          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+            <summary className="cursor-pointer font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
               Note
             </summary>
-            <pre className="mt-1.5 max-h-40 overflow-y-auto whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-neutral-500">
+            <pre className="mt-1.5 max-h-40 overflow-y-auto whitespace-pre-wrap font-sans text-[10px] leading-relaxed text-neutral-500">
               {row.notes}
             </pre>
           </details>
@@ -92,7 +92,7 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
   const sourceName = rows[0]?.sourceName ?? '';
   const notes = rows.map((r) => r.notes).filter(Boolean);
   return (
-    <Card className="overflow-hidden border-neutral-800 bg-[#121212] sm:col-span-2 lg:col-span-3">
+    <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
       <CardHeader className="p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>{metric}</CardTitle>
         {rows[0]?.referenceYear ? (
@@ -102,10 +102,10 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
         ) : null}
       </CardHeader>
       <CardContent className="space-y-3 p-3 pt-0">
-        <div className="overflow-x-auto rounded border border-neutral-800">
-          <table className="w-full min-w-[280px] border-collapse font-mono text-[11px]">
+        <div className="overflow-x-auto rounded border border-line">
+          <table className="w-full min-w-[280px] border-collapse font-sans text-[11px]">
             <thead>
-              <tr className="border-b border-neutral-800 bg-neutral-950/60 text-left text-[10px] uppercase tracking-[0.1em] text-neutral-500">
+              <tr className="border-b border-white/[0.06] bg-white/[0.03] text-left text-[10px] uppercase tracking-[0.1em] text-neutral-500">
                 <th className="px-3 py-2 font-medium">Breakdown</th>
                 <th className="px-3 py-2 font-medium text-right">Value</th>
                 <th className="px-3 py-2 font-medium">Unit</th>
@@ -113,7 +113,7 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} className="border-b border-neutral-800/80 last:border-0">
+                <tr key={i} className="border-b border-white/[0.06] last:border-0">
                   <td className={`px-3 py-2 text-neutral-200 ${UC_LABEL}`}>
                     {(r.breakdown || r.submetric || '—').trim() || '—'}
                   </td>
@@ -132,7 +132,7 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
                 href={u}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`block font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
               >
                 {sourceName ? (urls.length > 1 ? `${sourceName} (${i + 1})` : sourceName) : `Source ${i + 1}`} ↗
               </a>
@@ -140,11 +140,11 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
           </div>
         ) : null}
         {notes.length > 0 ? (
-          <details className="rounded-md border border-neutral-800/80 bg-neutral-950/40 px-2 py-1.5">
-            <summary className="cursor-pointer font-mono text-[9px] uppercase tracking-[0.12em] text-neutral-500">
+          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+            <summary className="cursor-pointer font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-500">
               Notes
             </summary>
-            <pre className="mt-1.5 max-h-36 overflow-y-auto whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-neutral-500">
+            <pre className="mt-1.5 max-h-36 overflow-y-auto whitespace-pre-wrap font-sans text-[10px] leading-relaxed text-neutral-500">
               {notes.join('\n\n')}
             </pre>
           </details>

@@ -161,7 +161,7 @@ function PercentRing({ percent }: { percent: number }) {
         x="50"
         y="54"
         textAnchor="middle"
-        className="fill-neutral-200 font-mono text-[15px] font-semibold"
+        className="fill-neutral-200 font-sans text-[15px] font-semibold"
       >
         {percent.toFixed(1)}%
       </text>
@@ -199,7 +199,7 @@ function MetaLine({ row }: { row: CountryStatMetric }) {
   const parts = [row.reference_period, row.geography_used].filter(Boolean);
   if (parts.length === 0) return null;
   return (
-    <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">
+    <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">
       {parts.join(' · ')}
     </p>
   );
@@ -208,11 +208,11 @@ function MetaLine({ row }: { row: CountryStatMetric }) {
 function NoteBlock({ text }: { text: string }) {
   if (!text.trim()) return null;
   return (
-    <details className="mt-3 border-t border-neutral-800/80 pt-2">
-      <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-neutral-600 hover:text-neutral-400">
+    <details className="mt-3 border-t border-white/[0.06] pt-2">
+      <summary className="cursor-pointer font-sans text-[10px] uppercase tracking-wider text-neutral-600 hover:text-neutral-400">
         Note
       </summary>
-      <p className="mt-2 font-mono text-[10px] leading-relaxed text-neutral-500">{text}</p>
+      <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">{text}</p>
     </details>
   );
 }
@@ -233,19 +233,19 @@ function MetricTile({
     <article
       className={
         accent
-          ? 'flex min-h-[148px] flex-col border border-[var(--uk-accent-border)] bg-[var(--uk-accent-surface)] p-4 sm:p-5'
-          : 'flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5'
+          ? 'flex min-h-[148px] flex-col rounded-md border border-[var(--uk-accent-border)] bg-[var(--uk-accent-surface)] p-4 shadow-card ring-1 ring-[var(--uk-accent-dim)] sm:p-5'
+          : 'flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5'
       }
     >
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
         {row.metric}
       </p>
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p
           className={
             largeValue
-              ? `min-w-0 flex-1 font-mono text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
-              : `min-w-0 flex-1 font-mono text-lg font-medium leading-snug sm:text-xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
+              ? `min-w-0 flex-1 font-sans tabular-nums text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
+              : `min-w-0 flex-1 font-sans tabular-nums text-lg font-medium leading-snug sm:text-xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
           }
         >
           {na ? 'N/A' : row.value}
@@ -257,7 +257,7 @@ function MetricTile({
         <div className="mt-2">
           <SourceLinks
             url={row.source_url}
-            className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
       ) : null}
@@ -269,35 +269,35 @@ function MetricTile({
 /** Germany: one card, three stacked breakdown rows (Government spending). */
 function ImmigrationWelfareGermanyTile({ row }: { row: CountryStatMetric }) {
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-      <div className="divide-y divide-neutral-800/80">
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+      <div className="divide-y divide-white/[0.06]">
         <div className="pb-3">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Immigration welfare spending
           </p>
-          <p className="mt-2 font-mono text-lg font-semibold leading-tight text-neutral-100 sm:text-xl">
+          <p className="mt-2 font-sans text-lg font-semibold leading-tight text-neutral-100 sm:text-xl">
             $28.6B USD
           </p>
-          <p className="mt-1 font-mono text-[10px] leading-relaxed text-neutral-500">2023 · Germany</p>
+          <p className="mt-1 font-sans text-[10px] leading-relaxed text-neutral-500">2023 · Germany</p>
         </div>
         <div className="py-3">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Money Given to Immigrant Families
           </p>
-          <p className="mt-1.5 font-mono text-base font-medium text-neutral-100 sm:text-lg">€21.7 billion</p>
+          <p className="mt-1.5 font-sans text-base font-medium text-neutral-100 sm:text-lg">€21.7 billion</p>
         </div>
         <div className="pt-3">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Money Spent on Immigrants/Refugees
           </p>
-          <p className="mt-1.5 font-mono text-base font-medium text-neutral-100 sm:text-lg">€46.6 billion (2025)</p>
+          <p className="mt-1.5 font-sans text-base font-medium text-neutral-100 sm:text-lg">€46.6 billion (2025)</p>
         </div>
       </div>
       {row.source_url ? (
-        <div className="mt-3 border-t border-neutral-800/80 pt-3">
+        <div className="mt-3 border-t border-white/[0.06] pt-3">
           <SourceLinks
             url={row.source_url}
-            className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
       ) : null}
@@ -309,36 +309,36 @@ function ImmigrationWelfareGermanyTile({ row }: { row: CountryStatMetric }) {
 /** Health → Birth rates: Destatis / OECD-style childhood weight metrics (DE). */
 function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
         Childhood overweight and obesity
       </p>
-      <div className="mt-3 divide-y divide-neutral-800/80">
+      <div className="mt-3 divide-y divide-white/[0.06]">
         <div className="pb-3">
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-400">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-400">
             Overweight (incl. obesity) among children aged 7–9
           </p>
-          <p className="mt-1.5 font-mono text-sm leading-snug text-neutral-100 sm:text-base">
+          <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             25.7% (boys 27.7%, girls 23.3%).
           </p>
         </div>
         <div className="py-3">
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-400">Obesity among children aged 7–9</p>
-          <p className="mt-1.5 font-mono text-sm leading-snug text-neutral-100 sm:text-base">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-400">Obesity among children aged 7–9</p>
+          <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             ~11% overall (boys higher at ~13%, girls ~9%).
           </p>
         </div>
         <div className="pt-3">
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-400">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-400">
             Overweight/obesity among children and adolescents (3–17 years)
           </p>
-          <p className="mt-1.5 font-mono text-sm leading-snug text-neutral-100 sm:text-base">
+          <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             ~15% overweight, ~6% obese (older national data; rising trend).
           </p>
         </div>
       </div>
       {row.notes.trim() ? (
-        <p className="mt-3 border-t border-neutral-800/80 pt-3 font-mono text-[10px] leading-relaxed text-neutral-500">
+        <p className="mt-3 border-t border-white/[0.06] pt-3 font-sans text-[10px] leading-relaxed text-neutral-500">
           Source: {row.notes}
         </p>
       ) : null}
@@ -400,8 +400,8 @@ function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
   }, {} as ChartConfig);
 
   return (
-    <article className="col-span-full w-full border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+    <article className="col-span-full w-full rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
         {row.metric}
       </p>
       {slices.length > 0 ? (
@@ -452,7 +452,7 @@ function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
           </ChartContainer>
           <ul className="min-w-0 flex-1 space-y-1.5">
             {slices.map((s, i) => (
-              <li key={s.label} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-mono text-[11px] text-neutral-300">
+              <li key={s.label} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-sans text-[11px] text-neutral-300">
                 <span
                   className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-sm"
                   style={{ backgroundColor: EXPENDITURE_PIE_PALETTE[i % EXPENDITURE_PIE_PALETTE.length] }}
@@ -460,7 +460,7 @@ function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
                 <span className="min-w-0 flex-1 break-words">{s.label}</span>
                 <span className="shrink-0 text-neutral-500">{s.value.toFixed(1)}%</span>
                 {typeof s.detailEurBn === 'number' && Number.isFinite(s.detailEurBn) ? (
-                  <span className="w-full pl-5 font-mono text-[10px] text-neutral-600 sm:pl-0 sm:w-auto sm:pl-2">
+                  <span className="w-full pl-5 font-sans text-[10px] text-neutral-600 sm:pl-0 sm:w-auto sm:pl-2">
                     ~{s.detailEurBn.toFixed(0)} €bn
                   </span>
                 ) : null}
@@ -469,7 +469,7 @@ function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
           </ul>
         </div>
       ) : (
-        <p className="mt-4 font-mono text-sm text-neutral-500">No percentage split available.</p>
+        <p className="mt-4 font-sans text-sm text-neutral-500">No percentage split available.</p>
       )}
       <MetaLine row={row} />
       <NoteBlock text={row.notes} />
@@ -499,8 +499,8 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
 
   if (compact) {
     return (
-      <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
+      <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+        <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
         {origins.length > 0 ? (
           <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2">
             <div
@@ -509,7 +509,7 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
             />
             <ul className="scrollbar-none max-h-[7rem] min-h-0 w-full space-y-0.5 overflow-y-auto overflow-x-hidden overscroll-contain pr-0.5">
               {origins.map((o, i) => (
-                <li key={o.country} className="break-words font-mono text-[10px] leading-snug text-neutral-300">
+                <li key={o.country} className="break-words font-sans text-[10px] leading-snug text-neutral-300">
                   <span className="mr-1 inline-block h-2 w-2 shrink-0 rounded-sm align-middle" style={{ backgroundColor: palette[i % palette.length] }} />
                   <span className="font-medium">{o.country}</span>
                   {' — '}
@@ -522,7 +522,7 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
             </ul>
           </div>
         ) : (
-          <p className="mt-3 font-mono text-xs text-neutral-500">No country breakdown available.</p>
+          <p className="mt-3 font-sans text-xs text-neutral-500">No country breakdown available.</p>
         )}
         <MetaLine row={row} />
         <NoteBlock text={row.notes} />
@@ -531,14 +531,14 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
   }
 
   return (
-    <article className="border border-neutral-800 bg-[#121212] p-4 sm:p-5 lg:col-span-3">
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
+    <article className="rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5 lg:col-span-3">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
       {origins.length > 0 ? (
         <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="h-28 w-28 rounded-full border border-neutral-700" style={{ background: bg }} />
           <ul className="space-y-2">
             {origins.map((o, i) => (
-              <li key={o.country} className="font-mono text-xs text-neutral-300">
+              <li key={o.country} className="font-sans text-xs text-neutral-300">
                 <span className="mr-2 inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: palette[i % palette.length] }} />
                 <span className="font-medium">{o.country}</span>
                 {' — '}
@@ -551,7 +551,7 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
           </ul>
         </div>
       ) : (
-        <p className="mt-4 font-mono text-sm text-neutral-500">No country breakdown available.</p>
+        <p className="mt-4 font-sans text-sm text-neutral-500">No country breakdown available.</p>
       )}
       <MetaLine row={row} />
       <NoteBlock text={row.notes} />
@@ -570,13 +570,13 @@ function MetricTileColumn({
   const na = isUnavailable(row.value);
   return (
     <>
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p
           className={
             largeValue
-              ? `min-w-0 flex-1 font-mono text-xl font-semibold leading-none tracking-tight sm:text-2xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
-              : `min-w-0 flex-1 font-mono text-base font-medium leading-snug sm:text-lg ${na ? 'text-neutral-600' : 'text-neutral-100'}`
+              ? `min-w-0 flex-1 font-sans tabular-nums text-xl font-semibold leading-none tracking-tight sm:text-2xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
+              : `min-w-0 flex-1 font-sans tabular-nums text-base font-medium leading-snug sm:text-lg ${na ? 'text-neutral-600' : 'text-neutral-100'}`
           }
         >
           {na ? 'N/A' : row.value}
@@ -587,7 +587,7 @@ function MetricTileColumn({
         <div className="mt-2">
           <SourceLinks
             url={row.source_url}
-            className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
       ) : null}
@@ -599,14 +599,14 @@ function MetricTileColumn({
 function MedianAgeGermanyTile({ row }: { row: CountryStatMetric }) {
   const na = isUnavailable(row.value);
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] p-4 sm:p-5">
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
       <p
-        className={`mt-4 font-mono text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`}
+        className={`mt-4 font-sans tabular-nums text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`}
       >
         {na ? 'N/A' : row.value}
       </p>
-      <p className="mt-2 font-mono text-sm leading-snug text-neutral-400">
+      <p className="mt-2 font-sans text-sm leading-snug text-neutral-400">
         (one of the oldest populations in Europe)
       </p>
       <MetaLine row={row} />
@@ -614,7 +614,7 @@ function MedianAgeGermanyTile({ row }: { row: CountryStatMetric }) {
         <div className="mt-2">
           <SourceLinks
             url={row.source_url}
-            className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
       ) : null}
@@ -634,7 +634,7 @@ function ReligionPopulationTriTile({
 }) {
   const rows = [christian, muslim, jewish];
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212]">
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card">
       {rows.map((row, index) => {
         const na = isUnavailable(row.value);
         const cleanedGeography = row.geography_used.replace(/\bGermany\b/gi, '').replace(/\s{2,}/g, ' ').trim();
@@ -642,14 +642,14 @@ function ReligionPopulationTriTile({
         return (
           <div
             key={row.metric}
-            className={`p-4 sm:p-5 ${index > 0 ? 'border-t border-neutral-800' : ''}`}
+            className={`p-4 sm:p-5 ${index > 0 ? 'border-t border-white/[0.06]' : ''}`}
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 {row.metric}
               </p>
               <p
-                className={`font-mono text-base font-semibold leading-snug sm:text-lg ${
+                className={`font-sans text-base font-semibold leading-snug sm:text-lg ${
                   na ? 'text-neutral-600' : 'text-neutral-100'
                 }`}
               >
@@ -657,13 +657,13 @@ function ReligionPopulationTriTile({
               </p>
             </div>
             {rowMetaParts.length > 0 ? (
-              <p className="mt-3 font-mono text-[10px] leading-relaxed text-neutral-500">{rowMetaParts.join(' · ')}</p>
+              <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{rowMetaParts.join(' · ')}</p>
             ) : null}
             {row.source_url ? (
               <div className="mt-2">
                 <SourceLinks
                   url={row.source_url}
-                  className="inline-flex w-fit items-center gap-1 font-mono text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+                  className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
                 />
               </div>
             ) : null}
@@ -703,14 +703,14 @@ function StudentAidTileInner({ row }: { row: CountryStatMetric }) {
 
   return (
     <>
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
-      <p className="mt-4 font-mono text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{row.metric}</p>
+      <p className="mt-4 font-sans tabular-nums text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
         {totalAid.toLocaleString('en-US')}
       </p>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-4 inline-flex w-fit items-center border border-neutral-700 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-neutral-200 hover:border-neutral-500"
+        className="mt-4 inline-flex w-fit items-center rounded-md border border-white/[0.1] bg-card px-3 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-200 shadow-sm transition hover:border-white/[0.18] hover:bg-card-hover"
       >
         View aid pie chart
       </button>
@@ -719,13 +719,13 @@ function StudentAidTileInner({ row }: { row: CountryStatMetric }) {
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-2xl border border-neutral-700 bg-[#101010] p-4 sm:p-5">
+          <div className="w-full max-w-2xl rounded-md border border-line bg-card p-4 shadow-soft ring-1 ring-white/[0.04] sm:p-5">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-mono text-sm font-semibold text-neutral-100">Student Aid Breakdown</h3>
+              <h3 className="font-sans text-sm font-semibold text-neutral-100">Student Aid Breakdown</h3>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="border border-neutral-700 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-neutral-300 hover:border-neutral-500"
+                className="rounded-md border border-white/[0.1] bg-surface-metric px-2 py-1 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-300 shadow-sm transition hover:border-white/[0.18] hover:bg-card-hover"
               >
                 Close
               </button>
@@ -735,7 +735,7 @@ function StudentAidTileInner({ row }: { row: CountryStatMetric }) {
                 <div className="h-36 w-36 rounded-full border border-neutral-700" style={{ background: bg }} />
                 <ul className="scrollbar-none max-h-72 flex-1 space-y-1 overflow-auto pr-1">
                   {slices.map((s, i) => (
-                    <li key={s.country} className="flex items-center gap-2 font-mono text-xs text-neutral-300">
+                    <li key={s.country} className="flex items-center gap-2 font-sans text-xs text-neutral-300">
                       <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: palette[i % palette.length] }} />
                       <span>{s.country}</span>
                       <span className="text-neutral-500">
@@ -746,7 +746,7 @@ function StudentAidTileInner({ row }: { row: CountryStatMetric }) {
                 </ul>
               </div>
             ) : (
-              <p className="font-mono text-sm text-neutral-500">No student aid breakdown available.</p>
+              <p className="font-sans text-sm text-neutral-500">No student aid breakdown available.</p>
             )}
           </div>
         </div>
@@ -763,11 +763,11 @@ function ForeignStudentsAndStudentAidSplitTile({
   studentAid: CountryStatMetric;
 }) {
   return (
-    <article className="flex min-h-[148px] flex-col border border-neutral-800 bg-[#121212] sm:flex-row sm:divide-x sm:divide-neutral-800">
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card sm:flex-row sm:divide-x sm:divide-white/[0.06]">
       <div className="flex flex-1 flex-col p-4 sm:w-1/2 sm:min-w-0 sm:p-5">
         <MetricTileColumn row={foreign} largeValue />
       </div>
-      <div className="flex flex-1 flex-col border-t border-neutral-800 p-4 sm:w-1/2 sm:min-w-0 sm:border-t-0 sm:p-5">
+      <div className="flex flex-1 flex-col border-t border-white/[0.06] p-4 sm:w-1/2 sm:min-w-0 sm:border-t-0 sm:p-5">
         <StudentAidTileInner row={studentAid} />
       </div>
     </article>
@@ -776,7 +776,7 @@ function ForeignStudentsAndStudentAidSplitTile({
 
 function StudentAidTile({ row }: { row: CountryStatMetric }) {
   return (
-    <article className="border border-neutral-800 bg-[#121212] p-4 sm:p-5">
+    <article className="rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
       <StudentAidTileInner row={row} />
     </article>
   );
@@ -1265,7 +1265,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           type="button"
           onClick={() => moveSection(id, 'up')}
           disabled={disableUp}
-          className="rounded border border-neutral-700 px-1.5 py-0.5 font-mono text-[10px] text-neutral-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-md border border-white/[0.1] bg-card px-1.5 py-0.5 font-sans text-[10px] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={`Move ${id} section up`}
         >
           ↑
@@ -1274,7 +1274,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           type="button"
           onClick={() => moveSection(id, 'down')}
           disabled={disableDown}
-          className="rounded border border-neutral-700 px-1.5 py-0.5 font-mono text-[10px] text-neutral-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-md border border-white/[0.1] bg-card px-1.5 py-0.5 font-sans text-[10px] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={`Move ${id} section down`}
         >
           ↓
@@ -1284,13 +1284,13 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   }
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-[#0a0a0a] font-mono text-neutral-200">
-      <div className="sticky top-0 z-50 border-b border-neutral-800 bg-[#0c0c0c]/95 backdrop-blur">
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased">
+      <div className="sticky top-0 z-50 border-b border-line bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]">
         <div className="grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={onBack}
-            className="justify-self-start font-mono text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:text-white"
+            className="justify-self-start font-sans text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:text-white"
           >
             ← Back
           </button>
@@ -1298,7 +1298,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">Watch Tower</p>
           </div>
           <div className="flex items-center justify-self-end gap-3">
-            <div className="hidden h-10 w-14 border border-neutral-800 bg-black/50 sm:flex sm:items-center sm:justify-center sm:px-2">
+            <div className="hidden h-10 w-14 rounded-md border border-line bg-black/45 shadow-inset sm:flex sm:items-center sm:justify-center sm:px-2">
               <img src={flag.src} alt="" className="max-h-7 max-w-full object-contain" decoding="async" />
             </div>
             <h1 className="text-right text-sm font-semibold uppercase tracking-[0.12em] text-white sm:text-base">
@@ -1325,7 +1325,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             }
           >
         {error ? (
-          <p className="border border-neutral-800 bg-[#121212] p-6 font-mono text-sm text-red-400/90">
+          <p className="rounded-md border border-line bg-surface-metric shadow-card p-6 font-sans text-sm text-red-400/90">
             {error}
           </p>
         ) : null}
@@ -1335,7 +1335,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="h-36 animate-pulse border border-neutral-800 bg-[#121212]"
+                className="h-36 animate-pulse rounded-md border border-line bg-surface-metric shadow-card"
               />
             ))}
           </div>
@@ -1343,14 +1343,14 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
         {ordered && ordered.length > 0 ? (
           <>
-            <p className="mb-4 max-w-2xl font-mono text-[11px] leading-relaxed text-neutral-500">
+            <p className="mb-4 max-w-2xl font-sans text-[11px] leading-relaxed text-neutral-500">
               Data: <code className="text-neutral-400">centralized_merged_country_stats.csv</code> (economics,
               demographics proxies, and crime baselines in one file). Crime baseline audit:{' '}
               <code className="text-neutral-400">crime_baseline_replacement_audit.csv</code>. Open card notes for
               definitions.
             </p>
             {datasetNote ? (
-              <details className="mb-3 max-w-2xl border border-neutral-800 bg-[#121212] p-3 font-mono text-[10px] text-neutral-500">
+              <details className="mb-3 max-w-2xl rounded-md border border-line bg-surface-metric shadow-card p-3 font-sans text-[10px] text-neutral-500">
                 <summary className="cursor-pointer text-neutral-400 hover:text-neutral-200">
                   Main CSV methodology note
                 </summary>
@@ -1358,7 +1358,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               </details>
             ) : null}
             {proxyDatasetNote ? (
-              <details className="mb-6 max-w-2xl border border-neutral-800 bg-[#121212] p-3 font-mono text-[10px] text-neutral-500">
+              <details className="mb-6 max-w-2xl rounded-md border border-line bg-surface-metric shadow-card p-3 font-sans text-[10px] text-neutral-500">
                 <summary className="cursor-pointer text-neutral-400 hover:text-neutral-200">
                   Proxy demographics &amp; births note (merged CSV)
                 </summary>
@@ -1378,7 +1378,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     setAllExpanded(true);
                   }
                 }}
-                className="rounded border border-neutral-700 bg-neutral-900/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-neutral-200 hover:bg-neutral-800"
+                className="rounded-md border border-white/[0.1] bg-card px-3 py-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover"
               >
                 {allExpanded ? 'Collapse all' : 'Expand all'}
               </button>
@@ -1652,26 +1652,26 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             ) : null}
             </div>
 
-            <section className="mt-10 border border-neutral-800 bg-[#121212] p-4 sm:p-6">
-              <h2 className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+            <section className="mt-10 rounded-md border border-line bg-surface-metric p-4 shadow-card ring-1 ring-white/[0.03] sm:p-6">
+              <h2 className="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Sources
               </h2>
               <ul className="mt-4 space-y-3">
                 {sources.map((s) => (
                   <li
                     key={s.url}
-                    className="flex flex-col gap-1 border-b border-neutral-800/80 pb-3 last:border-0 last:pb-0"
+                    className="flex flex-col gap-1 border-b border-white/[0.06] pb-3 last:border-0 last:pb-0"
                   >
                     <a
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-xs text-[var(--uk-accent)] hover:text-neutral-200"
+                      className="font-sans text-xs text-[var(--uk-accent)] hover:text-neutral-200"
                     >
                       {s.name}
                     </a>
                     {s.date ? (
-                      <span className="font-mono text-[10px] text-neutral-600">{s.date}</span>
+                      <span className="font-sans text-[10px] text-neutral-600">{s.date}</span>
                     ) : null}
                   </li>
                 ))}

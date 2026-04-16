@@ -25,7 +25,7 @@ export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
         Back
       </button>
 
-      <div className="border border-[var(--line)] bg-[var(--card)]">
+      <div className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card ring-1 ring-white/[0.04]">
         <div className="flex aspect-[3/2] items-center justify-center bg-black/50 px-8 py-10">
           <img src={flag.src} alt="" className="max-h-full max-w-full object-contain" decoding="async" />
         </div>

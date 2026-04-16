@@ -43,12 +43,12 @@ export function GermanyLgbtSection() {
   }, [raw]);
 
   if (loadError) {
-    return <p className="font-mono text-xs text-amber-500/90">{loadError}</p>;
+    return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
   }
 
   if (adultGroups.length === 0 && childrenGroups.length === 0) {
     return (
-      <p className="font-mono text-xs text-neutral-500">
+      <p className="font-sans text-xs text-neutral-500">
         No rows in <code className="text-neutral-400">germany_gender_care_statistics.csv</code>.
       </p>
     );
@@ -72,13 +72,13 @@ export function GermanyLgbtSection() {
             ))}
           </div>
         ) : (
-          <p className="font-mono text-xs text-neutral-500">
+          <p className="font-sans text-xs text-neutral-500">
             No child-focused rows found in <code className="text-neutral-400">germany_gender_care_statistics.csv</code>.
           </p>
         )}
       </CollapsibleFlagSection>
 
-      <p className="font-mono text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
         Source: <code className="text-neutral-500">germany_gender_care_statistics.csv</code>
       </p>
     </div>

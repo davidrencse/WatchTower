@@ -147,13 +147,13 @@ function CompactMigrantCard({
   notes: string;
 }) {
   return (
-    <Card className="flex flex-col overflow-hidden border-neutral-800 bg-[#121212]">
+    <Card className="flex flex-col overflow-hidden">
       <CardHeader className="space-y-0.5 p-3 pb-0">
         <CardTitle className="text-sm font-semibold leading-tight text-neutral-100">{title}</CardTitle>
         {meta ? <CardDescription className="text-[10px] leading-snug">{meta}</CardDescription> : null}
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-2 p-3 pt-2">
-        <p className="font-mono text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
+        <p className="font-sans text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
           {valueDisplay}
         </p>
         {urls.length > 0 ? (
@@ -164,7 +164,7 @@ function CompactMigrantCard({
                 href={u}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block font-mono text-[10px] leading-snug text-[var(--uk-accent)] hover:text-neutral-200"
+                className="block font-sans text-[10px] leading-snug text-[var(--uk-accent)] hover:text-neutral-200"
               >
                 {sourceLabel ? (urls.length > 1 ? `${sourceLabel} (${i + 1})` : sourceLabel) : `Source ${i + 1}`} ↗
               </a>
@@ -172,11 +172,11 @@ function CompactMigrantCard({
           </div>
         ) : null}
         {notes ? (
-          <details className="rounded-md border border-neutral-800/80 bg-neutral-950/40 px-2 py-1.5">
-            <summary className="cursor-pointer font-mono text-[9px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
+          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+            <summary className="cursor-pointer font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
               Note
             </summary>
-            <pre className="mt-1.5 max-h-40 overflow-y-auto whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-neutral-500">
+            <pre className="mt-1.5 max-h-40 overflow-y-auto whitespace-pre-wrap font-sans text-[10px] leading-relaxed text-neutral-500">
               {notes}
             </pre>
           </details>
@@ -238,7 +238,7 @@ export function GermanyMigrantCrimeSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      {loadError ? <p className="font-mono text-xs text-amber-500/90">{loadError}</p> : null}
+      {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
       <div className={CARD_GRID}>
         {TILES.map((t) => {
           const r = byRequested.get(norm(t.requestedMetric));

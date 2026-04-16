@@ -25,8 +25,8 @@ export function FlagViewModeToggle({ value, onChange }: FlagViewModeToggleProps)
             aria-pressed={active}
             className={
               active
-                ? 'border border-white/20 bg-[var(--card-hover)] px-3 py-2 text-left transition-colors'
-                : 'border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-left transition-colors hover:border-neutral-600'
+                ? 'rounded-md border border-white/[0.14] bg-[var(--card-hover)] px-3 py-2 text-left shadow-inset transition-colors ring-1 ring-white/[0.06]'
+                : 'rounded-md border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-left shadow-sm transition-colors hover:border-white/[0.1] hover:bg-white/[0.02]'
             }
           >
             <span

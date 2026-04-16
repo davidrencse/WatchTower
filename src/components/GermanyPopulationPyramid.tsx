@@ -57,9 +57,9 @@ export function GermanyPopulationPyramid() {
   }, [rows]);
 
   return (
-    <Card className="rounded-sm border-neutral-800 bg-[#121212]">
+    <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="font-mono text-xs uppercase tracking-[0.18em]">Germany population pyramid (2025)</CardTitle>
+        <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Germany population pyramid (2025)</CardTitle>
         <CardDescription>Hover any age bar to view male and female population counts.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -109,7 +109,7 @@ export function GermanyPopulationPyramid() {
           </ResponsiveContainer>
         </ChartContainer>
 
-        <div className="mt-3 flex items-center gap-4 font-mono text-[10px] text-neutral-400">
+        <div className="mt-3 flex items-center gap-4 font-sans text-[10px] text-neutral-400">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-[2px] bg-[#3b82f6]" />
             Male
@@ -119,7 +119,7 @@ export function GermanyPopulationPyramid() {
             Female
           </span>
         </div>
-        <p className="mt-2 font-mono text-[10px] leading-relaxed text-neutral-500">
+        <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
           Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).
         </p>
       </CardContent>

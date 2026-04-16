@@ -80,7 +80,7 @@ export function GermanyImmigrationTreemap({ items }: { items: GermanyImmigration
 
   if (items.length === 0) {
     return (
-      <p className="font-mono text-sm text-neutral-500">No immigration treemap rows loaded.</p>
+      <p className="font-sans text-sm text-neutral-500">No immigration treemap rows loaded.</p>
     );
   }
 
@@ -131,8 +131,8 @@ export function GermanyImmigrationTreemap({ items }: { items: GermanyImmigration
                   <div className="min-w-0 shrink-0 font-semibold" title={label}>
                     {label}
                   </div>
-                  <div className="mt-0.5 shrink-0 font-mono tabular-nums leading-none">{pop.toLocaleString('en-US')}</div>
-                  <div className="mt-0.5 shrink-0 font-mono text-[0.92em] leading-none opacity-90 tabular-nums">
+                  <div className="mt-0.5 shrink-0 font-sans tabular-nums leading-none">{pop.toLocaleString('en-US')}</div>
+                  <div className="mt-0.5 shrink-0 font-sans text-[0.92em] leading-none opacity-90 tabular-nums">
                     {maleLine}
                   </div>
                 </div>

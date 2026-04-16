@@ -94,7 +94,7 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
   return (
     <div className="sm:col-span-2 lg:col-span-3">
       <div className="mb-3 flex items-center justify-between gap-3 px-1">
-        <p className={`font-mono text-[10px] text-neutral-500 ${UC_META}`}>
+        <p className={`font-sans text-[10px] text-neutral-500 ${UC_META}`}>
           Drag (sensitive) or arrows · {active + 1} / {count}
         </p>
         <div className="flex gap-1.5">
@@ -118,7 +118,7 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
           aria-label="Previous policy"
           disabled={active <= 0}
           onClick={() => snapToIndex(active - 1)}
-          className="flex shrink-0 items-center justify-center self-center rounded-xl border border-neutral-700 bg-neutral-900/90 px-2.5 py-6 font-mono text-sm text-white shadow-sm transition-colors hover:border-neutral-500 hover:bg-neutral-800 disabled:pointer-events-none disabled:opacity-25 sm:px-3.5 sm:py-8 sm:text-base"
+          className="flex shrink-0 items-center justify-center self-center rounded-md border border-white/[0.1] bg-card px-2.5 py-6 font-sans text-sm text-white shadow-sm transition-colors hover:border-white/[0.18] hover:bg-card-hover disabled:pointer-events-none disabled:opacity-25 sm:px-3.5 sm:py-8 sm:text-base"
         >
           {'<-'}
         </button>
@@ -142,10 +142,10 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
               aria-roledescription="slide"
             >
               <article
-                className="mx-auto flex max-h-[min(72vh,680px)] min-h-[420px] max-w-2xl flex-col overflow-hidden rounded-[1.5rem] border border-neutral-800/90 bg-[#121212] text-neutral-200"
+                className="mx-auto flex max-h-[min(72vh,680px)] min-h-[420px] max-w-2xl flex-col overflow-hidden rounded-[1.25rem] border border-line bg-surface-metric text-neutral-200 shadow-card ring-1 ring-white/[0.04]"
                 style={{ boxShadow: POLICY_CARD_SHADOW }}
               >
-                <div className="border-b border-neutral-800/80 px-6 pb-4 pt-6">
+                <div className="border-b border-white/[0.06] px-6 pb-4 pt-6">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <h3 className={`max-w-[85%] text-base font-semibold leading-snug text-white sm:text-lg ${UC_TITLE}`}>
                       {card.sectorTitle}
@@ -159,9 +159,9 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
                     <h4 className={`mb-2 text-[10px] font-semibold text-neutral-500 ${UC_LABEL}`}>Key policies</h4>
                     <div className="space-y-2">
                       {card.policies.map((policy) => (
-                        <details key={policy.name} open className="rounded-lg border border-neutral-800/80 bg-black/30 px-3 py-2">
+                        <details key={policy.name} open className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2">
                           <summary
-                            className={`cursor-pointer list-none font-mono text-[11px] text-neutral-300 hover:text-neutral-100 ${UC_META}`}
+                            className={`cursor-pointer list-none font-sans text-[11px] text-neutral-300 hover:text-neutral-100 ${UC_META}`}
                           >
                             {policy.name}
                           </summary>
@@ -178,7 +178,7 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
                                 {policy.status}
                               </Badge>
                             </div>
-                            <p className={`font-mono text-[10px] text-neutral-500 ${UC_META}`}>Source: {policy.source}</p>
+                            <p className={`font-sans text-[10px] text-neutral-500 ${UC_META}`}>Source: {policy.source}</p>
                           </div>
                         </details>
                       ))}
@@ -196,7 +196,7 @@ export function GermanyPolicyCarousel({ policyRows }: Props) {
           aria-label="Next policy"
           disabled={active >= count - 1}
           onClick={() => snapToIndex(active + 1)}
-          className="flex shrink-0 items-center justify-center self-center rounded-xl border border-neutral-700 bg-neutral-900/90 px-2.5 py-6 font-mono text-sm text-white shadow-sm transition-colors hover:border-neutral-500 hover:bg-neutral-800 disabled:pointer-events-none disabled:opacity-25 sm:px-3.5 sm:py-8 sm:text-base"
+          className="flex shrink-0 items-center justify-center self-center rounded-md border border-white/[0.1] bg-card px-2.5 py-6 font-sans text-sm text-white shadow-sm transition-colors hover:border-white/[0.18] hover:bg-card-hover disabled:pointer-events-none disabled:opacity-25 sm:px-3.5 sm:py-8 sm:text-base"
         >
           {'->'}
         </button>

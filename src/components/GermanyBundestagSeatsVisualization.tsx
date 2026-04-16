@@ -138,17 +138,17 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
   const selected = parties.find((p) => p.label === activeParty) ?? null;
 
   return (
-    <Card className="overflow-hidden border-neutral-800 bg-neutral-950 text-neutral-200 ring-1 ring-neutral-800/60 sm:col-span-2 lg:col-span-3">
-      <CardHeader className="space-y-2 border-b border-neutral-800 bg-black/30 pb-3">
+    <Card className="overflow-hidden text-neutral-200 sm:col-span-2 lg:col-span-3">
+      <CardHeader className="space-y-2 border-b border-line bg-black/25 pb-3 shadow-inset">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <CardTitle className={`text-lg font-semibold tracking-tight text-white sm:text-xl ${UC_TITLE}`}>
               Seat distribution
             </CardTitle>
-            <CardDescription className={`font-mono text-[11px] text-neutral-500 ${UC_META}`}>
+            <CardDescription className={`font-sans text-[11px] text-neutral-500 ${UC_META}`}>
               {refYear} Federal Election, Germany
             </CardDescription>
-            <CardDescription className={`font-mono text-[11px] text-neutral-500 ${UC_META}`}>Final Result</CardDescription>
+            <CardDescription className={`font-sans text-[11px] text-neutral-500 ${UC_META}`}>Final Result</CardDescription>
           </div>
           <Badge variant="outline" className={`w-fit shrink-0 border-neutral-700 text-neutral-400 ${UC_META}`}>
             Final Result
@@ -184,10 +184,10 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
                 </path>
               );
             })}
-            <text x={cx} y={cy - rInner + 2} textAnchor="middle" className="fill-white font-mono text-[22px] font-semibold">
+            <text x={cx} y={cy - rInner + 2} textAnchor="middle" className="fill-white font-sans text-[22px] font-semibold">
               {total.toLocaleString('de-DE')}
             </text>
-            <text x={cx} y={cy - rInner + 22} textAnchor="middle" className={`fill-neutral-400 font-mono text-[11px] ${UC_META}`}>
+            <text x={cx} y={cy - rInner + 22} textAnchor="middle" className={`fill-neutral-400 font-sans text-[11px] ${UC_META}`}>
               Sitze
             </text>
           </svg>
@@ -200,29 +200,29 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
               type="button"
               onMouseEnter={() => setActiveParty(p.label)}
               onFocus={() => setActiveParty(p.label)}
-              className="flex items-center justify-between gap-2 rounded border border-neutral-800 px-2 py-1 text-left hover:bg-neutral-900/60"
+              className="flex items-center justify-between gap-2 rounded border border-line px-2 py-1 text-left hover:bg-neutral-900/60"
             >
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-neutral-300">
+              <span className="inline-flex items-center gap-1.5 font-sans text-[10px] text-neutral-300">
                 <span className="h-2.5 w-2.5 rounded-[2px]" style={{ backgroundColor: p.color }} />
                 {p.label}
               </span>
-              <span className="font-mono text-[10px] tabular-nums text-white">{p.seats}</span>
+              <span className="font-sans text-[10px] tabular-nums text-white">{p.seats}</span>
             </button>
           ))}
         </div>
 
-        <p className={`mt-3 text-center font-mono text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
+        <p className={`mt-3 text-center font-sans text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
           {selected ? `${selected.label}: ${selected.seats.toLocaleString('de-DE')} seats` : 'Hover a party segment to inspect seat counts'}
         </p>
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className={`font-mono text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>© Die Bundeswahlleiterin, Wiesbaden {refYear}</p>
+          <p className={`font-sans text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>© Die Bundeswahlleiterin, Wiesbaden {refYear}</p>
           {sourceUrl ? (
             <a
               href={sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`font-mono text-[10px] text-neutral-500 underline-offset-4 transition-colors hover:text-white hover:underline ${UC_META}`}
+              className={`font-sans text-[10px] text-neutral-500 underline-offset-4 transition-colors hover:text-white hover:underline ${UC_META}`}
             >
               {sourceName} ↗
             </a>

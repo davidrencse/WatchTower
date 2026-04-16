@@ -112,12 +112,12 @@ export function GermanyHealthBasicSection() {
   }, [raw]);
 
   if (loadError) {
-    return <p className="font-mono text-xs text-amber-500/90">{loadError}</p>;
+    return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
   }
 
   if (groups.length === 0) {
     return (
-      <p className="font-mono text-xs text-neutral-500">
+      <p className="font-sans text-xs text-neutral-500">
         No rows in <code className="text-neutral-400">germany_health_statistics_basic.csv</code>.
       </p>
     );
@@ -143,7 +143,7 @@ export function GermanyHealthBasicSection() {
           <GovStatCard key={`health-overview-oecd-${i}-${row.metric}`} row={row} />
         ))}
       </div>
-      <p className="font-mono text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
         Source: <code className="text-neutral-500">germany_health_statistics_basic.csv</code>
         {' · '}
         Additional indicators: OECD Health at a Glance 2025 (Germany country note / country page).

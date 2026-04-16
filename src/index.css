@@ -7,13 +7,32 @@
   --bg: #080808;
   --fg: #e8e8e8;
   --muted: #737373;
-  --line: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.065);
   --card: #0f0f0f;
   --card-hover: #141414;
   --uk-accent: #6b7f8f;
   --uk-accent-dim: rgba(107, 127, 143, 0.35);
   --uk-accent-surface: rgba(107, 127, 143, 0.1);
   --uk-accent-border: rgba(107, 127, 143, 0.45);
+
+  --surface-metric: #121212;
+  --surface-app: #0a0a0a;
+  --rail-bg: #080808;
+  --shell-header: rgba(12, 12, 12, 0.94);
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-card:
+    0 1px 0 rgba(255, 255, 255, 0.045) inset,
+    0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-header: 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 36px rgba(0, 0, 0, 0.42);
+  --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.38);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif;
+  --ring-focus: rgba(107, 127, 143, 0.55);
 }
 
 html,
@@ -34,13 +53,43 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 body::-webkit-scrollbar {
   display: none;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply font-semibold tracking-tight text-neutral-50;
+  }
+  p {
+    @apply leading-relaxed;
+  }
+  code {
+    @apply rounded px-1 py-0.5 font-mono text-[0.92em] text-neutral-300;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  :where(a, button, input, select, textarea, summary):focus {
+    outline: none;
+  }
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--ring-focus);
+    outline-offset: 2px;
+  }
+  :where(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 @layer utilities {

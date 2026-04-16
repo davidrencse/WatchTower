@@ -34,7 +34,13 @@ const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_LABEL = 'uppercase tracking-[0.04em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
+function OverviewBlock({
+  rows,
+  coalitionSeatTotal,
+}: {
+  rows: GermanyGovernmentPoliticsRow[];
+  coalitionSeatTotal?: GermanyGovernmentPoliticsRow;
+}) {
   const [imageOpen, setImageOpen] = useState(false);
   const byMetric = useMemo(() => {
     const m = new Map<string, GermanyGovernmentPoliticsRow>();
@@ -60,14 +66,14 @@ function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div className={GOV_POLITICS_CARD_GRID}>
-        <Card className="border-neutral-800 bg-[#121212]">
+        <Card className="border-line bg-surface-metric">
           <CardHeader className="p-3">
             <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Head of government</CardTitle>
             <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
               Chancellor, party, and ideology (from dataset)
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2 p-3 pt-0 font-mono text-sm text-neutral-200">
+          <CardContent className="space-y-2 p-3 pt-0 font-sans text-sm text-neutral-200">
             <p>
               <span className={`text-neutral-500 ${UC_LABEL}`}>Name:</span> {name || '—'}
             </p>
@@ -93,7 +99,7 @@ function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
               </div>
             ) : null}
             {headNotes ? (
-              <details className="mt-2 rounded border border-neutral-800/80 bg-neutral-950/40 px-2 py-1.5">
+              <details className="mt-2 rounded border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
                 <summary className="cursor-pointer text-[9px] uppercase tracking-[0.12em] text-neutral-500">Note</summary>
                 <pre className="mt-1.5 whitespace-pre-wrap text-[10px] leading-relaxed text-neutral-500">{headNotes}</pre>
               </details>
@@ -102,10 +108,16 @@ function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
         </Card>
 
         {coalition ? <GovStatCard row={coalition} title="Governing coalition" /> : null}
+        {coalitionSeatTotal ? (
+          <GovStatCard
+            row={{ ...coalitionSeatTotal, breakdown: '', submetric: '' }}
+            title="Coalition seat total"
+          />
+        ) : null}
       </div>
 
-      <div className="rounded border border-neutral-800 bg-neutral-950/30 p-3">
-        <h3 className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">
+      <div className="rounded-md border border-line bg-surface-metric/80 p-3 shadow-inset">
+        <h3 className="font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-500">
           Government political chart
         </h3>
         <button
@@ -117,18 +129,18 @@ function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
           <img
             src={POLITICS_IMG_URL}
             alt="Germany government and political context"
-            className="w-full max-w-3xl rounded border border-neutral-800"
+            className="w-full max-w-3xl rounded border border-line"
             loading="lazy"
           />
         </button>
-        <p className="mt-2 font-mono text-[10px] text-neutral-600">Image: politics.png</p>
+        <p className="mt-2 font-sans text-[10px] text-neutral-600">Image: politics.png</p>
       </div>
 
       {imageOpen ? (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4">
           <button
             type="button"
-            className="absolute right-4 top-4 rounded border border-neutral-700 bg-neutral-900/80 px-3 py-1 font-mono text-xs text-neutral-200 hover:bg-neutral-800"
+            className="absolute right-4 top-4 rounded-md border border-white/[0.1] bg-card/95 px-3 py-1 font-sans text-xs text-neutral-200 shadow-sm backdrop-blur-sm transition hover:border-white/[0.18] hover:bg-card-hover"
             onClick={() => setImageOpen(false)}
           >
             Close
@@ -147,7 +159,6 @@ function OverviewBlock({ rows }: { rows: GermanyGovernmentPoliticsRow[] }) {
 function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][] }) {
   const totalSeatsGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'total seats');
   const majorityThresholdGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'majority threshold');
-  const coalitionSeatTotalGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'coalition seat total');
 
   const pollingData = [
     { party: 'AfD', percent: 26, fill: '#3b82f6' },
@@ -186,12 +197,12 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
       out.push(
         <div
           key="trust-divider"
-          className="col-span-1 border-t border-neutral-800 pt-4 sm:col-span-2 lg:col-span-3"
+          className="col-span-1 border-t border-line pt-4 sm:col-span-2 lg:col-span-3"
         >
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Public trust and integrity
           </p>
-          <p className={`mt-1 font-mono text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+          <p className={`mt-1 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
             Trust in parliament, government, parties, courts, police; democracy satisfaction; perceived corruption (CPI
             proxy).
           </p>
@@ -202,95 +213,91 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
   }
   return (
     <div className="flex flex-col gap-4">
-      {totalSeatsGroup || majorityThresholdGroup || coalitionSeatTotalGroup ? (
-        <div className={GOV_POLITICS_CARD_GRID}>
-          {totalSeatsGroup ? (
-            <GovStatCard
-              key={totalSeatsGroup[0]!.metric}
-              row={{ ...totalSeatsGroup[0]!, breakdown: '', submetric: '' }}
-              title="Total seats"
-            />
-          ) : null}
-          {majorityThresholdGroup ? (
-            <GovStatCard
-              key={majorityThresholdGroup[0]!.metric}
-              row={{ ...majorityThresholdGroup[0]!, breakdown: '', submetric: '' }}
-              title="Majority threshold"
-            />
-          ) : null}
-          {coalitionSeatTotalGroup ? (
-            <GovStatCard
-              key={coalitionSeatTotalGroup[0]!.metric}
-              row={{ ...coalitionSeatTotalGroup[0]!, breakdown: '', submetric: '' }}
-              title="Coalition seat total"
-            />
-          ) : null}
+      {totalSeatsGroup || majorityThresholdGroup ? (
+        <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-3">
+          <div className="grid h-full grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-2">
+            {totalSeatsGroup ? (
+              <GovStatCard
+                key={totalSeatsGroup[0]!.metric}
+                row={{ ...totalSeatsGroup[0]!, breakdown: '', submetric: '' }}
+                title="Total seats"
+              />
+            ) : null}
+            <Card className="h-full">
+              <CardHeader className="space-y-1 p-3 pb-2">
+                <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Voter turnout</CardTitle>
+                <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                  Latest federal election context
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 pt-0">
+                <p className="font-sans text-2xl font-semibold text-white">82.5%</p>
+                <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+                  Highest since German reunification in 1990; +6.2 percentage points from 2021.
+                </p>
+              </CardContent>
+            </Card>
+            {majorityThresholdGroup ? (
+              <GovStatCard
+                key={majorityThresholdGroup[0]!.metric}
+                row={{ ...majorityThresholdGroup[0]!, breakdown: '', submetric: '' }}
+                title="Majority threshold"
+              />
+            ) : null}
+            <Card className="h-full">
+              <CardHeader className="space-y-1 p-3 pb-2">
+                <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Registered voters</CardTitle>
+                <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>Eligible electorate</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 pt-0">
+                <p className="font-sans text-2xl font-semibold text-white">60,510,631</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="h-full self-stretch">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Current polling trends</CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Tight national race (INSA, FG Wahlen, Verian)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 pt-0">
+              <ChartContainer config={pollingConfig} className="h-[260px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pollingData} dataKey="percent" nameKey="party" innerRadius={58} outerRadius={88} paddingAngle={2}>
+                      {pollingData.map((entry) => (
+                        <Cell key={entry.party} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          formatter={(value) => `${Number(value).toFixed(0)}%`}
+                          labelFormatter={(label) => String(label ?? '')}
+                        />
+                      }
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+                AfD 25-26%, CDU/CSU 25-26%, SPD 13-14%, Greens 13-15%, Die Linke 10-11%, Others 3-5% each.
+              </p>
+              <details className="mt-2 rounded border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+                <summary className="cursor-pointer text-[9px] uppercase tracking-[0.12em] text-neutral-500">Note</summary>
+                <p className="mt-1.5 font-sans text-[10px] leading-relaxed text-neutral-500">
+                  AfD has made notable gains even in western states (e.g., historic ~19% in Baden-Württemberg state
+                  election in March 2026).
+                </p>
+              </details>
+            </CardContent>
+          </Card>
         </div>
       ) : null}
 
       <div className={GOV_POLITICS_CARD_GRID}>
-        <Card>
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Voter turnout</CardTitle>
-            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>Latest federal election context</CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-mono text-2xl font-semibold text-white">82.5%</p>
-            <p className={`mt-2 font-mono text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              Highest since German reunification in 1990; +6.2 percentage points from 2021.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Registered voters</CardTitle>
-            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>Eligible electorate</CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-mono text-2xl font-semibold text-white">60,510,631</p>
-          </CardContent>
-        </Card>
-
-        <Card className="sm:col-span-2 lg:col-span-1">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Current polling trends</CardTitle>
-            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              Tight national race (INSA, FG Wahlen, Verian)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <ChartContainer config={pollingConfig} className="h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pollingData} dataKey="percent" nameKey="party" innerRadius={58} outerRadius={88} paddingAngle={2}>
-                    {pollingData.map((entry) => (
-                      <Cell key={entry.party} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => `${Number(value).toFixed(0)}%`}
-                        labelFormatter={(label) => String(label ?? '')}
-                      />
-                    }
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-            <p className={`mt-2 font-mono text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              AfD 25-26%, CDU/CSU 25-26%, SPD 13-14%, Greens 13-15%, Die Linke 10-11%, Others 3-5% each.
-            </p>
-            <details className="mt-2 rounded border border-neutral-800/80 bg-neutral-950/40 px-2 py-1.5">
-              <summary className="cursor-pointer text-[9px] uppercase tracking-[0.12em] text-neutral-500">Note</summary>
-              <p className="mt-1.5 font-mono text-[10px] leading-relaxed text-neutral-500">
-                AfD has made notable gains even in western states (e.g., historic ~19% in Baden-Württemberg state
-                election in March 2026).
-              </p>
-            </details>
-          </CardContent>
-        </Card>
       </div>
 
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -389,7 +396,7 @@ function CitizenshipGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][
           </ChartContainer>
           <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
             {ageGroupData.map((entry) => (
-              <div key={entry.group} className="flex items-center justify-between gap-2 font-mono text-neutral-400">
+              <div key={entry.group} className="flex items-center justify-between gap-2 font-sans text-neutral-400">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-[2px]" style={{ backgroundColor: entry.fill }} />
                   <span>{entry.group}</span>
@@ -398,7 +405,7 @@ function CitizenshipGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][
               </div>
             ))}
           </div>
-          <div className="mt-1 font-mono text-[10px] text-neutral-500">
+          <div className="mt-1 font-sans text-[10px] text-neutral-500">
             <span className={UC_META}>Largest group: 20-45 years</span>
           </div>
         </CardContent>
@@ -443,6 +450,13 @@ export function GermanyGovernmentSection({
   const allRows = useMemo(() => parseGermanyGovernmentPoliticsCsv(raw), [raw]);
   const germanyRows = useMemo(() => governmentRowsForGermany(allRows), [allRows]);
   const overviewRows = useMemo(() => rowsForSubsection(germanyRows, 'Overview'), [germanyRows]);
+  const coalitionSeatTotalOverviewRow = useMemo(
+    () =>
+      rowsForSubsection(germanyRows, 'Parliament').find(
+        (r) => r.metric.trim().toLowerCase() === 'coalition seat total',
+      ),
+    [germanyRows],
+  );
 
   const outerCount = useMemo(() => countGovernmentSectionStats(allRows), [allRows]);
 
@@ -463,9 +477,9 @@ export function GermanyGovernmentSection({
       expandSignal={expandSignal}
     >
       <div className="flex flex-col gap-4">
-        {loadError ? <p className="font-mono text-xs text-amber-500/90">{loadError}</p> : null}
-        {sanity ? <p className="font-mono text-xs text-neutral-500">{sanity}</p> : null}
-        <OverviewBlock rows={overviewRows} />
+        {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
+        {sanity ? <p className="font-sans text-xs text-neutral-500">{sanity}</p> : null}
+        <OverviewBlock rows={overviewRows} coalitionSeatTotal={coalitionSeatTotalOverviewRow} />
 
         {SUBSECTIONS.map(({ id, title, key }) => {
           const sorted = rowsForSubsection(germanyRows, key);
@@ -495,7 +509,7 @@ export function GermanyGovernmentSection({
           );
         })}
 
-        <p className={`font-mono text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
+        <p className={`font-sans text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
           Primary table:{' '}
           <code className="text-neutral-500">germany_government_politics.csv</code> (Government and Economic labor rows).
           Values, years, and notes follow that file.

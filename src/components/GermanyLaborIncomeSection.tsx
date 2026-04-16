@@ -74,7 +74,7 @@ export function GermanyLaborIncomeSection() {
   }, [laborFileGroups]);
 
   if (loadError) {
-    return <p className="font-mono text-xs text-amber-500/90">{loadError}</p>;
+    return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
   }
 
   const hasGov = govGroups.length > 0;
@@ -82,7 +82,7 @@ export function GermanyLaborIncomeSection() {
 
   if (!hasGov && !hasLaborFile) {
     return (
-      <p className="font-mono text-xs text-neutral-500">
+      <p className="font-sans text-xs text-neutral-500">
         No labor / income rows in <code className="text-neutral-400">germany_government_politics.csv</code> (Government /
         Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
         <code className="text-neutral-400">germany_labor_statistics.csv</code>.
@@ -94,7 +94,7 @@ export function GermanyLaborIncomeSection() {
     <div className="flex flex-col gap-6">
       {hasGov ? (
         <div className="flex flex-col gap-3">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
             Labor market &amp; migration enforcement (government dataset)
           </p>
           <div className={GOV_POLITICS_CARD_GRID}>
@@ -102,7 +102,7 @@ export function GermanyLaborIncomeSection() {
               <Fragment key={`gov-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
             ))}
           </div>
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
             Source: <code className="text-neutral-500">germany_government_politics.csv</code> — Government / Labor law or
             Economic / Labor &amp; Income Distribution.
           </p>
@@ -111,7 +111,7 @@ export function GermanyLaborIncomeSection() {
 
       {hasLaborFile ? (
         <div className="flex flex-col gap-3">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
             Labor market indicators
           </p>
           {laborYouthGroups.length > 0 ? (
@@ -135,7 +135,7 @@ export function GermanyLaborIncomeSection() {
               ))}
             </div>
           ) : null}
-          <p className="font-mono text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
             Source: <code className="text-neutral-500">germany_labor_statistics.csv</code>
           </p>
         </div>

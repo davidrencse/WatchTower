@@ -51,7 +51,7 @@ export function ChartTooltipContent({
 
   return (
     <div className={cn('min-w-[180px] border border-neutral-700 bg-neutral-950 px-3 py-2 text-xs', className)}>
-      {renderedLabel != null ? <p className="mb-1 font-mono text-neutral-300">{String(renderedLabel)}</p> : null}
+      {renderedLabel != null ? <p className="mb-1 font-sans text-neutral-300">{String(renderedLabel)}</p> : null}
       <div className="space-y-1">
         {payload.map((item) => {
           const key = String(item.dataKey ?? item.name ?? '');
@@ -60,7 +60,7 @@ export function ChartTooltipContent({
           const indicator = (item.color as string | undefined) ?? cfg?.color ?? '#8884d8';
           const value = item.value as number | string | undefined;
           return (
-            <div key={`${key}-${entryLabel}`} className="flex items-center justify-between gap-2 font-mono">
+            <div key={`${key}-${entryLabel}`} className="flex items-center justify-between gap-2 font-sans">
               <div className="flex items-center gap-2 text-neutral-400">
                 <span className="h-2 w-2 rounded-[2px]" style={{ backgroundColor: indicator }} />
                 <span>{entryLabel}</span>

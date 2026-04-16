@@ -174,18 +174,18 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-4 pt-4">
         <div className="space-y-3">
-          <p className="font-mono text-3xl font-semibold tabular-nums tracking-tight text-white">
+          <p className="font-sans text-3xl font-semibold tabular-nums tracking-tight text-white">
             {n != null ? formatCount(n) : 'N/A'}
           </p>
           {config.baselineValueKey ? (
             <div className="space-y-2">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-neutral-600">
+              <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-neutral-600">
                 Change vs baseline
               </p>
               {comparison ? (
                 <Badge variant={comparison.variant}>{comparison.label}</Badge>
               ) : comparisonNote ? (
-                <p className="font-mono text-[11px] leading-relaxed text-neutral-500">{comparisonNote}</p>
+                <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{comparisonNote}</p>
               ) : (
                 <Badge variant="secondary">—</Badge>
               )}
@@ -196,24 +196,24 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
         <Separator />
 
         {definition ? (
-          <p className="font-mono text-[11px] leading-relaxed text-neutral-500">{definition}</p>
+          <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{definition}</p>
         ) : null}
         {sourceUrl ? (
           <a
             href={sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-[11px] text-[var(--uk-accent)] hover:text-neutral-200"
+            className="font-sans text-[11px] text-[var(--uk-accent)] hover:text-neutral-200"
           >
             {sourceLabel || 'Source'} ↗
           </a>
         ) : null}
         {methodNote ? (
-          <details className="rounded-md border border-neutral-800/80 bg-neutral-950/40 px-3 py-2">
-            <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
+          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-3 py-2">
+            <summary className="cursor-pointer font-sans text-[10px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
               Method note
             </summary>
-            <p className="mt-2 font-mono text-[11px] leading-relaxed text-neutral-500">{methodNote}</p>
+            <p className="mt-2 font-sans text-[11px] leading-relaxed text-neutral-500">{methodNote}</p>
           </details>
         ) : null}
       </CardContent>
@@ -244,7 +244,7 @@ export function CrimeMetricsSection({ crimeRow }: CrimeMetricsSectionProps) {
   return (
     <div className="flex flex-col gap-4">
       {generalNote ? (
-        <p className="rounded-md border border-neutral-800 bg-neutral-950/40 p-3 font-mono text-[11px] leading-relaxed text-neutral-500">
+        <p className="rounded-md border border-line bg-surface-metric/90 p-3 shadow-inset font-sans text-[11px] leading-relaxed text-neutral-500">
           {generalNote}
         </p>
       ) : null}

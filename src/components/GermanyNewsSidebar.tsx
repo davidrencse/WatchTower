@@ -101,7 +101,7 @@ function NewsThumb({ item }: { item: GermanyNewsItem }) {
 function NewsRow({ item }: { item: GermanyNewsItem }) {
   const tag = GERMANY_NEWS_TOPIC_LABEL[item.topic];
   return (
-    <li className="border-b border-neutral-800/90">
+    <li className="border-b border-white/[0.06]">
       <a
         href={item.url}
         target="_blank"
@@ -113,7 +113,7 @@ function NewsRow({ item }: { item: GermanyNewsItem }) {
           <p className="text-[11px] font-semibold leading-snug text-white group-hover:text-neutral-100">
             {item.title}
           </p>
-          <p className="mt-1 font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-500">
+          <p className="mt-1 font-sans text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-500">
             {tag}
           </p>
         </div>
@@ -135,13 +135,13 @@ function CollapsibleNewsSection({ section }: { section: GermanyNewsRailSection }
   const panelId = `${id}-panel`;
 
   return (
-    <div className="border-b border-neutral-800/80 last:border-b-0">
+    <div className="border-b border-white/[0.06] last:border-b-0">
       <button
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full cursor-pointer items-center justify-between gap-2 border-b border-neutral-800 bg-[#0a0a0a] px-2 py-1.5 text-left font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-400 transition-colors hover:bg-white/[0.04]"
+        className="flex w-full cursor-pointer items-center justify-between gap-2 border-b border-line bg-surface-app px-2 py-1.5 text-left font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-400 transition-colors hover:bg-white/[0.04]"
       >
         <span className="min-w-0 truncate">{section.heading}</span>
         <span className="flex shrink-0 items-center gap-1.5">
@@ -171,23 +171,23 @@ type GermanyNewsRailProps = {
 };
 
 export function GermanyNewsRail({ side, sections }: GermanyNewsRailProps) {
-  const border = side === 'left' ? 'border-r border-neutral-800' : 'border-l border-neutral-800';
+  const border = side === 'left' ? 'border-r border-line' : 'border-l border-line';
   const edge = side === 'left' ? 'left-0' : 'right-0';
   const nonEmpty = sections.filter((s) => s.items.length > 0);
 
   return (
     <aside
-      className={`fixed ${edge} top-16 bottom-0 z-40 flex w-[13rem] shrink-0 flex-col overflow-hidden bg-[#080808] ${border}`}
+      className={`fixed ${edge} top-16 bottom-0 z-40 flex w-[13rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft ${border}`}
       aria-label={side === 'left' ? 'Germany news, economy and immigration' : 'Germany news, crime and health'}
     >
-      <div className="shrink-0 border-b border-neutral-800 px-2 py-2">
+      <div className="shrink-0 border-b border-line bg-black/20 px-2 py-2 shadow-inset">
         <h2 className="text-[12px] font-bold leading-tight tracking-tight text-white">Related articles</h2>
-        <p className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-neutral-600">Germany</p>
+        <p className="mt-0.5 font-sans text-[8px] uppercase tracking-[0.12em] text-neutral-600">Germany</p>
       </div>
 
       <nav className="scrollbar-none min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
         {nonEmpty.length === 0 ? (
-          <p className="px-2 py-3 font-mono text-[10px] text-neutral-600">No articles.</p>
+          <p className="px-2 py-3 font-sans text-[10px] text-neutral-600">No articles.</p>
         ) : (
           nonEmpty.map((section) => <CollapsibleNewsSection key={section.heading} section={section} />)
         )}
