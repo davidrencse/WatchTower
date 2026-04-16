@@ -9,6 +9,7 @@ import {
   rowsForSubsection,
 } from '../lib/germanyGovernmentPolitics';
 import { GermanyBundestagSeatsVisualization } from './GermanyBundestagSeatsVisualization';
+import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
 import { GermanyPolicyCarousel } from './GermanyPolicyCarousel';
 import {
   GOV_POLITICS_CARD_GRID,
@@ -159,6 +160,32 @@ function OverviewBlock({
 function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][] }) {
   const totalSeatsGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'total seats');
   const majorityThresholdGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'majority threshold');
+  const trustInCivilServiceRow: GermanyGovernmentPoliticsRow = {
+    section: 'Government',
+    subsection: 'Parliament',
+    metric: 'Trust in Civil Service',
+    submetric: '',
+    breakdown: '',
+    value: '45',
+    unit: 'percent',
+    referenceYear: '2023',
+    sourceName: 'OECD Survey on Drivers of Trust in Public Institutions',
+    sourceUrl: '',
+    notes: '2024 - Germany',
+  };
+  const trustInLocalGovernmentRow: GermanyGovernmentPoliticsRow = {
+    section: 'Government',
+    subsection: 'Parliament',
+    metric: 'Trust in Local Government',
+    submetric: '',
+    breakdown: '',
+    value: '45',
+    unit: 'percent',
+    referenceYear: '2023',
+    sourceName: 'OECD Survey on Drivers of Trust in Public Institutions',
+    sourceUrl: '',
+    notes: '2024 - Germany',
+  };
 
   const pollingData = [
     { party: 'AfD', percent: 26, fill: '#3b82f6' },
@@ -210,6 +237,16 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
       );
     }
     out.push(<Fragment key={g[0]!.metric}>{renderMetricGroup(g)}</Fragment>);
+    if (m === 'perceived corruption') {
+      out.push(
+        <GovStatCard key="trust-in-civil-service" row={trustInCivilServiceRow} title="Trust in Civil Service" />,
+        <GovStatCard
+          key="trust-in-local-government"
+          row={trustInLocalGovernmentRow}
+          title="Trust in Local Government"
+        />,
+      );
+    }
   }
   return (
     <div className="flex flex-col gap-4">
@@ -282,9 +319,27 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
                   </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
-              <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-                AfD 25-26%, CDU/CSU 25-26%, SPD 13-14%, Greens 13-15%, Die Linke 10-11%, Others 3-5% each.
-              </p>
+              <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+                {pollingData.map((entry) => (
+                  <div key={entry.party} className="flex items-center justify-between gap-2 font-sans text-neutral-400">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-[2px]" style={{ backgroundColor: entry.fill }} />
+                      <span className={UC_META}>{entry.party}</span>
+                    </span>
+                    <span className="tabular-nums text-neutral-200">
+                      {entry.party === 'AfD' || entry.party === 'CDU/CSU'
+                        ? '25-26%'
+                        : entry.party === 'SPD'
+                          ? '13-14%'
+                          : entry.party === 'Greens'
+                            ? '13-15%'
+                            : entry.party === 'Die Linke'
+                              ? '10-11%'
+                              : '3-5%'}
+                    </span>
+                  </div>
+                ))}
+              </div>
               <details className="mt-2 rounded border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
                 <summary className="cursor-pointer text-[9px] uppercase tracking-[0.12em] text-neutral-500">Note</summary>
                 <p className="mt-1.5 font-sans text-[10px] leading-relaxed text-neutral-500">
@@ -298,6 +353,10 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
       ) : null}
 
       <div className={GOV_POLITICS_CARD_GRID}>
+      </div>
+
+      <div className={GOV_POLITICS_CARD_GRID}>
+        <GermanyJewishGovernmentCarousel />
       </div>
 
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -535,7 +594,8 @@ export function GermanyGovernmentSection({
           const sorted = rowsForSubsection(germanyRows, key);
           const groups = clusterRowsByMetric(sorted);
           if (groups.length === 0) return null;
-          const subsectionCount = key === 'Citizenship' ? groups.length + 5 : groups.length;
+          const subsectionCount =
+            key === 'Citizenship' ? groups.length + 5 : key === 'Parliament' ? groups.length + 1 : groups.length;
           return (
             <CollapsibleFlagSection
               key={id}

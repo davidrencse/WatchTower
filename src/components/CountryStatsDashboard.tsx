@@ -912,7 +912,7 @@ function getStatSections(iso3: string): StatSectionDef[] {
   return [
     {
       id: 'economic',
-      title: 'Economic statistics',
+      title: 'Economy',
       metrics: ['GDP', 'GDP per capita', 'Inflation', 'Unemployment', 'Interest', 'Real Median Wage'],
       subsections: [
         {
@@ -941,7 +941,7 @@ function getStatSections(iso3: string): StatSectionDef[] {
     },
     {
       id: 'population',
-      title: 'Population',
+      title: 'Demographics',
       metrics: getPopulationSectionMetrics(iso3),
       subsections: isDeu
         ? [{ id: 'germany_immigration', title: 'Immigration', kind: 'germany_immigration' as const }]
@@ -1582,7 +1582,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               style={{ order: sectionOrderIndex('crime') }}
             >
               <CollapsibleFlagSection
-                title="Crime statistics"
+                title="Crime"
                 count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 14 : 8) : 0}
                 defaultOpen
                 headerControls={sectionControls('crime')}

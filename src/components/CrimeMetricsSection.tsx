@@ -1,7 +1,9 @@
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { Separator } from './ui/separator';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 type CrimeBoxConfig = {
   id: string;
@@ -120,6 +122,99 @@ function parseCount(s: string): number | null {
 
 function formatCount(n: number): string {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+}
+
+function CrimeBaselineLatestChart({ row }: { row: CountryWideRow }) {
+  const chartSeries = [
+    {
+      label: 'Petty crime',
+      baseline: parseCount(String(row.petty_2000s_value ?? '')) ?? 0,
+      latest: parseCount(String(row.petty_latest_value ?? '')) ?? 0,
+    },
+    {
+      label: 'Rape crime',
+      baseline: parseCount(String(row.rape_2000s_value ?? '')) ?? 0,
+      latest: parseCount(String(row.rape_latest_value ?? '')) ?? 0,
+    },
+    {
+      label: 'Theft crime',
+      baseline: parseCount(String(row.theft_2000s_value ?? '')) ?? 0,
+      latest: parseCount(String(row.theft_latest_value ?? '')) ?? 0,
+    },
+    {
+      label: 'Sexual crime',
+      baseline: parseCount(String(row.sexual_2000s_value ?? '')) ?? 0,
+      latest: parseCount(String(row.sexual_latest_value ?? '')) ?? 0,
+    },
+  ];
+
+  const hasAnyData = chartSeries.some((entry) => entry.baseline > 0 || entry.latest > 0);
+  if (!hasAnyData) return null;
+
+  const chartConfig = {
+    baseline: { label: 'Baseline', color: '#64748b' },
+    latest: { label: 'Latest', color: '#3b82f6' },
+  } satisfies ChartConfig;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle>Baseline vs latest crime comparison</CardTitle>
+        <CardDescription>One chart per crime type.</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          {chartSeries.map((series) => {
+            const data = [
+              { period: 'Baseline', value: series.baseline },
+              { period: 'Latest', value: series.latest },
+            ];
+            return (
+              <div key={series.label} className="rounded-md border border-line bg-surface-metric/70 p-2">
+                <p className="mb-1 px-1 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-500">
+                  {series.label}
+                </p>
+                <ChartContainer config={chartConfig} className="h-[180px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <XAxis
+                        dataKey="period"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: '#a3a3a3', fontSize: 11 }}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: '#a3a3a3', fontSize: 11 }}
+                        tickFormatter={(value) =>
+                          new Intl.NumberFormat('en-US', { notation: 'compact' }).format(Number(value))
+                        }
+                      />
+                      <ChartTooltip
+                        content={
+                          <ChartTooltipContent
+                            formatter={(value) => [formatCount(Number(value)), 'Value']}
+                            labelFormatter={(label) => `${String(label)} period`}
+                          />
+                        }
+                      />
+                      <Bar
+                        dataKey="value"
+                        fill={(entry) => (entry.period === 'Baseline' ? 'var(--color-baseline)' : 'var(--color-latest)')}
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 type PctBadge = { label: string; variant: 'destructive' | 'success' | 'outline' };
@@ -243,6 +338,7 @@ export function CrimeMetricsSection({ crimeRow }: CrimeMetricsSectionProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      <CrimeBaselineLatestChart row={crimeRow} />
       {generalNote ? (
         <p className="rounded-md border border-line bg-surface-metric/90 p-3 shadow-inset font-sans text-[11px] leading-relaxed text-neutral-500">
           {generalNote}
