@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import germanyTreemapCsvRaw from '../../Assets/Data/Europe/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
+import { cn } from '../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from './ui/chart';
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
+  Line,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -82,6 +85,481 @@ const asylumChartConfig: ChartConfig = {
   },
 };
 
+type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
+
+type MigrantArrivalsRow = {
+  year: string;
+  total: number;
+  totalDisplay: string;
+  europe: number;
+  europeDisplay: string;
+  nonEurope: number;
+  nonEuropeDisplay: string;
+  africa: number;
+  africaDisplay: string;
+};
+
+const MIGRANT_ARRIVALS_SERIES: readonly MigrantArrivalsRow[] = [
+  {
+    year: '2000',
+    total: 841158,
+    totalDisplay: '841,158',
+    europe: 649249,
+    europeDisplay: '649,249',
+    nonEurope: 191909,
+    nonEuropeDisplay: '191,909',
+    africa: 25000,
+    africaDisplay: '~25,000',
+  },
+  {
+    year: '2001',
+    total: 879217,
+    totalDisplay: '879,217',
+    europe: 685259,
+    europeDisplay: '685,259',
+    nonEurope: 193958,
+    nonEuropeDisplay: '193,958',
+    africa: 26000,
+    africaDisplay: '~26,000',
+  },
+  {
+    year: '2002',
+    total: 842543,
+    totalDisplay: '842,543',
+    europe: 658341,
+    europeDisplay: '658,341',
+    nonEurope: 184202,
+    nonEuropeDisplay: '184,202',
+    africa: 27000,
+    africaDisplay: '~27,000',
+  },
+  {
+    year: '2003',
+    total: 768975,
+    totalDisplay: '768,975',
+    europe: 601759,
+    europeDisplay: '601,759',
+    nonEurope: 167216,
+    nonEuropeDisplay: '167,216',
+    africa: 28000,
+    africaDisplay: '~28,000',
+  },
+  {
+    year: '2004',
+    total: 780175,
+    totalDisplay: '780,175',
+    europe: 602182,
+    europeDisplay: '602,182',
+    nonEurope: 177993,
+    nonEuropeDisplay: '177,993',
+    africa: 29000,
+    africaDisplay: '~29,000',
+  },
+  {
+    year: '2005',
+    total: 707352,
+    totalDisplay: '707,352',
+    europe: 550000,
+    europeDisplay: '~550,000',
+    nonEurope: 157000,
+    nonEuropeDisplay: '~157,000',
+    africa: 30000,
+    africaDisplay: '~30,000',
+  },
+  {
+    year: '2006',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 520000,
+    europeDisplay: '~520,000',
+    nonEurope: 160000,
+    nonEuropeDisplay: '~160,000',
+    africa: 32000,
+    africaDisplay: '~32,000',
+  },
+  {
+    year: '2007',
+    total: 670000,
+    totalDisplay: '~670,000',
+    europe: 510000,
+    europeDisplay: '~510,000',
+    nonEurope: 160000,
+    nonEuropeDisplay: '~160,000',
+    africa: 33000,
+    africaDisplay: '~33,000',
+  },
+  {
+    year: '2008',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 500000,
+    europeDisplay: '~500,000',
+    nonEurope: 180000,
+    nonEuropeDisplay: '~180,000',
+    africa: 35000,
+    africaDisplay: '~35,000',
+  },
+  {
+    year: '2009',
+    total: 650000,
+    totalDisplay: '~650,000',
+    europe: 480000,
+    europeDisplay: '~480,000',
+    nonEurope: 170000,
+    nonEuropeDisplay: '~170,000',
+    africa: 36000,
+    africaDisplay: '~36,000',
+  },
+  {
+    year: '2010',
+    total: 640000,
+    totalDisplay: '~640,000',
+    europe: 470000,
+    europeDisplay: '~470,000',
+    nonEurope: 170000,
+    nonEuropeDisplay: '~170,000',
+    africa: 37000,
+    africaDisplay: '~37,000',
+  },
+  {
+    year: '2011',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 480000,
+    europeDisplay: '~480,000',
+    nonEurope: 200000,
+    nonEuropeDisplay: '~200,000',
+    africa: 40000,
+    africaDisplay: '~40,000',
+  },
+  {
+    year: '2012',
+    total: 720000,
+    totalDisplay: '~720,000',
+    europe: 490000,
+    europeDisplay: '~490,000',
+    nonEurope: 230000,
+    nonEuropeDisplay: '~230,000',
+    africa: 42000,
+    africaDisplay: '~42,000',
+  },
+  {
+    year: '2013',
+    total: 780000,
+    totalDisplay: '~780,000',
+    europe: 520000,
+    europeDisplay: '~520,000',
+    nonEurope: 260000,
+    nonEuropeDisplay: '~260,000',
+    africa: 45000,
+    africaDisplay: '~45,000',
+  },
+  {
+    year: '2014',
+    total: 950000,
+    totalDisplay: '~950,000',
+    europe: 650000,
+    europeDisplay: '~650,000',
+    nonEurope: 300000,
+    nonEuropeDisplay: '~300,000',
+    africa: 50000,
+    africaDisplay: '~50,000',
+  },
+  {
+    year: '2015',
+    total: 2136954,
+    totalDisplay: '2,136,954',
+    europe: 1036000,
+    europeDisplay: '~1,036,000',
+    nonEurope: 1100000,
+    nonEuropeDisplay: '~1,100,000+',
+    africa: 80000,
+    africaDisplay: '~80,000+',
+  },
+  {
+    year: '2016',
+    total: 1900000,
+    totalDisplay: '~1,900,000',
+    europe: 1050000,
+    europeDisplay: '~1,050,000',
+    nonEurope: 850000,
+    nonEuropeDisplay: '~850,000',
+    africa: 90000,
+    africaDisplay: '~90,000',
+  },
+  {
+    year: '2017',
+    total: 1550000,
+    totalDisplay: '~1,550,000',
+    europe: 850000,
+    europeDisplay: '~850,000',
+    nonEurope: 700000,
+    nonEuropeDisplay: '~700,000',
+    africa: 85000,
+    africaDisplay: '~85,000',
+  },
+  {
+    year: '2018',
+    total: 1400000,
+    totalDisplay: '~1,400,000',
+    europe: 750000,
+    europeDisplay: '~750,000',
+    nonEurope: 650000,
+    nonEuropeDisplay: '~650,000',
+    africa: 80000,
+    africaDisplay: '~80,000',
+  },
+  {
+    year: '2019',
+    total: 1300000,
+    totalDisplay: '~1,300,000',
+    europe: 680000,
+    europeDisplay: '~680,000',
+    nonEurope: 620000,
+    nonEuropeDisplay: '~620,000',
+    africa: 75000,
+    africaDisplay: '~75,000',
+  },
+  {
+    year: '2020',
+    total: 995938,
+    totalDisplay: '995,938',
+    europe: 546000,
+    europeDisplay: '~546,000',
+    nonEurope: 450000,
+    nonEuropeDisplay: '~450,000',
+    africa: 45000,
+    africaDisplay: '~45,000',
+  },
+  {
+    year: '2021',
+    total: 1186702,
+    totalDisplay: '1,186,702',
+    europe: 636000,
+    europeDisplay: '~636,000',
+    nonEurope: 550000,
+    nonEuropeDisplay: '~550,000',
+    africa: 60000,
+    africaDisplay: '~60,000',
+  },
+  {
+    year: '2022',
+    total: 2665772,
+    totalDisplay: '2,665,772',
+    europe: 2010890,
+    europeDisplay: '2,010,890',
+    nonEurope: 655000,
+    nonEuropeDisplay: '~655,000',
+    africa: 90000,
+    africaDisplay: '~90,000',
+  },
+  {
+    year: '2023',
+    total: 1932509,
+    totalDisplay: '1,932,509',
+    europe: 1299997,
+    europeDisplay: '1,299,997 (incl. Ukraine heavy)',
+    nonEurope: 632512,
+    nonEuropeDisplay: '~632,512',
+    africa: 95000,
+    africaDisplay: '~95,000',
+  },
+  {
+    year: '2024',
+    total: 1694192,
+    totalDisplay: '1,694,192',
+    europe: 1131103,
+    europeDisplay: '~1,131,103',
+    nonEurope: 563089,
+    nonEuropeDisplay: '~563,089',
+    africa: 85000,
+    africaDisplay: '~85,000',
+  },
+  {
+    year: '2025',
+    total: 1481299,
+    totalDisplay: '1,481,299',
+    europe: 972578,
+    europeDisplay: '~972,578',
+    nonEurope: 508721,
+    nonEuropeDisplay: '~508,721',
+    africa: 80000,
+    africaDisplay: '~80,000',
+  },
+];
+
+const migrantArrivalsChartConfig = {
+  total: { label: 'Total migrants (arrivals)', color: '#f59e0b' },
+  europe: { label: 'Migrants from European countries', color: '#22c55e' },
+  nonEurope: { label: 'Migrants from non-European countries', color: '#38bdf8' },
+  africa: { label: 'Migrants from Africa', color: '#c084fc' },
+} satisfies ChartConfig;
+
+const SERIES_ORDER: readonly { key: MigrantArrivalsSeriesKey; label: string }[] = [
+  { key: 'total', label: 'Total migrants (arrivals)' },
+  { key: 'europe', label: 'European countries' },
+  { key: 'nonEurope', label: 'Non-European countries' },
+  { key: 'africa', label: 'Africa' },
+];
+
+function GermanyMigrantArrivalsInteractiveChart() {
+  const [hoveredKey, setHoveredKey] = useState<MigrantArrivalsSeriesKey | null>(null);
+
+  const dim = (key: MigrantArrivalsSeriesKey) =>
+    hoveredKey !== null && hoveredKey !== key ? 'dimmed' : 'focus';
+
+  const strokeFor = (key: MigrantArrivalsSeriesKey) => {
+    const grey = '#737373';
+    const colors = {
+      total: '#f59e0b',
+      europe: '#22c55e',
+      nonEurope: '#38bdf8',
+      africa: '#c084fc',
+    } as const;
+    return dim(key) === 'dimmed' ? grey : colors[key];
+  };
+
+  const opacityFor = (key: MigrantArrivalsSeriesKey) => (dim(key) === 'dimmed' ? 0.28 : 1);
+
+  const widthFor = (key: MigrantArrivalsSeriesKey) =>
+    hoveredKey === key || hoveredKey === null ? (hoveredKey === key ? 3.25 : 2.5) : 2;
+
+  return (
+    <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
+      <ChartContainer config={migrantArrivalsChartConfig} className="h-[380px] w-full font-sans">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={MIGRANT_ARRIVALS_SERIES} margin={{ top: 8, right: 8, left: 4, bottom: 8 }}>
+            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <XAxis
+              dataKey="year"
+              tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tickFormatter={(value) =>
+                new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+              }
+              tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              axisLine={false}
+              tickLine={false}
+              width={48}
+              domain={[0, 'auto']}
+              label={{
+                value: 'Arrivals',
+                angle: -90,
+                position: 'insideLeft',
+                fill: 'rgba(163,163,163,0.65)',
+                fontSize: 9,
+              }}
+            />
+            <ChartTooltip
+              cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+              content={
+                <ChartTooltipContent
+                  className="rounded-md max-w-[min(100vw-2rem,320px)]"
+                  labelFormatter={(_, payload) => {
+                    const row = (payload as { payload?: MigrantArrivalsRow }[] | undefined)?.[0]?.payload;
+                    return row ? `Year ${row.year}` : '';
+                  }}
+                  formatter={(_v, _entryLabel, item) => {
+                    const entry = item as { payload?: MigrantArrivalsRow; dataKey?: unknown };
+                    const row = entry.payload;
+                    const dk = String(entry.dataKey ?? '');
+                    if (!row) return '—';
+                    if (dk === 'total') return row.totalDisplay;
+                    if (dk === 'europe') return row.europeDisplay;
+                    if (dk === 'nonEurope') return row.nonEuropeDisplay;
+                    if (dk === 'africa') return row.africaDisplay;
+                    return '—';
+                  }}
+                />
+              }
+            />
+            <Line
+              type="monotone"
+              dataKey="total"
+              name="Total migrants (arrivals)"
+              stroke={strokeFor('total')}
+              strokeOpacity={opacityFor('total')}
+              strokeWidth={widthFor('total')}
+              dot={{ r: hoveredKey === 'total' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('total')}
+            />
+            <Line
+              type="monotone"
+              dataKey="europe"
+              name="Migrants from European countries"
+              stroke={strokeFor('europe')}
+              strokeOpacity={opacityFor('europe')}
+              strokeWidth={widthFor('europe')}
+              dot={{ r: hoveredKey === 'europe' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('europe')}
+            />
+            <Line
+              type="monotone"
+              dataKey="nonEurope"
+              name="Migrants from non-European countries"
+              stroke={strokeFor('nonEurope')}
+              strokeOpacity={opacityFor('nonEurope')}
+              strokeWidth={widthFor('nonEurope')}
+              dot={{ r: hoveredKey === 'nonEurope' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('nonEurope')}
+            />
+            <Line
+              type="monotone"
+              dataKey="africa"
+              name="Migrants from Africa"
+              stroke={strokeFor('africa')}
+              strokeOpacity={opacityFor('africa')}
+              strokeWidth={widthFor('africa')}
+              dot={{ r: hoveredKey === 'africa' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('africa')}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-1">
+        {SERIES_ORDER.map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            className={cn(
+              'flex items-center gap-2 rounded-md px-2 py-1 font-sans text-[11px] text-neutral-300 transition-colors',
+              hoveredKey === key ? 'bg-white/[0.08] text-neutral-100' : 'hover:bg-white/[0.05]',
+            )}
+            onMouseEnter={() => setHoveredKey(key)}
+          >
+            <span
+              className="h-0.5 w-6 shrink-0 rounded-full"
+              style={{
+                backgroundColor:
+                  hoveredKey !== null && hoveredKey !== key ? '#737373' : migrantArrivalsChartConfig[key].color,
+                opacity: hoveredKey !== null && hoveredKey !== key ? 0.35 : 1,
+              }}
+              aria-hidden
+            />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+      <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
+        Hover a line or legend item to emphasize that series; others fade to grey. All series share one arrivals scale
+        (Africa sits lower; use hover or the tooltip for exact values).
+      </p>
+    </div>
+  );
+}
+
 export function GermanyImmigrationSection() {
   const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -154,6 +632,21 @@ export function GermanyImmigrationSection() {
           <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024–2025.</p>
         </article>
       </div>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Migrant arrivals by origin (Germany)
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Four series on a single arrivals axis (compact ticks). Approximate labels keep ~ / + in tooltips; lines use
+            rounded numeric values.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <GermanyMigrantArrivalsInteractiveChart />
+        </CardContent>
+      </Card>
 
       {loadError ? (
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>

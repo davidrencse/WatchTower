@@ -20,7 +20,7 @@ import { metricsFromGermanyBirthHealthCsv } from '../lib/germanyBirthHealthIndic
 import { crimeFromMergedRow, proxyFromMergedRow } from '../lib/mergedCountryStats';
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
 import { indexCountriesByIso3, parseCountriesWideCsv } from '../lib/parseCountriesWideCsv';
-import { collectCrimeSourceUrls, CrimeMetricsSection } from './CrimeMetricsSection';
+import { collectCrimeSourceUrls, CrimeMetricsSection, GermanyTotalRecordedCrimesChart } from './CrimeMetricsSection';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
@@ -903,8 +903,9 @@ const GERMANY_IMMIGRATION_TOP_METRICS = [
 const GERMANY_IMMIGRATION_METRICS_SET = new Set<string>(GERMANY_IMMIGRATION_TOP_METRICS);
 
 const GERMANY_IMMIGRATION_TREEMAP_COUNTRIES = 27;
+/** Treemap countries + top metric tiles + non-EU arrivals line chart. */
 const GERMANY_IMMIGRATION_SUBSECTION_COUNT =
-  GERMANY_IMMIGRATION_TREEMAP_COUNTRIES + GERMANY_IMMIGRATION_TOP_METRICS.length;
+  GERMANY_IMMIGRATION_TREEMAP_COUNTRIES + GERMANY_IMMIGRATION_TOP_METRICS.length + 1;
 
 function getPopulationSectionMetrics(iso3: string): string[] {
   if (iso3.toUpperCase() !== 'DEU') return [...POPULATION_SECTION_METRICS];
@@ -2065,7 +2066,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 14 : 8) : 0}
+                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 : 8) : 0}
                 defaultOpen
                 headerControls={sectionControls('crime')}
                 collapseSignal={collapseSignal}
@@ -2074,12 +2075,15 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 <div className="flex flex-col gap-4">
                   <CollapsibleFlagSection
                     title="Crime Comparison"
-                    count={crimeRow ? 8 : 0}
+                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 9 : 8) : 0}
                     defaultOpen
                     collapseSignal={collapseSignal}
                     expandSignal={expandSignal}
                   >
-                    <CrimeMetricsSection crimeRow={crimeRow} />
+                    <div className="flex flex-col gap-4">
+                      {iso3.toUpperCase() === 'DEU' ? <GermanyTotalRecordedCrimesChart /> : null}
+                      <CrimeMetricsSection crimeRow={crimeRow} />
+                    </div>
                   </CollapsibleFlagSection>
                   {iso3.toUpperCase() === 'DEU' ? (
                     <CollapsibleFlagSection
