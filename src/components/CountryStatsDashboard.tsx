@@ -46,6 +46,14 @@ import {
   GermanyPoliticsLeftismSection,
   GERMANY_POLITICS_LEFTISM_GROUP_COUNT,
 } from './GermanyPoliticsLeftismSection';
+import {
+  GermanyPoliticsRightWingSection,
+  GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT,
+} from './GermanyPoliticsRightWingSection';
+import {
+  GermanyPoliticsZionismSection,
+  GERMANY_POLITICS_ZIONISM_GROUP_COUNT,
+} from './GermanyPoliticsZionismSection';
 import { GermanyLaborIncomeSection } from './GermanyLaborIncomeSection';
 import {
   GermanyEconomicStructuralSection,
@@ -920,6 +928,8 @@ type CustomSubsection =
   | { id: string; title: string; kind: 'germany_health_basic' }
   | { id: string; title: string; kind: 'germany_lgbt_stats' }
   | { id: string; title: string; kind: 'germany_politics_leftism' }
+  | { id: string; title: string; kind: 'germany_politics_rightwing' }
+  | { id: string; title: string; kind: 'germany_politics_zionism' }
   | { id: string; title: string; kind: 'germany_abortion_stats' };
 type SubsectionDef = MetricSubsection | CustomSubsection;
 
@@ -964,7 +974,11 @@ function getStatSections(iso3: string): StatSectionDef[] {
       title: 'Politics',
       metrics: [],
       subsections: isDeu
-        ? [{ id: 'leftism', title: 'Leftism', kind: 'germany_politics_leftism' as const }]
+        ? [
+            { id: 'leftism', title: 'Leftism', kind: 'germany_politics_leftism' as const },
+            { id: 'rightwing', title: 'Right-wing', kind: 'germany_politics_rightwing' as const },
+            { id: 'zionism', title: 'Zionism', kind: 'germany_politics_zionism' as const },
+          ]
         : undefined,
     },
     {
@@ -1786,6 +1800,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_health_basic'; sub: CustomSubsection }
                   | { type: 'germany_lgbt_stats'; sub: CustomSubsection }
                   | { type: 'germany_politics_leftism'; sub: CustomSubsection }
+                  | { type: 'germany_politics_rightwing'; sub: CustomSubsection }
+                  | { type: 'germany_politics_zionism'; sub: CustomSubsection }
                   | { type: 'germany_abortion_stats'; sub: CustomSubsection };
 
                 const nestedBlocks: NestedBlock[] = [];
@@ -1826,6 +1842,18 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     }
                     continue;
                   }
+                  if ('kind' in sub && sub.kind === 'germany_politics_rightwing') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_politics_rightwing', sub });
+                    }
+                    continue;
+                  }
+                  if ('kind' in sub && sub.kind === 'germany_politics_zionism') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_politics_zionism', sub });
+                    }
+                    continue;
+                  }
                   if ('kind' in sub && sub.kind === 'germany_abortion_stats') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_abortion_stats', sub });
@@ -1858,6 +1886,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     }
                     if (b.type === 'germany_lgbt_stats') return acc + GERMANY_LGBT_SECTION_GROUP_COUNT;
                     if (b.type === 'germany_politics_leftism') return acc + GERMANY_POLITICS_LEFTISM_GROUP_COUNT;
+                    if (b.type === 'germany_politics_rightwing') return acc + GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT;
+                    if (b.type === 'germany_politics_zionism') return acc + GERMANY_POLITICS_ZIONISM_GROUP_COUNT;
                     if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
                     if (b.type === 'metrics' && b.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU') {
                       return acc + b.subRows.length + 2;
@@ -1977,6 +2007,28 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                           >
                             <GermanyPoliticsLeftismSection />
                           </CollapsibleFlagSection>
+                        ) : block.type === 'germany_politics_rightwing' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT}
+                            defaultOpen
+                            collapseSignal={collapseSignal}
+                              expandSignal={expandSignal}
+                          >
+                            <GermanyPoliticsRightWingSection />
+                          </CollapsibleFlagSection>
+                        ) : block.type === 'germany_politics_zionism' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_POLITICS_ZIONISM_GROUP_COUNT}
+                            defaultOpen
+                            collapseSignal={collapseSignal}
+                            expandSignal={expandSignal}
+                          >
+                            <GermanyPoliticsZionismSection />
+                          </CollapsibleFlagSection>
                         ) : block.type === 'germany_abortion_stats' ? (
                           <CollapsibleFlagSection
                             key={block.sub.id}
@@ -2066,7 +2118,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 : 8) : 0}
+                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 35 : 4) : 0}
                 defaultOpen
                 headerControls={sectionControls('crime')}
                 collapseSignal={collapseSignal}
@@ -2074,15 +2126,15 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               >
                 <div className="flex flex-col gap-4">
                   <CollapsibleFlagSection
-                    title="Crime Comparison"
-                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 9 : 8) : 0}
+                    title="Statistics"
+                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 1 : 4) : 0}
                     defaultOpen
                     collapseSignal={collapseSignal}
                     expandSignal={expandSignal}
                   >
                     <div className="flex flex-col gap-4">
                       {iso3.toUpperCase() === 'DEU' ? <GermanyTotalRecordedCrimesChart /> : null}
-                      <CrimeMetricsSection crimeRow={crimeRow} />
+                      <CrimeMetricsSection crimeRow={crimeRow} iso3={iso3} />
                     </div>
                   </CollapsibleFlagSection>
                   {iso3.toUpperCase() === 'DEU' ? (

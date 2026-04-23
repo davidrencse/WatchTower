@@ -1,13 +1,9 @@
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
-import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { Separator } from './ui/separator';
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
   Legend,
   Line,
@@ -26,25 +22,12 @@ type CrimeBoxConfig = {
   sourceUrlKey: keyof CountryWideRow;
   sourceLabelKey: keyof CountryWideRow;
   methodNoteKey: keyof CountryWideRow;
-  /** Latest-period cards: compare to the 2000-reference value in this column */
-  baselineValueKey?: keyof CountryWideRow;
 };
 
 const CRIME_BOXES: CrimeBoxConfig[] = [
   {
-    id: 'petty-2000s',
-    title: 'Petty crime statistics (baseline)',
-    valueKey: 'petty_2000s_value',
-    yearKey: 'petty_2000s_year',
-    unitKey: 'petty_2000s_unit',
-    definitionKey: 'petty_2000s_definition',
-    sourceUrlKey: 'petty_2000s_source_url',
-    sourceLabelKey: 'petty_2000s_source_label',
-    methodNoteKey: 'petty_2000s_method_note',
-  },
-  {
     id: 'petty-latest',
-    title: 'Petty crime statistics (latest)',
+    title: 'Petty crime statistics',
     valueKey: 'petty_latest_value',
     yearKey: 'petty_latest_year',
     unitKey: 'petty_latest_unit',
@@ -52,22 +35,10 @@ const CRIME_BOXES: CrimeBoxConfig[] = [
     sourceUrlKey: 'petty_latest_source_url',
     sourceLabelKey: 'petty_latest_source_label',
     methodNoteKey: 'petty_latest_method_note',
-    baselineValueKey: 'petty_2000s_value',
-  },
-  {
-    id: 'rape-2000s',
-    title: 'Rape crime statistics (baseline)',
-    valueKey: 'rape_2000s_value',
-    yearKey: 'rape_2000s_year',
-    unitKey: 'rape_2000s_unit',
-    definitionKey: 'rape_2000s_definition',
-    sourceUrlKey: 'rape_2000s_source_url',
-    sourceLabelKey: 'rape_2000s_source_label',
-    methodNoteKey: 'rape_2000s_method_note',
   },
   {
     id: 'rape-latest',
-    title: 'Rape crime statistics (latest)',
+    title: 'Rape crime statistics',
     valueKey: 'rape_latest_value',
     yearKey: 'rape_latest_year',
     unitKey: 'rape_latest_unit',
@@ -75,22 +46,10 @@ const CRIME_BOXES: CrimeBoxConfig[] = [
     sourceUrlKey: 'rape_latest_source_url',
     sourceLabelKey: 'rape_latest_source_label',
     methodNoteKey: 'rape_latest_method_note',
-    baselineValueKey: 'rape_2000s_value',
-  },
-  {
-    id: 'theft-2000s',
-    title: 'Theft crime statistics (baseline)',
-    valueKey: 'theft_2000s_value',
-    yearKey: 'theft_2000s_year',
-    unitKey: 'theft_2000s_unit',
-    definitionKey: 'theft_2000s_definition',
-    sourceUrlKey: 'theft_2000s_source_url',
-    sourceLabelKey: 'theft_2000s_source_label',
-    methodNoteKey: 'theft_2000s_method_note',
   },
   {
     id: 'theft-latest',
-    title: 'Theft crime statistics (latest)',
+    title: 'Theft crime statistics',
     valueKey: 'theft_latest_value',
     yearKey: 'theft_latest_year',
     unitKey: 'theft_latest_unit',
@@ -98,22 +57,10 @@ const CRIME_BOXES: CrimeBoxConfig[] = [
     sourceUrlKey: 'theft_latest_source_url',
     sourceLabelKey: 'theft_latest_source_label',
     methodNoteKey: 'theft_latest_method_note',
-    baselineValueKey: 'theft_2000s_value',
-  },
-  {
-    id: 'sexual-2000s',
-    title: 'Sexual crime statistics (baseline)',
-    valueKey: 'sexual_2000s_value',
-    yearKey: 'sexual_2000s_year',
-    unitKey: 'sexual_2000s_unit',
-    definitionKey: 'sexual_2000s_definition',
-    sourceUrlKey: 'sexual_2000s_source_url',
-    sourceLabelKey: 'sexual_2000s_source_label',
-    methodNoteKey: 'sexual_2000s_method_note',
   },
   {
     id: 'sexual-latest',
-    title: 'Sexual crime statistics (latest)',
+    title: 'Sexual crime statistics',
     valueKey: 'sexual_latest_value',
     yearKey: 'sexual_latest_year',
     unitKey: 'sexual_latest_unit',
@@ -121,7 +68,124 @@ const CRIME_BOXES: CrimeBoxConfig[] = [
     sourceUrlKey: 'sexual_latest_source_url',
     sourceLabelKey: 'sexual_latest_source_label',
     methodNoteKey: 'sexual_latest_method_note',
-    baselineValueKey: 'sexual_2000s_value',
+  },
+];
+
+type GermanyCrimeStatCard = {
+  id: string;
+  category: string;
+  figure: string;
+  metric: string;
+  notes: string;
+};
+
+const GERMANY_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
+  {
+    id: 'total-crime-suspects',
+    category: 'Total Crime',
+    figure: '2,184,834',
+    metric: 'suspects',
+    notes: '-2.8% (total recorded offences: 5,837,445)',
+  },
+  {
+    id: 'sex-crime-total',
+    category: 'Sex Crime',
+    figure: '127,775',
+    metric: 'offences',
+    notes: '(total sexual offences against sexual self-determination)',
+  },
+  {
+    id: 'rape-serious',
+    category: 'Rape',
+    figure: '13,320',
+    metric: 'offences',
+    notes: '(rape, sexual coercion & serious sexual assault incl. resulting in death)',
+  },
+  { id: 'theft', category: 'Theft', figure: '1,940,033', metric: 'offences', notes: '-' },
+  {
+    id: 'murder',
+    category: 'Murder',
+    figure: '2,303',
+    metric: 'completed cases',
+    notes: '(murder, manslaughter & killing on request)',
+  },
+  {
+    id: 'drug-offences',
+    category: 'Drug Offences',
+    figure: '228,104',
+    metric: 'offences',
+    notes: '-34.2% (largely due to cannabis partial legalisation)',
+  },
+  { id: 'violent-crimes', category: 'Violent Crimes', figure: '217,277', metric: 'offences', notes: '-' },
+  {
+    id: 'property-crimes',
+    category: 'Property Crimes',
+    figure: '~2,700,000+',
+    metric: 'offences',
+    notes: '(theft + fraud + damage to property combined)',
+  },
+  {
+    id: 'burglary',
+    category: 'Burglary',
+    figure: '78,436',
+    metric: 'offences',
+    notes: '(theft by burglary of a dwelling)',
+  },
+  {
+    id: 'fraud-rate',
+    category: 'Fraud Rate',
+    figure: '12.7%',
+    metric: '% of total offences',
+    notes: '743,472 offences',
+  },
+  {
+    id: 'court-dismissals',
+    category: 'Court Dismissals',
+    figure: '5.5 million criminal investigation proceedings',
+    metric: '-',
+    notes: 'Handled by Destatis / public prosecutor stats',
+  },
+  {
+    id: 'incarceration-foreign',
+    category: 'Incarceration Percentage (foreign nationals in prison)',
+    figure: '48.8%',
+    metric: '% of total prison population',
+    notes: 'As of 31 Jan 2024 (World Prison Brief / official prison data)',
+  },
+  {
+    id: 'juvenile-violent',
+    category: 'Juvenile Crimes (violent crimes by juvenile suspects 14-<18)',
+    figure: '31,383',
+    metric: 'juvenile suspects',
+    notes: 'Slight increase',
+  },
+  {
+    id: 'kidnapping-minors',
+    category: 'Kidnapping / Abduction of Minors',
+    figure: '2,747',
+    metric: 'cases (incl. attempts)',
+    notes: 'Includes child abduction & trafficking in children',
+  },
+  {
+    id: 'sex-offences-minors',
+    category: 'Sexual Offences Against Minors',
+    figure: '16,354',
+    metric: 'offences',
+    notes: 'Sexual abuse of children (slight decrease -0.1%)',
+  },
+  {
+    id: 'clear-up-rate',
+    category: 'Clear-up rate (Aufklarungsquote)',
+    figure: '58.0% overall',
+    metric: 'clear-up rate',
+    notes: 'Very high for murder/manslaughter at 94.1%',
+  },
+  {
+    id: 'violent-crime-juvenile-suspects',
+    category: 'Violent crime by juvenile suspects',
+    figure: '31,383',
+    metric: 'cases',
+    notes: 'Increased slightly',
   },
 ];
 
@@ -501,121 +565,6 @@ export function GermanyTotalRecordedCrimesChart() {
   );
 }
 
-function CrimeBaselineLatestChart({ row }: { row: CountryWideRow }) {
-  const chartSeries = [
-    {
-      label: 'Petty crime',
-      baseline: parseCount(String(row.petty_2000s_value ?? '')) ?? 0,
-      latest: parseCount(String(row.petty_latest_value ?? '')) ?? 0,
-    },
-    {
-      label: 'Rape crime',
-      baseline: parseCount(String(row.rape_2000s_value ?? '')) ?? 0,
-      latest: parseCount(String(row.rape_latest_value ?? '')) ?? 0,
-    },
-    {
-      label: 'Theft crime',
-      baseline: parseCount(String(row.theft_2000s_value ?? '')) ?? 0,
-      latest: parseCount(String(row.theft_latest_value ?? '')) ?? 0,
-    },
-    {
-      label: 'Sexual crime',
-      baseline: parseCount(String(row.sexual_2000s_value ?? '')) ?? 0,
-      latest: parseCount(String(row.sexual_latest_value ?? '')) ?? 0,
-    },
-  ];
-
-  const hasAnyData = chartSeries.some((entry) => entry.baseline > 0 || entry.latest > 0);
-  if (!hasAnyData) return null;
-
-  const chartConfig = {
-    baseline: { label: 'Baseline', color: '#64748b' },
-    latest: { label: 'Latest', color: '#3b82f6' },
-  } satisfies ChartConfig;
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle>Baseline vs latest crime comparison</CardTitle>
-        <CardDescription>One chart per crime type.</CardDescription>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {chartSeries.map((series) => {
-            const data = [
-              { period: 'Baseline', value: series.baseline },
-              { period: 'Latest', value: series.latest },
-            ];
-            return (
-              <div key={series.label} className="rounded-md border border-line bg-surface-metric/70 p-2">
-                <p className="mb-1 px-1 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-500">
-                  {series.label}
-                </p>
-                <ChartContainer config={chartConfig} className="h-[180px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
-                      <XAxis
-                        dataKey="period"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: '#a3a3a3', fontSize: 11 }}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: '#a3a3a3', fontSize: 11 }}
-                        tickFormatter={(value) =>
-                          new Intl.NumberFormat('en-US', { notation: 'compact' }).format(Number(value))
-                        }
-                      />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value) => [formatCount(Number(value)), 'Value']}
-                            labelFormatter={(label) => `${String(label)} period`}
-                          />
-                        }
-                      />
-                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                        {data.map((row) => (
-                          <Cell
-                            key={row.period}
-                            fill={row.period === 'Baseline' ? 'var(--color-baseline)' : 'var(--color-latest)'}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-type PctBadge = { label: string; variant: 'destructive' | 'success' | 'outline' };
-
-function pctChangeVsBaseline(latest: number | null, baseline: number | null): PctBadge | null {
-  if (latest == null || baseline == null) return null;
-  if (baseline === 0) {
-    if (latest === 0) return { label: '0% vs baseline', variant: 'outline' };
-    return null;
-  }
-  const pct = ((latest - baseline) / baseline) * 100;
-  const rounded = Math.round(pct * 10) / 10;
-  if (Math.abs(rounded) < 0.05) {
-    return { label: '0% vs baseline', variant: 'outline' };
-  }
-  const sign = rounded > 0 ? '+' : '';
-  const label = `${sign}${rounded.toFixed(1)}% vs baseline`;
-  if (rounded > 0) return { label, variant: 'destructive' };
-  return { label, variant: 'success' };
-}
-
 function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxConfig }) {
   const raw = String(row[config.valueKey] ?? '');
   const n = parseCount(raw);
@@ -625,19 +574,6 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
   const sourceUrl = String(row[config.sourceUrlKey] ?? '').trim();
   const sourceLabel = String(row[config.sourceLabelKey] ?? '').trim();
   const methodNote = String(row[config.methodNoteKey] ?? '').trim();
-
-  let comparison: PctBadge | null = null;
-  let comparisonNote: string | null = null;
-  if (config.baselineValueKey) {
-    const baselineRaw = String(row[config.baselineValueKey] ?? '');
-    const baselineN = parseCount(baselineRaw);
-    comparison = pctChangeVsBaseline(n, baselineN);
-    if (n != null && baselineN === 0 && n > 0) {
-      comparisonNote = 'Baseline was zero; percent change is not defined.';
-    } else if (n == null || baselineN == null) {
-      comparisonNote = 'Need both latest and baseline values to compute change.';
-    }
-  }
 
   const metaLine = [year ? `Year: ${year}` : null, unit || null].filter(Boolean).join(' · ');
 
@@ -652,20 +588,6 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
           <p className="font-sans text-3xl font-semibold tabular-nums tracking-tight text-white">
             {n != null ? formatCount(n) : 'N/A'}
           </p>
-          {config.baselineValueKey ? (
-            <div className="space-y-2">
-              <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-neutral-600">
-                Change vs baseline
-              </p>
-              {comparison ? (
-                <Badge variant={comparison.variant}>{comparison.label}</Badge>
-              ) : comparisonNote ? (
-                <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{comparisonNote}</p>
-              ) : (
-                <Badge variant="secondary">—</Badge>
-              )}
-            </div>
-          ) : null}
         </div>
 
         <Separator />
@@ -696,11 +618,30 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
   );
 }
 
+function GermanyCrime2024StatCard({ item }: { item: GermanyCrimeStatCard }) {
+  return (
+    <Card className="flex flex-col overflow-hidden">
+      <CardHeader className="pb-0">
+        <CardTitle>{item.category}</CardTitle>
+        <CardDescription>{item.metric}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col gap-4 pt-4">
+        <p className="font-sans text-2xl font-semibold tabular-nums tracking-tight text-white break-words">
+          {item.figure}
+        </p>
+        <Separator />
+        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{item.notes}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 type CrimeMetricsSectionProps = {
   crimeRow: CountryWideRow | null;
+  iso3?: string;
 };
 
-export function CrimeMetricsSection({ crimeRow }: CrimeMetricsSectionProps) {
+export function CrimeMetricsSection({ crimeRow, iso3 }: CrimeMetricsSectionProps) {
   if (!crimeRow) {
     return (
       <Card className="border-dashed">
@@ -714,17 +655,12 @@ export function CrimeMetricsSection({ crimeRow }: CrimeMetricsSectionProps) {
     );
   }
 
-  const generalNote = String(crimeRow.crime_baseline_general_note ?? '').trim();
-
   return (
     <div className="flex flex-col gap-4">
-      <CrimeBaselineLatestChart row={crimeRow} />
-      {generalNote ? (
-        <p className="rounded-md border border-line bg-surface-metric/90 p-3 shadow-inset font-sans text-[11px] leading-relaxed text-neutral-500">
-          {generalNote}
-        </p>
-      ) : null}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {iso3?.toUpperCase() === 'DEU'
+          ? GERMANY_CRIME_2024_STATS.map((item) => <GermanyCrime2024StatCard key={item.id} item={item} />)
+          : null}
         {CRIME_BOXES.map((cfg) => (
           <CrimeStatCard key={cfg.id} row={crimeRow} config={cfg} />
         ))}
