@@ -449,7 +449,7 @@ type GermanyGovSpendingSeriesRow = {
   hdi: number;
 };
 
-const GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN = 2259.3;
+const GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN = 2259.341;
 const GERMANY_GOV_SPEND_CATEGORIES_2025: readonly GermanyGovSpendCategory[] = [
   {
     label: 'Social Benefits & Social Protection',
@@ -543,32 +543,32 @@ const GERMANY_GOV_SPEND_ADDITIONAL_CARDS: readonly GermanyGovSpendCategory[] = [
 ];
 
 const GERMANY_GOV_SPENDING_SERIES: readonly GermanyGovSpendingSeriesRow[] = [
-  { year: '2000', total: 960.8, socialProtection: 380, health: 110, educationResearch: 85, defence: 28, transportInfrastructure: 45, generalPublicServices: 95, interestPayments: 45, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 23926, laborProductivityIndex: 100.0, hdi: 0.897 },
-  { year: '2001', total: 975.5, socialProtection: 385, health: 112, educationResearch: 87, defence: 28, transportInfrastructure: 46, generalPublicServices: 97, interestPayments: 46, economicAffairsSubsidies: 55, other: 120, gdpPerCapitaUsd: 23878, laborProductivityIndex: 101.2, hdi: 0.904 },
-  { year: '2002', total: 992.7, socialProtection: 395, health: 115, educationResearch: 89, defence: 29, transportInfrastructure: 47, generalPublicServices: 98, interestPayments: 45, economicAffairsSubsidies: 56, other: 119, gdpPerCapitaUsd: 25487, laborProductivityIndex: 102.5, hdi: 0.91 },
-  { year: '2003', total: 1003.3, socialProtection: 400, health: 118, educationResearch: 90, defence: 29, transportInfrastructure: 48, generalPublicServices: 100, interestPayments: 44, economicAffairsSubsidies: 57, other: 117, gdpPerCapitaUsd: 30711, laborProductivityIndex: 103.8, hdi: 0.916 },
-  { year: '2004', total: 993.1, socialProtection: 395, health: 120, educationResearch: 91, defence: 28, transportInfrastructure: 47, generalPublicServices: 98, interestPayments: 42, economicAffairsSubsidies: 55, other: 117, gdpPerCapitaUsd: 34567, laborProductivityIndex: 105.1, hdi: 0.921 },
-  { year: '2005', total: 1002.2, socialProtection: 400, health: 122, educationResearch: 92, defence: 28, transportInfrastructure: 48, generalPublicServices: 99, interestPayments: 40, economicAffairsSubsidies: 56, other: 117, gdpPerCapitaUsd: 35084, laborProductivityIndex: 106.5, hdi: 0.926 },
-  { year: '2006', total: 1004.9, socialProtection: 400, health: 125, educationResearch: 93, defence: 28, transportInfrastructure: 48, generalPublicServices: 100, interestPayments: 38, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 36980, laborProductivityIndex: 108.4, hdi: 0.93 },
-  { year: '2007', total: 1017.5, socialProtection: 405, health: 128, educationResearch: 95, defence: 28, transportInfrastructure: 49, generalPublicServices: 102, interestPayments: 38, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 42351, laborProductivityIndex: 110.2, hdi: 0.934 },
-  { year: '2008', total: 1056.0, socialProtection: 415, health: 135, educationResearch: 98, defence: 29, transportInfrastructure: 52, generalPublicServices: 105, interestPayments: 40, economicAffairsSubsidies: 58, other: 124, gdpPerCapitaUsd: 46386, laborProductivityIndex: 110.8, hdi: 0.936 },
-  { year: '2009', total: 1113.1, socialProtection: 450, health: 145, educationResearch: 105, defence: 30, transportInfrastructure: 55, generalPublicServices: 110, interestPayments: 38, economicAffairsSubsidies: 70, other: 110, gdpPerCapitaUsd: 42487, laborProductivityIndex: 107.5, hdi: 0.935 },
-  { year: '2010', total: 1105.9, socialProtection: 445, health: 148, educationResearch: 107, defence: 31, transportInfrastructure: 54, generalPublicServices: 108, interestPayments: 35, economicAffairsSubsidies: 65, other: 113, gdpPerCapitaUsd: 42410, laborProductivityIndex: 110.0, hdi: 0.936 },
-  { year: '2011', total: 1173.5, socialProtection: 460, health: 155, educationResearch: 110, defence: 32, transportInfrastructure: 58, generalPublicServices: 115, interestPayments: 38, economicAffairsSubsidies: 70, other: 136, gdpPerCapitaUsd: 47647, laborProductivityIndex: 112.5, hdi: 0.938 },
-  { year: '2012', total: 1176.1, socialProtection: 465, health: 158, educationResearch: 112, defence: 33, transportInfrastructure: 58, generalPublicServices: 115, interestPayments: 35, economicAffairsSubsidies: 68, other: 132, gdpPerCapitaUsd: 44736, laborProductivityIndex: 113.2, hdi: 0.94 },
-  { year: '2013', total: 1211.6, socialProtection: 480, health: 165, educationResearch: 115, defence: 33, transportInfrastructure: 60, generalPublicServices: 118, interestPayments: 32, economicAffairsSubsidies: 70, other: 139, gdpPerCapitaUsd: 47220, laborProductivityIndex: 114.0, hdi: 0.942 },
-  { year: '2014', total: 1236.7, socialProtection: 490, health: 170, educationResearch: 118, defence: 33, transportInfrastructure: 62, generalPublicServices: 120, interestPayments: 30, economicAffairsSubsidies: 72, other: 142, gdpPerCapitaUsd: 48971, laborProductivityIndex: 115.1, hdi: 0.944 },
-  { year: '2015', total: 1272.8, socialProtection: 505, health: 178, educationResearch: 122, defence: 34, transportInfrastructure: 65, generalPublicServices: 125, interestPayments: 28, economicAffairsSubsidies: 75, other: 141, gdpPerCapitaUsd: 41911, laborProductivityIndex: 116.3, hdi: 0.948 },
-  { year: '2016', total: 1326.1, socialProtection: 525, health: 185, educationResearch: 128, defence: 35, transportInfrastructure: 68, generalPublicServices: 130, interestPayments: 25, economicAffairsSubsidies: 78, other: 152, gdpPerCapitaUsd: 42961, laborProductivityIndex: 117.8, hdi: 0.95 },
-  { year: '2017', total: 1367.9, socialProtection: 540, health: 192, educationResearch: 132, defence: 37, transportInfrastructure: 70, generalPublicServices: 135, interestPayments: 25, economicAffairsSubsidies: 80, other: 157, gdpPerCapitaUsd: 45527, laborProductivityIndex: 119.5, hdi: 0.952 },
-  { year: '2018', total: 1428.5, socialProtection: 560, health: 200, educationResearch: 138, defence: 40, transportInfrastructure: 75, generalPublicServices: 140, interestPayments: 28, economicAffairsSubsidies: 85, other: 163, gdpPerCapitaUsd: 48916, laborProductivityIndex: 120.8, hdi: 0.954 },
-  { year: '2019', total: 1497.4, socialProtection: 585, health: 210, educationResearch: 145, defence: 43, transportInfrastructure: 80, generalPublicServices: 145, interestPayments: 30, economicAffairsSubsidies: 88, other: 172, gdpPerCapitaUsd: 47656, laborProductivityIndex: 121.5, hdi: 0.951 },
-  { year: '2020', total: 1678.6, socialProtection: 650, health: 230, educationResearch: 155, defence: 45, transportInfrastructure: 95, generalPublicServices: 160, interestPayments: 25, economicAffairsSubsidies: 120, other: 199, gdpPerCapitaUsd: 47395, laborProductivityIndex: 118.0, hdi: 0.955 },
-  { year: '2021', total: 1820.0, socialProtection: 700, health: 245, educationResearch: 165, defence: 48, transportInfrastructure: 105, generalPublicServices: 170, interestPayments: 28, economicAffairsSubsidies: 130, other: 229, gdpPerCapitaUsd: 52349, laborProductivityIndex: 122.0, hdi: 0.958 },
-  { year: '2022', total: 1875.0, socialProtection: 720, health: 255, educationResearch: 170, defence: 55, transportInfrastructure: 110, generalPublicServices: 175, interestPayments: 35, economicAffairsSubsidies: 125, other: 230, gdpPerCapitaUsd: 50507, laborProductivityIndex: 122.8, hdi: 0.95 },
-  { year: '2023', total: 2100.0, socialProtection: 780, health: 270, educationResearch: 185, defence: 70, transportInfrastructure: 115, generalPublicServices: 180, interestPayments: 45, economicAffairsSubsidies: 130, other: 225, gdpPerCapitaUsd: 54777, laborProductivityIndex: 123.5, hdi: 0.955 },
-  { year: '2024', total: 2139.7, socialProtection: 810, health: 280, educationResearch: 195, defence: 80, transportInfrastructure: 120, generalPublicServices: 185, interestPayments: 50, economicAffairsSubsidies: 115, other: 235, gdpPerCapitaUsd: 56104, laborProductivityIndex: 124.2, hdi: 0.958 },
-  { year: '2025', total: 2259.3, socialProtection: 930, health: 295, educationResearch: 205, defence: 92, transportInfrastructure: 125, generalPublicServices: 190, interestPayments: 53, economicAffairsSubsidies: 118, other: 251, gdpPerCapitaUsd: 57500, laborProductivityIndex: 124.8, hdi: 0.959 },
+  { year: '2000', total: 1023.445, socialProtection: 380, health: 110, educationResearch: 85, defence: 28, transportInfrastructure: 45, generalPublicServices: 95, interestPayments: 45, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 23926, laborProductivityIndex: 100.0, hdi: 0.897 },
+  { year: '2001', total: 1046.229, socialProtection: 385, health: 112, educationResearch: 87, defence: 28, transportInfrastructure: 46, generalPublicServices: 97, interestPayments: 46, economicAffairsSubsidies: 55, other: 120, gdpPerCapitaUsd: 23878, laborProductivityIndex: 101.2, hdi: 0.904 },
+  { year: '2002', total: 1072.638, socialProtection: 395, health: 115, educationResearch: 89, defence: 29, transportInfrastructure: 47, generalPublicServices: 98, interestPayments: 45, economicAffairsSubsidies: 56, other: 119, gdpPerCapitaUsd: 25487, laborProductivityIndex: 102.5, hdi: 0.91 },
+  { year: '2003', total: 1087.101, socialProtection: 400, health: 118, educationResearch: 90, defence: 29, transportInfrastructure: 48, generalPublicServices: 100, interestPayments: 44, economicAffairsSubsidies: 57, other: 117, gdpPerCapitaUsd: 30711, laborProductivityIndex: 103.8, hdi: 0.916 },
+  { year: '2004', total: 1077.08, socialProtection: 395, health: 120, educationResearch: 91, defence: 28, transportInfrastructure: 47, generalPublicServices: 98, interestPayments: 42, economicAffairsSubsidies: 55, other: 117, gdpPerCapitaUsd: 34567, laborProductivityIndex: 105.1, hdi: 0.921 },
+  { year: '2005', total: 1089.993, socialProtection: 400, health: 122, educationResearch: 92, defence: 28, transportInfrastructure: 48, generalPublicServices: 99, interestPayments: 40, economicAffairsSubsidies: 56, other: 117, gdpPerCapitaUsd: 35084, laborProductivityIndex: 106.5, hdi: 0.926 },
+  { year: '2006', total: 1099.274, socialProtection: 400, health: 125, educationResearch: 93, defence: 28, transportInfrastructure: 48, generalPublicServices: 100, interestPayments: 38, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 36980, laborProductivityIndex: 108.4, hdi: 0.93 },
+  { year: '2007', total: 1106.879, socialProtection: 405, health: 128, educationResearch: 95, defence: 28, transportInfrastructure: 49, generalPublicServices: 102, interestPayments: 38, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 42351, laborProductivityIndex: 110.2, hdi: 0.934 },
+  { year: '2008', total: 1150.28, socialProtection: 415, health: 135, educationResearch: 98, defence: 29, transportInfrastructure: 52, generalPublicServices: 105, interestPayments: 40, economicAffairsSubsidies: 58, other: 124, gdpPerCapitaUsd: 46386, laborProductivityIndex: 110.8, hdi: 0.936 },
+  { year: '2009', total: 1204.819, socialProtection: 450, health: 145, educationResearch: 105, defence: 30, transportInfrastructure: 55, generalPublicServices: 110, interestPayments: 38, economicAffairsSubsidies: 70, other: 110, gdpPerCapitaUsd: 42487, laborProductivityIndex: 107.5, hdi: 0.935 },
+  { year: '2010', total: 1258.707, socialProtection: 445, health: 148, educationResearch: 107, defence: 31, transportInfrastructure: 54, generalPublicServices: 108, interestPayments: 35, economicAffairsSubsidies: 65, other: 113, gdpPerCapitaUsd: 42410, laborProductivityIndex: 110.0, hdi: 0.936 },
+  { year: '2011', total: 1244.063, socialProtection: 460, health: 155, educationResearch: 110, defence: 32, transportInfrastructure: 58, generalPublicServices: 115, interestPayments: 38, economicAffairsSubsidies: 70, other: 136, gdpPerCapitaUsd: 47647, laborProductivityIndex: 112.5, hdi: 0.938 },
+  { year: '2012', total: 1262.507, socialProtection: 465, health: 158, educationResearch: 112, defence: 33, transportInfrastructure: 58, generalPublicServices: 115, interestPayments: 35, economicAffairsSubsidies: 68, other: 132, gdpPerCapitaUsd: 44736, laborProductivityIndex: 113.2, hdi: 0.94 },
+  { year: '2013', total: 1294.6, socialProtection: 480, health: 165, educationResearch: 115, defence: 33, transportInfrastructure: 60, generalPublicServices: 118, interestPayments: 32, economicAffairsSubsidies: 70, other: 139, gdpPerCapitaUsd: 47220, laborProductivityIndex: 114.0, hdi: 0.942 },
+  { year: '2014', total: 1328.332, socialProtection: 490, health: 170, educationResearch: 118, defence: 33, transportInfrastructure: 62, generalPublicServices: 120, interestPayments: 30, economicAffairsSubsidies: 72, other: 142, gdpPerCapitaUsd: 48971, laborProductivityIndex: 115.1, hdi: 0.944 },
+  { year: '2015', total: 1373.293, socialProtection: 505, health: 178, educationResearch: 122, defence: 34, transportInfrastructure: 65, generalPublicServices: 125, interestPayments: 28, economicAffairsSubsidies: 75, other: 141, gdpPerCapitaUsd: 41911, laborProductivityIndex: 116.3, hdi: 0.948 },
+  { year: '2016', total: 1429.256, socialProtection: 525, health: 185, educationResearch: 128, defence: 35, transportInfrastructure: 68, generalPublicServices: 130, interestPayments: 25, economicAffairsSubsidies: 78, other: 152, gdpPerCapitaUsd: 42961, laborProductivityIndex: 117.8, hdi: 0.95 },
+  { year: '2017', total: 1484.552, socialProtection: 540, health: 192, educationResearch: 132, defence: 37, transportInfrastructure: 70, generalPublicServices: 135, interestPayments: 25, economicAffairsSubsidies: 80, other: 157, gdpPerCapitaUsd: 45527, laborProductivityIndex: 119.5, hdi: 0.952 },
+  { year: '2018', total: 1533.328, socialProtection: 560, health: 200, educationResearch: 138, defence: 40, transportInfrastructure: 75, generalPublicServices: 140, interestPayments: 28, economicAffairsSubsidies: 85, other: 163, gdpPerCapitaUsd: 48916, laborProductivityIndex: 120.8, hdi: 0.954 },
+  { year: '2019', total: 1610.615, socialProtection: 585, health: 210, educationResearch: 145, defence: 43, transportInfrastructure: 80, generalPublicServices: 145, interestPayments: 30, economicAffairsSubsidies: 88, other: 172, gdpPerCapitaUsd: 47656, laborProductivityIndex: 121.5, hdi: 0.951 },
+  { year: '2020', total: 1763.784, socialProtection: 650, health: 230, educationResearch: 155, defence: 45, transportInfrastructure: 95, generalPublicServices: 160, interestPayments: 25, economicAffairsSubsidies: 120, other: 199, gdpPerCapitaUsd: 47395, laborProductivityIndex: 118.0, hdi: 0.955 },
+  { year: '2021', total: 1865.819, socialProtection: 700, health: 245, educationResearch: 165, defence: 48, transportInfrastructure: 105, generalPublicServices: 170, interestPayments: 28, economicAffairsSubsidies: 130, other: 229, gdpPerCapitaUsd: 52349, laborProductivityIndex: 122.0, hdi: 0.958 },
+  { year: '2022', total: 1939.208, socialProtection: 720, health: 255, educationResearch: 170, defence: 55, transportInfrastructure: 110, generalPublicServices: 175, interestPayments: 35, economicAffairsSubsidies: 125, other: 230, gdpPerCapitaUsd: 50507, laborProductivityIndex: 122.8, hdi: 0.95 },
+  { year: '2023', total: 2031.433, socialProtection: 780, health: 270, educationResearch: 185, defence: 70, transportInfrastructure: 115, generalPublicServices: 180, interestPayments: 45, economicAffairsSubsidies: 130, other: 225, gdpPerCapitaUsd: 54777, laborProductivityIndex: 123.5, hdi: 0.955 },
+  { year: '2024', total: 2139.717, socialProtection: 810, health: 280, educationResearch: 195, defence: 80, transportInfrastructure: 120, generalPublicServices: 185, interestPayments: 50, economicAffairsSubsidies: 115, other: 235, gdpPerCapitaUsd: 56104, laborProductivityIndex: 124.2, hdi: 0.958 },
+  { year: '2025', total: 2259.341, socialProtection: 930, health: 295, educationResearch: 205, defence: 92, transportInfrastructure: 125, generalPublicServices: 190, interestPayments: 53, economicAffairsSubsidies: 118, other: 251, gdpPerCapitaUsd: 57500, laborProductivityIndex: 124.8, hdi: 0.959 },
 ] as const;
 
 const GERMANY_GOV_SPENDING_LINE_CONFIG = {
@@ -599,7 +599,7 @@ const GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly GermanyGovSpendingCat
   'other',
 ];
 
-const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 15;
+const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 16;
 
 function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
   let slices: PieSlice[] = [];
@@ -719,6 +719,10 @@ function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
   );
 }
 
+const GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG = {
+  total: { label: 'Total government expenditure', color: '#f59e0b' },
+} satisfies ChartConfig;
+
 function GermanyGovernmentSpendingSummaryTile() {
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -738,6 +742,65 @@ function GermanyGovernmentSpendingSummaryTile() {
         <p className="font-sans text-[11px] leading-relaxed text-neutral-300">
           The year ended with a general government deficit of €119.1 billion.
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyGovernmentTotalExpenditureChart() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Total government expenditure
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] text-neutral-500">
+          Billions of euros (€bn), 2000–2025.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={GERMANY_GOV_SPENDING_SERIES} margin={{ top: 8, right: 10, left: 12, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={(v) => `€${Number(v).toFixed(0)}B`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={76}
+                domain={['auto', 'auto']}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    formatter={(value) =>
+                      `€${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 })}B`
+                    }
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                  />
+                }
+              />
+              <Area
+                type="monotone"
+                dataKey="total"
+                stroke="#f59e0b"
+                fill="#f59e0b"
+                fillOpacity={0.12}
+                strokeWidth={2}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
@@ -1496,6 +1559,37 @@ const GERMANY_GDP_SERIES: readonly GermanyGdpRow[] = [
   { year: '2025', gdp: 5014, gdpPerCapita: 60000 },
 ];
 
+type GermanyInflationSeriesRow = { year: string; inflation: number };
+
+const GERMANY_INFLATION_SERIES: readonly GermanyInflationSeriesRow[] = [
+  { year: '2000', inflation: 1.44 },
+  { year: '2001', inflation: 1.98 },
+  { year: '2002', inflation: 1.42 },
+  { year: '2003', inflation: 1.03 },
+  { year: '2004', inflation: 1.67 },
+  { year: '2005', inflation: 1.55 },
+  { year: '2006', inflation: 1.58 },
+  { year: '2007', inflation: 2.3 },
+  { year: '2008', inflation: 2.63 },
+  { year: '2009', inflation: 0.31 },
+  { year: '2010', inflation: 1.1 },
+  { year: '2011', inflation: 2.08 },
+  { year: '2012', inflation: 2.01 },
+  { year: '2013', inflation: 1.5 },
+  { year: '2014', inflation: 0.91 },
+  { year: '2015', inflation: 0.51 },
+  { year: '2016', inflation: 0.49 },
+  { year: '2017', inflation: 1.51 },
+  { year: '2018', inflation: 1.73 },
+  { year: '2019', inflation: 1.45 },
+  { year: '2020', inflation: 0.14 },
+  { year: '2021', inflation: 3.07 },
+  { year: '2022', inflation: 6.87 },
+  { year: '2023', inflation: 5.95 },
+  { year: '2024', inflation: 2.26 },
+  { year: '2025', inflation: 2.2 },
+];
+
 type GermanyBirthsSeriesRow = {
   year: string;
   totalLiveBirths: number;
@@ -1732,19 +1826,25 @@ function GermanyBirthRatesEducationTile() {
 function GermanyHoverSeriesTile({
   row,
   accent,
+  data,
   seriesKey,
   title,
+  yearRangeLabel,
   yTickFormatter,
   tooltipFormatter,
   minHeightClass,
+  footnote,
 }: {
   row: CountryStatMetric;
   accent?: boolean;
-  seriesKey: 'gdp' | 'gdpPerCapita';
+  data: readonly (GermanyGdpRow | GermanyInflationSeriesRow)[];
+  seriesKey: 'gdp' | 'gdpPerCapita' | 'inflation';
   title: string;
+  yearRangeLabel: string;
   yTickFormatter: (n: number) => string;
   tooltipFormatter: (v: number) => string;
   minHeightClass?: string;
+  footnote?: string;
 }) {
   const config: ChartConfig = {
     [seriesKey]: { label: title, color: 'var(--uk-accent)' },
@@ -1765,13 +1865,13 @@ function GermanyHoverSeriesTile({
           <Card className="flex h-full flex-col border-line bg-surface-metric shadow-card ring-1 ring-white/[0.04]">
             <CardHeader className="p-3 pb-1.5">
               <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-                {title} (2015–2025)
+                {title} ({yearRangeLabel})
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-1 flex-col justify-center p-3 pt-0">
-              <ChartContainer config={config} className="h-[132px] w-full">
+            <CardContent className="flex min-h-0 flex-1 flex-col p-3 pt-0">
+              <ChartContainer config={config} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={GERMANY_GDP_SERIES}>
+                  <AreaChart data={data}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -1808,7 +1908,9 @@ function GermanyHoverSeriesTile({
                   </AreaChart>
                 </ResponsiveContainer>
               </ChartContainer>
-              <p className="mt-1 text-center font-sans text-[9px] leading-snug text-neutral-600">2025 is estimated</p>
+              {footnote ? (
+                <p className="mt-1 text-center font-sans text-[9px] leading-snug text-neutral-600">{footnote}</p>
+              ) : null}
             </CardContent>
           </Card>
         </div>
@@ -1845,11 +1947,14 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
         <GermanyHoverSeriesTile
           row={row}
           accent
+          data={GERMANY_GDP_SERIES}
           seriesKey="gdp"
           title="GDP (USD billions)"
+          yearRangeLabel="2015–2025"
           yTickFormatter={(n) => `${Math.round(n / 1000)}T`}
           tooltipFormatter={(v) => `${v.toLocaleString()}B`}
           minHeightClass="min-h-[240px]"
+          footnote="2025 is estimated"
         />
       );
     }
@@ -1860,10 +1965,30 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
       return (
         <GermanyHoverSeriesTile
           row={row}
+          data={GERMANY_GDP_SERIES}
           seriesKey="gdpPerCapita"
           title="GDP per capita (USD)"
+          yearRangeLabel="2015–2025"
           yTickFormatter={(n) => `${Math.round(n / 1000)}k`}
           tooltipFormatter={(v) => `$${Math.round(v).toLocaleString()}`}
+          minHeightClass="min-h-[240px]"
+          footnote="2025 is estimated"
+        />
+      );
+    }
+    return <MetricTile row={row} largeValue />;
+  }
+  if (row.metric === 'Inflation') {
+    if (opts?.iso3?.toUpperCase() === 'DEU') {
+      return (
+        <GermanyHoverSeriesTile
+          row={row}
+          data={GERMANY_INFLATION_SERIES}
+          seriesKey="inflation"
+          title="Inflation rate (%)"
+          yearRangeLabel="2000–2025"
+          yTickFormatter={(n) => `${n.toFixed(1)}%`}
+          tooltipFormatter={(v) => `${v.toFixed(2)}%`}
           minHeightClass="min-h-[240px]"
         />
       );
@@ -2552,6 +2677,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                               {block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
                                 <>
                                   <GermanyGovernmentSpendingSummaryTile />
+                                  <GermanyGovernmentTotalExpenditureChart />
                                   <GermanyGovernmentSpendingTotalLineChart />
                                   <GermanyGovernmentSpendingCategoryLineChart />
                                   <GermanyGovernmentSpendingCategoryCards />
