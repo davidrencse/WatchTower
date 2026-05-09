@@ -365,15 +365,6 @@ function rowLabel(r: GermanyGovernmentPoliticsRow): string {
   return (r.breakdown || r.submetric || '—').trim() || '—';
 }
 
-function unitPillText(unit: string): string {
-  const u = unit.trim();
-  if (!u) return '—';
-  const lower = u.toLowerCase();
-  if (lower === 'percent' || lower.endsWith('percent')) return 'Share (%)';
-  if (lower === 'people') return 'Recipients';
-  return u;
-}
-
 /** Unique source URLs across all rows (LFPR uses two different publications). */
 function uniqueSourceLinksFromRows(rows: GermanyGovernmentPoliticsRow[]): { url: string; label: string }[] {
   const seen = new Set<string>();
@@ -399,7 +390,7 @@ function referenceYearsLine(rows: GermanyGovernmentPoliticsRow[]): string | null
 }
 
 /**
- * Dark panel layout: numbered breakdowns, red accent separators, unit pills — inspired by compact dashboard tiles (content still from CSV).
+ * Sleek compact mono panels for labor distribution CSV metrics — dark terminal-style shell (content from CSV only).
  */
 function GovLaborDistributionPanel({
   metric,
@@ -416,85 +407,80 @@ function GovLaborDistributionPanel({
     LABOR_DISTRIBUTION_DISPLAY_TITLES[metric.trim().toLowerCase()] ?? metric;
 
   return (
-    <article className="col-span-full overflow-hidden rounded-2xl border border-neutral-800/70 bg-[#161616] shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset] sm:col-span-2 lg:col-span-3">
-      <div className="border-b border-white/[0.06] px-5 pb-4 pt-5">
-        <h3 className="font-sans text-base font-semibold leading-snug tracking-tight text-neutral-100">
-          {displayTitle}
-        </h3>
-        {subtitle ? (
-          <p className="mt-2 max-w-3xl font-sans text-[11px] leading-relaxed text-neutral-500">{subtitle}</p>
-        ) : null}
-        {refYearLabel ? (
-          <p className="mt-3 flex flex-wrap items-center gap-2 font-sans text-[10px] uppercase tracking-[0.16em] text-neutral-500">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500/90 shadow-[0_0_8px_rgba(239,68,68,0.35)]" />
-              {refYearLabel}
-            </span>
-          </p>
-        ) : null}
+    <article className="col-span-full overflow-hidden rounded-md border border-line bg-surface-metric text-neutral-100 shadow-card ring-1 ring-white/[0.04] sm:col-span-2 lg:col-span-3">
+      <div className="border-b border-white/[0.06] px-4 pb-3 pt-4 sm:px-5">
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-sans text-[13px] font-semibold leading-snug tracking-tight text-neutral-100">{displayTitle}</h3>
+            {subtitle ? (
+              <p className="mt-1 max-w-4xl font-sans text-[10px] leading-relaxed text-neutral-400">{subtitle}</p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-4 flex divide-x divide-white/[0.06] border border-white/[0.06] bg-black/20">
+          <div className="min-w-0 flex-1 px-3 py-2">
+            <div className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-300">Period</div>
+            <div className="mt-1 font-sans text-[11px] text-neutral-100">{refYearLabel ?? '—'}</div>
+          </div>
+          <div className="min-w-0 flex-1 px-3 py-2">
+            <div className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-300">Records</div>
+            <div className="mt-1 font-sans text-[11px] text-neutral-100">{String(rows.length).padStart(2, '0')}</div>
+          </div>
+        </div>
       </div>
 
-      <ul className="divide-y divide-white/[0.05] px-5">
+      <div className="border-b border-white/[0.06] px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.16em] text-neutral-400 sm:px-5">
+        Breakdown
+      </div>
+
+      <ul className="divide-y divide-white/[0.05] px-4 py-1 sm:px-5">
         {rows.map((r, i) => (
-          <li key={i} className="flex gap-4 py-4 first:pt-5">
-            <span
-              className="w-9 shrink-0 select-none pt-0.5 text-right font-sans text-[11px] font-medium tabular-nums text-neutral-600"
-              aria-hidden
-            >
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="min-w-0 font-sans text-[13px] leading-snug text-neutral-200">{rowLabel(r)}</span>
-                <span className="h-1 w-1 shrink-0 rounded-full bg-red-500/85 translate-y-px" aria-hidden />
-                <span className="font-sans text-lg font-semibold tabular-nums tracking-tight text-neutral-50 sm:ml-0.5">
-                  {formatValueDisplay(r)}
-                </span>
-              </div>
-              <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-white/[0.08] bg-black/35 px-2.5 py-0.5 font-sans text-[10px] text-neutral-400">
-                  {unitPillText(r.unit)}
-                </span>
+          <li key={i} className="py-2.5 sm:py-2">
+            <div className="min-w-0">
+              <div className="font-sans text-[11px] font-semibold leading-snug tracking-normal text-neutral-300">{rowLabel(r)}</div>
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="font-sans text-[14px] font-semibold tabular-nums tracking-tight text-neutral-100">{formatValueDisplay(r)}</span>
               </div>
             </div>
           </li>
         ))}
       </ul>
 
-      <div className="space-y-3 border-t border-white/[0.05] px-5 py-4">
-        {sourceLinks.length > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            {sourceLinks.map(({ url: u, label }) => (
-              <a
-                key={u}
-                href={u}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-white/[0.07] bg-black/25 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.12em] text-neutral-400 transition-colors hover:border-red-500/25 hover:text-red-300/95"
-              >
-                <span className="h-1 w-1 shrink-0 rounded-full bg-red-500/80" />
-                {label}
-                <span aria-hidden className="text-neutral-600">
-                  ↗
-                </span>
-              </a>
-            ))}
-          </div>
-        ) : null}
-        {notes.length > 0 ? (
-          <details className="rounded-xl border border-white/[0.06] bg-black/30 px-3 py-2">
-            <summary className="cursor-pointer list-none font-sans text-[9px] uppercase tracking-[0.14em] text-neutral-500 marker:content-none [&::-webkit-details-marker]:hidden">
-              <span className="inline-flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-red-500/75" />
+      {(sourceLinks.length > 0 || notes.length > 0) && (
+        <div className="border-t border-white/[0.06] px-4 py-3 sm:px-5">
+          {sourceLinks.length > 0 ? (
+            <div className="flex flex-col gap-3 rounded-md border border-white/[0.06] bg-black/20 p-3 sm:flex-row sm:divide-x sm:divide-white/[0.08]">
+              {sourceLinks.map(({ url: u, label }, idx) => (
+                <div key={u} className="min-w-0 flex-1 sm:px-4 sm:first:pl-1">
+                  <div className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-300">
+                    {sourceLinks.length > 1 ? `Reference ${String(idx + 1).padStart(2, '0')}` : 'Reference'}
+                  </div>
+                  <a
+                    href={u}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block max-w-full break-all font-sans text-[10px] font-normal text-neutral-100 underline decoration-white/25 underline-offset-2 transition-colors hover:decoration-white/55"
+                  >
+                    {label} ↗
+                  </a>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {notes.length > 0 ? (
+            <details className="mt-3 rounded-md border border-white/[0.06] bg-black/20 px-3 py-2">
+              <summary className="cursor-pointer list-none font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-400 marker:content-none [&::-webkit-details-marker]:hidden">
                 Notes
-              </span>
-            </summary>
-            <pre className="mt-2 max-h-36 overflow-y-auto whitespace-pre-wrap border-t border-white/[0.05] pt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
-              {notes.join('\n\n')}
-            </pre>
-          </details>
-        ) : null}
-      </div>
+              </summary>
+              <pre className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap border-t border-white/[0.08] pt-2 font-sans text-[10px] leading-relaxed text-neutral-400">
+                {notes.join('\n\n')}
+              </pre>
+            </details>
+          ) : null}
+        </div>
+      )}
     </article>
   );
 }

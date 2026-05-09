@@ -11,6 +11,7 @@ import {
   ComposedChart,
   Legend,
   Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -27,6 +28,43 @@ const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
 const REFUGEE_TOTAL_2024 = 3_304_000;
 const WORK_VISAS_2021_2025 = 579_000;
 const MIGRANT_BACKGROUND_2024_2025 = 25_000_000;
+
+/** Total population with migration background (Migrationshintergrund), Germany — annual series for chart. */
+const TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR: readonly { year: string; migrants: number }[] = [
+  { year: '2000', migrants: 12_800_000 },
+  { year: '2001', migrants: 13_000_000 },
+  { year: '2002', migrants: 13_200_000 },
+  { year: '2003', migrants: 13_500_000 },
+  { year: '2004', migrants: 13_900_000 },
+  { year: '2005', migrants: 14_421_000 },
+  { year: '2006', migrants: 14_222_000 },
+  { year: '2007', migrants: 14_435_000 },
+  { year: '2008', migrants: 14_562_000 },
+  { year: '2009', migrants: 14_999_000 },
+  { year: '2010', migrants: 14_679_000 },
+  { year: '2011', migrants: 14_796_000 },
+  { year: '2012', migrants: 15_276_000 },
+  { year: '2013', migrants: 16_546_000 },
+  { year: '2014', migrants: 16_330_000 },
+  { year: '2015', migrants: 17_053_000 },
+  { year: '2016', migrants: 18_443_000 },
+  { year: '2017', migrants: 20_297_000 },
+  { year: '2018', migrants: 20_799_000 },
+  { year: '2019', migrants: 21_246_000 },
+  { year: '2020', migrants: 21_968_000 },
+  { year: '2021', migrants: 21_625_000 },
+  { year: '2022', migrants: 22_907_000 },
+  { year: '2023', migrants: 24_055_000 },
+  { year: '2024', migrants: 25_387_000 },
+  { year: '2025', migrants: 25_765_000 },
+];
+
+const totalMigrantsMigrationBackgroundChartConfig = {
+  migrants: {
+    label: 'Total migrants (migration background)',
+    color: '#a78bfa',
+  },
+} satisfies ChartConfig;
 
 const REFUGEE_BREAKDOWN_2024 = [
   { country: 'Ukraine', count: 1_098_760 },
@@ -590,6 +628,62 @@ function GermanyMigrantArrivalsInteractiveChart() {
   );
 }
 
+const TOTAL_MIGRANTS_LINE = '#a78bfa';
+
+function GermanyTotalMigrantsMigrationBackgroundChart() {
+  return (
+    <ChartContainer config={totalMigrantsMigrationBackgroundChartConfig} className="h-[340px] w-full font-sans">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={[...TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR]} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
+          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+          <XAxis
+            dataKey="year"
+            tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+            axisLine={false}
+            tickLine={false}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            tickFormatter={(v) => {
+              const n = Number(v);
+              if (!Number.isFinite(n)) return '';
+              if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+              return `${Math.round(n / 1000)}k`;
+            }}
+            tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+            axisLine={false}
+            tickLine={false}
+            width={44}
+          />
+          <ChartTooltip
+            cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+            content={
+              <ChartTooltipContent
+                className="rounded-md"
+                formatter={(value) => {
+                  const n = Number(value);
+                  return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                }}
+                labelFormatter={(label) => `Year ${label}`}
+              />
+            }
+          />
+          <Line
+            type="monotone"
+            dataKey="migrants"
+            name="Total migrants (migration background)"
+            stroke={TOTAL_MIGRANTS_LINE}
+            strokeWidth={2.5}
+            dot={{ r: 2 }}
+            activeDot={{ r: 5 }}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  );
+}
+
 export function GermanyImmigrationSection() {
   const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -662,6 +756,20 @@ export function GermanyImmigrationSection() {
           <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024–2025.</p>
         </article>
       </div>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Total amount of migrants (migration background)
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Persons with migration background in Germany (2000–2025). Hover points for exact counts.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <GermanyTotalMigrantsMigrationBackgroundChart />
+        </CardContent>
+      </Card>
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">

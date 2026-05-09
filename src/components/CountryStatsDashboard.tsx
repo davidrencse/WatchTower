@@ -59,6 +59,10 @@ import {
   GermanyEconomicStructuralSection,
   GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
 } from './GermanyEconomicStructuralSection';
+import {
+  GermanyEconomicTaxesSection,
+  GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
+} from './GermanyEconomicTaxesSection';
 import { GermanyPopulationPyramid } from './GermanyPopulationPyramid';
 import { GermanyDaxCarousel } from './GermanyDaxCarousel';
 import { GermanyMarriagesSection, GERMANY_MARRIAGES_GROUP_COUNT } from './GermanyMarriagesSection';
@@ -1445,6 +1449,7 @@ type CustomSubsection =
   | { id: string; title: string; kind: 'germany_marriages' }
   | { id: string; title: string; kind: 'germany_labor_income' }
   | { id: string; title: string; kind: 'germany_economic_structural' }
+  | { id: string; title: string; kind: 'germany_economic_taxes' }
   | { id: string; title: string; kind: 'germany_health_basic' }
   | { id: string; title: string; kind: 'germany_lgbt_stats' }
   | { id: string; title: string; kind: 'germany_politics_leftism' }
@@ -1484,6 +1489,11 @@ function getStatSections(iso3: string): StatSectionDef[] {
                 id: 'fiscal_structural_snapshot',
                 title: 'Fiscal Snapshot',
                 kind: 'germany_economic_structural' as const,
+              },
+              {
+                id: 'germany_taxes',
+                title: 'Taxes',
+                kind: 'germany_economic_taxes' as const,
               },
             ]
           : []),
@@ -2383,6 +2393,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_marriages'; sub: CustomSubsection }
                   | { type: 'germany_labor_income'; sub: CustomSubsection }
                   | { type: 'germany_economic_structural'; sub: CustomSubsection }
+                  | { type: 'germany_economic_taxes'; sub: CustomSubsection }
                   | { type: 'germany_health_basic'; sub: CustomSubsection }
                   | { type: 'germany_lgbt_stats'; sub: CustomSubsection }
                   | { type: 'germany_politics_leftism'; sub: CustomSubsection }
@@ -2413,6 +2424,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_economic_structural') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_economic_structural', sub });
+                    }
+                    continue;
+                  }
+                  if ('kind' in sub && sub.kind === 'germany_economic_taxes') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_economic_taxes', sub });
                     }
                     continue;
                   }
@@ -2474,6 +2491,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
                     if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT;
                     if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
+                    if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
                     if (b.type === 'germany_health_basic') {
                       return acc + GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length;
                     }
@@ -2577,6 +2595,17 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             expandSignal={expandSignal}
                           >
                             <GermanyEconomicStructuralSection />
+                          </CollapsibleFlagSection>
+                        ) : block.type === 'germany_economic_taxes' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_ECONOMIC_TAXES_GROUP_COUNT}
+                            defaultOpen
+                            collapseSignal={collapseSignal}
+                            expandSignal={expandSignal}
+                          >
+                            <GermanyEconomicTaxesSection />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_health_basic' ? (
                           <CollapsibleFlagSection

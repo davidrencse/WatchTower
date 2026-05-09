@@ -1,18 +1,23 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import abortionCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_abortion_statistics.csv?raw';
+import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
   clusterMetricTable,
   GERMANY_ABORTION_METRIC_ORDER,
   parseGermanyMetricTableCsv,
 } from '../lib/germanyHealthCsv';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { GOV_POLITICS_CARD_GRID, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
+import { formatValueDisplay, GOV_POLITICS_CARD_GRID, splitUrls } from './GermanyGovernmentPoliticsBlocks';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 const CSV_URL = '/data/germany_abortion_statistics.csv';
 
 const ABORTION_RATIO_METRIC = 'Abortion ratio';
+const GESTATIONAL_AGE_METRIC = 'Gestational age at abortion';
+const METHOD_METRIC = 'Method of abortion';
+const LATE_TERM_METRIC = 'Late-term abortions';
+const FACILITIES_METRIC = 'Number of abortion-providing facilities';
 
 /** Manual series replacing CSV “Abortion rate per 1,000 women of reproductive age”. */
 const GERMANY_ABORTION_RATE_PER_1K_WRA: readonly { year: string; rate: number }[] = [
@@ -194,6 +199,64 @@ function ManualAbortionStatCard({
   );
 }
 
+function AbortionCleanMetricCard({ rows, className }: { rows: GermanyGovernmentPoliticsRow[]; className?: string }) {
+  const first = rows[0]!;
+  const urls = Array.from(new Set(rows.flatMap((r) => splitUrls(r.sourceUrl ?? ''))));
+  const sourceName = first.sourceName || 'Source';
+  const notes = rows.map((r) => r.notes.trim()).filter(Boolean);
+
+  return (
+    <Card className={`overflow-hidden border-line bg-surface-metric ${className ?? ''}`}>
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>{first.metric}</CardTitle>
+        {first.referenceYear ? (
+          <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>Reference year: {first.referenceYear}</CardDescription>
+        ) : null}
+      </CardHeader>
+      <CardContent className="space-y-2 p-3 pt-0">
+        <div className="grid grid-cols-1 gap-1.5">
+          {rows.map((r, i) => (
+            <div key={`${r.submetric}-${r.breakdown}-${i}`} className="rounded-md border border-white/[0.06] bg-black/20 px-2.5 py-2">
+              <p className="font-sans text-[10px] leading-snug text-neutral-400">
+                {(r.breakdown || r.submetric || 'Value').trim() || 'Value'}
+              </p>
+              <p className="mt-0.5 font-sans text-[15px] font-semibold leading-tight text-white tabular-nums">
+                {formatValueDisplay(r)}
+                {r.unit && !String(formatValueDisplay(r)).includes('%') ? (
+                  <span className="ml-1 text-[10px] font-normal text-neutral-500">{r.unit}</span>
+                ) : null}
+              </p>
+            </div>
+          ))}
+        </div>
+        {urls.length > 0 ? (
+          <div className="space-y-0.5 border-t border-white/[0.06] pt-2">
+            {urls.map((u, i) => (
+              <a
+                key={`${u}-${i}`}
+                href={u}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+              >
+                {urls.length > 1 ? `${sourceName} (${i + 1})` : sourceName} ↗
+              </a>
+            ))}
+          </div>
+        ) : null}
+        {notes.length > 0 ? (
+          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+            <summary className="cursor-pointer font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-500">Notes</summary>
+            <pre className="mt-1.5 max-h-36 overflow-y-auto whitespace-pre-wrap font-sans text-[10px] leading-relaxed text-neutral-500">
+              {notes.join('\n\n')}
+            </pre>
+          </details>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function GermanyAbortionStatisticsSection() {
   const [raw, setRaw] = useState(abortionCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -226,6 +289,12 @@ export function GermanyAbortionStatisticsSection() {
   const totalGroup = splitTotal ? groups[0]! : null;
   const otherGroups = splitTotal ? groups.slice(1) : groups;
 
+  const otherByMetric = useMemo(() => {
+    const m = new Map<string, GermanyGovernmentPoliticsRow[]>();
+    for (const g of otherGroups) m.set(g[0]!.metric, g);
+    return m;
+  }, [otherGroups]);
+
   if (loadError) {
     return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
   }
@@ -243,7 +312,7 @@ export function GermanyAbortionStatisticsSection() {
       {totalGroup ? (
         <>
           <div className={GOV_POLITICS_CARD_GRID}>
-            <Fragment key={totalGroup[0]!.metric}>{renderMetricGroup(totalGroup)}</Fragment>
+            <AbortionCleanMetricCard rows={totalGroup} />
             <ManualAbortionStatCard
               title="Prior live births (≥1)"
               valueDisplay="60,679"
@@ -320,7 +389,7 @@ export function GermanyAbortionStatisticsSection() {
         <div className={GOV_POLITICS_CARD_GRID}>
           {groups.map((g) => (
             <Fragment key={g[0]!.metric}>
-              {renderMetricGroup(g)}
+              <AbortionCleanMetricCard rows={g} />
               {g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
             </Fragment>
           ))}
@@ -328,14 +397,30 @@ export function GermanyAbortionStatisticsSection() {
       )}
 
       {splitTotal ? (
-        <div className={GOV_POLITICS_CARD_GRID}>
-          {otherGroups.map((g) => (
-            <Fragment key={g[0]!.metric}>
-              {renderMetricGroup(g)}
-              {g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
-            </Fragment>
-          ))}
-        </div>
+        <>
+          {otherByMetric.get(ABORTION_RATIO_METRIC) ? (
+            <div className={GOV_POLITICS_CARD_GRID}>
+              <AbortionCleanMetricCard rows={otherByMetric.get(ABORTION_RATIO_METRIC)!} className="col-span-full" />
+              <AbortionRateReproductiveAgeChart />
+            </div>
+          ) : null}
+
+          {otherByMetric.get(GESTATIONAL_AGE_METRIC) ? (
+            <div className={GOV_POLITICS_CARD_GRID}>
+              <AbortionCleanMetricCard rows={otherByMetric.get(GESTATIONAL_AGE_METRIC)!} className="col-span-full" />
+            </div>
+          ) : null}
+
+          <div className={GOV_POLITICS_CARD_GRID}>
+            {otherByMetric.get(METHOD_METRIC) ? <AbortionCleanMetricCard rows={otherByMetric.get(METHOD_METRIC)!} /> : null}
+            {otherByMetric.get(LATE_TERM_METRIC) ? (
+              <AbortionCleanMetricCard rows={otherByMetric.get(LATE_TERM_METRIC)!} />
+            ) : null}
+            {otherByMetric.get(FACILITIES_METRIC) ? (
+              <AbortionCleanMetricCard rows={otherByMetric.get(FACILITIES_METRIC)!} />
+            ) : null}
+          </div>
+        </>
       ) : null}
 
       <Card className="overflow-hidden border-line bg-surface-metric">
