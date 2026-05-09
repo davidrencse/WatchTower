@@ -158,13 +158,11 @@ export function clusterMetricTable(
 export const GERMANY_ABORTION_METRIC_ORDER = [
   'Total number of abortions',
   'Abortion ratio',
-  'Trend in total abortions',
-  'Abortion rate per 1,000 women of reproductive age',
   'Gestational age at abortion',
   'Method of abortion',
   'Late-term abortions',
   'Number of abortion-providing facilities',
 ] as const;
 
-/** CSV metric groups plus one manual block (marital / relationship status). */
-export const GERMANY_ABORTION_SECTION_GROUP_COUNT = GERMANY_ABORTION_METRIC_ORDER.length + 1;
+/** CSV metric groups plus manual blocks (abortion rate chart, marital / relationship status). */
+export const GERMANY_ABORTION_SECTION_GROUP_COUNT = GERMANY_ABORTION_METRIC_ORDER.length + 2;

@@ -12,54 +12,160 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 
 const CSV_URL = '/data/germany_abortion_statistics.csv';
 
+const ABORTION_RATIO_METRIC = 'Abortion ratio';
+
+/** Manual series replacing CSV “Abortion rate per 1,000 women of reproductive age”. */
+const GERMANY_ABORTION_RATE_PER_1K_WRA: readonly { year: string; rate: number }[] = [
+  { year: '2000', rate: 7.8 },
+  { year: '2001', rate: 8.0 },
+  { year: '2002', rate: 7.7 },
+  { year: '2003', rate: 7.6 },
+  { year: '2004', rate: 7.7 },
+  { year: '2005', rate: 7.4 },
+  { year: '2006', rate: 7.2 },
+  { year: '2007', rate: 7.0 },
+  { year: '2008', rate: 6.9 },
+  { year: '2009', rate: 6.7 },
+  { year: '2010', rate: 6.7 },
+  { year: '2011', rate: 6.6 },
+  { year: '2012', rate: 6.5 },
+  { year: '2013', rate: 6.3 },
+  { year: '2014', rate: 6.1 },
+  { year: '2015', rate: 6.1 },
+  { year: '2016', rate: 6.1 },
+  { year: '2017', rate: 6.3 },
+  { year: '2018', rate: 6.3 },
+  { year: '2019', rate: 6.3 },
+  { year: '2020', rate: 6.2 },
+  { year: '2021', rate: 5.9 },
+  { year: '2022', rate: 6.5 },
+  { year: '2023', rate: 6.7 },
+  { year: '2024', rate: 6.7 },
+  { year: '2025', rate: 6.6 },
+];
+
+/** Annual totals for Germany — source for Total Abortions chart below top cards. */
+const GERMANY_TOTAL_ABORTIONS_BY_YEAR: readonly { year: string; total: number }[] = [
+  { year: '2000', total: 134240 },
+  { year: '2001', total: 134463 },
+  { year: '2002', total: 129925 },
+  { year: '2003', total: 127499 },
+  { year: '2004', total: 129167 },
+  { year: '2005', total: 123506 },
+  { year: '2006', total: 119201 },
+  { year: '2007', total: 116315 },
+  { year: '2008', total: 113764 },
+  { year: '2009', total: 110037 },
+  { year: '2010', total: 109506 },
+  { year: '2011', total: 107861 },
+  { year: '2012', total: 105727 },
+  { year: '2013', total: 101710 },
+  { year: '2014', total: 98465 },
+  { year: '2015', total: 98127 },
+  { year: '2016', total: 97773 },
+  { year: '2017', total: 100146 },
+  { year: '2018', total: 99905 },
+  { year: '2019', total: 99804 },
+  { year: '2020', total: 99366 },
+  { year: '2021', total: 94596 },
+  { year: '2022', total: 103927 },
+  { year: '2023', total: 106218 },
+  { year: '2024', total: 106455 },
+  { year: '2025', total: 106000 },
+];
+
 const TOTAL_ABORTIONS_METRIC = 'Total number of abortions';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-type AbortionTrendRow = {
-  year: string;
-  abortions: number;
-  abortionsDisplay: string;
-  notes: string;
-};
+/** Shadcn chart + Recharts line series (year vs count). */
+const totalAbortionsChartData = GERMANY_TOTAL_ABORTIONS_BY_YEAR.map((r) => ({
+  year: r.year,
+  abortions: r.total,
+}));
 
-const ABORTION_TREND_ROWS: readonly AbortionTrendRow[] = [
-  { year: '2000', abortions: 134240, abortionsDisplay: '134,240', notes: 'High period (~135k range)' },
-  { year: '2001', abortions: 134463, abortionsDisplay: '134,463', notes: 'Peak around here' },
-  { year: '2002', abortions: 129925, abortionsDisplay: '129,925', notes: 'Slight decline' },
-  { year: '2003', abortions: 127499, abortionsDisplay: '127,499', notes: '-' },
-  { year: '2004', abortions: 129167, abortionsDisplay: '129,167', notes: '-' },
-  { year: '2005', abortions: 123506, abortionsDisplay: '123,506', notes: 'Start of longer decline' },
-  { year: '2006', abortions: 119201, abortionsDisplay: '119,201', notes: '-' },
-  { year: '2007', abortions: 116315, abortionsDisplay: '116,315', notes: '-' },
-  { year: '2008', abortions: 113764, abortionsDisplay: '113,764', notes: '-' },
-  { year: '2009', abortions: 110037, abortionsDisplay: '110,037', notes: '-' },
-  { year: '2010', abortions: 109506, abortionsDisplay: '109,506', notes: '-' },
-  { year: '2011', abortions: 107861, abortionsDisplay: '107,861', notes: '-' },
-  { year: '2012', abortions: 106815, abortionsDisplay: '106,815 (or 106,800)', notes: 'Highest in recent pre-2022 years' },
-  { year: '2013', abortions: 102802, abortionsDisplay: '102,802', notes: '-' },
-  { year: '2014', abortions: 99715, abortionsDisplay: '99,715', notes: '~100k plateau begins' },
-  { year: '2015', abortions: 99237, abortionsDisplay: '99,237', notes: '-' },
-  { year: '2016', abortions: 98721, abortionsDisplay: '98,721', notes: '-' },
-  { year: '2017', abortions: 101209, abortionsDisplay: '101,209', notes: 'Slight increase' },
-  { year: '2018', abortions: 100986, abortionsDisplay: '100,986', notes: '-' },
-  { year: '2019', abortions: 100893, abortionsDisplay: '100,893', notes: '-' },
-  { year: '2020', abortions: 99948, abortionsDisplay: '99,948', notes: 'Minor drop (-0.9%)' },
-  {
-    year: '2021',
-    abortions: 94596,
-    abortionsDisplay: '94,596',
-    notes: 'Lowest since statistics began (pandemic impact, -5.4%)',
-  },
-  { year: '2022', abortions: 103927, abortionsDisplay: '103,927', notes: 'Strong rebound (+9.9%)' },
-  { year: '2023', abortions: 106218, abortionsDisplay: '106,218', notes: 'Continued rise' },
-  { year: '2024', abortions: 106455, abortionsDisplay: '106,455', notes: 'Almost unchanged (+0.2%)' },
-];
+const TOTAL_ABORTIONS_LINE_COLOR = '#f97316';
 
-const abortionTrendChartConfig = {
-  abortions: { label: 'Number of abortions', color: '#f97316' },
+const totalAbortionsChartConfig = {
+  abortions: { label: 'Total abortions', color: TOTAL_ABORTIONS_LINE_COLOR },
 } satisfies ChartConfig;
+
+const abortionRatePer1kChartData = GERMANY_ABORTION_RATE_PER_1K_WRA.map((r) => ({
+  year: r.year,
+  rate: r.rate,
+}));
+
+const ABORTION_RATE_PER_1K_LINE_COLOR = '#38bdf8';
+
+const abortionRatePer1kChartConfig = {
+  rate: { label: 'Per 1,000 women (15–49)', color: ABORTION_RATE_PER_1K_LINE_COLOR },
+} satisfies ChartConfig;
+
+function AbortionRateReproductiveAgeChart() {
+  return (
+    <Card className="col-span-full overflow-hidden border-line bg-surface-metric">
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
+          Abortion Rate per 1,000 Women of Reproductive Age (15–49 years)
+        </CardTitle>
+        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+          Annual abortions per 1,000 women aged 15–49 (2000–2025), line chart.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-3 pt-0">
+        <ChartContainer config={abortionRatePer1kChartConfig} className="h-[300px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={abortionRatePer1kChartData} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                domain={['dataMin - 0.2', 'dataMax + 0.2']}
+                tickFormatter={(v) => (Number.isFinite(Number(v)) ? Number(v).toFixed(1) : '')}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? n.toFixed(1) : '—';
+                    }}
+                    labelFormatter={(label) => `Year ${label}`}
+                  />
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="rate"
+                name="Abortions per 1,000 women (15–49)"
+                stroke={ABORTION_RATE_PER_1K_LINE_COLOR}
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+        <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+          Hover points for the rate (shadcn chart + Recharts).
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 function ManualAbortionStatCard({
   title,
@@ -135,23 +241,88 @@ export function GermanyAbortionStatisticsSection() {
   return (
     <div className="flex flex-col gap-3">
       {totalGroup ? (
-        <div className={GOV_POLITICS_CARD_GRID}>
-          <Fragment key={totalGroup[0]!.metric}>{renderMetricGroup(totalGroup)}</Fragment>
-          <ManualAbortionStatCard
-            title="Prior live births (≥1)"
-            valueDisplay="60,679"
-            body="Abortions were performed on women who already had at least 1 previous live birth."
-          />
-          <ManualAbortionStatCard
-            title="Prior live births (0)"
-            valueDisplay="45,776"
-            body="Abortions were performed on women with 0 previous live births."
-          />
-        </div>
+        <>
+          <div className={GOV_POLITICS_CARD_GRID}>
+            <Fragment key={totalGroup[0]!.metric}>{renderMetricGroup(totalGroup)}</Fragment>
+            <ManualAbortionStatCard
+              title="Prior live births (≥1)"
+              valueDisplay="60,679"
+              body="Abortions were performed on women who already had at least 1 previous live birth."
+            />
+            <ManualAbortionStatCard
+              title="Prior live births (0)"
+              valueDisplay="45,776"
+              body="Abortions were performed on women with 0 previous live births."
+            />
+          </div>
+
+          <Card className="overflow-hidden border-line bg-surface-metric">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
+                Total Abortions in Germany
+              </CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Annual national totals (2000–2025), line chart.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <ChartContainer config={totalAbortionsChartConfig} className="h-[300px] w-full font-sans">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={totalAbortionsChartData} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                    <XAxis
+                      dataKey="year"
+                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                      axisLine={false}
+                      tickLine={false}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={48}
+                    />
+                    <ChartTooltip
+                      cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                      content={
+                        <ChartTooltipContent
+                          className="rounded-md"
+                          formatter={(value) => {
+                            const n = Number(value);
+                            return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                          }}
+                          labelFormatter={(label) => `Year ${label}`}
+                        />
+                      }
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="abortions"
+                      name="Total abortions"
+                      stroke={TOTAL_ABORTIONS_LINE_COLOR}
+                      strokeWidth={2.5}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 4 }}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+                Hover points for exact counts (shadcn chart + Recharts).
+              </p>
+            </CardContent>
+          </Card>
+        </>
       ) : (
         <div className={GOV_POLITICS_CARD_GRID}>
           {groups.map((g) => (
-            <Fragment key={g[0]!.metric}>{renderMetricGroup(g)}</Fragment>
+            <Fragment key={g[0]!.metric}>
+              {renderMetricGroup(g)}
+              {g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
+            </Fragment>
           ))}
         </div>
       )}
@@ -159,7 +330,10 @@ export function GermanyAbortionStatisticsSection() {
       {splitTotal ? (
         <div className={GOV_POLITICS_CARD_GRID}>
           {otherGroups.map((g) => (
-            <Fragment key={g[0]!.metric}>{renderMetricGroup(g)}</Fragment>
+            <Fragment key={g[0]!.metric}>
+              {renderMetricGroup(g)}
+              {g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
+            </Fragment>
           ))}
         </div>
       ) : null}
@@ -185,71 +359,6 @@ export function GermanyAbortionStatisticsSection() {
           <p>
             <span className="tabular-nums text-base font-semibold text-white">3,575</span> abortions among widowed or
             divorced women.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="overflow-hidden border-line bg-surface-metric">
-        <CardHeader className="space-y-1 p-3 pb-2">
-          <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>Number of abortions</CardTitle>
-          <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-            Annual trend (2000-2024) with source highlights.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 p-3 pt-0">
-          <ChartContainer config={abortionTrendChartConfig} className="h-[280px] w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={ABORTION_TREND_ROWS} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis
-                  dataKey="year"
-                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
-                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <ChartTooltip
-                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
-                  content={
-                    <ChartTooltipContent
-                      className="rounded-md"
-                      formatter={(value, _name, item: any) => {
-                        const row = item?.payload as AbortionTrendRow | undefined;
-                        const numericValue = Number(value);
-                        const pretty = Number.isFinite(numericValue)
-                          ? numericValue.toLocaleString('en-US')
-                          : row?.abortionsDisplay ?? '—';
-                        return [pretty, 'Number of abortions'];
-                      }}
-                      labelFormatter={(label, payload: any) => {
-                        const row = payload?.[0]?.payload as AbortionTrendRow | undefined;
-                        const note = row?.notes && row.notes !== '-' ? ` - ${row.notes}` : '';
-                        return `Year ${String(label)}${note}`;
-                      }}
-                    />
-                  }
-                />
-                <Line
-                  type="monotone"
-                  dataKey="abortions"
-                  name="Number of abortions"
-                  stroke="#f97316"
-                  strokeWidth={2.5}
-                  dot={{ r: 2 }}
-                  activeDot={{ r: 4 }}
-                  isAnimationActive={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-          <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
-            Hover each year to see the related source highlight in the tooltip.
           </p>
         </CardContent>
       </Card>
