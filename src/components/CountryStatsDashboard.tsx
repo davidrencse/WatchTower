@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { Area, AreaChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
@@ -69,6 +69,14 @@ import { GermanyMarriagesSection, GERMANY_MARRIAGES_GROUP_COUNT } from './German
 import germanyForeignStudentsRaw from '../../Assets/Data/Europe/Germany/foreign_students.csv?raw';
 import germanyBirthHealthRaw from '../../Assets/Data/Europe/Germany/germany_birth_health_indicators.csv?raw';
 import fallbackForeignStudentsRaw from '../../Assets/Data/foreign_student_population_screenshot_countries.csv?raw';
+import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
+import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
+import {
+  getStatSections,
+  GERMANY_IMMIGRATION_TOP_METRICS,
+  type CustomSubsection,
+  type MetricSubsection,
+} from '../lib/countryDashboardSections';
 
 const MERGED_CSV_URL = '/data/centralized_merged_country_stats.csv';
 const EXPENDITURES_CSV_URL = '/data/expenditures.csv';
@@ -112,28 +120,6 @@ const METRIC_ORDER = [
   'Teen birth rate',
   'Mean age of mothers at childbirth',
   'Childhood overweight and obesity (Germany)',
-] as const;
-
-/** Former standalone “Birth rates” section; now nested under Health → Birth rates (Germany). */
-const BIRTH_RATES_SUBSECTION_METRICS_DEU = [
-  'Total birth rate',
-  'White (native) birth rate',
-  'Immigrant birth rate',
-  'Migrant background M:F ratio',
-  'Births to foreign-born mothers',
-  'Infant mortality rate',
-  'Child mortality rate',
-  'Contraceptive use',
-  'Abortion rate',
-  'Teen birth rate',
-  'Mean age of mothers at childbirth',
-  'Childhood overweight and obesity (Germany)',
-] as const;
-
-const BIRTH_RATES_SUBSECTION_METRICS_DEFAULT = [
-  'Total birth rate',
-  'White (native) birth rate',
-  'Immigrant birth rate',
 ] as const;
 
 function extractLeadingPercent(value: string): number | null {
@@ -1401,153 +1387,10 @@ function orderMetrics(rows: CountryStatMetric[]): CountryStatMetric[] {
   return ordered;
 }
 
-/** Expenditure tiles + pie (nested under Economic → Government spending). */
-const GOVERNMENT_SPENDING_METRICS = [
-  'Immigration welfare spending',
-  'Lost to Corruption',
-  'Foreign Aid',
-  'Expenditure breakdown (pie)',
-] as const;
-
-/** Population tiles (Germany moves some into Immigration subsection). */
-const POPULATION_SECTION_METRICS = [
-  'White (native) population',
-  'Foreign Population',
-  'Christian population',
-  'Muslim population',
-  'Jewish population',
-  'Foreign students (total)',
-  'Foreign students by origin (pie)',
-  'How Many on Student Aid',
-  'Immigrants',
-  'Military-aged males (migrant background)',
-  'Median age',
-] as const;
-
-/** Shown at top of Germany Immigration (same order as in population elsewhere). */
-const GERMANY_IMMIGRATION_TOP_METRICS = [
-  'Immigrants',
-  'Foreign students (total)',
-  'Foreign students by origin (pie)',
-] as const;
-
-const GERMANY_IMMIGRATION_METRICS_SET = new Set<string>(GERMANY_IMMIGRATION_TOP_METRICS);
-
 const GERMANY_IMMIGRATION_TREEMAP_COUNTRIES = 27;
 /** Treemap countries + top metric tiles + non-EU arrivals line chart. */
 const GERMANY_IMMIGRATION_SUBSECTION_COUNT =
   GERMANY_IMMIGRATION_TREEMAP_COUNTRIES + GERMANY_IMMIGRATION_TOP_METRICS.length + 1;
-
-function getPopulationSectionMetrics(iso3: string): string[] {
-  if (iso3.toUpperCase() !== 'DEU') return [...POPULATION_SECTION_METRICS];
-  return POPULATION_SECTION_METRICS.filter((m) => !GERMANY_IMMIGRATION_METRICS_SET.has(m));
-}
-
-type MetricSubsection = { id: string; title: string; metrics: readonly string[] };
-type CustomSubsection =
-  | { id: string; title: string; kind: 'germany_immigration' }
-  | { id: string; title: string; kind: 'germany_marriages' }
-  | { id: string; title: string; kind: 'germany_labor_income' }
-  | { id: string; title: string; kind: 'germany_economic_structural' }
-  | { id: string; title: string; kind: 'germany_economic_taxes' }
-  | { id: string; title: string; kind: 'germany_health_basic' }
-  | { id: string; title: string; kind: 'germany_lgbt_stats' }
-  | { id: string; title: string; kind: 'germany_politics_leftism' }
-  | { id: string; title: string; kind: 'germany_politics_rightwing' }
-  | { id: string; title: string; kind: 'germany_politics_zionism' }
-  | { id: string; title: string; kind: 'germany_abortion_stats' };
-type SubsectionDef = MetricSubsection | CustomSubsection;
-
-type StatSectionDef = {
-  id: string;
-  title: string;
-  metrics: readonly string[];
-  subsections?: readonly SubsectionDef[];
-};
-
-function getStatSections(iso3: string): StatSectionDef[] {
-  const isDeu = iso3.toUpperCase() === 'DEU';
-  return [
-    {
-      id: 'economic',
-      title: 'Economy',
-      metrics: ['GDP', 'GDP per capita', 'Inflation', 'Unemployment', 'Interest', 'Real Median Wage'],
-      subsections: [
-        {
-          id: 'government_spending',
-          title: 'Government spending',
-          metrics: GOVERNMENT_SPENDING_METRICS,
-        },
-        ...(isDeu
-          ? [
-              {
-                id: 'labor_income_distribution',
-                title: 'Labor & Income Distribution',
-                kind: 'germany_labor_income' as const,
-              },
-              {
-                id: 'fiscal_structural_snapshot',
-                title: 'Fiscal Snapshot',
-                kind: 'germany_economic_structural' as const,
-              },
-              {
-                id: 'germany_taxes',
-                title: 'Taxes',
-                kind: 'germany_economic_taxes' as const,
-              },
-            ]
-          : []),
-      ],
-    },
-    {
-      id: 'politics',
-      title: 'Politics',
-      metrics: [],
-      subsections: isDeu
-        ? [
-            { id: 'leftism', title: 'Leftism', kind: 'germany_politics_leftism' as const },
-            { id: 'rightwing', title: 'Right-wing', kind: 'germany_politics_rightwing' as const },
-            { id: 'zionism', title: 'Zionism', kind: 'germany_politics_zionism' as const },
-          ]
-        : undefined,
-    },
-    {
-      id: 'population',
-      title: 'Demographics',
-      metrics: getPopulationSectionMetrics(iso3),
-      subsections: isDeu
-        ? [
-            { id: 'germany_immigration', title: 'Immigration', kind: 'germany_immigration' as const },
-            { id: 'marriages', title: 'Marriages', kind: 'germany_marriages' as const },
-          ]
-        : undefined,
-    },
-    {
-      id: 'health',
-      title: 'Health',
-      metrics: [],
-      subsections:
-        iso3.toUpperCase() === 'DEU'
-          ? [
-              { id: 'health_basic', title: 'Overview', kind: 'germany_health_basic' as const },
-              {
-                id: 'birth_rates',
-                title: 'Birth rates',
-                metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
-              },
-              { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },
-              { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },
-            ]
-          : [
-              {
-                id: 'birth_rates',
-                title: 'Birth rates',
-                metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEFAULT],
-              },
-            ],
-    },
-  ];
-}
 
 const STAT_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3';
 
@@ -2220,6 +2063,10 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [allExpanded, setAllExpanded] = useState(false);
   const [collapseSignal, setCollapseSignal] = useState(1);
   const [expandSignal, setExpandSignal] = useState(0);
+  const [ribbonActiveMainId, setRibbonActiveMainId] = useState<string | null>(null);
+  const [ribbonBubbleMainId, setRibbonBubbleMainId] = useState<string | null>(null);
+  const [ribbonPressedSubAnchorByMain, setRibbonPressedSubAnchorByMain] = useState<Record<string, string>>({});
+  const [sectionPulse, setSectionPulse] = useState<Record<string, number>>({});
   const germanyNewsItems = useBundledGermanyNews(isGermany);
   const { germanyLeftNewsSections, germanyRightNewsSections } = useMemo(() => {
     const b = bucketGermanyNewsItems(germanyNewsItems);
@@ -2235,6 +2082,74 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   }, [germanyNewsItems]);
   const germanyLeftRailVisible = germanyLeftNewsSections.some((s) => s.items.length > 0);
   const germanyRightRailVisible = germanyRightNewsSections.some((s) => s.items.length > 0);
+
+  const ribbonNav = useMemo(() => buildCountryRibbonNav(iso3), [iso3]);
+
+  const bumpSectionPulse = useCallback((keys: string[]) => {
+    setSectionPulse((prev) => {
+      const next = { ...prev };
+      for (const k of keys) {
+        next[k] = (next[k] ?? 0) + 1;
+      }
+      return next;
+    });
+  }, []);
+
+  const navigateFromRibbon = useCallback(
+    (mainSectionId: string, subsectionAnchorId?: string) => {
+      const entry = ribbonNav.find((n) => n.id === mainSectionId);
+      if (!entry) return;
+
+      setRibbonPressedSubAnchorByMain((prev) => {
+        const next = { ...prev };
+        if (subsectionAnchorId) {
+          next[mainSectionId] = subsectionAnchorId;
+        } else {
+          delete next[mainSectionId];
+        }
+        return next;
+      });
+
+      const keys: string[] = [`main:${mainSectionId}`];
+      if (subsectionAnchorId) {
+        const sub = entry.subsections.find((s) => s.anchorId === subsectionAnchorId);
+        if (sub) keys.push(`sub:${mainSectionId}:${sub.id}`);
+      }
+      bumpSectionPulse(keys);
+
+      const scrollTarget = subsectionAnchorId ?? entry.anchorId;
+      window.requestAnimationFrame(() => {
+        document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    },
+    [ribbonNav, bumpSectionPulse],
+  );
+
+  const handleRibbonMainClick = useCallback(
+    (id: string) => {
+      const entry = ribbonNav.find((n) => n.id === id);
+      const hasSubs = Boolean(entry && entry.subsections.length > 0);
+
+      if (ribbonActiveMainId === id) {
+        if (hasSubs) {
+          setRibbonBubbleMainId((b) => (b === id ? null : id));
+        }
+        return;
+      }
+      setRibbonActiveMainId(id);
+      setRibbonBubbleMainId(hasSubs ? id : null);
+      navigateFromRibbon(id);
+    },
+    [ribbonActiveMainId, navigateFromRibbon, ribbonNav],
+  );
+
+  const handleRibbonSubClick = useCallback(
+    (mainId: string, subsectionAnchorId: string) => {
+      navigateFromRibbon(mainId, subsectionAnchorId);
+      setRibbonBubbleMainId(null);
+    },
+    [navigateFromRibbon],
+  );
 
   function sectionOrderIndex(id: string): number {
     const i = sectionOrder.indexOf(id);
@@ -2295,9 +2210,18 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
     );
   }
 
+  const ribbonNavOpen = ordered && ordered.length > 0;
+
   return (
-    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased">
-      <div className="sticky top-0 z-50 border-b border-line bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]">
+    <div
+      className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased"
+      style={
+        {
+          '--country-nav-scroll-margin': ribbonBubbleMainId ? '14rem' : '7.5rem',
+        } as CSSProperties
+      }
+    >
+      <header className="sticky top-0 z-50 border-b border-line bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]">
         <div className="grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
@@ -2318,7 +2242,21 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             </h1>
           </div>
         </div>
-      </div>
+      </header>
+
+      {ribbonNavOpen ? (
+        <CountryPageSectionRibbon
+          iso3={iso3}
+          activeMainId={ribbonActiveMainId}
+          bubbleMainId={ribbonBubbleMainId}
+          pressedSubAnchorId={
+            ribbonActiveMainId ? ribbonPressedSubAnchorByMain[ribbonActiveMainId] : undefined
+          }
+          onMainClick={handleRibbonMainClick}
+          onSubClick={handleRibbonSubClick}
+          onDismissBubble={() => setRibbonBubbleMainId(null)}
+        />
+      ) : null}
 
       <div className="flex min-h-0 min-w-0 w-full flex-1 gap-0">
         {isGermany && germanyLeftRailVisible ? (
@@ -2329,11 +2267,15 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             className={
               isGermany
                 ? [
-                    'w-full max-w-none py-8 sm:py-10',
+                    ribbonNavOpen
+                      ? 'w-full max-w-none pt-[6.25rem] pb-8 sm:pt-[7rem] sm:pb-10'
+                      : 'w-full max-w-none py-8 sm:py-10',
                     germanyLeftRailVisible ? 'pl-[13rem]' : 'pl-2 sm:pl-3',
                     germanyRightRailVisible ? 'pr-[13rem]' : 'pr-2 sm:pr-3',
                   ].join(' ')
-                : 'mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10'
+                : ribbonNavOpen
+                  ? 'mx-auto w-full max-w-6xl px-4 pt-[6.25rem] pb-8 sm:px-6 sm:pt-[7rem] sm:pb-10'
+                  : 'mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10'
             }
           >
         {isGermany ? (
@@ -2519,6 +2461,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       title={section.title}
                       count={sectionCount}
                       defaultOpen
+                      anchorId={`country-section-${section.id}`}
+                      expandNonce={sectionPulse[`main:${section.id}`] ?? 0}
                       headerControls={sectionControls(section.id)}
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
@@ -2543,6 +2487,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_IMMIGRATION_SUBSECTION_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2569,6 +2515,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_MARRIAGES_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2580,6 +2528,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_LABOR_INCOME_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2591,6 +2541,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2602,6 +2554,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_ECONOMIC_TAXES_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2613,6 +2567,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2627,6 +2583,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_LGBT_SECTION_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2638,6 +2596,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_POLITICS_LEFTISM_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2649,6 +2609,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2660,6 +2622,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_POLITICS_ZIONISM_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2671,6 +2635,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={GERMANY_ABORTION_SECTION_GROUP_COUNT}
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2688,6 +2654,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                 : 0)
                             }
                             defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2768,6 +2736,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 title="Crime"
                 count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 35 : 4) : 0}
                 defaultOpen
+                anchorId="country-section-crime"
+                expandNonce={sectionPulse['main:crime'] ?? 0}
                 headerControls={sectionControls('crime')}
                 collapseSignal={collapseSignal}
                 expandSignal={expandSignal}
@@ -2777,6 +2747,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     title="Statistics"
                     count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 1 : 4) : 0}
                     defaultOpen
+                    anchorId="country-sub-crime-statistics"
+                    expandNonce={sectionPulse['sub:crime:crime_statistics'] ?? 0}
                     collapseSignal={collapseSignal}
                     expandSignal={expandSignal}
                   >
@@ -2790,6 +2762,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       title="Migrant data"
                       count={16}
                       defaultOpen
+                      anchorId="country-sub-crime-migrant"
+                      expandNonce={sectionPulse['sub:crime:crime_migrant'] ?? 0}
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
                     >
@@ -2808,6 +2782,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   collapseSignal={collapseSignal}
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
+                  navPulseMain={sectionPulse['main:government'] ?? 0}
+                  navPulseSubs={{
+                    parliament: sectionPulse['sub:government:parliament'] ?? 0,
+                    policies: sectionPulse['sub:government:policies'] ?? 0,
+                    citizenship: sectionPulse['sub:government:citizenship'] ?? 0,
+                  }}
                 />
               </div>
             ) : null}

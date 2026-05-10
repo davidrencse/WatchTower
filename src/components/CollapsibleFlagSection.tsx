@@ -10,10 +10,14 @@ type CollapsibleFlagSectionProps = {
   headerControls?: ReactNode;
   /** When true, section title is shown in all caps (e.g. Germany Government subsections). */
   uppercaseTitle?: boolean;
+  /** Anchor for in-page nav (`scrollIntoView`). Adds scroll margin for sticky header + ribbon. */
+  anchorId?: string;
   /** Incrementing this value collapses the section. */
   collapseSignal?: number;
-  /** Incrementing this value expands the section. */
+  /** Incrementing this value expands the section (e.g. “Expand all”). */
   expandSignal?: number;
+  /** Incrementing expands only this section (e.g. country nav ribbon). */
+  expandNonce?: number;
 };
 
 export function CollapsibleFlagSection({
@@ -23,8 +27,10 @@ export function CollapsibleFlagSection({
   children,
   headerControls,
   uppercaseTitle = false,
+  anchorId,
   collapseSignal,
   expandSignal,
+  expandNonce,
 }: CollapsibleFlagSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   useEffect(() => {
@@ -37,7 +43,13 @@ export function CollapsibleFlagSection({
       setOpen(true);
     }
   }, [expandSignal]);
-  return (
+  useEffect(() => {
+    if (expandNonce !== undefined && expandNonce > 0) {
+      setOpen(true);
+    }
+  }, [expandNonce]);
+
+  const details = (
     <details
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
@@ -65,4 +77,14 @@ export function CollapsibleFlagSection({
       <div className="border-t border-[var(--line)] p-4">{children}</div>
     </details>
   );
+
+  if (anchorId) {
+    return (
+      <div id={anchorId} className="scroll-mt-[var(--country-nav-scroll-margin,11rem)]">
+        {details}
+      </div>
+    );
+  }
+
+  return details;
 }

@@ -823,10 +823,14 @@ export function GermanyGovernmentSection({
   collapseSignal,
   expandSignal,
   headerControls,
+  navPulseMain,
+  navPulseSubs,
 }: {
   collapseSignal?: number;
   expandSignal?: number;
   headerControls?: ReactNode;
+  navPulseMain?: number;
+  navPulseSubs?: Partial<Record<'parliament' | 'policies' | 'citizenship', number>>;
 }) {
   const [raw, setRaw] = useState(germanyGovernmentCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -874,6 +878,8 @@ export function GermanyGovernmentSection({
       title="Government"
       count={outerCount}
       defaultOpen
+      anchorId="country-section-government"
+      expandNonce={navPulseMain ?? 0}
       headerControls={headerControls}
       collapseSignal={collapseSignal}
       expandSignal={expandSignal}
@@ -906,6 +912,8 @@ export function GermanyGovernmentSection({
               count={subsectionCount}
               defaultOpen
               uppercaseTitle
+              anchorId={`country-sub-government-${id}`}
+              expandNonce={navPulseSubs?.[id as 'parliament' | 'policies' | 'citizenship'] ?? 0}
               collapseSignal={collapseSignal}
               expandSignal={expandSignal}
             >
