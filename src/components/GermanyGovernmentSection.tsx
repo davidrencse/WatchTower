@@ -456,13 +456,6 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
       ) : null}
 
       <div className={GOV_POLITICS_CARD_GRID}>
-      </div>
-
-      <div className={GOV_POLITICS_CARD_GRID}>
-        <GermanyJewishGovernmentCarousel />
-      </div>
-
-      <div className={GOV_POLITICS_CARD_GRID}>
         {out}
       </div>
     </div>
@@ -890,6 +883,10 @@ export function GermanyGovernmentSection({
         {sanity ? <p className="font-sans text-xs text-neutral-500">{sanity}</p> : null}
         <OverviewBlock rows={overviewRows} coalitionSeatTotal={coalitionSeatTotalOverviewRow} />
 
+        <div className={GOV_POLITICS_CARD_GRID}>
+          <GermanyJewishGovernmentCarousel />
+        </div>
+
         {SUBSECTIONS.map(({ id, title, key }) => {
           const sorted = rowsForSubsection(germanyRows, key);
           const groups = clusterRowsByMetric(sorted);
@@ -898,7 +895,7 @@ export function GermanyGovernmentSection({
             key === 'Citizenship'
               ? groups.length + 5
               : key === 'Parliament'
-                ? groups.length + 1
+                ? groups.length
                 : key === 'Policies'
                   ? groups.length + GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT
                   : groups.length;

@@ -213,7 +213,7 @@ export function clusterRowsByMetric(sorted: GermanyGovernmentPoliticsRow[]): Ger
 
 export function countGovernmentSectionStats(rows: GermanyGovernmentPoliticsRow[]): number {
   const g = governmentRowsForGermany(rows);
-  let n = 4; // overview: head + coalition + party count + chart
+  let n = 5; // overview: head + coalition + party count + chart + Jewish government reference
   for (const sub of SUBSECTION_ORDER) {
     if (sub === 'Overview') continue;
     const clusters = clusterRowsByMetric(rowsForSubsection(g, sub)).length;
