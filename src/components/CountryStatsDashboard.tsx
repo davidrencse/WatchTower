@@ -2788,12 +2788,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   {iso3.toUpperCase() === 'DEU' ? (
                     <CollapsibleFlagSection
                       title="Migrant data"
-                      count={15}
+                      count={16}
                       defaultOpen
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
                     >
-                      <GermanyMigrantCrimeSection />
+                      <GermanyMigrantCrimeSection collapseSignal={collapseSignal} expandSignal={expandSignal} />
                     </CollapsibleFlagSection>
                   ) : null}
                 </div>

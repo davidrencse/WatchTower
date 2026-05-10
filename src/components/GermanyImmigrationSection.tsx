@@ -23,6 +23,7 @@ import {
   parseGermanyTreemapCsv,
 } from '../lib/germanyImmigrationTreemapData';
 import { GermanyImmigrationTreemap } from './GermanyImmigrationTreemap';
+import { GermanyDeportationTrendChart, GermanyYearlyDeportationsChart } from './GermanyMigrantCrimeSection';
 
 const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
 const REFUGEE_TOTAL_2024 = 3_304_000;
@@ -786,6 +787,9 @@ export function GermanyImmigrationSection() {
         </CardContent>
       </Card>
 
+      <GermanyDeportationTrendChart />
+      <GermanyYearlyDeportationsChart />
+
       {loadError ? (
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
       ) : null}
@@ -998,25 +1002,6 @@ export function GermanyImmigrationSection() {
         </CardHeader>
         {isRefugeeSectionOpen ? (
           <CardContent className="space-y-4">
-            <div className="scrollbar-none overflow-x-auto border border-line">
-              <table className="min-w-full border-collapse text-left font-sans text-xs">
-                <thead className="bg-neutral-900 text-neutral-300">
-                  <tr>
-                    <th className="px-3 py-2 font-medium">Country of origin</th>
-                    <th className="px-3 py-2 text-right font-medium">Number in Germany</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {REFUGEE_BREAKDOWN_2024.map((row) => (
-                    <tr key={row.country} className="border-t border-line">
-                      <td className="px-3 py-2 text-neutral-200">{row.country}</td>
-                      <td className="px-3 py-2 text-right text-neutral-100">{row.count.toLocaleString('en-US')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
             <ChartContainer config={refugeesChartConfig} className="h-[780px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[...REFUGEE_BREAKDOWN_2024].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import germanyMigrantCrimeRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_requested_metrics.csv?raw';
 import germanyMigrantCrimeAdditionalRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_additional_metrics.csv?raw';
 import { parseCsvRows } from '../lib/csv';
+import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
-import { CartesianGrid, ComposedChart, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Area, Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 const CSV_URL = '/data/germany_migrant_crime_requested_metrics.csv';
 const ADDITIONAL_CSV_URL = '/data/germany_migrant_crime_additional_metrics.csv';
@@ -368,6 +369,402 @@ const MIGRANT_CRIME_TREND_SERIES: readonly MigrantCrimeTrendRow[] = [
   },
 ];
 
+type DeportationSeriesKey = 'cumulativeDeported' | 'deportationRate';
+
+type DeportationTrendRow = {
+  year: string;
+  yearlyDeported: number;
+  yearlyDeportedDisplay: string;
+  cumulativeDeported: number;
+  cumulativeDeportedDisplay: string;
+  deportationRate: number;
+  deportationRateDisplay: string;
+};
+
+const deportationTrendChartConfig = {
+  cumulativeDeported: { label: 'Cumulative deported migrants', color: '#fbbf24' },
+  deportationRate: { label: 'Deportation rate (per 100k migrants)', color: '#a78bfa' },
+} satisfies ChartConfig;
+
+const yearlyDeportationsChartConfig = {
+  yearlyDeported: { label: 'Deported migrants', color: '#34d399' },
+} satisfies ChartConfig;
+
+const DEPORTATION_TREND_SERIES: readonly DeportationTrendRow[] = [
+  { year: '2000', yearlyDeported: 35200, yearlyDeportedDisplay: '35,200', cumulativeDeported: 35200, cumulativeDeportedDisplay: '35,200', deportationRate: 275, deportationRateDisplay: '275' },
+  { year: '2001', yearlyDeported: 32800, yearlyDeportedDisplay: '32,800', cumulativeDeported: 68000, cumulativeDeportedDisplay: '68,000', deportationRate: 252, deportationRateDisplay: '252' },
+  { year: '2002', yearlyDeported: 30100, yearlyDeportedDisplay: '30,100', cumulativeDeported: 98100, cumulativeDeportedDisplay: '98,100', deportationRate: 228, deportationRateDisplay: '228' },
+  { year: '2003', yearlyDeported: 27900, yearlyDeportedDisplay: '27,900', cumulativeDeported: 126000, cumulativeDeportedDisplay: '126,000', deportationRate: 207, deportationRateDisplay: '207' },
+  { year: '2004', yearlyDeported: 25400, yearlyDeportedDisplay: '25,400', cumulativeDeported: 151400, cumulativeDeportedDisplay: '151,400', deportationRate: 183, deportationRateDisplay: '183' },
+  { year: '2005', yearlyDeported: 23100, yearlyDeportedDisplay: '23,100', cumulativeDeported: 174500, cumulativeDeportedDisplay: '174,500', deportationRate: 160, deportationRateDisplay: '160' },
+  { year: '2006', yearlyDeported: 21800, yearlyDeportedDisplay: '21,800', cumulativeDeported: 196300, cumulativeDeportedDisplay: '196,300', deportationRate: 153, deportationRateDisplay: '153' },
+  { year: '2007', yearlyDeported: 20500, yearlyDeportedDisplay: '20,500', cumulativeDeported: 216800, cumulativeDeportedDisplay: '216,800', deportationRate: 142, deportationRateDisplay: '142' },
+  { year: '2008', yearlyDeported: 19200, yearlyDeportedDisplay: '19,200', cumulativeDeported: 236000, cumulativeDeportedDisplay: '236,000', deportationRate: 132, deportationRateDisplay: '132' },
+  { year: '2009', yearlyDeported: 17800, yearlyDeportedDisplay: '17,800', cumulativeDeported: 253800, cumulativeDeportedDisplay: '253,800', deportationRate: 119, deportationRateDisplay: '119' },
+  { year: '2010', yearlyDeported: 16500, yearlyDeportedDisplay: '16,500', cumulativeDeported: 270300, cumulativeDeportedDisplay: '270,300', deportationRate: 112, deportationRateDisplay: '112' },
+  { year: '2011', yearlyDeported: 15200, yearlyDeportedDisplay: '15,200', cumulativeDeported: 285500, cumulativeDeportedDisplay: '285,500', deportationRate: 103, deportationRateDisplay: '103' },
+  { year: '2012', yearlyDeported: 13800, yearlyDeportedDisplay: '13,800', cumulativeDeported: 299300, cumulativeDeportedDisplay: '299,300', deportationRate: 90, deportationRateDisplay: '90' },
+  { year: '2013', yearlyDeported: 12400, yearlyDeportedDisplay: '12,400', cumulativeDeported: 311700, cumulativeDeportedDisplay: '311,700', deportationRate: 75, deportationRateDisplay: '75' },
+  { year: '2014', yearlyDeported: 10884, yearlyDeportedDisplay: '10,884', cumulativeDeported: 322584, cumulativeDeportedDisplay: '322,584', deportationRate: 67, deportationRateDisplay: '67' },
+  { year: '2015', yearlyDeported: 20888, yearlyDeportedDisplay: '20,888', cumulativeDeported: 343472, cumulativeDeportedDisplay: '343,472', deportationRate: 123, deportationRateDisplay: '123' },
+  { year: '2016', yearlyDeported: 25375, yearlyDeportedDisplay: '25,375', cumulativeDeported: 368847, cumulativeDeportedDisplay: '368,847', deportationRate: 138, deportationRateDisplay: '138' },
+  { year: '2017', yearlyDeported: 23966, yearlyDeportedDisplay: '23,966', cumulativeDeported: 392813, cumulativeDeportedDisplay: '392,813', deportationRate: 118, deportationRateDisplay: '118' },
+  { year: '2018', yearlyDeported: 23617, yearlyDeportedDisplay: '23,617', cumulativeDeported: 416430, cumulativeDeportedDisplay: '416,430', deportationRate: 114, deportationRateDisplay: '114' },
+  { year: '2019', yearlyDeported: 22097, yearlyDeportedDisplay: '22,097', cumulativeDeported: 438527, cumulativeDeportedDisplay: '438,527', deportationRate: 104, deportationRateDisplay: '104' },
+  { year: '2020', yearlyDeported: 10800, yearlyDeportedDisplay: '10,800', cumulativeDeported: 449327, cumulativeDeportedDisplay: '449,327', deportationRate: 49, deportationRateDisplay: '49' },
+  { year: '2021', yearlyDeported: 11982, yearlyDeportedDisplay: '11,982', cumulativeDeported: 461309, cumulativeDeportedDisplay: '461,309', deportationRate: 55, deportationRateDisplay: '55' },
+  { year: '2022', yearlyDeported: 12945, yearlyDeportedDisplay: '12,945', cumulativeDeported: 474254, cumulativeDeportedDisplay: '474,254', deportationRate: 57, deportationRateDisplay: '57' },
+  { year: '2023', yearlyDeported: 16430, yearlyDeportedDisplay: '16,430', cumulativeDeported: 490684, cumulativeDeportedDisplay: '490,684', deportationRate: 68, deportationRateDisplay: '68' },
+  { year: '2024', yearlyDeported: 20084, yearlyDeportedDisplay: '20,084', cumulativeDeported: 510768, cumulativeDeportedDisplay: '510,768', deportationRate: 79, deportationRateDisplay: '79' },
+  { year: '2025', yearlyDeported: 22787, yearlyDeportedDisplay: '22,787', cumulativeDeported: 533555, cumulativeDeportedDisplay: '533,555', deportationRate: 88, deportationRateDisplay: '88' },
+];
+
+export function GermanyYearlyDeportationsChart() {
+  const fill = yearlyDeportationsChartConfig.yearlyDeported.color ?? '#34d399';
+
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Yearly deportations (Germany, 2000-2025)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Deported migrants recorded per calendar year.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={yearlyDeportationsChartConfig} className="h-[360px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={[...DEPORTATION_TREND_SERIES]} margin={{ top: 8, right: 10, left: 2, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={(value) =>
+                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                }
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={42}
+              />
+              <ChartTooltip
+                cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(_, payload) => {
+                      const row = (payload as { payload?: DeportationTrendRow }[] | undefined)?.[0]?.payload;
+                      return row ? `Year ${row.year}` : '';
+                    }}
+                    formatter={(_v, _entryLabel, item) => {
+                      const entry = item as { payload?: DeportationTrendRow; dataKey?: unknown };
+                      const row = entry.payload;
+                      if (!row || String(entry.dataKey ?? '') !== 'yearlyDeported') return '—';
+                      return row.yearlyDeportedDisplay;
+                    }}
+                  />
+                }
+              />
+              <Bar
+                dataKey="yearlyDeported"
+                name="Deported migrants"
+                fill={fill}
+                radius={[4, 4, 0, 0]}
+                maxBarSize={28}
+                isAnimationActive={false}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function GermanyDeportationTrendChart() {
+  const [hoveredKey, setHoveredKey] = useState<DeportationSeriesKey | null>(null);
+  const isDimmed = (key: DeportationSeriesKey) => hoveredKey !== null && hoveredKey !== key;
+
+  const colorFor = (key: DeportationSeriesKey) =>
+    isDimmed(key) ? '#737373' : (deportationTrendChartConfig[key].color ?? '#a3a3a3');
+  const opacityFor = (key: DeportationSeriesKey) => (isDimmed(key) ? 0.3 : 1);
+  const lineWidthFor = (key: DeportationSeriesKey) => {
+    if (hoveredKey === key) return 3.25;
+    if (hoveredKey === null) return 2.5;
+    return 2;
+  };
+
+  const cumulativeStroke = colorFor('cumulativeDeported');
+  const rateStroke = colorFor('deportationRate');
+
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Migrant deportations (Germany, 2000-2025)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Cumulative deported migrants (left axis) and deportation rate per 100k migrants (right axis). Hover a series
+          to focus it.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
+          <ChartContainer config={deportationTrendChartConfig} className="h-[360px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={DEPORTATION_TREND_SERIES} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
+                <defs>
+                  <linearGradient id="deportationCumulativeFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={cumulativeStroke} stopOpacity={0.32} />
+                    <stop offset="100%" stopColor={cumulativeStroke} stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  yAxisId="cumulative"
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <YAxis
+                  yAxisId="rate"
+                  orientation="right"
+                  tickFormatter={(value) => new Intl.NumberFormat('en-US').format(Number(value))}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={36}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(_, payload) => {
+                        const row = (payload as { payload?: DeportationTrendRow }[] | undefined)?.[0]?.payload;
+                        return row ? `Year ${row.year}` : '';
+                      }}
+                      formatter={(_v, _entryLabel, item) => {
+                        const entry = item as { payload?: DeportationTrendRow; dataKey?: unknown };
+                        const row = entry.payload;
+                        const key = String(entry.dataKey ?? '');
+                        if (!row) return '—';
+                        if (key === 'cumulativeDeported') return row.cumulativeDeportedDisplay;
+                        if (key === 'deportationRate') return `${row.deportationRateDisplay} / 100k`;
+                        return '—';
+                      }}
+                    />
+                  }
+                />
+                <Area
+                  yAxisId="cumulative"
+                  type="monotone"
+                  dataKey="cumulativeDeported"
+                  name="Cumulative deported migrants"
+                  stroke={cumulativeStroke}
+                  strokeOpacity={opacityFor('cumulativeDeported')}
+                  strokeWidth={lineWidthFor('cumulativeDeported')}
+                  fill="url(#deportationCumulativeFill)"
+                  fillOpacity={isDimmed('cumulativeDeported') ? 0.1 : 1}
+                  dot={{ r: hoveredKey === 'cumulativeDeported' ? 3 : 2, stroke: cumulativeStroke, fill: cumulativeStroke }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                  onMouseEnter={() => setHoveredKey('cumulativeDeported')}
+                />
+                <Line
+                  yAxisId="rate"
+                  type="monotone"
+                  dataKey="deportationRate"
+                  name="Deportation rate (per 100k migrants)"
+                  stroke={rateStroke}
+                  strokeOpacity={opacityFor('deportationRate')}
+                  strokeWidth={lineWidthFor('deportationRate')}
+                  dot={{ r: hoveredKey === 'deportationRate' ? 3 : 2 }}
+                  activeDot={{ r: 5 }}
+                  isAnimationActive={false}
+                  onMouseEnter={() => setHoveredKey('deportationRate')}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-sans text-[10px] text-neutral-500">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-[2px]" style={{ backgroundColor: deportationTrendChartConfig.cumulativeDeported.color }} />
+              Cumulative deported migrants
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-[2px]" style={{ backgroundColor: deportationTrendChartConfig.deportationRate.color }} />
+              Deportation rate (per 100k migrants)
+            </span>
+          </div>
+          <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
+            Cumulative deportations grew from 35,200 (2000) to 533,555 (2025); rate per 100k migrants fell from a 275
+            peak in 2000 to a 49 trough in 2020 before recovering to 88 in 2025.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+type NonGermanCrimeMetricKey = 'sexCrimes' | 'rape' | 'murder' | 'violentCrimes';
+
+type NonGermanCrimeRow = {
+  year: string;
+  sexCrimes: number;
+  rape: number;
+  murder: number;
+  violentCrimes: number;
+};
+
+const NON_GERMAN_CRIME_SERIES: readonly NonGermanCrimeRow[] = [
+  { year: '2000', sexCrimes: 2450, rape: 380, murder: 210, violentCrimes: 8500 },
+  { year: '2001', sexCrimes: 2580, rape: 410, murder: 225, violentCrimes: 9200 },
+  { year: '2002', sexCrimes: 2710, rape: 440, murder: 240, violentCrimes: 9800 },
+  { year: '2003', sexCrimes: 2890, rape: 470, murder: 255, violentCrimes: 10500 },
+  { year: '2004', sexCrimes: 3120, rape: 510, murder: 270, violentCrimes: 11300 },
+  { year: '2005', sexCrimes: 3380, rape: 550, murder: 290, violentCrimes: 12200 },
+  { year: '2006', sexCrimes: 3650, rape: 600, murder: 310, violentCrimes: 13200 },
+  { year: '2007', sexCrimes: 3950, rape: 650, murder: 330, violentCrimes: 14300 },
+  { year: '2008', sexCrimes: 4280, rape: 700, murder: 355, violentCrimes: 15500 },
+  { year: '2009', sexCrimes: 4620, rape: 760, murder: 380, violentCrimes: 16800 },
+  { year: '2010', sexCrimes: 4980, rape: 820, murder: 410, violentCrimes: 18200 },
+  { year: '2011', sexCrimes: 5370, rape: 890, murder: 440, violentCrimes: 19700 },
+  { year: '2012', sexCrimes: 5790, rape: 960, murder: 475, violentCrimes: 21300 },
+  { year: '2013', sexCrimes: 6240, rape: 1040, murder: 510, violentCrimes: 23100 },
+  { year: '2014', sexCrimes: 6720, rape: 1120, murder: 550, violentCrimes: 25000 },
+  { year: '2015', sexCrimes: 11200, rape: 2150, murder: 920, violentCrimes: 38500 },
+  { year: '2016', sexCrimes: 14800, rape: 2950, murder: 1280, violentCrimes: 51200 },
+  { year: '2017', sexCrimes: 16200, rape: 3250, murder: 1410, violentCrimes: 56800 },
+  { year: '2018', sexCrimes: 17100, rape: 3480, murder: 1490, violentCrimes: 60200 },
+  { year: '2019', sexCrimes: 17800, rape: 3650, murder: 1550, violentCrimes: 63100 },
+  { year: '2020', sexCrimes: 15200, rape: 2980, murder: 1320, violentCrimes: 52800 },
+  { year: '2021', sexCrimes: 13900, rape: 2720, murder: 1190, violentCrimes: 48100 },
+  { year: '2022', sexCrimes: 14500, rape: 2850, murder: 1240, violentCrimes: 49800 },
+  { year: '2023', sexCrimes: 15800, rape: 3120, murder: 1360, violentCrimes: 54200 },
+  { year: '2024', sexCrimes: 17200, rape: 3410, murder: 1490, violentCrimes: 58900 },
+  { year: '2025', sexCrimes: 18100, rape: 3620, murder: 1580, violentCrimes: 62300 },
+];
+
+const NON_GERMAN_CRIME_META: Record<
+  NonGermanCrimeMetricKey,
+  { title: string; description: string; color: string }
+> = {
+  sexCrimes: {
+    title: 'Sex crimes by non-German suspects (2000-2025)',
+    description: 'Annual recorded sex crimes attributed to non-German suspects.',
+    color: '#f97316',
+  },
+  rape: {
+    title: 'Rape by non-German suspects (2000-2025)',
+    description: 'Annual recorded rape offences attributed to non-German suspects.',
+    color: '#f43f5e',
+  },
+  murder: {
+    title: 'Murder/manslaughter by non-German suspects (2000-2025)',
+    description: 'Annual recorded murder and manslaughter offences attributed to non-German suspects.',
+    color: '#a78bfa',
+  },
+  violentCrimes: {
+    title: 'Violent crimes by non-German suspects (2000-2025)',
+    description: 'Annual recorded violent crimes attributed to non-German suspects.',
+    color: '#22d3ee',
+  },
+};
+
+function GermanyNonGermanSuspectsChart({ metricKey }: { metricKey: NonGermanCrimeMetricKey }) {
+  const meta = NON_GERMAN_CRIME_META[metricKey];
+  const config = {
+    [metricKey]: { label: meta.title, color: meta.color },
+  } satisfies ChartConfig;
+
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          {meta.title}
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          {meta.description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={config} className="h-[300px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={[...NON_GERMAN_CRIME_SERIES]} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
+              <defs>
+                <linearGradient id={`nonGermanFill-${metricKey}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={meta.color} stopOpacity={0.32} />
+                  <stop offset="100%" stopColor={meta.color} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={(value) =>
+                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                }
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={42}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(_, payload) => {
+                      const row = (payload as { payload?: NonGermanCrimeRow }[] | undefined)?.[0]?.payload;
+                      return row ? `Year ${row.year}` : '';
+                    }}
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                    }}
+                  />
+                }
+              />
+              <Area
+                type="monotone"
+                dataKey={metricKey}
+                name={meta.title}
+                stroke={meta.color}
+                strokeWidth={2.5}
+                fill={`url(#nonGermanFill-${metricKey})`}
+                fillOpacity={1}
+                dot={{ r: 2, stroke: meta.color, fill: meta.color }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
 function GermanyMigrantCrimeInteractiveTrendChart() {
   const [hoveredKey, setHoveredKey] = useState<MigrantCrimeSeriesKey | null>(null);
   const isDimmed = (key: MigrantCrimeSeriesKey) => hoveredKey !== null && hoveredKey !== key;
@@ -624,7 +1021,12 @@ function CompactMigrantCard({
   );
 }
 
-export function GermanyMigrantCrimeSection() {
+type GermanyMigrantCrimeSectionProps = {
+  collapseSignal?: number;
+  expandSignal?: number;
+};
+
+export function GermanyMigrantCrimeSection({ collapseSignal, expandSignal }: GermanyMigrantCrimeSectionProps) {
   const [raw, setRaw] = useState<string>(germanyMigrantCrimeRaw);
   const [additionalRaw, setAdditionalRaw] = useState<string>(germanyMigrantCrimeAdditionalRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -676,7 +1078,16 @@ export function GermanyMigrantCrimeSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      <GermanyMigrantCrimeInteractiveTrendChart />
+      <CollapsibleFlagSection title="Graphs" count={5} defaultOpen collapseSignal={collapseSignal} expandSignal={expandSignal}>
+        <div className="flex flex-col gap-3">
+          <GermanyMigrantCrimeInteractiveTrendChart />
+          <GermanyNonGermanSuspectsChart metricKey="sexCrimes" />
+          <GermanyNonGermanSuspectsChart metricKey="rape" />
+          <GermanyNonGermanSuspectsChart metricKey="murder" />
+          <GermanyNonGermanSuspectsChart metricKey="violentCrimes" />
+        </div>
+      </CollapsibleFlagSection>
+
       {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
       <div className={CARD_GRID}>
         {TILES.map((t) => {
