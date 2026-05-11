@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
+import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-export const GERMANY_POLITICS_ZIONISM_GROUP_COUNT = 23;
+export const GERMANY_POLITICS_ZIONISM_GROUP_COUNT = 24;
 
 type ZionGroup = {
   rank: number;
@@ -140,6 +141,7 @@ export function GermanyPoliticsZionismSection() {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
+        <GermanyJewishGovernmentCarousel />
         <ZionMetricCard
           title="SELF-IDENTIFIED JEWISH IDENTITY SHARE"
           value="0.15% (~118,000-125,000)"

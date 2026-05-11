@@ -13,10 +13,42 @@ import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 
 const CSV_URL = '/data/germany_gender_care_statistics.csv';
 
-const LGBT_METRIC_SUBTITLES: Partial<Record<string, string>> = {
-  'Concurrent mental health comorbidities in youth referred for care':
-    'When a young person is referred to a gender clinic in Germany, there is a very high chance they are already struggling with depression, anxiety, autism, trauma, or other serious mental health conditions at the same time.',
-};
+/** Metrics where the Year/Unit meta line is omitted from the left blurb and from value cells. */
+const LGBT_METRICS_OMIT_META_LINE = new Set<string>([
+  'Puberty blocker prescription rates',
+  'Cross-sex hormone therapy initiation in minors',
+  'Youth with gender dysphoria/incongruence receiving medical interventions',
+]);
+
+/** Metrics where CSV notes appear only under Notes, not in the left blurb. */
+const LGBT_METRICS_NOTES_DETAILS_ONLY = new Set<string>([
+  'Masculinizing genital surgeries',
+  'Feminizing genital surgeries',
+  'Detransition or desistance rates',
+  'Regret rates after gender-affirming interventions in minors',
+  'Age distribution of first medical intervention',
+]);
+
+const LGBT_SURGERY_TREND_META_HIDE = new Set<string>([
+  'Total annual genital gender-affirming surgeries',
+  'Masculinizing genital surgeries',
+  'Feminizing genital surgeries',
+]);
+
+const LAW_CHILDHOOD_CARE_METRIC = 'Law on childhood gender-affirming care';
+
+function lawMetaParts(row: GermanyGovernmentPoliticsRow): string {
+  const y = row.referenceYear.trim();
+  if (row.unit.trim().toLowerCase() === 'status') {
+    return y ? `Year: ${y}` : '';
+  }
+  return metaParts(row);
+}
+
+function panelMeta(row: GermanyGovernmentPoliticsRow, metric: string): string {
+  if (metric === LAW_CHILDHOOD_CARE_METRIC) return lawMetaParts(row);
+  return metaParts(row);
+}
 
 /** Tight vertical stack of highlight panels. */
 const LGBT_STACK = 'flex flex-col gap-2';
@@ -78,21 +110,27 @@ function aggregateSources(rows: GermanyGovernmentPoliticsRow[]): { url: string; 
   return out;
 }
 
-function leftColumnDescription(
-  metric: string,
-  subtitle: string | undefined,
-  headMeta: string,
-  rows: GermanyGovernmentPoliticsRow[],
-): string {
+function leftColumnDescription(metric: string, headMeta: string, rows: GermanyGovernmentPoliticsRow[]): string {
   const parts: string[] = [];
-  if (subtitle) parts.push(subtitle);
-  if (headMeta) parts.push(headMeta);
+  if (headMeta && !LGBT_METRICS_OMIT_META_LINE.has(metric)) parts.push(headMeta);
   const note = rows.map((r) => r.notes.trim()).find(Boolean);
-  if (note && !subtitle) {
+  if (note && !LGBT_METRICS_NOTES_DETAILS_ONLY.has(metric)) {
     const short = note.length > 220 ? `${note.slice(0, 217)}…` : note;
     parts.push(short);
   }
   return parts.filter(Boolean).join('\n\n');
+}
+
+function rowMetaLine(
+  r: GermanyGovernmentPoliticsRow,
+  metric: string,
+  headMeta: string,
+): string | null {
+  const line = panelMeta(r, metric);
+  if (!line || line === headMeta) return null;
+  if (LGBT_METRICS_OMIT_META_LINE.has(metric)) return null;
+  if (LGBT_SURGERY_TREND_META_HIDE.has(metric) && r.unit.trim().toLowerCase() === 'percent change') return null;
+  return line;
 }
 
 /**
@@ -109,12 +147,11 @@ function LgbtHighlightsPanel({
   const compact = density === 'compact';
   const first = rows[0]!;
   const metric = first.metric;
-  const isLawChildcareMetric = metric === 'Law on childhood gender-affirming care';
-  const subtitle = LGBT_METRIC_SUBTITLES[metric];
+  const isLawChildcareMetric = metric === LAW_CHILDHOOD_CARE_METRIC;
   const sourceEntries = aggregateSources(rows);
   const notes = rows.map((r) => r.notes.trim()).filter(Boolean);
-  const headMeta = metaParts(first);
-  const leftBlurb = isLawChildcareMetric ? headMeta : leftColumnDescription(metric, subtitle, headMeta, rows);
+  const headMeta = panelMeta(first, metric);
+  const leftBlurb = isLawChildcareMetric ? headMeta : leftColumnDescription(metric, headMeta, rows);
   const gridClass = compact ? HIGHLIGHTS_GRID_COMPACT : HIGHLIGHTS_GRID;
 
   return (
@@ -166,7 +203,7 @@ function LgbtHighlightsPanel({
               {rows.map((r, i) => {
                 const label = rowLabel(r, rows.length === 1);
                 const { main, unitHint } = rowValueParts(r);
-                const rowMeta = metaParts(r);
+                const metaLine = rowMetaLine(r, metric, headMeta);
                 return (
                   <div
                     key={`${r.submetric}-${r.breakdown}-${i}`}
@@ -177,8 +214,8 @@ function LgbtHighlightsPanel({
                       {main}
                       {unitHint ? <span className="ml-1 text-[11px] font-normal text-white/55">{unitHint}</span> : null}
                     </p>
-                    {rowMeta && rowMeta !== headMeta ? (
-                      <p className="mt-1 font-sans text-[10px] leading-snug text-white/45">{rowMeta}</p>
+                    {metaLine ? (
+                      <p className="mt-1 font-sans text-[10px] leading-snug text-white/45">{metaLine}</p>
                     ) : null}
                   </div>
                 );
@@ -190,7 +227,7 @@ function LgbtHighlightsPanel({
                 const label = rowLabel(r, rows.length === 1);
                 const { main, unitHint } = rowValueParts(r);
                 const accent = valueAccentClass(r);
-                const rowMeta = metaParts(r);
+                const metaLine = rowMetaLine(r, metric, headMeta);
                 return (
                   <div key={`${r.submetric}-${r.breakdown}-${i}`} className="min-w-0 text-left">
                     <p
@@ -220,14 +257,14 @@ function LgbtHighlightsPanel({
                     >
                       {label}
                     </p>
-                    {rowMeta && rowMeta !== headMeta ? (
+                    {metaLine ? (
                       <p
                         className={cn(
                           'mt-0.5 font-sans leading-snug text-white/45',
                           compact ? 'text-[9px]' : 'text-[10px]',
                         )}
                       >
-                        {rowMeta}
+                        {metaLine}
                       </p>
                     ) : null}
                   </div>

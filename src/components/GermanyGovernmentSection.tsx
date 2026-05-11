@@ -10,7 +10,6 @@ import {
   rowsForSubsection,
 } from '../lib/germanyGovernmentPolitics';
 import { GermanyBundestagSeatsVisualization } from './GermanyBundestagSeatsVisualization';
-import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
 import { GermanyImmigrationPoliciesSection } from './GermanyImmigrationPoliciesSection';
 import { GermanyPolicyCarousel } from './GermanyPolicyCarousel';
 import {
@@ -888,10 +887,6 @@ export function GermanyGovernmentSection({
         {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
         {sanity ? <p className="font-sans text-xs text-neutral-500">{sanity}</p> : null}
         <OverviewBlock rows={overviewRows} coalitionSeatTotal={coalitionSeatTotalOverviewRow} />
-
-        <div className={GOV_POLITICS_CARD_GRID}>
-          <GermanyJewishGovernmentCarousel />
-        </div>
 
         {SUBSECTIONS.map(({ id, title, key }) => {
           const sorted = rowsForSubsection(germanyRows, key);

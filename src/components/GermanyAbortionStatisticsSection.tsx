@@ -209,7 +209,7 @@ function AbortionCleanMetricCard({ rows, className }: { rows: GermanyGovernmentP
     <Card className={`overflow-hidden border-line bg-surface-metric ${className ?? ''}`}>
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>{first.metric}</CardTitle>
-        {first.referenceYear ? (
+        {first.referenceYear && first.metric !== TOTAL_ABORTIONS_METRIC ? (
           <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>Reference year: {first.referenceYear}</CardDescription>
         ) : null}
       </CardHeader>

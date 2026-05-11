@@ -30,10 +30,7 @@ const LABOR_DISTRIBUTION_DISPLAY_TITLES: Record<string, string> = {
   'labour force participation rate': 'Labour Force Participation Rate',
 };
 
-const METRIC_SUBTITLES: Record<string, string> = {
-  'Concurrent mental health comorbidities in youth referred for care':
-    'When a young person is referred to a gender clinic in Germany, there is a very high chance (around 70%) they are already struggling with depression, anxiety, autism, trauma, or other serious mental health conditions at the same time.',
-};
+const METRIC_SUBTITLES: Record<string, string> = {};
 
 export function splitUrls(urlField: string): string[] {
   return String(urlField ?? '')
