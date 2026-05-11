@@ -63,6 +63,7 @@ import {
   GermanyEconomicTaxesSection,
   GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
 } from './GermanyEconomicTaxesSection';
+import { GermanyTradeSection, GERMANY_TRADE_GROUP_COUNT } from './GermanyTradeSection';
 import { GermanyPopulationPyramid } from './GermanyPopulationPyramid';
 import { GermanyDaxCarousel } from './GermanyDaxCarousel';
 import { GermanyMarriagesSection, GERMANY_MARRIAGES_GROUP_COUNT } from './GermanyMarriagesSection';
@@ -1653,25 +1654,26 @@ function GermanyBirthsLineChartTile() {
 
 function GermanyBirthRatesEducationTile() {
   return (
-    <Card className="overflow-hidden border-line bg-surface-metric shadow-card lg:col-span-2 lg:h-[118px] lg:self-start">
-      <CardHeader className="space-y-0 p-2 pb-0.5">
-        <CardTitle className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+    <Card className="overflow-hidden border-line bg-surface-metric shadow-card lg:col-span-2 lg:self-start">
+      <div className="p-2 pb-0">
+        <div className="font-sans text-[14px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
           Fertility by mothers&apos; education
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-0.5 p-2 pt-0 font-sans text-[10px] leading-snug text-neutral-300">
-        <p>
-          Low education (no upper secondary): <span className="font-semibold text-neutral-100">1.68</span> children
-          per woman
-        </p>
-        <p>
-          Medium education: <span className="font-semibold text-neutral-100">1.41</span> children per woman
-        </p>
-        <p>
-          High education (university): <span className="font-semibold text-neutral-100">1.12</span> children per
-          woman
-        </p>
-      </CardContent>
+        </div>
+      </div>
+      <div className="p-2 pt-1 pb-2 font-sans text-[16px] leading-tight text-neutral-200">
+        <div>
+          Low education (no upper secondary):{' '}
+          <span className="font-bold text-neutral-50">1.68</span> children per woman
+        </div>
+        <div>
+          Medium education:{' '}
+          <span className="font-bold text-neutral-50">1.41</span> children per woman
+        </div>
+        <div>
+          High education (university):{' '}
+          <span className="font-bold text-neutral-50">1.12</span> children per woman
+        </div>
+      </div>
     </Card>
   );
 }
@@ -2336,6 +2338,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_labor_income'; sub: CustomSubsection }
                   | { type: 'germany_economic_structural'; sub: CustomSubsection }
                   | { type: 'germany_economic_taxes'; sub: CustomSubsection }
+                  | { type: 'germany_economy_trade'; sub: CustomSubsection }
                   | { type: 'germany_health_basic'; sub: CustomSubsection }
                   | { type: 'germany_lgbt_stats'; sub: CustomSubsection }
                   | { type: 'germany_politics_leftism'; sub: CustomSubsection }
@@ -2372,6 +2375,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_economic_taxes') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_economic_taxes', sub });
+                    }
+                    continue;
+                  }
+                  if ('kind' in sub && sub.kind === 'germany_economy_trade') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_economy_trade', sub });
                     }
                     continue;
                   }
@@ -2434,6 +2443,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT;
                     if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
                     if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
+                    if (b.type === 'germany_economy_trade') return acc + GERMANY_TRADE_GROUP_COUNT;
                     if (b.type === 'germany_health_basic') {
                       return acc + GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length;
                     }
@@ -2560,6 +2570,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             expandSignal={expandSignal}
                           >
                             <GermanyEconomicTaxesSection />
+                          </CollapsibleFlagSection>
+                        ) : block.type === 'germany_economy_trade' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_TRADE_GROUP_COUNT}
+                            defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            collapseSignal={collapseSignal}
+                            expandSignal={expandSignal}
+                          >
+                            <GermanyTradeSection />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_health_basic' ? (
                           <CollapsibleFlagSection

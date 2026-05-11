@@ -66,6 +66,7 @@ export type CustomSubsection =
   | { id: string; title: string; kind: 'germany_labor_income' }
   | { id: string; title: string; kind: 'germany_economic_structural' }
   | { id: string; title: string; kind: 'germany_economic_taxes' }
+  | { id: string; title: string; kind: 'germany_economy_trade' }
   | { id: string; title: string; kind: 'germany_health_basic' }
   | { id: string; title: string; kind: 'germany_lgbt_stats' }
   | { id: string; title: string; kind: 'germany_politics_leftism' }
@@ -110,6 +111,11 @@ export function getStatSections(iso3: string): StatSectionDef[] {
                 id: 'germany_taxes',
                 title: 'Taxes',
                 kind: 'germany_economic_taxes' as const,
+              },
+              {
+                id: 'trade',
+                title: 'Trade',
+                kind: 'germany_economy_trade' as const,
               },
             ]
           : []),
