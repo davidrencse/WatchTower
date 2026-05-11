@@ -1653,13 +1653,13 @@ function GermanyBirthsLineChartTile() {
 
 function GermanyBirthRatesEducationTile() {
   return (
-    <Card className="overflow-hidden border-line bg-surface-metric shadow-card lg:col-span-2 lg:h-[152px] lg:self-start">
-      <CardHeader className="space-y-0.5 p-3 pb-1.5">
-        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+    <Card className="overflow-hidden border-line bg-surface-metric shadow-card lg:col-span-2 lg:h-[118px] lg:self-start">
+      <CardHeader className="space-y-0 p-2 pb-0.5">
+        <CardTitle className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
           Fertility by mothers&apos; education
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-1 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-300">
+      <CardContent className="space-y-0.5 p-2 pt-0 font-sans text-[10px] leading-snug text-neutral-300">
         <p>
           Low education (no upper secondary): <span className="font-semibold text-neutral-100">1.68</span> children
           per woman

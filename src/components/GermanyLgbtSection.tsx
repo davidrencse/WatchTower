@@ -22,8 +22,16 @@ const LGBT_METRICS_OMIT_META_LINE = new Set<string>([
 
 /** Metrics where CSV notes appear only under Notes, not in the left blurb. */
 const LGBT_METRICS_NOTES_DETAILS_ONLY = new Set<string>([
+  'Total annual genital gender-affirming surgeries',
+  'Number of facilities/hospitals performing gender-affirming surgeries',
+  'Diagnostic stability of gender dysphoria in youth',
   'Masculinizing genital surgeries',
   'Feminizing genital surgeries',
+  'Puberty blocker prescription rates',
+  'Cross-sex hormone therapy initiation in minors',
+  'Youth with gender dysphoria/incongruence receiving medical interventions',
+  'Concurrent mental health comorbidities in youth referred for care',
+  'Genital surgery in minors',
   'Detransition or desistance rates',
   'Regret rates after gender-affirming interventions in minors',
   'Age distribution of first medical intervention',
