@@ -56,14 +56,25 @@ function groupPositionsByRealm(entries: GermanyJewishGovernmentEntry[]): Germany
 function PersonBlock({ entry }: { entry: GermanyJewishGovernmentEntry }) {
   return (
     <article
-      className="rounded-lg border border-white/[0.08] bg-neutral-950/50 p-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
+      className="relative overflow-visible rounded-lg border border-white/[0.08] bg-neutral-950/50 p-3 pr-12 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]"
       aria-label={entry.name}
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h4 className="font-sans text-[13px] font-semibold leading-snug text-neutral-100">{entry.name}</h4>
+      <img
+        src={starImage}
+        alt=""
+        width={36}
+        height={36}
+        className="pointer-events-none absolute -top-0.5 right-1.5 z-10 h-9 w-9 object-contain opacity-95 drop-shadow-[0_1px_6px_rgba(0,0,0,0.65)]"
+        loading="lazy"
+        aria-hidden
+      />
+      <div className="relative z-0 flex flex-wrap items-start justify-between gap-2">
+        <h4 className="min-w-0 flex-1 font-sans text-[13px] font-semibold leading-snug text-neutral-100 pr-1">
+          {entry.name}
+        </h4>
         {entry.influenceRealm ? (
           <span
-            className={`shrink-0 rounded border border-white/[0.1] bg-white/[0.04] px-2 py-0.5 font-sans text-[9px] text-neutral-400 ${UC_META}`}
+            className={`mr-10 shrink-0 rounded border border-white/[0.1] bg-white/[0.04] px-2 py-0.5 font-sans text-[9px] text-neutral-400 ${UC_META}`}
           >
             {GERMANY_JEWISH_GOV_INFLUENCE_LABEL[entry.influenceRealm]}
           </span>
@@ -95,24 +106,30 @@ export function GermanyJewishGovernmentCarousel() {
   const stateN = byTier.get('state')?.length ?? 0;
   const posN = byTier.get('positions')?.length ?? 0;
 
+  const sectionTitle = (
+    <>
+      <img
+        src={starImage}
+        alt=""
+        width={22}
+        height={22}
+        className="h-[22px] w-[22px] shrink-0 object-contain opacity-95"
+        loading="lazy"
+        aria-hidden
+      />
+      <span className="min-w-0 truncate">Jewish People in Government</span>
+    </>
+  );
+
   return (
     <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-      <CollapsibleFlagSection title="Jewish people in government" count={entries.length} defaultOpen={false}>
+      <CollapsibleFlagSection title={sectionTitle} count={entries.length} defaultOpen={false}>
         <div className="flex flex-col gap-4">
           <Card className="border-line bg-card/40">
-            <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-black/25">
-                <img src={starImage} alt="" className="h-9 w-auto object-contain opacity-95" loading="lazy" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-sans text-sm text-neutral-200">
-                  Reference: federal Bundestag and cabinet figures, Länder politics, and other positions of public
-                  influence (20th Bundestag era and legacy profiles).
-                </p>
-                <p className={`mt-2 font-sans text-[10px] text-neutral-500 ${UC_META}`}>
-                  {entries.length} profiles · Federal {federalN} · State {stateN} · Positions of power {posN}
-                </p>
-              </div>
+            <CardContent className="p-3">
+              <p className={`font-sans text-[10px] leading-relaxed text-neutral-400 ${UC_META}`}>
+                {entries.length} profiles · Federal {federalN} · State {stateN} · Positions of power {posN}
+              </p>
             </CardContent>
           </Card>
 

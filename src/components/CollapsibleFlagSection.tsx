@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { cn } from '../lib/utils';
 
 type CollapsibleFlagSectionProps = {
-  title: string;
+  /** Plain string (truncated) or custom node (e.g. icon + label). */
+  title: ReactNode;
   count: number;
   defaultOpen?: boolean;
   children: ReactNode;
@@ -56,7 +57,16 @@ export function CollapsibleFlagSection({
       className="group overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card"
     >
       <summary className="flag-section-summary grid cursor-pointer grid-cols-[minmax(0,1fr)_4.75rem_5.5rem] items-center gap-x-3 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--card-hover)]">
-        <span className={cn('min-w-0 truncate', uppercaseTitle && 'uppercase tracking-[0.06em]')}>{title}</span>
+        <span
+          className={cn(
+            'min-w-0',
+            typeof title === 'string'
+              ? cn('truncate', uppercaseTitle && 'uppercase tracking-[0.06em]')
+              : 'flex min-w-0 items-center gap-2.5',
+          )}
+        >
+          {title}
+        </span>
         <div
           className="flex items-center justify-center"
           onClick={(e) => e.stopPropagation()}

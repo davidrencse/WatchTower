@@ -7,6 +7,7 @@ import {
   LineChart,
   Pie,
   PieChart,
+  ReferenceLine,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -19,7 +20,7 @@ const UC = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
 /** Approximate “card groups” inside Trade for the section header count. */
-export const GERMANY_TRADE_GROUP_COUNT = 16;
+export const GERMANY_TRADE_GROUP_COUNT = 18;
 
 const TOP_TRADING_PARTNERS: readonly { rank: number; partner: string; volume: string }[] = [
   { rank: 1, partner: 'China', volume: '€252.4 billion' },
@@ -42,8 +43,10 @@ type TradePieSlice = {
   name: string;
   /** Midpoint or stated % used for slice area */
   value: number;
-  /** Shown in tooltip / legend */
+  /** Primary legend / tooltip line (share, value, etc.) */
   detail: string;
+  /** Optional second line (compact legend + tooltip) */
+  notes?: string;
 };
 
 const TOP_IMPORT_SLICES: readonly TradePieSlice[] = [
@@ -72,6 +75,31 @@ const TOP_EXPORT_SLICES: readonly TradePieSlice[] = [
     detail: '~9.0% overall; pharma ~7.4% within · ~€140 billion combined',
   },
   { name: 'Electrical machinery & equipment', value: 11.05, detail: '~11.0–11.1% · ~€172–195 billion' },
+];
+
+/** Approximate destination mix for German exports by region (%). Oceania: small slice for under 1%. */
+const GEOGRAPHIC_EXPORT_BREAKDOWN_SLICES: readonly TradePieSlice[] = [
+  { name: 'Europe', value: 69, detail: '69%' },
+  { name: 'Asia', value: 16, detail: '16%' },
+  { name: 'North America', value: 11, detail: '11%' },
+  { name: 'Africa', value: 2, detail: '~2%' },
+  { name: 'Latin America', value: 2, detail: '~2%' },
+  { name: 'Oceania', value: 0.5, detail: '<1%' },
+];
+
+/** Approximate origin mix for German imports by region (%). Values sum to 100. */
+const GEOGRAPHIC_IMPORT_BREAKDOWN_SLICES: readonly TradePieSlice[] = [
+  {
+    name: 'Europe (incl. EU)',
+    value: 61,
+    detail: '61% · ~€832B',
+    notes: 'Dominant source; ~51.8% from EU countries alone',
+  },
+  { name: 'Asia', value: 26.1, detail: '26.1% · ~€355B', notes: 'Heavily driven by China' },
+  { name: 'North America', value: 8.3, detail: '8.3% · ~€113B', notes: 'Mainly United States' },
+  { name: 'Africa', value: 2.6, detail: '2.6% · ~€35B', notes: 'Energy and raw materials' },
+  { name: 'Latin America', value: 1.6, detail: '1.6% · ~€22B', notes: 'Agri, minerals' },
+  { name: 'Oceania', value: 0.4, detail: '0.4% · ~€5–6B', notes: 'Mainly Australia' },
 ];
 
 const TRADE_TIMESERIES = [
@@ -107,6 +135,68 @@ const tradeFlowChartConfig = {
   exports: { label: 'Exports', color: 'hsl(199, 89%, 48%)' },
   imports: { label: 'Imports', color: 'hsl(215, 25%, 55%)' },
   balance: { label: 'Trade balance', color: 'hsl(142, 71%, 45%)' },
+} satisfies ChartConfig;
+
+const PARTNER_BALANCE_BY_YEAR = [
+  { year: '2000', usa: 18.5, china: -5.2, france: 12.4, uk: 8.7, netherlands: 15.2, italy: 9.8 },
+  { year: '2005', usa: 25.8, china: -12.4, france: 18.6, uk: 12.5, netherlands: 22.1, italy: 12.3 },
+  { year: '2010', usa: 28.4, china: -25.6, france: 22.8, uk: 18.9, netherlands: 28.7, italy: 14.5 },
+  { year: '2015', usa: 45.2, china: -38.7, france: 35.1, uk: 28.4, netherlands: 32.6, italy: 18.9 },
+  { year: '2016', usa: 48.9, china: -42.3, france: 37.2, uk: 30.1, netherlands: 34.8, italy: 19.7 },
+  { year: '2017', usa: 52.6, china: -48.9, france: 39.8, uk: 32.5, netherlands: 36.4, italy: 21.2 },
+  { year: '2018', usa: 55.4, china: -52.1, france: 42.3, uk: 34.7, netherlands: 37.9, italy: 22.8 },
+  { year: '2019', usa: 58.2, china: -55.8, france: 44.6, uk: 36.9, netherlands: 39.2, italy: 24.1 },
+  { year: '2020', usa: 52.7, china: -48.9, france: 38.4, uk: 31.2, netherlands: 34.5, italy: 20.8 },
+  { year: '2021', usa: 62.1, china: -59.2, france: 41.7, uk: 35.8, netherlands: 37.1, italy: 23.4 },
+  { year: '2022', usa: 68.3, china: -66.4, france: 45.9, uk: 39.4, netherlands: 41.3, italy: 25.6 },
+  { year: '2023', usa: 63.3, china: -59.8, france: 50.5, uk: 41.8, netherlands: 38.7, italy: 24.9 },
+  { year: '2024', usa: 69.8, china: -66.3, france: 52.4, uk: 43.2, netherlands: 40.1, italy: 26.7 },
+  { year: '2025', usa: 62.0, china: -87.0, france: 54.7, uk: 41.3, netherlands: 39.5, italy: 25.4 },
+] as const;
+
+const partnerBalanceChartConfig = {
+  usa: { label: 'USA (surplus)', color: 'hsl(199, 89%, 52%)' },
+  china: { label: 'China (deficit)', color: 'hsl(0, 72%, 55%)' },
+  france: { label: 'France (surplus)', color: 'hsl(142, 55%, 48%)' },
+  uk: { label: 'UK (surplus)', color: 'hsl(38, 90%, 55%)' },
+  netherlands: { label: 'Netherlands (surplus)', color: 'hsl(258, 55%, 62%)' },
+  italy: { label: 'Italy (surplus)', color: 'hsl(215, 35%, 58%)' },
+} satisfies ChartConfig;
+
+/** Annual series: average per calendar month (B€). */
+const MONTHLY_TRADE_PERFORMANCE = [
+  { year: '2000', avgMonthlyExports: 49.8, avgMonthlyImports: 44.8, avgMonthlySurplus: 5.0 },
+  { year: '2001', avgMonthlyExports: 50.9, avgMonthlyImports: 45.1, avgMonthlySurplus: 5.8 },
+  { year: '2002', avgMonthlyExports: 51.5, avgMonthlyImports: 44.3, avgMonthlySurplus: 7.2 },
+  { year: '2003', avgMonthlyExports: 52.7, avgMonthlyImports: 45.0, avgMonthlySurplus: 7.7 },
+  { year: '2004', avgMonthlyExports: 58.7, avgMonthlyImports: 48.5, avgMonthlySurplus: 10.2 },
+  { year: '2005', avgMonthlyExports: 63.9, avgMonthlyImports: 52.4, avgMonthlySurplus: 11.4 },
+  { year: '2006', avgMonthlyExports: 71.3, avgMonthlyImports: 59.2, avgMonthlySurplus: 12.1 },
+  { year: '2007', avgMonthlyExports: 80.4, avgMonthlyImports: 66.5, avgMonthlySurplus: 13.9 },
+  { year: '2008', avgMonthlyExports: 82.0, avgMonthlyImports: 68.5, avgMonthlySurplus: 13.5 },
+  { year: '2009', avgMonthlyExports: 66.9, avgMonthlyImports: 55.4, avgMonthlySurplus: 11.5 },
+  { year: '2010', avgMonthlyExports: 80.8, avgMonthlyImports: 68.6, avgMonthlySurplus: 12.2 },
+  { year: '2011', avgMonthlyExports: 88.4, avgMonthlyImports: 79.1, avgMonthlySurplus: 9.3 },
+  { year: '2012', avgMonthlyExports: 91.4, avgMonthlyImports: 81.7, avgMonthlySurplus: 9.7 },
+  { year: '2013', avgMonthlyExports: 91.2, avgMonthlyImports: 81.9, avgMonthlySurplus: 9.3 },
+  { year: '2014', avgMonthlyExports: 93.8, avgMonthlyImports: 83.6, avgMonthlySurplus: 10.2 },
+  { year: '2015', avgMonthlyExports: 99.2, avgMonthlyImports: 85.8, avgMonthlySurplus: 13.4 },
+  { year: '2016', avgMonthlyExports: 100.7, avgMonthlyImports: 87.2, avgMonthlySurplus: 13.5 },
+  { year: '2017', avgMonthlyExports: 106.6, avgMonthlyImports: 91.6, avgMonthlySurplus: 15.0 },
+  { year: '2018', avgMonthlyExports: 109.8, avgMonthlyImports: 94.8, avgMonthlySurplus: 15.0 },
+  { year: '2019', avgMonthlyExports: 110.6, avgMonthlyImports: 94.9, avgMonthlySurplus: 15.7 },
+  { year: '2020', avgMonthlyExports: 100.3, avgMonthlyImports: 85.8, avgMonthlySurplus: 14.5 },
+  { year: '2021', avgMonthlyExports: 113.8, avgMonthlyImports: 100.0, avgMonthlySurplus: 13.8 },
+  { year: '2022', avgMonthlyExports: 131.3, avgMonthlyImports: 124.0, avgMonthlySurplus: 7.3 },
+  { year: '2023', avgMonthlyExports: 130.2, avgMonthlyImports: 112.1, avgMonthlySurplus: 18.1 },
+  { year: '2024', avgMonthlyExports: 134.3, avgMonthlyImports: 114.1, avgMonthlySurplus: 20.2 },
+  { year: '2025', avgMonthlyExports: 130.5, avgMonthlyImports: 113.5, avgMonthlySurplus: 17.0 },
+] as const;
+
+const monthlyTradePerformanceChartConfig = {
+  avgMonthlyExports: { label: 'Avg. monthly exports', color: 'hsl(199, 89%, 48%)' },
+  avgMonthlyImports: { label: 'Avg. monthly imports', color: 'hsl(215, 25%, 55%)' },
+  avgMonthlySurplus: { label: 'Avg. monthly trade surplus', color: 'hsl(142, 71%, 45%)' },
 } satisfies ChartConfig;
 
 function SourceLink({ href, children }: { href: string; children: ReactNode }) {
@@ -161,32 +251,10 @@ function KpiCard({ primary, label, secondary }: { primary: string; label: string
   );
 }
 
-function SideListItem({
-  title,
-  lines,
-}: {
-  title: string;
-  lines: readonly { k: string; v: string }[];
-}) {
-  return (
-    <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-2.5">
-      <p className={`font-sans text-[11px] font-semibold text-neutral-100 ${UC}`}>{title}</p>
-      <ul className="mt-1.5 space-y-0.5 font-sans text-[10px] text-neutral-400">
-        {lines.map((l) => (
-          <li key={l.k} className="flex justify-between gap-2">
-            <span>{l.k}</span>
-            <span className="shrink-0 tabular-nums text-neutral-300">{l.v}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function TopTradingPartnersTable() {
   return (
-    <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-2 pt-1">
-      <p className="mb-2 px-1 font-sans text-[11px] font-semibold text-neutral-100">Top 5 Major Trading Partners</p>
+    <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-1.5 pt-1">
+      <p className="mb-1 px-0.5 font-sans text-[10px] font-semibold text-neutral-100">Top 5 Major Trading Partners</p>
       <div className="overflow-hidden rounded-md border border-white/[0.06]">
         <Table className="font-sans text-[10px]">
           <TableHeader>
@@ -217,11 +285,16 @@ function TradeCategoryPieCard({
   title,
   footnote,
   slices,
+  variant = 'default',
 }: {
   title: string;
-  footnote: string;
+  footnote?: string;
   slices: readonly TradePieSlice[];
+  /** `rail`: stacked in sidebar, grows to fill height, larger donut. */
+  variant?: 'default' | 'rail';
 }) {
+  const isRail = variant === 'rail';
+
   const { chartData, chartConfig } = useMemo(() => {
     const topSum = slices.reduce((a, s) => a + s.value, 0);
     const other = Math.max(0, 100 - topSum);
@@ -245,25 +318,53 @@ function TradeCategoryPieCard({
     return { chartData: withOther, chartConfig: cfg };
   }, [slices]);
 
+  const showFootnote = Boolean(footnote?.trim());
+
   return (
-    <Card className="border-white/[0.1] bg-card">
-      <CardHeader className="space-y-0.5 p-2.5 pb-1">
-        <CardTitle className="font-sans text-[10px] font-semibold leading-tight text-neutral-100">{title}</CardTitle>
-        <CardDescription className={`text-[9px] leading-snug text-neutral-500 ${UC_META}`}>{footnote}</CardDescription>
+    <Card
+      className={`border-white/[0.1] bg-card ${isRail ? 'flex min-h-0 min-w-0 flex-1 flex-col shadow-sm' : 'shadow-sm'}`}
+    >
+      <CardHeader className={isRail ? 'shrink-0 space-y-0.5 p-2 pb-1' : 'space-y-0.5 p-2.5 pb-1'}>
+        <CardTitle
+          className={`font-sans font-semibold leading-tight text-neutral-100 ${isRail ? 'text-[10px]' : 'text-[10px]'}`}
+        >
+          {title}
+        </CardTitle>
+        {showFootnote ? (
+          <CardDescription
+            className={`text-neutral-500 ${isRail ? 'line-clamp-2 text-[8px] leading-snug' : `text-[9px] leading-snug ${UC_META}`}`}
+          >
+            {footnote}
+          </CardDescription>
+        ) : null}
       </CardHeader>
-      <CardContent className="space-y-2 p-2.5 pt-0">
-        <ChartContainer config={chartConfig} className="mx-auto h-[200px] w-full max-w-[220px] font-sans">
+      <CardContent
+        className={
+          isRail
+            ? 'flex min-h-0 flex-1 flex-col gap-1.5 p-2 pt-0'
+            : 'space-y-2 p-2.5 pt-0'
+        }
+      >
+        <ChartContainer
+          config={chartConfig}
+          className={
+            isRail
+              ? 'mx-auto h-full min-h-[176px] w-full flex-1 basis-0 font-sans'
+              : 'mx-auto h-[200px] w-full max-w-[240px] font-sans'
+          }
+        >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <ChartTooltip
                 content={
                   <ChartTooltipContent
-                    className="rounded-md"
+                    className="max-w-[260px] rounded-md"
                     formatter={(value, _name, item) => {
                       const row = (item as { payload?: TradePieSlice & { fill?: string } })?.payload;
                       const v = Number(value);
                       const pct = Number.isFinite(v) ? `${v.toFixed(v >= 10 ? 1 : 2)}%` : '—';
-                      return row?.detail ? `${pct} — ${row.detail}` : pct;
+                      const base = row?.detail ? `${pct} — ${row.detail}` : pct;
+                      return row?.notes ? `${base} · ${row.notes}` : base;
                     }}
                   />
                 }
@@ -274,9 +375,9 @@ function TradeCategoryPieCard({
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                innerRadius={36}
-                outerRadius={72}
-                paddingAngle={0.6}
+                innerRadius={isRail ? 30 : 36}
+                outerRadius={isRail ? 66 : 72}
+                paddingAngle={isRail ? 0.5 : 0.6}
                 stroke="none"
                 isAnimationActive={false}
               >
@@ -287,13 +388,30 @@ function TradeCategoryPieCard({
             </PieChart>
           </ResponsiveContainer>
         </ChartContainer>
-        <ul className="space-y-1 font-sans text-[9px] leading-snug text-neutral-400">
+        <ul
+          className={`min-h-0 shrink-0 font-sans text-neutral-400 ${isRail ? 'max-h-[5.25rem] space-y-0 overflow-y-auto text-[7.5px] leading-[1.2]' : 'space-y-1 text-[9px] leading-snug'}`}
+        >
           {chartData.map((row) => (
-            <li key={row.name} className="flex gap-1.5">
-              <span className="mt-0.5 h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: row.fill }} />
+            <li key={row.name} className="flex gap-1">
+              <span
+                className={`mt-0.5 shrink-0 rounded-[2px] ${isRail ? 'h-1.5 w-1.5' : 'mt-0.5 h-2 w-2'}`}
+                style={{ backgroundColor: row.fill }}
+              />
               <span className="min-w-0 flex-1">
-                <span className="text-neutral-300">{row.name}</span>
-                <span className="text-neutral-500"> — {row.detail}</span>
+                {isRail ? (
+                  <>
+                    <span className="text-neutral-300">{row.name}</span>
+                    <span className="text-neutral-500"> · {row.detail}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-neutral-300">{row.name}</span>
+                    <span className="text-neutral-500"> — {row.detail}</span>
+                    {row.notes ? (
+                      <span className="mt-0.5 block text-[8px] leading-snug text-neutral-600">{row.notes}</span>
+                    ) : null}
+                  </>
+                )}
               </span>
             </li>
           ))}
@@ -347,27 +465,26 @@ export function GermanyTradeSection() {
         </div>
       </div>
 
-      {/* KPI row + main chart + right column (dashboard-style grid). */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_min(100%,380px)] lg:items-start">
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <KpiCard
-              primary="€1,562.9B"
-              label="Exports (goods, 2025)"
-              secondary="≈ $1.72 trillion USD · Destatis goods trade."
-            />
-            <KpiCard
-              primary="€1,362.5B"
-              label="Imports (goods, 2025)"
-              secondary="≈ $1.50 trillion USD · Destatis goods trade."
-            />
-            <KpiCard
-              primary="~56%"
-              label="Intra-EU share"
-              secondary="Zero tariffs via Single Market; largest integrated trade share."
-            />
-          </div>
-
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <KpiCard
+            primary="€1,562.9B"
+            label="Exports (goods, 2025)"
+            secondary="≈ $1.72 trillion USD · Destatis goods trade."
+          />
+          <KpiCard
+            primary="€1,362.5B"
+            label="Imports (goods, 2025)"
+            secondary="≈ $1.50 trillion USD · Destatis goods trade."
+          />
+          <KpiCard
+            primary="~56%"
+            label="Intra-EU share"
+            secondary="Zero tariffs via Single Market; largest integrated trade share."
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_min(100%,400px)] lg:items-stretch lg:min-h-0">
+          <div className="flex min-h-0 min-w-0 flex-col gap-3">
           <Card className="overflow-hidden border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
               <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
@@ -460,39 +577,212 @@ export function GermanyTradeSection() {
               </ChartContainer>
             </CardContent>
           </Card>
+
+          <Card className="overflow-hidden border-line bg-surface-metric">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
+                Germany&apos;s trade balance by key partners
+              </CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Bilateral balance in billions of € (positive = surplus for Germany, negative = deficit). China shown as
+                deficit; others as surplus per series labels.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <ChartContainer config={partnerBalanceChartConfig} className="h-[340px] w-full font-sans md:h-[380px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={[...PARTNER_BALANCE_BY_YEAR]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                    <XAxis
+                      dataKey="year"
+                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      tick={{ fill: 'rgba(163,163,163,0.85)', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={44}
+                      tickFormatter={(v) => (Number.isFinite(Number(v)) ? `${Number(v)}` : '')}
+                    />
+                    <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeDasharray="3 3" />
+                    <ChartTooltip
+                      cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                      content={
+                        <ChartTooltipContent
+                          className="rounded-md"
+                          labelFormatter={(y) => `Year ${y}`}
+                          formatter={(value) => {
+                            const n = Number(value);
+                            return Number.isFinite(n) ? `${n >= 0 ? '+' : ''}${n.toFixed(1)} bn €` : '—';
+                          }}
+                        />
+                      }
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: 9, paddingTop: 6 }}
+                      formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                    />
+                    {(Object.keys(partnerBalanceChartConfig) as (keyof typeof partnerBalanceChartConfig)[]).map(
+                      (key) => (
+                        <Line
+                          key={key}
+                          type="monotone"
+                          dataKey={key}
+                          name={partnerBalanceChartConfig[key].label}
+                          stroke={partnerBalanceChartConfig[key].color}
+                          strokeWidth={2}
+                          dot={{ r: 2 }}
+                          isAnimationActive={false}
+                        />
+                      ),
+                    )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden border-line bg-surface-metric">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
+                Germany&apos;s monthly trade performance
+              </CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Each point is one calendar year: average monthly exports and imports (left scale, B€) and average
+                monthly trade surplus (right scale, B€).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <ChartContainer
+                config={monthlyTradePerformanceChartConfig}
+                className="h-[340px] w-full font-sans md:h-[380px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={[...MONTHLY_TRADE_PERFORMANCE]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                    <XAxis
+                      dataKey="year"
+                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      tick={{ fill: 'rgba(163,163,163,0.85)', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={44}
+                      tickFormatter={(v) => (Number.isFinite(Number(v)) ? `${Number(v)}` : '')}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      tick={{ fill: 'rgba(163,163,163,0.85)', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={40}
+                      tickFormatter={(v) => (Number.isFinite(Number(v)) ? `${Number(v)}` : '')}
+                    />
+                    <ChartTooltip
+                      cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                      content={
+                        <ChartTooltipContent
+                          className="rounded-md"
+                          labelFormatter={(y) => `Year ${y}`}
+                          formatter={(value) => {
+                            const n = Number(value);
+                            return Number.isFinite(n) ? `${n.toFixed(1)} B€` : '—';
+                          }}
+                        />
+                      }
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: 10, paddingTop: 8 }}
+                      formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="avgMonthlyExports"
+                      name={monthlyTradePerformanceChartConfig.avgMonthlyExports.label}
+                      stroke={monthlyTradePerformanceChartConfig.avgMonthlyExports.color}
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="avgMonthlyImports"
+                      name={monthlyTradePerformanceChartConfig.avgMonthlyImports.label}
+                      stroke={monthlyTradePerformanceChartConfig.avgMonthlyImports.color}
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="avgMonthlySurplus"
+                      name={monthlyTradePerformanceChartConfig.avgMonthlySurplus.label}
+                      stroke={monthlyTradePerformanceChartConfig.avgMonthlySurplus.color}
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="4 3"
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-2" aria-label="Trade highlights">
-          <p className={`font-sans text-[10px] text-neutral-500 ${UC_META}`}>Snapshot</p>
-          <TopTradingPartnersTable />
-          <SideListItem
-            title="US role"
-            lines={[{ k: 'Largest export market', v: 'United States' }]}
-          />
-          <TradeCategoryPieCard
-            title="Top 5 Germany imports"
-            footnote="Approximate share of total imports (midpoints of ranges). “All other categories” fills the remainder to 100% for the chart."
-            slices={TOP_IMPORT_SLICES}
-          />
-          <TradeCategoryPieCard
-            title="Top 5 Germany exports"
-            footnote="Stated % of total exports where given; electrical machinery uses ~11.05%. Remainder shown as other categories for the pie."
-            slices={TOP_EXPORT_SLICES}
-          />
-          <SideListItem
-            title="Sources & tools"
-            lines={[
-              { k: 'Destatis foreign trade', v: 'Link' },
-              { k: 'Access2Markets', v: 'Tool' },
-              { k: 'EU agreements hub', v: 'Link' },
-            ]}
-          />
-          <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+        <aside
+          className="flex min-h-0 min-w-0 flex-col gap-2 lg:h-full lg:min-h-0"
+          aria-label="Trade highlights"
+        >
+          <div className="shrink-0 space-y-1">
+            <p className={`font-sans text-[10px] text-neutral-500 ${UC_META}`}>Snapshot</p>
+            <TopTradingPartnersTable />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col gap-2.5">
+            <TradeCategoryPieCard
+              variant="rail"
+              title="Top 5 Germany imports"
+              footnote="Midpoint ranges; remainder = other to reach 100%."
+              slices={TOP_IMPORT_SLICES}
+            />
+            <TradeCategoryPieCard
+              variant="rail"
+              title="Top 5 Germany exports"
+              footnote="Shares as given; remainder = other in pie."
+              slices={TOP_EXPORT_SLICES}
+            />
+            <TradeCategoryPieCard
+              variant="rail"
+              title="Geographic breakdown of exports"
+              footnote="By export destination; Oceania as small slice under 1%."
+              slices={GEOGRAPHIC_EXPORT_BREAKDOWN_SLICES}
+            />
+            <TradeCategoryPieCard
+              variant="rail"
+              title="Geographic breakdown of imports"
+              footnote="By import sourcing region. Key notes in hover."
+              slices={GEOGRAPHIC_IMPORT_BREAKDOWN_SLICES}
+            />
+          </div>
+          <p className="mt-auto shrink-0 font-sans text-[10px] leading-relaxed text-neutral-500">
             China: largest overall trade; US: largest export destination. Full partner tables:{' '}
             <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
             .
           </p>
         </aside>
+        </div>
       </div>
 
       {/* Folder: General trade */}
