@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import lgbtCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_gender_care_statistics.csv?raw';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
@@ -383,7 +383,7 @@ function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPolitics
   return nodes;
 }
 
-export function GermanyLgbtSection() {
+export const GermanyLgbtSection = memo(function GermanyLgbtSection() {
   const [raw, setRaw] = useState(lgbtCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -461,4 +461,4 @@ export function GermanyLgbtSection() {
       </p>
     </div>
   );
-}
+});

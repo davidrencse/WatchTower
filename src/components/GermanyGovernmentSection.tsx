@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Fragment, memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import germanyGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/Government Section/germany_government_politics.csv?raw';
 import { GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT } from '../data/germanyImmigrationPolicies';
 import {
@@ -818,18 +818,14 @@ function CitizenshipGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][
   );
 }
 
-export function GermanyGovernmentSection({
+export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
   collapseSignal,
   expandSignal,
   headerControls,
-  navPulseMain,
-  navPulseSubs,
 }: {
   collapseSignal?: number;
   expandSignal?: number;
   headerControls?: ReactNode;
-  navPulseMain?: number;
-  navPulseSubs?: Partial<Record<'parliament' | 'policies' | 'citizenship', number>>;
 }) {
   const [raw, setRaw] = useState(germanyGovernmentCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -878,7 +874,7 @@ export function GermanyGovernmentSection({
       count={outerCount}
       defaultOpen
       anchorId="country-section-government"
-      expandNonce={navPulseMain ?? 0}
+      ribbonExpandKey="main:government"
       headerControls={headerControls}
       collapseSignal={collapseSignal}
       expandSignal={expandSignal}
@@ -908,7 +904,7 @@ export function GermanyGovernmentSection({
               defaultOpen
               uppercaseTitle
               anchorId={`country-sub-government-${id}`}
-              expandNonce={navPulseSubs?.[id as 'parliament' | 'policies' | 'citizenship'] ?? 0}
+              ribbonExpandKey={`sub:government:${id}`}
               collapseSignal={collapseSignal}
               expandSignal={expandSignal}
             >
@@ -945,4 +941,4 @@ export function GermanyGovernmentSection({
       </div>
     </CollapsibleFlagSection>
   );
-}
+});

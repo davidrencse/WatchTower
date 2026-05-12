@@ -1,4 +1,4 @@
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, memo, type ReactNode } from 'react';
 import {
   CartesianGrid,
   Cell,
@@ -440,7 +440,7 @@ function RegionalAgreementCard({
   );
 }
 
-export function GermanyTradeSection() {
+export const GermanyTradeSection = memo(function GermanyTradeSection() {
   return (
     <div className="flex flex-col gap-4">
       {/* Application-style jump row (structure only; theme matches dashboard). */}
@@ -942,4 +942,4 @@ export function GermanyTradeSection() {
       </Card>
     </div>
   );
-}
+});

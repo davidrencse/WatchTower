@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { useCountryRibbonExpandOptional } from '../context/CountryRibbonExpandContext';
 import { cn } from '../lib/utils';
 
 type CollapsibleFlagSectionProps = {
@@ -19,6 +20,8 @@ type CollapsibleFlagSectionProps = {
   expandSignal?: number;
   /** Incrementing expands only this section (e.g. country nav ribbon). */
   expandNonce?: number;
+  /** Ribbon nav: expand when `CountryRibbonExpandProvider` fires this key (no parent re-render). */
+  ribbonExpandKey?: string;
 };
 
 export function CollapsibleFlagSection({
@@ -32,8 +35,14 @@ export function CollapsibleFlagSection({
   collapseSignal,
   expandSignal,
   expandNonce,
+  ribbonExpandKey,
 }: CollapsibleFlagSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const ribbonExpand = useCountryRibbonExpandOptional();
+  useLayoutEffect(() => {
+    if (!ribbonExpandKey || !ribbonExpand) return;
+    return ribbonExpand.register(ribbonExpandKey, () => setOpen(true));
+  }, [ribbonExpand, ribbonExpandKey]);
   useEffect(() => {
     if (collapseSignal !== undefined && collapseSignal > 0) {
       setOpen(false);

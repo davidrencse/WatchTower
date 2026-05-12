@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { memo } from 'react';
 
 type MarriageTrendRow = {
   year: string;
@@ -468,7 +469,7 @@ function LgbtLineCard() {
 
 export const GERMANY_MARRIAGES_GROUP_COUNT = 9;
 
-export function GermanyMarriagesSection() {
+export const GermanyMarriagesSection = memo(function GermanyMarriagesSection() {
   const femaleAggregate = aggregateMarriageSeries(FEMALE_SERIES);
   const maleAggregate = aggregateMarriageSeries(MALE_SERIES);
   const totalMarriagesAggregate = femaleAggregate.totalMarriages;
@@ -541,4 +542,4 @@ export function GermanyMarriagesSection() {
       </CollapsibleFlagSection>
     </div>
   );
-}
+});

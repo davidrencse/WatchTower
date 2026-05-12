@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import abortionCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_abortion_statistics.csv?raw';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
@@ -257,7 +257,7 @@ function AbortionCleanMetricCard({ rows, className }: { rows: GermanyGovernmentP
   );
 }
 
-export function GermanyAbortionStatisticsSection() {
+export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionStatisticsSection() {
   const [raw, setRaw] = useState(abortionCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -453,4 +453,4 @@ export function GermanyAbortionStatisticsSection() {
       </p>
     </div>
   );
-}
+});

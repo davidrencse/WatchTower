@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import germanyPopulationByAgeCsvRaw from '../../Assets/Data/Europe/Germany/germany_2025_population_by_age_and_gender.csv?raw';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from './ui/chart';
@@ -37,7 +37,7 @@ const chartConfig: ChartConfig = {
   female: { label: 'Female', color: '#ec4899' },
 };
 
-export function GermanyPopulationPyramid() {
+export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid() {
   const rows = useMemo(() => parseGermanyPopulationCsv(germanyPopulationByAgeCsvRaw), []);
 
   const data = useMemo(
@@ -152,4 +152,4 @@ export function GermanyPopulationPyramid() {
       </CardContent>
     </Card>
   );
-}
+});

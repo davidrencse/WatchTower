@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import germanyTreemapCsvRaw from '../../Assets/Data/Europe/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -685,7 +685,7 @@ function GermanyTotalMigrantsMigrationBackgroundChart() {
   );
 }
 
-export function GermanyImmigrationSection() {
+export const GermanyImmigrationSection = memo(function GermanyImmigrationSection() {
   const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isRefugeeSectionOpen, setIsRefugeeSectionOpen] = useState(false);
@@ -1077,4 +1077,4 @@ export function GermanyImmigrationSection() {
       </Card>
     </div>
   );
-}
+});

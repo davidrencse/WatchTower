@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { memo } from 'react';
 
 type CrimeBoxConfig = {
   id: string;
@@ -520,7 +521,7 @@ const germanyTotalRecordedCrimesChartConfig = {
 } satisfies ChartConfig;
 
 /** Germany-only: national totals vs. sexual-offence series (approximate values as entered). */
-export function GermanyTotalRecordedCrimesChart() {
+export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecordedCrimesChart() {
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
@@ -630,7 +631,7 @@ export function GermanyTotalRecordedCrimesChart() {
       </CardContent>
     </Card>
   );
-}
+});
 
 function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxConfig }) {
   const raw = String(row[config.valueKey] ?? '');
@@ -760,7 +761,7 @@ type CrimeMetricsSectionProps = {
   iso3?: string;
 };
 
-export function CrimeMetricsSection({ crimeRow, iso3 }: CrimeMetricsSectionProps) {
+export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow, iso3 }: CrimeMetricsSectionProps) {
   if (!crimeRow) {
     return (
       <Card className="border-dashed">
@@ -812,7 +813,7 @@ export function CrimeMetricsSection({ crimeRow, iso3 }: CrimeMetricsSectionProps
       </div>
     </div>
   );
-}
+});
 
 export function collectCrimeSourceUrls(row: CountryWideRow | null): { url: string; label: string }[] {
   if (!row) return [];

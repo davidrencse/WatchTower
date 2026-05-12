@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
@@ -135,7 +136,7 @@ function RightMetricCard({ title, value, notes }: { title: string; value: string
   );
 }
 
-export function GermanyPoliticsRightWingSection() {
+export const GermanyPoliticsRightWingSection = memo(function GermanyPoliticsRightWingSection() {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -188,4 +189,4 @@ export function GermanyPoliticsRightWingSection() {
       </div>
     </div>
   );
-}
+});

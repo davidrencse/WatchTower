@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { GERMANY_STATIC_MARKET_STRIP, type GermanyStockStripRow } from '../data/germanyStaticMarketStrip';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -98,7 +98,7 @@ function StockCard({ item }: { item: GermanyStockStripRow }) {
   );
 }
 
-export function GermanyDaxCarousel() {
+export const GermanyDaxCarousel = memo(function GermanyDaxCarousel() {
   const items = useMemo(() => GERMANY_STATIC_MARKET_STRIP, []);
   const [paused, setPaused] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -160,4 +160,4 @@ export function GermanyDaxCarousel() {
       </div>
     </section>
   );
-}
+});

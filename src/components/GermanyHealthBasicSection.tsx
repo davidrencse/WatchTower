@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import healthBasicCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_health_statistics_basic.csv?raw';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
@@ -178,7 +178,7 @@ function HealthcareExpenditureStyledCard({ rows }: { rows: GermanyGovernmentPoli
   );
 }
 
-export function GermanyHealthBasicSection() {
+export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection() {
   const [raw, setRaw] = useState(healthBasicCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -243,4 +243,4 @@ export function GermanyHealthBasicSection() {
       </div>
     </div>
   );
-}
+});

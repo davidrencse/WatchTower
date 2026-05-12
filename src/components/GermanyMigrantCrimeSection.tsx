@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import germanyMigrantCrimeRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_requested_metrics.csv?raw';
 import germanyMigrantCrimeAdditionalRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_additional_metrics.csv?raw';
 import { parseCsvRows } from '../lib/csv';
@@ -1026,7 +1026,10 @@ type GermanyMigrantCrimeSectionProps = {
   expandSignal?: number;
 };
 
-export function GermanyMigrantCrimeSection({ collapseSignal, expandSignal }: GermanyMigrantCrimeSectionProps) {
+export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSection({
+  collapseSignal,
+  expandSignal,
+}: GermanyMigrantCrimeSectionProps) {
   const [raw, setRaw] = useState<string>(germanyMigrantCrimeRaw);
   const [additionalRaw, setAdditionalRaw] = useState<string>(germanyMigrantCrimeAdditionalRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -1135,4 +1138,4 @@ export function GermanyMigrantCrimeSection({ collapseSignal, expandSignal }: Ger
       </div>
     </div>
   );
-}
+});

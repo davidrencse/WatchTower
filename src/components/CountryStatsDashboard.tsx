@@ -1,4 +1,12 @@
-import { Fragment, useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { Area, AreaChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
@@ -72,6 +80,10 @@ import germanyBirthHealthRaw from '../../Assets/Data/Europe/Germany/germany_birt
 import fallbackForeignStudentsRaw from '../../Assets/Data/foreign_student_population_screenshot_countries.csv?raw';
 import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
 import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
+import {
+  CountryRibbonExpandProvider,
+  useCountryRibbonExpandController,
+} from '../context/CountryRibbonExpandContext';
 import {
   getStatSections,
   GERMANY_IMMIGRATION_TOP_METRICS,
@@ -1581,9 +1593,9 @@ function GermanyBirthsLineChartTile() {
                 content={
                   <ChartTooltipContent
                     className="rounded-md"
-                    formatter={(value, name, item: any) => {
+                    formatter={(value, name, item) => {
                       const numericValue = Number(value);
-                      const row = item?.payload as GermanyBirthsSeriesRow | undefined;
+                      const row = (item as { payload?: GermanyBirthsSeriesRow } | undefined)?.payload;
                       const pretty = Number.isFinite(numericValue) ? Math.round(numericValue).toLocaleString('en-US') : '—';
                       const label = String(name);
                       if (label === 'birthsGermanMothers') {
@@ -1594,8 +1606,8 @@ function GermanyBirthsLineChartTile() {
                       }
                       return [`${pretty}`, ' Total live births'];
                     }}
-                    labelFormatter={(label, payload: any) => {
-                      const row = payload?.[0]?.payload as GermanyBirthsSeriesRow | undefined;
+                    labelFormatter={(label, payload) => {
+                      const row = (payload as { payload?: GermanyBirthsSeriesRow }[] | undefined)?.[0]?.payload;
                       return row?.isEstimate ? `Year ${String(label)} (estimate)` : `Year ${String(label)}`;
                     }}
                   />
@@ -2068,7 +2080,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [ribbonActiveMainId, setRibbonActiveMainId] = useState<string | null>(null);
   const [ribbonBubbleMainId, setRibbonBubbleMainId] = useState<string | null>(null);
   const [ribbonPressedSubAnchorByMain, setRibbonPressedSubAnchorByMain] = useState<Record<string, string>>({});
-  const [sectionPulse, setSectionPulse] = useState<Record<string, number>>({});
+  const ribbonExpand = useCountryRibbonExpandController();
   const germanyNewsItems = useBundledGermanyNews(isGermany);
   const { germanyLeftNewsSections, germanyRightNewsSections } = useMemo(() => {
     const b = bucketGermanyNewsItems(germanyNewsItems);
@@ -2087,14 +2099,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
   const ribbonNav = useMemo(() => buildCountryRibbonNav(iso3), [iso3]);
 
-  const bumpSectionPulse = useCallback((keys: string[]) => {
-    setSectionPulse((prev) => {
-      const next = { ...prev };
-      for (const k of keys) {
-        next[k] = (next[k] ?? 0) + 1;
-      }
-      return next;
-    });
+  const dismissRibbonBubble = useCallback(() => {
+    setRibbonBubbleMainId(null);
   }, []);
 
   const navigateFromRibbon = useCallback(
@@ -2117,14 +2123,16 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         const sub = entry.subsections.find((s) => s.anchorId === subsectionAnchorId);
         if (sub) keys.push(`sub:${mainSectionId}:${sub.id}`);
       }
-      bumpSectionPulse(keys);
+      ribbonExpand.expand(keys);
 
       const scrollTarget = subsectionAnchorId ?? entry.anchorId;
-      window.requestAnimationFrame(() => {
-        document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        });
       });
     },
-    [ribbonNav, bumpSectionPulse],
+    [ribbonNav, ribbonExpand],
   );
 
   const handleRibbonMainClick = useCallback(
@@ -2215,8 +2223,9 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const ribbonNavOpen = ordered && ordered.length > 0;
 
   return (
-    <div
-      className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased"
+    <CountryRibbonExpandProvider value={ribbonExpand}>
+      <div
+        className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased"
       style={
         {
           '--country-nav-scroll-margin': ribbonBubbleMainId ? '14rem' : '7.5rem',
@@ -2248,7 +2257,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
       {ribbonNavOpen ? (
         <CountryPageSectionRibbon
-          iso3={iso3}
+          nav={ribbonNav}
           activeMainId={ribbonActiveMainId}
           bubbleMainId={ribbonBubbleMainId}
           pressedSubAnchorId={
@@ -2256,7 +2265,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           }
           onMainClick={handleRibbonMainClick}
           onSubClick={handleRibbonSubClick}
-          onDismissBubble={() => setRibbonBubbleMainId(null)}
+          onDismissBubble={dismissRibbonBubble}
         />
       ) : null}
 
@@ -2472,7 +2481,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       count={sectionCount}
                       defaultOpen
                       anchorId={`country-section-${section.id}`}
-                      expandNonce={sectionPulse[`main:${section.id}`] ?? 0}
+                      ribbonExpandKey={`main:${section.id}`}
                       headerControls={sectionControls(section.id)}
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
@@ -2498,7 +2507,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_IMMIGRATION_SUBSECTION_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2526,7 +2535,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_MARRIAGES_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2539,7 +2548,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_LABOR_INCOME_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2552,7 +2561,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2565,7 +2574,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_ECONOMIC_TAXES_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2578,7 +2587,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_TRADE_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2591,7 +2600,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2607,7 +2616,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_LGBT_SECTION_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2620,7 +2629,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_POLITICS_LEFTISM_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2633,7 +2642,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2646,7 +2655,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_POLITICS_ZIONISM_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2659,7 +2668,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             count={GERMANY_ABORTION_SECTION_GROUP_COUNT}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
@@ -2678,7 +2687,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             }
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            expandNonce={sectionPulse[`sub:${section.id}:${block.sub.id}`] ?? 0}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
@@ -2760,7 +2769,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 35 : 4) : 0}
                 defaultOpen
                 anchorId="country-section-crime"
-                expandNonce={sectionPulse['main:crime'] ?? 0}
+                ribbonExpandKey="main:crime"
                 headerControls={sectionControls('crime')}
                 collapseSignal={collapseSignal}
                 expandSignal={expandSignal}
@@ -2771,7 +2780,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 1 : 4) : 0}
                     defaultOpen
                     anchorId="country-sub-crime-statistics"
-                    expandNonce={sectionPulse['sub:crime:crime_statistics'] ?? 0}
+                    ribbonExpandKey="sub:crime:crime_statistics"
                     collapseSignal={collapseSignal}
                     expandSignal={expandSignal}
                   >
@@ -2786,7 +2795,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       count={16}
                       defaultOpen
                       anchorId="country-sub-crime-migrant"
-                      expandNonce={sectionPulse['sub:crime:crime_migrant'] ?? 0}
+                      ribbonExpandKey="sub:crime:crime_migrant"
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
                     >
@@ -2805,12 +2814,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   collapseSignal={collapseSignal}
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
-                  navPulseMain={sectionPulse['main:government'] ?? 0}
-                  navPulseSubs={{
-                    parliament: sectionPulse['sub:government:parliament'] ?? 0,
-                    policies: sectionPulse['sub:government:policies'] ?? 0,
-                    citizenship: sectionPulse['sub:government:citizenship'] ?? 0,
-                  }}
                 />
               </div>
             ) : null}
@@ -2850,5 +2853,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         ) : null}
       </div>
     </div>
+    </CountryRibbonExpandProvider>
   );
 }

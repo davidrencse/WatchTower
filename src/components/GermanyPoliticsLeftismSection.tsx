@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
@@ -121,7 +122,7 @@ function LeftistGroupWidget({ item }: { item: LeftistGroup }) {
   );
 }
 
-export function GermanyPoliticsLeftismSection() {
+export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftismSection() {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -299,4 +300,4 @@ export function GermanyPoliticsLeftismSection() {
       </div>
     </div>
   );
-}
+});

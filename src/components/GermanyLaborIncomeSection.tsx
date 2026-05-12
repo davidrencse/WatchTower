@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import germanyGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/Government Section/germany_government_politics.csv?raw';
 import germanyLaborStatsCsvRaw from '../../Assets/Data/Europe/Germany/germany_labor_statistics.csv?raw';
 import {
@@ -22,7 +22,7 @@ const LABOR_TRIPLE_ROW_METRICS = [
   'Average annual working hours per worker',
 ] as const;
 
-export function GermanyLaborIncomeSection() {
+export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection() {
   const [govRaw, setGovRaw] = useState(germanyGovernmentCsvRaw);
   const [laborRaw, setLaborRaw] = useState(germanyLaborStatsCsvRaw);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -142,4 +142,4 @@ export function GermanyLaborIncomeSection() {
       ) : null}
     </div>
   );
-}
+});

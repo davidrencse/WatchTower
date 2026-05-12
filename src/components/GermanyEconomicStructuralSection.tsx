@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
 type EconomicIndicator = {
   id: string;
@@ -180,7 +180,7 @@ const INDICATORS: readonly EconomicIndicator[] = [
   },
 ];
 
-export function GermanyEconomicStructuralSection() {
+export const GermanyEconomicStructuralSection = memo(function GermanyEconomicStructuralSection() {
   const [oilWidgetOpen, setOilWidgetOpen] = useState(false);
 
   return (
@@ -227,4 +227,4 @@ export function GermanyEconomicStructuralSection() {
       </div>
     </>
   );
-}
+});

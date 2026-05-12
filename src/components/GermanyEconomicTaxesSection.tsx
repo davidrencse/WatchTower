@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { memo, useMemo, useState, type ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { cn } from '../lib/utils';
@@ -294,7 +294,7 @@ function GermanyNetIncomeCalculator() {
   );
 }
 
-export function GermanyEconomicTaxesSection() {
+export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSection() {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -407,4 +407,4 @@ export function GermanyEconomicTaxesSection() {
       </p>
     </div>
   );
-}
+});

@@ -1,9 +1,9 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '../lib/utils';
-import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
+import type { RibbonMainItem } from '../lib/countryRibbonNav';
 
 type CountryPageSectionRibbonProps = {
-  iso3: string;
+  nav: RibbonMainItem[];
   /** Last chosen main section (pill highlight). */
   activeMainId: string | null;
   /** Which section’s subsection panel is open; null = closed. */
@@ -28,8 +28,8 @@ const PANEL_TRANSITION_MS = 240;
  * Floats under the Watch Tower bar (same band as the old ribbon) with no full-width strip:
  * main pills hover above the page; subsections open in a panel anchored under the clicked pill.
  */
-export function CountryPageSectionRibbon({
-  iso3,
+export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
+  nav,
   activeMainId,
   bubbleMainId,
   pressedSubAnchorId,
@@ -37,7 +37,7 @@ export function CountryPageSectionRibbon({
   onSubClick,
   onDismissBubble,
 }: CountryPageSectionRibbonProps) {
-  const nav = useMemo(() => buildCountryRibbonNav(iso3), [iso3]);
+  const navRootRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,7 +48,7 @@ export function CountryPageSectionRibbon({
   const [panelGeom, setPanelGeom] = useState<PanelGeometry | null>(null);
   /** True while panel is visually expanded (enter / hold); false during exit animation. */
   const [panelExpanded, setPanelExpanded] = useState(false);
-  const [isDismissing, setIsDismissing] = useState(false);
+  const dismissingRef = useRef(false);
 
   const setTabEl = useCallback((id: string, el: HTMLButtonElement | null) => {
     const m = tabRefs.current;
@@ -83,11 +83,11 @@ export function CountryPageSectionRibbon({
     if (!bubbleOpen || !bubbleMainId) {
       setPanelGeom(null);
       setPanelExpanded(false);
-      setIsDismissing(false);
+      dismissingRef.current = false;
       return;
     }
 
-    setIsDismissing(false);
+    dismissingRef.current = false;
     measurePanel();
     setPanelExpanded(false);
     let cancelled = false;
@@ -111,36 +111,50 @@ export function CountryPageSectionRibbon({
   }, [bubbleOpen, measurePanel]);
 
   const dismissWithCollapse = useCallback(() => {
-    if (isDismissing) return;
-    setIsDismissing(true);
+    if (dismissingRef.current) return;
+    dismissingRef.current = true;
     setPanelExpanded(false);
     if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
     dismissTimerRef.current = setTimeout(() => {
       dismissTimerRef.current = null;
-      setIsDismissing(false);
+      dismissingRef.current = false;
       onDismissBubble();
     }, PANEL_TRANSITION_MS);
-  }, [isDismissing, onDismissBubble]);
+  }, [onDismissBubble]);
 
-  const showBackdrop = bubbleOpen && panelGeom !== null;
+  useEffect(() => {
+    if (!bubbleOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      if (navRootRef.current?.contains(t)) return;
+      dismissWithCollapse();
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, [bubbleOpen, dismissWithCollapse]);
+
+  useEffect(() => {
+    if (!bubbleOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') dismissWithCollapse();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [bubbleOpen, dismissWithCollapse]);
+
   const showPanel = bubbleOpen && panelGeom !== null;
 
   return (
     <>
-      {showBackdrop ? (
-        <button
-          type="button"
-          aria-label="Close section menu"
-          className="fixed inset-0 top-16 z-[55] cursor-default border-0 bg-black/25 backdrop-blur-[1px]"
-          onClick={dismissWithCollapse}
-        />
-      ) : null}
-
       <nav
         className="pointer-events-none fixed left-0 right-0 top-16 z-[60] flex justify-center px-3 sm:px-4"
         aria-label="Country sections"
       >
-        <div className="pointer-events-auto flex w-full max-w-6xl flex-col items-center pt-2">
+        <div
+          ref={navRootRef}
+          className="pointer-events-auto flex w-full max-w-6xl flex-col items-center pt-2"
+        >
           {/* Main pills — same horizontal slot as before; no ribbon background */}
           <div
             className={cn(
@@ -227,4 +241,4 @@ export function CountryPageSectionRibbon({
       </nav>
     </>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
 
@@ -137,7 +138,7 @@ function ZionMetricCard({ title, value, notes, source }: { title: string; value:
   );
 }
 
-export function GermanyPoliticsZionismSection() {
+export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionismSection() {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -264,4 +265,4 @@ export function GermanyPoliticsZionismSection() {
       </div>
     </div>
   );
-}
+});
