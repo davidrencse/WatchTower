@@ -67,6 +67,7 @@ export type CustomSubsection =
   | { id: string; title: string; kind: 'germany_economic_structural' }
   | { id: string; title: string; kind: 'germany_economic_taxes' }
   | { id: string; title: string; kind: 'germany_economy_trade' }
+  | { id: string; title: string; kind: 'germany_health_suppression' }
   | { id: string; title: string; kind: 'germany_lgbt_stats' }
   | { id: string; title: string; kind: 'germany_politics_leftism' }
   | { id: string; title: string; kind: 'germany_politics_rightwing' }
@@ -155,6 +156,7 @@ export function getStatSections(iso3: string): StatSectionDef[] {
                 title: 'Birth rates',
                 metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
               },
+              { id: 'suppression', title: 'Supression', kind: 'germany_health_suppression' as const },
               { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },
               { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },
             ]

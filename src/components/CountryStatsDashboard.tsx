@@ -45,10 +45,12 @@ import { GERMANY_LABOR_INCOME_GROUP_COUNT } from '../lib/germanyGovernmentPoliti
 import {
   GERMANY_ABORTION_SECTION_GROUP_COUNT,
   GERMANY_HEALTH_BASIC_GROUP_COUNT,
+  GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT,
   GERMANY_LGBT_SECTION_GROUP_COUNT,
 } from '../lib/germanyHealthCsv';
 import { GermanyAbortionStatisticsSection } from './GermanyAbortionStatisticsSection';
 import { GermanyHealthBasicSection } from './GermanyHealthBasicSection';
+import { GermanyHealthSuppressionSection } from './GermanyHealthSuppressionSection';
 import { GermanyLgbtSection } from './GermanyLgbtSection';
 import {
   GermanyPoliticsLeftismSection,
@@ -2348,6 +2350,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_economic_structural'; sub: CustomSubsection }
                   | { type: 'germany_economic_taxes'; sub: CustomSubsection }
                   | { type: 'germany_economy_trade'; sub: CustomSubsection }
+                  | { type: 'germany_health_suppression'; sub: CustomSubsection }
                   | { type: 'germany_lgbt_stats'; sub: CustomSubsection }
                   | { type: 'germany_politics_leftism'; sub: CustomSubsection }
                   | { type: 'germany_politics_rightwing'; sub: CustomSubsection }
@@ -2389,6 +2392,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_economy_trade') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_economy_trade', sub });
+                    }
+                    continue;
+                  }
+                  if ('kind' in sub && sub.kind === 'germany_health_suppression') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_health_suppression', sub });
                     }
                     continue;
                   }
@@ -2452,6 +2461,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
                     if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
                     if (b.type === 'germany_economy_trade') return acc + GERMANY_TRADE_GROUP_COUNT;
+                    if (b.type === 'germany_health_suppression') return acc + GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT;
                     if (b.type === 'germany_lgbt_stats') return acc + GERMANY_LGBT_SECTION_GROUP_COUNT;
                     if (b.type === 'germany_politics_leftism') return acc + GERMANY_POLITICS_LEFTISM_GROUP_COUNT;
                     if (b.type === 'germany_politics_rightwing') return acc + GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT;
@@ -2594,6 +2604,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             expandSignal={expandSignal}
                           >
                             <GermanyTradeSection />
+                          </CollapsibleFlagSection>
+                        ) : block.type === 'germany_health_suppression' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT}
+                            defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
+                            collapseSignal={collapseSignal}
+                            expandSignal={expandSignal}
+                          >
+                            <GermanyHealthSuppressionSection />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_lgbt_stats' ? (
                           <CollapsibleFlagSection
