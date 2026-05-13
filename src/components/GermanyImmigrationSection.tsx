@@ -23,6 +23,7 @@ import {
   parseGermanyTreemapCsv,
 } from '../lib/germanyImmigrationTreemapData';
 import { GermanyImmigrationTreemap } from './GermanyImmigrationTreemap';
+import { GermanyImmigrationAdvocatesSubsection } from './GermanyImmigrationAdvocatesSubsection';
 import { GermanyDeportationTrendChart, GermanyYearlyDeportationsChart } from './GermanyMigrantCrimeSection';
 
 const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
@@ -803,6 +804,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales
         to the panel width so the full treemap is visible without horizontal scrolling.
       </p>
+
+      <GermanyImmigrationAdvocatesSubsection />
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
