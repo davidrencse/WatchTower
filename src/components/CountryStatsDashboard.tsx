@@ -1525,7 +1525,7 @@ const GERMANY_BIRTH_RATES_EXTRA_CARDS: readonly GermanyBirthRatesExtraCard[] = [
 
 function GermanyBirthRatesExtraCardTile({ card }: { card: GermanyBirthRatesExtraCard }) {
   return (
-    <Card className="flex h-full min-h-[132px] flex-col overflow-hidden border-line bg-surface-metric shadow-card">
+    <Card className="flex h-full min-h-[132px] flex-col overflow-hidden border-line bg-surface-metric">
       <CardHeader className="space-y-1 p-3 pb-1.5">
         <CardTitle className="font-sans text-sm font-semibold leading-tight text-neutral-100 uppercase tracking-[0.05em]">
           {card.title}
@@ -1547,7 +1547,7 @@ function GermanyBirthRatesExtraCardTile({ card }: { card: GermanyBirthRatesExtra
 function GermanyBirthRatesExtrasGrid() {
   return (
     <div className="col-span-full">
-      <div className="grid grid-cols-1 auto-rows-fr items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 auto-rows-fr items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {GERMANY_BIRTH_RATES_EXTRA_CARDS.map((card) => (
           <GermanyBirthRatesExtraCardTile key={card.title} card={card} />
         ))}
@@ -2348,7 +2348,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_economic_structural'; sub: CustomSubsection }
                   | { type: 'germany_economic_taxes'; sub: CustomSubsection }
                   | { type: 'germany_economy_trade'; sub: CustomSubsection }
-                  | { type: 'germany_health_basic'; sub: CustomSubsection }
                   | { type: 'germany_lgbt_stats'; sub: CustomSubsection }
                   | { type: 'germany_politics_leftism'; sub: CustomSubsection }
                   | { type: 'germany_politics_rightwing'; sub: CustomSubsection }
@@ -2390,12 +2389,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_economy_trade') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_economy_trade', sub });
-                    }
-                    continue;
-                  }
-                  if ('kind' in sub && sub.kind === 'germany_health_basic') {
-                    if (iso3.toUpperCase() === 'DEU') {
-                      nestedBlocks.push({ type: 'germany_health_basic', sub });
                     }
                     continue;
                   }
@@ -2443,9 +2436,15 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     ? germanyPopulationLeadingTileCount(leadingRows)
                     : leadingRows.length;
 
+                const germanyHealthOverviewTileCount =
+                  section.id === 'health' && iso3.toUpperCase() === 'DEU'
+                    ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length
+                    : 0;
+
                 const sectionCount =
                   leadingTileCount +
                   (section.id === 'population' && iso3.toUpperCase() === 'DEU' ? 1 : 0) +
+                  germanyHealthOverviewTileCount +
                   nestedBlocks.reduce((acc, b) => {
                     if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
@@ -2453,9 +2452,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
                     if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
                     if (b.type === 'germany_economy_trade') return acc + GERMANY_TRADE_GROUP_COUNT;
-                    if (b.type === 'germany_health_basic') {
-                      return acc + GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length;
-                    }
                     if (b.type === 'germany_lgbt_stats') return acc + GERMANY_LGBT_SECTION_GROUP_COUNT;
                     if (b.type === 'germany_politics_leftism') return acc + GERMANY_POLITICS_LEFTISM_GROUP_COUNT;
                     if (b.type === 'germany_politics_rightwing') return acc + GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT;
@@ -2497,6 +2493,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             : leadingRows.map((row) => (
                                 <Fragment key={row.metric}>{renderStatTile(row, { iso3 })}</Fragment>
                               ))}
+                        </div>
+                      ) : null}
+                      {section.id === 'health' && iso3.toUpperCase() === 'DEU' ? (
+                        <div className="flex flex-col gap-3">
+                          <GermanyHealthBasicSection />
+                          <GermanyBirthRatesExtrasGrid />
                         </div>
                       ) : null}
                       {nestedBlocks.map((block) =>
@@ -2592,22 +2594,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             expandSignal={expandSignal}
                           >
                             <GermanyTradeSection />
-                          </CollapsibleFlagSection>
-                        ) : block.type === 'germany_health_basic' ? (
-                          <CollapsibleFlagSection
-                            key={block.sub.id}
-                            title={block.sub.title}
-                            count={GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length}
-                            defaultOpen
-                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
-                            collapseSignal={collapseSignal}
-                              expandSignal={expandSignal}
-                          >
-                            <div className="flex flex-col gap-3">
-                              <GermanyHealthBasicSection />
-                              <GermanyBirthRatesExtrasGrid />
-                            </div>
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_lgbt_stats' ? (
                           <CollapsibleFlagSection

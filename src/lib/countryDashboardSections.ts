@@ -67,7 +67,6 @@ export type CustomSubsection =
   | { id: string; title: string; kind: 'germany_economic_structural' }
   | { id: string; title: string; kind: 'germany_economic_taxes' }
   | { id: string; title: string; kind: 'germany_economy_trade' }
-  | { id: string; title: string; kind: 'germany_health_basic' }
   | { id: string; title: string; kind: 'germany_lgbt_stats' }
   | { id: string; title: string; kind: 'germany_politics_leftism' }
   | { id: string; title: string; kind: 'germany_politics_rightwing' }
@@ -151,7 +150,6 @@ export function getStatSections(iso3: string): StatSectionDef[] {
       subsections:
         iso3.toUpperCase() === 'DEU'
           ? [
-              { id: 'health_basic', title: 'Overview', kind: 'germany_health_basic' as const },
               {
                 id: 'birth_rates',
                 title: 'Birth rates',
