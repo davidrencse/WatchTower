@@ -77,6 +77,7 @@ import { GermanyTradeSection, GERMANY_TRADE_GROUP_COUNT } from './GermanyTradeSe
 import { GermanyPopulationPyramid } from './GermanyPopulationPyramid';
 import { GermanyDaxCarousel } from './GermanyDaxCarousel';
 import { GermanyMarriagesSection, GERMANY_MARRIAGES_GROUP_COUNT } from './GermanyMarriagesSection';
+import { GermanySexualBehaviorSection, GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT } from './GermanySexualBehaviorSection';
 import germanyForeignStudentsRaw from '../../Assets/Data/Europe/Germany/foreign_students.csv?raw';
 import germanyBirthHealthRaw from '../../Assets/Data/Europe/Germany/germany_birth_health_indicators.csv?raw';
 import fallbackForeignStudentsRaw from '../../Assets/Data/foreign_student_population_screenshot_countries.csv?raw';
@@ -2346,6 +2347,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'metrics'; sub: MetricSubsection; subRows: CountryStatMetric[] }
                   | { type: 'germany_immigration'; sub: CustomSubsection }
                   | { type: 'germany_marriages'; sub: CustomSubsection }
+                  | { type: 'germany_sexual_behavior'; sub: CustomSubsection }
                   | { type: 'germany_labor_income'; sub: CustomSubsection }
                   | { type: 'germany_economic_structural'; sub: CustomSubsection }
                   | { type: 'germany_economic_taxes'; sub: CustomSubsection }
@@ -2368,6 +2370,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_marriages') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_marriages', sub });
+                    }
+                    continue;
+                  }
+                  if ('kind' in sub && sub.kind === 'germany_sexual_behavior') {
+                    if (iso3.toUpperCase() === 'DEU') {
+                      nestedBlocks.push({ type: 'germany_sexual_behavior', sub });
                     }
                     continue;
                   }
@@ -2457,6 +2465,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   nestedBlocks.reduce((acc, b) => {
                     if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
+                    if (b.type === 'germany_sexual_behavior') return acc + GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT;
                     if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT;
                     if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
                     if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
@@ -2552,6 +2561,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             expandSignal={expandSignal}
                           >
                             <GermanyMarriagesSection />
+                          </CollapsibleFlagSection>
+                        ) : block.type === 'germany_sexual_behavior' ? (
+                          <CollapsibleFlagSection
+                            key={block.sub.id}
+                            title={block.sub.title}
+                            count={GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT}
+                            defaultOpen
+                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
+                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
+                            collapseSignal={collapseSignal}
+                            expandSignal={expandSignal}
+                          >
+                            <GermanySexualBehaviorSection />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_labor_income' ? (
                           <CollapsibleFlagSection

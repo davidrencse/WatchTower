@@ -63,6 +63,7 @@ export type MetricSubsection = { id: string; title: string; metrics: readonly st
 export type CustomSubsection =
   | { id: string; title: string; kind: 'germany_immigration' }
   | { id: string; title: string; kind: 'germany_marriages' }
+  | { id: string; title: string; kind: 'germany_sexual_behavior' }
   | { id: string; title: string; kind: 'germany_labor_income' }
   | { id: string; title: string; kind: 'germany_economic_structural' }
   | { id: string; title: string; kind: 'germany_economic_taxes' }
@@ -141,6 +142,7 @@ export function getStatSections(iso3: string): StatSectionDef[] {
         ? [
             { id: 'germany_immigration', title: 'Immigration', kind: 'germany_immigration' as const },
             { id: 'marriages', title: 'Marriages', kind: 'germany_marriages' as const },
+            { id: 'sexual_behavior', title: 'Sexual Behavior', kind: 'germany_sexual_behavior' as const },
           ]
         : undefined,
     },
