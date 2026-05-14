@@ -1505,6 +1505,57 @@ const GERMANY_TOTAL_BIRTHS_SERIES: readonly GermanyBirthsSeriesRow[] = [
   { year: '2025', totalLiveBirths: 660000, birthsGermanMothers: 465000, birthsForeignMothers: 195000, shareGermanMothersPct: 70.5, isEstimate: true },
 ] as const;
 
+type GermanyBirthsByRaceRow = {
+  year: string;
+  germanNativeNoMigrationBg: number;
+  europeanNonGerman: number;
+  african: number;
+  asian: number;
+  southAmerican: number;
+  northAmerican: number;
+  otherUnknown: number;
+};
+
+/** Birth counts by parental / regional origin grouping (2000–2025). */
+const GERMANY_BIRTHS_BY_RACE_SERIES: readonly GermanyBirthsByRaceRow[] = [
+  { year: '2000', germanNativeNoMigrationBg: 620000, europeanNonGerman: 85000, african: 12000, asian: 18000, southAmerican: 3500, northAmerican: 4500, otherUnknown: 28000 },
+  { year: '2001', germanNativeNoMigrationBg: 590000, europeanNonGerman: 86000, african: 12500, asian: 18500, southAmerican: 3600, northAmerican: 4600, otherUnknown: 28500 },
+  { year: '2002', germanNativeNoMigrationBg: 575000, europeanNonGerman: 87000, african: 13000, asian: 19000, southAmerican: 3700, northAmerican: 4700, otherUnknown: 29000 },
+  { year: '2003', germanNativeNoMigrationBg: 560000, europeanNonGerman: 88000, african: 13500, asian: 20000, southAmerican: 3800, northAmerican: 4800, otherUnknown: 29500 },
+  { year: '2004', germanNativeNoMigrationBg: 555000, europeanNonGerman: 90000, african: 14000, asian: 21000, southAmerican: 3900, northAmerican: 4900, otherUnknown: 30000 },
+  { year: '2005', germanNativeNoMigrationBg: 535000, europeanNonGerman: 92000, african: 14500, asian: 22000, southAmerican: 4000, northAmerican: 5000, otherUnknown: 31000 },
+  { year: '2006', germanNativeNoMigrationBg: 520000, europeanNonGerman: 95000, african: 15500, asian: 24000, southAmerican: 4200, northAmerican: 5200, otherUnknown: 32500 },
+  { year: '2007', germanNativeNoMigrationBg: 520000, europeanNonGerman: 98000, african: 16500, asian: 26000, southAmerican: 4500, northAmerican: 5500, otherUnknown: 34000 },
+  { year: '2008', germanNativeNoMigrationBg: 510000, europeanNonGerman: 102000, african: 17500, asian: 28000, southAmerican: 4800, northAmerican: 5800, otherUnknown: 35500 },
+  { year: '2009', germanNativeNoMigrationBg: 495000, europeanNonGerman: 105000, african: 18500, asian: 30000, southAmerican: 5100, northAmerican: 6100, otherUnknown: 37000 },
+  { year: '2010', germanNativeNoMigrationBg: 500000, europeanNonGerman: 108000, african: 19500, asian: 32000, southAmerican: 5400, northAmerican: 6400, otherUnknown: 38500 },
+  { year: '2011', germanNativeNoMigrationBg: 485000, europeanNonGerman: 110000, african: 20500, asian: 34000, southAmerican: 5700, northAmerican: 6700, otherUnknown: 40000 },
+  { year: '2012', germanNativeNoMigrationBg: 485000, europeanNonGerman: 115000, african: 22000, asian: 37000, southAmerican: 6100, northAmerican: 7100, otherUnknown: 42500 },
+  { year: '2013', germanNativeNoMigrationBg: 480000, europeanNonGerman: 120000, african: 24000, asian: 41000, southAmerican: 6500, northAmerican: 7600, otherUnknown: 45000 },
+  { year: '2014', germanNativeNoMigrationBg: 490000, europeanNonGerman: 125000, african: 26000, asian: 46000, southAmerican: 7000, northAmerican: 8200, otherUnknown: 48000 },
+  { year: '2015', germanNativeNoMigrationBg: 490000, europeanNonGerman: 135000, african: 32000, asian: 52000, southAmerican: 7800, northAmerican: 8800, otherUnknown: 53000 },
+  { year: '2016', germanNativeNoMigrationBg: 505000, europeanNonGerman: 145000, african: 38000, asian: 58000, southAmerican: 8500, northAmerican: 9500, otherUnknown: 59000 },
+  { year: '2017', germanNativeNoMigrationBg: 490000, europeanNonGerman: 148000, african: 41000, asian: 62000, southAmerican: 9000, northAmerican: 10000, otherUnknown: 62000 },
+  { year: '2018', germanNativeNoMigrationBg: 480000, europeanNonGerman: 152000, african: 44000, asian: 67000, southAmerican: 9500, northAmerican: 10500, otherUnknown: 65000 },
+  { year: '2019', germanNativeNoMigrationBg: 465000, europeanNonGerman: 155000, african: 47000, asian: 72000, southAmerican: 10000, northAmerican: 11000, otherUnknown: 68000 },
+  { year: '2020', germanNativeNoMigrationBg: 455000, europeanNonGerman: 158000, african: 49000, asian: 75000, southAmerican: 10200, northAmerican: 11200, otherUnknown: 70000 },
+  { year: '2021', germanNativeNoMigrationBg: 460000, europeanNonGerman: 162000, african: 51000, asian: 79000, southAmerican: 10500, northAmerican: 11500, otherUnknown: 73000 },
+  { year: '2022', germanNativeNoMigrationBg: 420000, europeanNonGerman: 158000, african: 50000, asian: 78000, southAmerican: 10300, northAmerican: 11300, otherUnknown: 71000 },
+  { year: '2023', germanNativeNoMigrationBg: 390000, europeanNonGerman: 152000, african: 48000, asian: 75000, southAmerican: 10000, northAmerican: 11000, otherUnknown: 69000 },
+  { year: '2024', germanNativeNoMigrationBg: 375000, europeanNonGerman: 148000, african: 47000, asian: 73000, southAmerican: 9800, northAmerican: 10800, otherUnknown: 67000 },
+  { year: '2025', germanNativeNoMigrationBg: 355000, europeanNonGerman: 145000, african: 46000, asian: 71000, southAmerican: 9500, northAmerican: 10500, otherUnknown: 65000 },
+] as const;
+
+const GERMANY_BIRTHS_BY_RACE_CHART_CONFIG = {
+  germanNativeNoMigrationBg: { label: 'German Native (no migration bg)', color: '#22c55e' },
+  europeanNonGerman: { label: 'European (non-German)', color: '#38bdf8' },
+  african: { label: 'African', color: '#a78bfa' },
+  asian: { label: 'Asian', color: '#f472b6' },
+  southAmerican: { label: 'South American', color: '#f59e0b' },
+  northAmerican: { label: 'North American', color: '#94a3b8' },
+  otherUnknown: { label: 'Other / Unknown', color: '#64748b' },
+} satisfies ChartConfig;
+
 const GERMANY_BIRTH_RATES_EXTRA_CARDS: readonly GermanyBirthRatesExtraCard[] = [
   { category: 'diseases', title: 'Cardiovascular diseases', value: '~13 million affected', details: 'Leading cause of death/disability. Ischaemic heart disease alone causes about 441,000 new cases per year.' },
   { category: 'diseases', title: 'Cancer (all types)', value: '~4.9 million (5-year prevalence)', details: '~606,000 new cases per year; very high burden.' },
@@ -1662,6 +1713,135 @@ function GermanyBirthsLineChartTile() {
           Sources: Destatis (Federal Statistical Office), Statista, and Destatis statistical reports on births by
           citizenship.
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyBirthsByRaceChartTile() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Births by race / regional origin (Germany)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Live births by category, stacked (2000–2025)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_BIRTHS_BY_RACE_CHART_CONFIG} className="h-[360px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={[...GERMANY_BIRTHS_BY_RACE_SERIES]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md max-w-[min(100vw-2rem,22rem)]"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                    }}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="square" />
+              <Area
+                type="monotone"
+                dataKey="germanNativeNoMigrationBg"
+                name="German Native (no migration bg)"
+                stackId="race"
+                stroke="#15803d"
+                fill="#22c55e"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="europeanNonGerman"
+                name="European (non-German)"
+                stackId="race"
+                stroke="#0284c7"
+                fill="#38bdf8"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="african"
+                name="African"
+                stackId="race"
+                stroke="#7c3aed"
+                fill="#a78bfa"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="asian"
+                name="Asian"
+                stackId="race"
+                stroke="#db2777"
+                fill="#f472b6"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="southAmerican"
+                name="South American"
+                stackId="race"
+                stroke="#d97706"
+                fill="#f59e0b"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="northAmerican"
+                name="North American"
+                stackId="race"
+                stroke="#64748b"
+                fill="#94a3b8"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="otherUnknown"
+                name="Other / Unknown"
+                stackId="race"
+                stroke="#475569"
+                fill="#64748b"
+                fillOpacity={0.9}
+                strokeWidth={0.5}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
@@ -2477,7 +2657,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_politics_zionism') return acc + GERMANY_POLITICS_ZIONISM_GROUP_COUNT;
                     if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
                     if (b.type === 'metrics' && b.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU') {
-                      return acc + b.subRows.length + 2;
+                      return acc + b.subRows.length + 3;
                     }
                     if (b.type === 'metrics' && b.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU') {
                       return acc + b.subRows.length + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT;
@@ -2711,7 +2891,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={
                               block.subRows.length +
-                              (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 2 : 0)
+                              (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 3 : 0)
                               + (block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU'
                                 ? GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
                                 : 0)
@@ -2732,6 +2912,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                               {block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? (
                                 <>
                                   <GermanyBirthsLineChartTile />
+                                  <GermanyBirthsByRaceChartTile />
                                 </>
                               ) : null}
                               {block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
