@@ -156,7 +156,7 @@ export function getStatSections(iso3: string): StatSectionDef[] {
                 title: 'Birth rates',
                 metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
               },
-              { id: 'suppression', title: 'Supression', kind: 'germany_health_suppression' as const },
+              { id: 'suppression', title: 'Tap Water', kind: 'germany_health_suppression' as const },
               { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },
               { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },
             ]

@@ -167,5 +167,5 @@ export const GERMANY_ABORTION_METRIC_ORDER = [
 /** CSV metric groups plus manual blocks (abortion rate chart, marital / relationship status). */
 export const GERMANY_ABORTION_SECTION_GROUP_COUNT = GERMANY_ABORTION_METRIC_ORDER.length + 2;
 
-/** Health → Supression: four trend charts plus four city tables. */
-export const GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT = 8;
+/** Health → Tap Water: trend charts + city tables (ribbon count badge). */
+export const GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT = 10;
