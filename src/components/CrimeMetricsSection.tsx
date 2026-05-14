@@ -721,6 +721,33 @@ const germanyWhiteNativeChildrenVictimsChartConfig = {
   childrenKilled: { label: 'Children killed', color: '#f87171' },
 } satisfies ChartConfig;
 
+const GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES.reduce(
+  (acc, r) => ({
+    childrenRaped: acc.childrenRaped + r.childrenRaped,
+    childrenKilled: acc.childrenKilled + r.childrenKilled,
+    childrenTheft: acc.childrenTheft + r.childrenTheft,
+  }),
+  { childrenRaped: 0, childrenKilled: 0, childrenTheft: 0 },
+);
+
+const WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; value: number }[] = [
+  {
+    id: 'total-children-killed',
+    title: 'Total White Native Children Killed',
+    value: GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenKilled,
+  },
+  {
+    id: 'total-children-raped',
+    title: 'Total White Native Children Raped',
+    value: GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenRaped,
+  },
+  {
+    id: 'total-children-theft',
+    title: 'Total White Native Children Victims of Theft',
+    value: GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenTheft,
+  },
+];
+
 const GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_VICTIMS_SERIES.reduce(
   (acc, r) => ({
     womenRaped: acc.womenRaped + r.womenRaped,
@@ -933,7 +960,8 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
             White native children — victims by year
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Left axis: children theft victims. Right axis: children raped and children killed (2000–2025).
+            Left axis: children theft victims. Right axis: children raped and children killed (2000–2025). The summary
+            totals below sum each year in this series.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -1042,6 +1070,11 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           </ChartContainer>
         </CardContent>
       </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES.map((box) => (
+          <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
+        ))}
+      </div>
     </div>
   );
 });
