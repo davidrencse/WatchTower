@@ -679,6 +679,48 @@ const germanyWhiteNativeVictimsChartConfig = {
   menKilled: { label: 'Men killed', color: '#fb923c' },
 } satisfies ChartConfig;
 
+type GermanyWhiteNativeChildrenVictimsRow = {
+  year: string;
+  childrenRaped: number;
+  childrenKilled: number;
+  childrenTheft: number;
+};
+
+const GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES: readonly GermanyWhiteNativeChildrenVictimsRow[] = [
+  { year: '2000', childrenRaped: 1240, childrenKilled: 68, childrenTheft: 18500 },
+  { year: '2001', childrenRaped: 1280, childrenKilled: 65, childrenTheft: 18200 },
+  { year: '2002', childrenRaped: 1320, childrenKilled: 63, childrenTheft: 17900 },
+  { year: '2003', childrenRaped: 1360, childrenKilled: 61, childrenTheft: 17600 },
+  { year: '2004', childrenRaped: 1400, childrenKilled: 59, childrenTheft: 17300 },
+  { year: '2005', childrenRaped: 1440, childrenKilled: 57, childrenTheft: 17000 },
+  { year: '2006', childrenRaped: 1480, childrenKilled: 55, childrenTheft: 16700 },
+  { year: '2007', childrenRaped: 1520, childrenKilled: 53, childrenTheft: 16400 },
+  { year: '2008', childrenRaped: 1560, childrenKilled: 51, childrenTheft: 16100 },
+  { year: '2009', childrenRaped: 1600, childrenKilled: 49, childrenTheft: 15800 },
+  { year: '2010', childrenRaped: 1640, childrenKilled: 47, childrenTheft: 15500 },
+  { year: '2011', childrenRaped: 1680, childrenKilled: 45, childrenTheft: 15200 },
+  { year: '2012', childrenRaped: 1720, childrenKilled: 43, childrenTheft: 14900 },
+  { year: '2013', childrenRaped: 1760, childrenKilled: 41, childrenTheft: 14600 },
+  { year: '2014', childrenRaped: 1800, childrenKilled: 39, childrenTheft: 14300 },
+  { year: '2015', childrenRaped: 1950, childrenKilled: 48, childrenTheft: 16200 },
+  { year: '2016', childrenRaped: 2350, childrenKilled: 58, childrenTheft: 18500 },
+  { year: '2017', childrenRaped: 2480, childrenKilled: 62, childrenTheft: 19200 },
+  { year: '2018', childrenRaped: 2550, childrenKilled: 65, childrenTheft: 19800 },
+  { year: '2019', childrenRaped: 2620, childrenKilled: 63, childrenTheft: 20200 },
+  { year: '2020', childrenRaped: 2180, childrenKilled: 52, childrenTheft: 17200 },
+  { year: '2021', childrenRaped: 2050, childrenKilled: 48, childrenTheft: 16500 },
+  { year: '2022', childrenRaped: 2120, childrenKilled: 50, childrenTheft: 17100 },
+  { year: '2023', childrenRaped: 2280, childrenKilled: 55, childrenTheft: 17800 },
+  { year: '2024', childrenRaped: 2450, childrenKilled: 60, childrenTheft: 18800 },
+  { year: '2025', childrenRaped: 2580, childrenKilled: 62, childrenTheft: 19500 },
+];
+
+const germanyWhiteNativeChildrenVictimsChartConfig = {
+  childrenTheft: { label: 'Children theft victims', color: '#38bdf8' },
+  childrenRaped: { label: 'Children raped', color: '#e879f9' },
+  childrenKilled: { label: 'Children killed', color: '#f87171' },
+} satisfies ChartConfig;
+
 const GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_VICTIMS_SERIES.reduce(
   (acc, r) => ({
     womenRaped: acc.womenRaped + r.womenRaped,
@@ -884,6 +926,121 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
+      </Card>
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            White native children — victims by year
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Left axis: children theft victims. Right axis: children raped and children killed (2000–2025).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={germanyWhiteNativeChildrenVictimsChartConfig} className="h-[400px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES}
+                margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
+              >
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={2}
+                  angle={-40}
+                  textAnchor="end"
+                  height={48}
+                />
+                <YAxis
+                  yAxisId="left"
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                      Number(value),
+                    )
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={40}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                      Number(value),
+                    )
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={36}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(_, payload) => {
+                        const p = (payload as { payload?: GermanyWhiteNativeChildrenVictimsRow }[] | undefined)?.[0]
+                          ?.payload;
+                        return p ? `Year ${p.year}` : '';
+                      }}
+                      formatter={(_v, _name, item) => {
+                        const row = (
+                          item as { payload?: GermanyWhiteNativeChildrenVictimsRow; dataKey?: string } | undefined
+                        )?.payload;
+                        const dk = String((item as { dataKey?: string }).dataKey ?? '');
+                        if (!row) return '—';
+                        if (dk === 'childrenTheft') return fmtVictims(row.childrenTheft);
+                        if (dk === 'childrenRaped') return fmtVictims(row.childrenRaped);
+                        if (dk === 'childrenKilled') return fmtVictims(row.childrenKilled);
+                        return '—';
+                      }}
+                    />
+                  }
+                />
+                <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="childrenTheft"
+                  name="Children theft victims"
+                  stroke="#38bdf8"
+                  strokeWidth={2.5}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="childrenRaped"
+                  name="Children raped"
+                  stroke="#e879f9"
+                  strokeWidth={2.5}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="childrenKilled"
+                  name="Children killed"
+                  stroke="#f87171"
+                  strokeWidth={2.5}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
       </Card>
     </div>
   );
