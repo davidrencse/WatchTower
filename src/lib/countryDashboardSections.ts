@@ -32,7 +32,7 @@ export const GERMANY_IMMIGRATION_TOP_METRICS = [
 
 const GERMANY_IMMIGRATION_METRICS_SET = new Set<string>(GERMANY_IMMIGRATION_TOP_METRICS);
 
-/** Former standalone “Birth rates” section; nested under Health → Birth rates (Germany). */
+/** Germany: Birth rates subsection lives under Demographics (see `getStatSections`). */
 export const BIRTH_RATES_SUBSECTION_METRICS_DEU = [
   'Total birth rate',
   'White (native) birth rate',
@@ -142,6 +142,11 @@ export function getStatSections(iso3: string): StatSectionDef[] {
         ? [
             { id: 'germany_immigration', title: 'Immigration', kind: 'germany_immigration' as const },
             { id: 'marriages', title: 'Marriages', kind: 'germany_marriages' as const },
+            {
+              id: 'birth_rates',
+              title: 'Birth rates',
+              metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
+            },
             { id: 'sexual_behavior', title: 'Sexual Behavior', kind: 'germany_sexual_behavior' as const },
           ]
         : undefined,
@@ -153,11 +158,6 @@ export function getStatSections(iso3: string): StatSectionDef[] {
       subsections:
         iso3.toUpperCase() === 'DEU'
           ? [
-              {
-                id: 'birth_rates',
-                title: 'Birth rates',
-                metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
-              },
               { id: 'suppression', title: 'Tap Water', kind: 'germany_health_suppression' as const },
               { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },
               { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },

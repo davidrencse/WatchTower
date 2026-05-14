@@ -347,7 +347,7 @@ function ImmigrationWelfareGermanyTile({ row }: { row: CountryStatMetric }) {
   );
 }
 
-/** Health → Birth rates: Destatis / OECD-style childhood weight metrics (DE). */
+/** Demographics → Birth rates: Destatis / OECD-style childhood weight metrics (DE). */
 function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
   return (
     <article className="flex min-h-[188px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
