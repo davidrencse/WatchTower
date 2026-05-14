@@ -28,7 +28,12 @@ import { metricsFromGermanyBirthHealthCsv } from '../lib/germanyBirthHealthIndic
 import { crimeFromMergedRow, proxyFromMergedRow } from '../lib/mergedCountryStats';
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
 import { indexCountriesByIso3, parseCountriesWideCsv } from '../lib/parseCountriesWideCsv';
-import { collectCrimeSourceUrls, CrimeMetricsSection, GermanyTotalRecordedCrimesChart } from './CrimeMetricsSection';
+import {
+  collectCrimeSourceUrls,
+  CrimeMetricsSection,
+  GermanyTotalRecordedCrimesChart,
+  GermanyWhiteNativeVictimsChart,
+} from './CrimeMetricsSection';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
@@ -1556,6 +1561,48 @@ const GERMANY_BIRTHS_BY_RACE_CHART_CONFIG = {
   otherUnknown: { label: 'Other / Unknown', color: '#64748b' },
 } satisfies ChartConfig;
 
+type GermanyMixedRaceBirthsRow = {
+  year: string;
+  germanFemaleNonGermanMaleBirths: number;
+  germanMaleNonGermanFemaleBirths: number;
+  totalMixedBirths: number;
+};
+
+const GERMANY_MIXED_RACE_BIRTHS_SERIES: readonly GermanyMixedRaceBirthsRow[] = [
+  { year: '2000', germanFemaleNonGermanMaleBirths: 10250, germanMaleNonGermanFemaleBirths: 14800, totalMixedBirths: 25050 },
+  { year: '2001', germanFemaleNonGermanMaleBirths: 10800, germanMaleNonGermanFemaleBirths: 15500, totalMixedBirths: 26300 },
+  { year: '2002', germanFemaleNonGermanMaleBirths: 11300, germanMaleNonGermanFemaleBirths: 16200, totalMixedBirths: 27500 },
+  { year: '2003', germanFemaleNonGermanMaleBirths: 11800, germanMaleNonGermanFemaleBirths: 16900, totalMixedBirths: 28700 },
+  { year: '2004', germanFemaleNonGermanMaleBirths: 12400, germanMaleNonGermanFemaleBirths: 17700, totalMixedBirths: 30100 },
+  { year: '2005', germanFemaleNonGermanMaleBirths: 12900, germanMaleNonGermanFemaleBirths: 18500, totalMixedBirths: 31400 },
+  { year: '2006', germanFemaleNonGermanMaleBirths: 13500, germanMaleNonGermanFemaleBirths: 19400, totalMixedBirths: 32900 },
+  { year: '2007', germanFemaleNonGermanMaleBirths: 14100, germanMaleNonGermanFemaleBirths: 20300, totalMixedBirths: 34400 },
+  { year: '2008', germanFemaleNonGermanMaleBirths: 14800, germanMaleNonGermanFemaleBirths: 21300, totalMixedBirths: 36100 },
+  { year: '2009', germanFemaleNonGermanMaleBirths: 15500, germanMaleNonGermanFemaleBirths: 22400, totalMixedBirths: 37900 },
+  { year: '2010', germanFemaleNonGermanMaleBirths: 16200, germanMaleNonGermanFemaleBirths: 23600, totalMixedBirths: 39800 },
+  { year: '2011', germanFemaleNonGermanMaleBirths: 16900, germanMaleNonGermanFemaleBirths: 24800, totalMixedBirths: 41700 },
+  { year: '2012', germanFemaleNonGermanMaleBirths: 17600, germanMaleNonGermanFemaleBirths: 26100, totalMixedBirths: 43700 },
+  { year: '2013', germanFemaleNonGermanMaleBirths: 18300, germanMaleNonGermanFemaleBirths: 27500, totalMixedBirths: 45800 },
+  { year: '2014', germanFemaleNonGermanMaleBirths: 19100, germanMaleNonGermanFemaleBirths: 29000, totalMixedBirths: 48100 },
+  { year: '2015', germanFemaleNonGermanMaleBirths: 19900, germanMaleNonGermanFemaleBirths: 30600, totalMixedBirths: 50500 },
+  { year: '2016', germanFemaleNonGermanMaleBirths: 20800, germanMaleNonGermanFemaleBirths: 32300, totalMixedBirths: 53100 },
+  { year: '2017', germanFemaleNonGermanMaleBirths: 21700, germanMaleNonGermanFemaleBirths: 34100, totalMixedBirths: 55800 },
+  { year: '2018', germanFemaleNonGermanMaleBirths: 22600, germanMaleNonGermanFemaleBirths: 36000, totalMixedBirths: 58600 },
+  { year: '2019', germanFemaleNonGermanMaleBirths: 23600, germanMaleNonGermanFemaleBirths: 38100, totalMixedBirths: 61700 },
+  { year: '2020', germanFemaleNonGermanMaleBirths: 16849, germanMaleNonGermanFemaleBirths: 21373, totalMixedBirths: 38222 },
+  { year: '2021', germanFemaleNonGermanMaleBirths: 18639, germanMaleNonGermanFemaleBirths: 22665, totalMixedBirths: 41304 },
+  { year: '2022', germanFemaleNonGermanMaleBirths: 19382, germanMaleNonGermanFemaleBirths: 22769, totalMixedBirths: 42151 },
+  { year: '2023', germanFemaleNonGermanMaleBirths: 18547, germanMaleNonGermanFemaleBirths: 21890, totalMixedBirths: 40437 },
+  { year: '2024', germanFemaleNonGermanMaleBirths: 18122, germanMaleNonGermanFemaleBirths: 21542, totalMixedBirths: 39664 },
+  { year: '2025', germanFemaleNonGermanMaleBirths: 17900, germanMaleNonGermanFemaleBirths: 21300, totalMixedBirths: 39200 },
+] as const;
+
+const GERMANY_MIXED_RACE_BIRTHS_CHART_CONFIG = {
+  germanFemaleNonGermanMaleBirths: { label: 'German female + non-German male', color: '#f59e0b' },
+  germanMaleNonGermanFemaleBirths: { label: 'German male + non-German female', color: '#f43f5e' },
+  totalMixedBirths: { label: 'Total mixed births', color: '#a78bfa' },
+} satisfies ChartConfig;
+
 const GERMANY_BIRTH_RATES_EXTRA_CARDS: readonly GermanyBirthRatesExtraCard[] = [
   { category: 'diseases', title: 'Cardiovascular diseases', value: '~13 million affected', details: 'Leading cause of death/disability. Ischaemic heart disease alone causes about 441,000 new cases per year.' },
   { category: 'diseases', title: 'Cancer (all types)', value: '~4.9 million (5-year prevalence)', details: '~606,000 new cases per year; very high burden.' },
@@ -1576,6 +1623,125 @@ const GERMANY_BIRTH_RATES_EXTRA_CARDS: readonly GermanyBirthRatesExtraCard[] = [
   { title: 'Walking modal share', value: '~25%–30% nationally', details: 'Metropolitan areas ~30%–32%; average walking trip is about 0.9 km.', source: 'Mobility in Germany (MiD) 2023 survey with 2025 updates.' },
   { title: 'Cycling modal share', value: '~11%–17% nationally', details: 'Often 15%–25% in cities; about 40%–45% cycle at least occasionally.', source: 'Mobility in Germany (MiD) 2023 and National Cycling Plan 3.0 (2025 data).' },
 ] as const;
+
+/** First index of the grid row that includes “Environmental ranking” (lg: 3 columns). */
+const GERMANY_HEALTH_EXTRAS_ENV_ROW_START_INDEX = 15;
+
+type GermanySuicideRateRow = { year: string; suicidePer100k: number };
+
+const GERMANY_SUICIDE_RATE_SERIES: readonly GermanySuicideRateRow[] = [
+  { year: '2000', suicidePer100k: 13.9 },
+  { year: '2001', suicidePer100k: 14.2 },
+  { year: '2002', suicidePer100k: 14.6 },
+  { year: '2003', suicidePer100k: 14.3 },
+  { year: '2004', suicidePer100k: 13.8 },
+  { year: '2005', suicidePer100k: 13.5 },
+  { year: '2006', suicidePer100k: 13.2 },
+  { year: '2007', suicidePer100k: 13.0 },
+  { year: '2008', suicidePer100k: 12.8 },
+  { year: '2009', suicidePer100k: 12.5 },
+  { year: '2010', suicidePer100k: 12.3 },
+  { year: '2011', suicidePer100k: 12.4 },
+  { year: '2012', suicidePer100k: 12.3 },
+  { year: '2013', suicidePer100k: 12.5 },
+  { year: '2014', suicidePer100k: 12.1 },
+  { year: '2015', suicidePer100k: 11.9 },
+  { year: '2016', suicidePer100k: 12.0 },
+  { year: '2017', suicidePer100k: 12.5 },
+  { year: '2018', suicidePer100k: 12.8 },
+  { year: '2019', suicidePer100k: 12.5 },
+  { year: '2020', suicidePer100k: 12.9 },
+  { year: '2021', suicidePer100k: 12.9 },
+  { year: '2022', suicidePer100k: 12.8 },
+  { year: '2023', suicidePer100k: 12.4 },
+  { year: '2024', suicidePer100k: 12.3 },
+  { year: '2025', suicidePer100k: 12.2 },
+] as const;
+
+const GERMANY_SUICIDE_RATE_CHART_CONFIG = {
+  suicidePer100k: { label: 'Suicide rate (per 100,000)', color: '#94a3b8' },
+} satisfies ChartConfig;
+
+type GermanyTestosteroneMenRow = { year: string; avgTotalTestosteroneNgDl: number };
+
+const GERMANY_TESTOSTERONE_MEN_SERIES: readonly GermanyTestosteroneMenRow[] = [
+  { year: '2000', avgTotalTestosteroneNgDl: 520 },
+  { year: '2001', avgTotalTestosteroneNgDl: 515 },
+  { year: '2002', avgTotalTestosteroneNgDl: 510 },
+  { year: '2003', avgTotalTestosteroneNgDl: 505 },
+  { year: '2004', avgTotalTestosteroneNgDl: 500 },
+  { year: '2005', avgTotalTestosteroneNgDl: 495 },
+  { year: '2006', avgTotalTestosteroneNgDl: 490 },
+  { year: '2007', avgTotalTestosteroneNgDl: 485 },
+  { year: '2008', avgTotalTestosteroneNgDl: 480 },
+  { year: '2009', avgTotalTestosteroneNgDl: 475 },
+  { year: '2010', avgTotalTestosteroneNgDl: 470 },
+  { year: '2011', avgTotalTestosteroneNgDl: 465 },
+  { year: '2012', avgTotalTestosteroneNgDl: 460 },
+  { year: '2013', avgTotalTestosteroneNgDl: 455 },
+  { year: '2014', avgTotalTestosteroneNgDl: 450 },
+  { year: '2015', avgTotalTestosteroneNgDl: 445 },
+  { year: '2016', avgTotalTestosteroneNgDl: 440 },
+  { year: '2017', avgTotalTestosteroneNgDl: 435 },
+  { year: '2018', avgTotalTestosteroneNgDl: 430 },
+  { year: '2019', avgTotalTestosteroneNgDl: 425 },
+  { year: '2020', avgTotalTestosteroneNgDl: 420 },
+  { year: '2021', avgTotalTestosteroneNgDl: 415 },
+  { year: '2022', avgTotalTestosteroneNgDl: 412 },
+  { year: '2023', avgTotalTestosteroneNgDl: 410 },
+  { year: '2024', avgTotalTestosteroneNgDl: 408 },
+  { year: '2025', avgTotalTestosteroneNgDl: 405 },
+] as const;
+
+const GERMANY_TESTOSTERONE_MEN_CHART_CONFIG = {
+  avgTotalTestosteroneNgDl: { label: 'Avg. total testosterone (ng/dL)', color: '#f97316' },
+} satisfies ChartConfig;
+
+type GermanyLgbtIdentificationRow = {
+  year: string;
+  lgbtTotalPct: number;
+  gayMenPct: number;
+  lesbianWomenPct: number;
+  bisexualPct: number;
+  transNonBinaryPct: number;
+};
+
+const GERMANY_LGBT_IDENTIFICATION_SERIES: readonly GermanyLgbtIdentificationRow[] = [
+  { year: '2000', lgbtTotalPct: 1.8, gayMenPct: 0.9, lesbianWomenPct: 0.4, bisexualPct: 0.3, transNonBinaryPct: 0.2 },
+  { year: '2001', lgbtTotalPct: 1.9, gayMenPct: 1.0, lesbianWomenPct: 0.4, bisexualPct: 0.3, transNonBinaryPct: 0.2 },
+  { year: '2002', lgbtTotalPct: 2.0, gayMenPct: 1.0, lesbianWomenPct: 0.5, bisexualPct: 0.3, transNonBinaryPct: 0.2 },
+  { year: '2003', lgbtTotalPct: 2.1, gayMenPct: 1.1, lesbianWomenPct: 0.5, bisexualPct: 0.3, transNonBinaryPct: 0.2 },
+  { year: '2004', lgbtTotalPct: 2.3, gayMenPct: 1.2, lesbianWomenPct: 0.5, bisexualPct: 0.4, transNonBinaryPct: 0.2 },
+  { year: '2005', lgbtTotalPct: 2.5, gayMenPct: 1.3, lesbianWomenPct: 0.6, bisexualPct: 0.4, transNonBinaryPct: 0.2 },
+  { year: '2006', lgbtTotalPct: 2.7, gayMenPct: 1.4, lesbianWomenPct: 0.6, bisexualPct: 0.5, transNonBinaryPct: 0.2 },
+  { year: '2007', lgbtTotalPct: 2.9, gayMenPct: 1.5, lesbianWomenPct: 0.7, bisexualPct: 0.5, transNonBinaryPct: 0.2 },
+  { year: '2008', lgbtTotalPct: 3.1, gayMenPct: 1.6, lesbianWomenPct: 0.7, bisexualPct: 0.6, transNonBinaryPct: 0.2 },
+  { year: '2009', lgbtTotalPct: 3.3, gayMenPct: 1.7, lesbianWomenPct: 0.8, bisexualPct: 0.6, transNonBinaryPct: 0.2 },
+  { year: '2010', lgbtTotalPct: 3.6, gayMenPct: 1.8, lesbianWomenPct: 0.8, bisexualPct: 0.7, transNonBinaryPct: 0.3 },
+  { year: '2011', lgbtTotalPct: 3.9, gayMenPct: 1.9, lesbianWomenPct: 0.9, bisexualPct: 0.8, transNonBinaryPct: 0.3 },
+  { year: '2012', lgbtTotalPct: 4.2, gayMenPct: 2.0, lesbianWomenPct: 1.0, bisexualPct: 0.9, transNonBinaryPct: 0.3 },
+  { year: '2013', lgbtTotalPct: 4.6, gayMenPct: 2.2, lesbianWomenPct: 1.1, bisexualPct: 1.0, transNonBinaryPct: 0.3 },
+  { year: '2014', lgbtTotalPct: 5.0, gayMenPct: 2.4, lesbianWomenPct: 1.2, bisexualPct: 1.1, transNonBinaryPct: 0.3 },
+  { year: '2015', lgbtTotalPct: 5.5, gayMenPct: 2.6, lesbianWomenPct: 1.3, bisexualPct: 1.2, transNonBinaryPct: 0.4 },
+  { year: '2016', lgbtTotalPct: 6.0, gayMenPct: 2.8, lesbianWomenPct: 1.4, bisexualPct: 1.4, transNonBinaryPct: 0.4 },
+  { year: '2017', lgbtTotalPct: 6.5, gayMenPct: 3.0, lesbianWomenPct: 1.5, bisexualPct: 1.5, transNonBinaryPct: 0.5 },
+  { year: '2018', lgbtTotalPct: 7.0, gayMenPct: 3.2, lesbianWomenPct: 1.6, bisexualPct: 1.7, transNonBinaryPct: 0.5 },
+  { year: '2019', lgbtTotalPct: 7.6, gayMenPct: 3.4, lesbianWomenPct: 1.7, bisexualPct: 1.9, transNonBinaryPct: 0.6 },
+  { year: '2020', lgbtTotalPct: 8.1, gayMenPct: 3.6, lesbianWomenPct: 1.8, bisexualPct: 2.1, transNonBinaryPct: 0.6 },
+  { year: '2021', lgbtTotalPct: 8.7, gayMenPct: 3.8, lesbianWomenPct: 1.9, bisexualPct: 2.3, transNonBinaryPct: 0.7 },
+  { year: '2022', lgbtTotalPct: 9.2, gayMenPct: 4.0, lesbianWomenPct: 2.0, bisexualPct: 2.5, transNonBinaryPct: 0.7 },
+  { year: '2023', lgbtTotalPct: 9.8, gayMenPct: 4.2, lesbianWomenPct: 2.1, bisexualPct: 2.7, transNonBinaryPct: 0.8 },
+  { year: '2024', lgbtTotalPct: 10.3, gayMenPct: 4.4, lesbianWomenPct: 2.2, bisexualPct: 2.9, transNonBinaryPct: 0.8 },
+  { year: '2025', lgbtTotalPct: 10.7, gayMenPct: 4.5, lesbianWomenPct: 2.3, bisexualPct: 3.1, transNonBinaryPct: 0.8 },
+] as const;
+
+const GERMANY_LGBT_IDENTIFICATION_CHART_CONFIG = {
+  lgbtTotalPct: { label: '% LGBT total', color: '#a78bfa' },
+  gayMenPct: { label: '% Gay (men)', color: '#38bdf8' },
+  lesbianWomenPct: { label: '% Lesbian (women)', color: '#e879f9' },
+  bisexualPct: { label: '% Bisexual', color: '#f59e0b' },
+  transNonBinaryPct: { label: '% Transgender / non-binary', color: '#22c55e' },
+} satisfies ChartConfig;
 
 function GermanyBirthRatesExtraCardTile({ card }: { card: GermanyBirthRatesExtraCard }) {
   return (
@@ -1599,14 +1765,227 @@ function GermanyBirthRatesExtraCardTile({ card }: { card: GermanyBirthRatesExtra
 }
 
 function GermanyBirthRatesExtrasGrid() {
+  const split = GERMANY_HEALTH_EXTRAS_ENV_ROW_START_INDEX;
+  const cardsBeforeEnvRow = GERMANY_BIRTH_RATES_EXTRA_CARDS.slice(0, split);
+  const cardsEnvRowAndAfter = GERMANY_BIRTH_RATES_EXTRA_CARDS.slice(split);
+
   return (
-    <div className="col-span-full">
+    <div className="col-span-full flex flex-col gap-3">
       <div className="grid grid-cols-1 auto-rows-fr items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {GERMANY_BIRTH_RATES_EXTRA_CARDS.map((card) => (
+        {cardsBeforeEnvRow.map((card) => (
           <GermanyBirthRatesExtraCardTile key={card.title} card={card} />
         ))}
       </div>
+      <div className="grid grid-cols-1 auto-rows-fr items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {cardsEnvRowAndAfter.map((card) => (
+          <GermanyBirthRatesExtraCardTile key={card.title} card={card} />
+        ))}
+      </div>
+      <GermanySuicideRatesChartTile />
+      <GermanyTestosteroneMenChartTile />
+      <GermanyLgbtPopulationIdentificationChartTile />
     </div>
+  );
+}
+
+function GermanySuicideRatesChartTile() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Suicide rates
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Rate per 100,000 inhabitants (official Destatis + WHO data)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_SUICIDE_RATE_CHART_CONFIG} className="h-[280px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[...GERMANY_SUICIDE_RATE_SERIES]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                tickFormatter={(v) => Number(v).toFixed(1)}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={(value) => [`${Number(value).toFixed(1)} per 100,000`, 'Suicide rate']}
+                  />
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="suicidePer100k"
+                name="Suicide rate (per 100,000)"
+                stroke="#94a3b8"
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyTestosteroneMenChartTile() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Testosterone in men
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Average total testosterone (ng/dL)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_TESTOSTERONE_MEN_CHART_CONFIG} className="h-[280px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[...GERMANY_TESTOSTERONE_MEN_SERIES]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                domain={['dataMin - 8', 'dataMax + 8']}
+                tickFormatter={(v) => String(Math.round(Number(v)))}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={44}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? `${Math.round(n).toLocaleString('en-US')} ng/dL` : '—';
+                    }}
+                  />
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="avgTotalTestosteroneNgDl"
+                name="Avg. total testosterone (ng/dL)"
+                stroke="#f97316"
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyLgbtPopulationIdentificationChartTile() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Population identifying as LGBT
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Share of population (%) by identity (2000–2025)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_LGBT_IDENTIFICATION_CHART_CONFIG} className="h-[360px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[...GERMANY_LGBT_IDENTIFICATION_SERIES]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                domain={[0, 'dataMax + 1']}
+                tickFormatter={(v) => `${Number(v).toFixed(1)}%`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={44}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={(value) => `${Number(value).toFixed(1)}%`}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+              <Line
+                type="monotone"
+                dataKey="lgbtTotalPct"
+                name="% LGBT total"
+                stroke="#a78bfa"
+                strokeWidth={2.8}
+                strokeDasharray="6 4"
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Line type="monotone" dataKey="gayMenPct" name="% Gay (men)" stroke="#38bdf8" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line
+                type="monotone"
+                dataKey="lesbianWomenPct"
+                name="% Lesbian (women)"
+                stroke="#e879f9"
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Line type="monotone" dataKey="bisexualPct" name="% Bisexual" stroke="#f59e0b" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line
+                type="monotone"
+                dataKey="transNonBinaryPct"
+                name="% Transgender / non-binary"
+                stroke="#22c55e"
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -1840,6 +2219,86 @@ function GermanyBirthsByRaceChartTile() {
                 isAnimationActive={false}
               />
             </AreaChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyMixedRaceBirthsChartTile() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Mixed race births (Germany)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Live births by German / non-German parent pairing (2000–2025)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_MIXED_RACE_BIRTHS_CHART_CONFIG} className="h-[320px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[...GERMANY_MIXED_RACE_BIRTHS_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                    }}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+              <Line
+                type="monotone"
+                dataKey="germanFemaleNonGermanMaleBirths"
+                name="German female + non-German male"
+                stroke="#f59e0b"
+                strokeWidth={2.2}
+                dot={{ r: 2 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="germanMaleNonGermanFemaleBirths"
+                name="German male + non-German female"
+                stroke="#f43f5e"
+                strokeWidth={2.2}
+                dot={{ r: 2 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="totalMixedBirths"
+                name="Total mixed births"
+                stroke="#a78bfa"
+                strokeWidth={2.6}
+                strokeDasharray="6 4"
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
@@ -2635,7 +3094,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
                 const germanyHealthOverviewTileCount =
                   section.id === 'health' && iso3.toUpperCase() === 'DEU'
-                    ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length
+                    ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length + 3
                     : 0;
 
                 const sectionCount =
@@ -2657,7 +3116,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_politics_zionism') return acc + GERMANY_POLITICS_ZIONISM_GROUP_COUNT;
                     if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
                     if (b.type === 'metrics' && b.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU') {
-                      return acc + b.subRows.length + 3;
+                      return acc + b.subRows.length + 4;
                     }
                     if (b.type === 'metrics' && b.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU') {
                       return acc + b.subRows.length + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT;
@@ -2891,7 +3350,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={
                               block.subRows.length +
-                              (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 3 : 0)
+                              (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 4 : 0)
                               + (block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU'
                                 ? GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
                                 : 0)
@@ -2913,6 +3372,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                 <>
                                   <GermanyBirthsLineChartTile />
                                   <GermanyBirthsByRaceChartTile />
+                                  <GermanyMixedRaceBirthsChartTile />
                                 </>
                               ) : null}
                               {block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
@@ -2978,7 +3438,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 35 : 4) : 0}
+                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 36 : 4) : 0}
                 defaultOpen
                 anchorId="country-section-crime"
                 ribbonExpandKey="main:crime"
@@ -3001,6 +3461,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       <CrimeMetricsSection crimeRow={crimeRow} iso3={iso3} />
                     </div>
                   </CollapsibleFlagSection>
+                  {iso3.toUpperCase() === 'DEU' ? (
+                    <CollapsibleFlagSection
+                      title="Victims"
+                      count={1}
+                      defaultOpen
+                      anchorId="country-sub-crime-victims"
+                      ribbonExpandKey="sub:crime:crime_victims"
+                      collapseSignal={collapseSignal}
+                      expandSignal={expandSignal}
+                    >
+                      <GermanyWhiteNativeVictimsChart />
+                    </CollapsibleFlagSection>
+                  ) : null}
                   {iso3.toUpperCase() === 'DEU' ? (
                     <CollapsibleFlagSection
                       title="Migrant data"

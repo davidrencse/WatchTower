@@ -42,6 +42,11 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
       ...(upper === 'DEU'
         ? [
             {
+              id: 'crime_victims',
+              label: 'Victims',
+              anchorId: 'country-sub-crime-victims',
+            } satisfies RibbonSubItem,
+            {
               id: 'crime_migrant',
               label: 'Migrant data',
               anchorId: 'country-sub-crime-migrant',

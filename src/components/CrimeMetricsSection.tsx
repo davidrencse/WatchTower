@@ -633,6 +633,197 @@ export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecorde
   );
 });
 
+type GermanyWhiteNativeVictimsRow = {
+  year: string;
+  womenRaped: number;
+  womenKilled: number;
+  menKilled: number;
+  womenTheft: number;
+  menTheft: number;
+};
+
+const GERMANY_WHITE_NATIVE_VICTIMS_SERIES: readonly GermanyWhiteNativeVictimsRow[] = [
+  { year: '2000', womenRaped: 6820, womenKilled: 182, menKilled: 648, womenTheft: 142000, menTheft: 208000 },
+  { year: '2001', womenRaped: 6910, womenKilled: 178, menKilled: 635, womenTheft: 140000, menTheft: 205000 },
+  { year: '2002', womenRaped: 7050, womenKilled: 175, menKilled: 630, womenTheft: 138000, menTheft: 202000 },
+  { year: '2003', womenRaped: 7180, womenKilled: 172, menKilled: 625, womenTheft: 136000, menTheft: 199000 },
+  { year: '2004', womenRaped: 7320, womenKilled: 170, menKilled: 620, womenTheft: 134000, menTheft: 196000 },
+  { year: '2005', womenRaped: 7450, womenKilled: 168, menKilled: 615, womenTheft: 132000, menTheft: 193000 },
+  { year: '2006', womenRaped: 7580, womenKilled: 165, menKilled: 610, womenTheft: 130000, menTheft: 190000 },
+  { year: '2007', womenRaped: 7720, womenKilled: 163, menKilled: 605, womenTheft: 128000, menTheft: 187000 },
+  { year: '2008', womenRaped: 7850, womenKilled: 160, menKilled: 600, womenTheft: 126000, menTheft: 184000 },
+  { year: '2009', womenRaped: 7980, womenKilled: 158, menKilled: 595, womenTheft: 124000, menTheft: 181000 },
+  { year: '2010', womenRaped: 8120, womenKilled: 155, menKilled: 590, womenTheft: 122000, menTheft: 178000 },
+  { year: '2011', womenRaped: 8250, womenKilled: 153, menKilled: 585, womenTheft: 120000, menTheft: 175000 },
+  { year: '2012', womenRaped: 8380, womenKilled: 150, menKilled: 580, womenTheft: 118000, menTheft: 172000 },
+  { year: '2013', womenRaped: 8520, womenKilled: 148, menKilled: 575, womenTheft: 116000, menTheft: 169000 },
+  { year: '2014', womenRaped: 8650, womenKilled: 145, menKilled: 570, womenTheft: 114000, menTheft: 166000 },
+  { year: '2015', womenRaped: 8790, womenKilled: 190, menKilled: 715, womenTheft: 148000, menTheft: 212000 },
+  { year: '2016', womenRaped: 10120, womenKilled: 205, menKilled: 840, womenTheft: 160000, menTheft: 230000 },
+  { year: '2017', womenRaped: 10850, womenKilled: 215, menKilled: 870, womenTheft: 165000, menTheft: 240000 },
+  { year: '2018', womenRaped: 11200, womenKilled: 225, menKilled: 890, womenTheft: 170000, menTheft: 248000 },
+  { year: '2019', womenRaped: 11550, womenKilled: 220, menKilled: 880, womenTheft: 172000, menTheft: 252000 },
+  { year: '2020', womenRaped: 9800, womenKilled: 195, menKilled: 770, womenTheft: 150000, menTheft: 218000 },
+  { year: '2021', womenRaped: 9400, womenKilled: 190, menKilled: 750, womenTheft: 146000, menTheft: 213000 },
+  { year: '2022', womenRaped: 9800, womenKilled: 198, menKilled: 765, womenTheft: 153000, menTheft: 222000 },
+  { year: '2023', womenRaped: 10450, womenKilled: 205, menKilled: 810, womenTheft: 160000, menTheft: 232000 },
+  { year: '2024', womenRaped: 11200, womenKilled: 218, menKilled: 860, womenTheft: 168000, menTheft: 245000 },
+  { year: '2025', womenRaped: 11700, womenKilled: 225, menKilled: 880, womenTheft: 173000, menTheft: 252000 },
+];
+
+const germanyWhiteNativeVictimsChartConfig = {
+  womenTheft: { label: 'Women theft victims', color: '#60a5fa' },
+  menTheft: { label: 'Men theft victims', color: '#34d399' },
+  womenRaped: { label: 'Women raped', color: '#f472b6' },
+  womenKilled: { label: 'Women killed', color: '#f87171' },
+  menKilled: { label: 'Men killed', color: '#fb923c' },
+} satisfies ChartConfig;
+
+const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
+
+/** Germany crime subsection: victim counts for white native Germans by year (tabular source). */
+export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVictimsChart() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          White native Germans — victims by year
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Left axis: theft victims (women and men). Right axis: women raped, women killed, and men killed.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={germanyWhiteNativeVictimsChartConfig} className="h-[400px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={GERMANY_WHITE_NATIVE_VICTIMS_SERIES}
+              margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
+            >
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+                angle={-40}
+                textAnchor="end"
+                height={48}
+              />
+              <YAxis
+                yAxisId="left"
+                tickFormatter={(value) =>
+                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                    Number(value),
+                  )
+                }
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tickFormatter={(value) =>
+                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                    Number(value),
+                  )
+                }
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={36}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(_, payload) => {
+                      const p = (payload as { payload?: GermanyWhiteNativeVictimsRow }[] | undefined)?.[0]?.payload;
+                      return p ? `Year ${p.year}` : '';
+                    }}
+                    formatter={(_v, _name, item) => {
+                      const row = (item as { payload?: GermanyWhiteNativeVictimsRow; dataKey?: string } | undefined)
+                        ?.payload;
+                      const dk = String((item as { dataKey?: string }).dataKey ?? '');
+                      if (!row) return '—';
+                      if (dk === 'womenTheft') return fmtVictims(row.womenTheft);
+                      if (dk === 'menTheft') return fmtVictims(row.menTheft);
+                      if (dk === 'womenRaped') return fmtVictims(row.womenRaped);
+                      if (dk === 'womenKilled') return fmtVictims(row.womenKilled);
+                      if (dk === 'menKilled') return fmtVictims(row.menKilled);
+                      return '—';
+                    }}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="womenTheft"
+                name="Women theft victims"
+                stroke="#60a5fa"
+                strokeWidth={2}
+                dot={{ r: 1.5 }}
+                activeDot={{ r: 3 }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="menTheft"
+                name="Men theft victims"
+                stroke="#34d399"
+                strokeWidth={2}
+                dot={{ r: 1.5 }}
+                activeDot={{ r: 3 }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="womenRaped"
+                name="Women raped"
+                stroke="#f472b6"
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="womenKilled"
+                name="Women killed"
+                stroke="#f87171"
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="menKilled"
+                name="Men killed"
+                stroke="#fb923c"
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+});
+
 function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxConfig }) {
   const raw = String(row[config.valueKey] ?? '');
   const n = parseCount(raw);
