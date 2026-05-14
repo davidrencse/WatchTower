@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import { memo } from 'react';
+import { GermanyCrimeVictimsNotableIncidents } from './GermanyCrimeVictimsNotableIncidents';
 
 type CrimeBoxConfig = {
   id: string;
@@ -1075,6 +1076,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
         ))}
       </div>
+      <GermanyCrimeVictimsNotableIncidents />
     </div>
   );
 });

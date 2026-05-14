@@ -14,6 +14,7 @@ import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
+const PERSON_BLOCK_GRID = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3';
 
 const TIER_ORDER: GermanyJewishGovTier[] = ['federal', 'state', 'positions'];
 
@@ -156,7 +157,7 @@ export function GermanyJewishGovernmentCarousel() {
                               {GERMANY_JEWISH_GOV_INFLUENCE_LABEL[group[0].influenceRealm]}
                             </p>
                           ) : null}
-                          <div className="flex flex-col gap-3">
+                          <div className={PERSON_BLOCK_GRID}>
                             {group.map((e) => (
                               <PersonBlock key={`${e.name}-${e.position.slice(0, 24)}`} entry={e} />
                             ))}
@@ -165,7 +166,7 @@ export function GermanyJewishGovernmentCarousel() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-3">
+                    <div className={PERSON_BLOCK_GRID}>
                       {tierEntries.map((e) => (
                         <PersonBlock key={`${e.name}-${e.position.slice(0, 24)}`} entry={e} />
                       ))}
