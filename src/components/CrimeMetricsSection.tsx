@@ -679,18 +679,82 @@ const germanyWhiteNativeVictimsChartConfig = {
   menKilled: { label: 'Men killed', color: '#fb923c' },
 } satisfies ChartConfig;
 
+const GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_VICTIMS_SERIES.reduce(
+  (acc, r) => ({
+    womenRaped: acc.womenRaped + r.womenRaped,
+    womenKilled: acc.womenKilled + r.womenKilled,
+    menKilled: acc.menKilled + r.menKilled,
+    womenTheft: acc.womenTheft + r.womenTheft,
+    menTheft: acc.menTheft + r.menTheft,
+  }),
+  { womenRaped: 0, womenKilled: 0, menKilled: 0, womenTheft: 0, menTheft: 0 },
+);
+
+const WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; value: number }[] = [
+  {
+    id: 'total-natives-killed',
+    title: 'Total White Natives Killed',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.womenKilled + GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.menKilled,
+  },
+  {
+    id: 'total-men-killed',
+    title: 'Total White Native Men Killed',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.menKilled,
+  },
+  {
+    id: 'total-women-killed',
+    title: 'Total White Native Women Killed',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.womenKilled,
+  },
+  {
+    id: 'total-men-theft',
+    title: 'Total White Native Men Victims of Theft',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.menTheft,
+  },
+  {
+    id: 'total-women-theft',
+    title: 'Total White Native Women Victims of Theft',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.womenTheft,
+  },
+  {
+    id: 'total-women-raped',
+    title: 'Total White Native Women Raped',
+    value: GERMANY_WHITE_NATIVE_VICTIM_CUMULATIVE.womenRaped,
+  },
+];
+
 const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
+
+function GermanyWhiteNativeVictimsTotalBox({ title, value }: { title: string; value: number }) {
+  return (
+    <Card className="flex flex-col overflow-hidden border-line bg-surface-metric shadow-card">
+      <CardHeader className="pb-0">
+        <CardTitle className="text-sm font-semibold leading-snug text-white">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-3">
+        <p className="font-sans text-2xl font-semibold tabular-nums tracking-tight text-white">{fmtVictims(value)}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 /** Germany crime subsection: victim counts for white native Germans by year (tabular source). */
 export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVictimsChart() {
   return (
-    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {WHITE_NATIVE_VICTIM_TOTAL_BOXES.map((box) => (
+          <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
+        ))}
+      </div>
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
           White native Germans — victims by year
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Left axis: theft victims (women and men). Right axis: women raped, women killed, and men killed.
+          Left axis: theft victims (women and men). Right axis: women raped, women killed, and men killed. The summary
+          totals above sum each year in this series (2000–2025).
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -820,7 +884,8 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 });
 
