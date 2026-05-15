@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type ReactNode,
@@ -86,12 +87,14 @@ import { GermanySexualBehaviorSection, GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT } fro
 import germanyForeignStudentsRaw from '../../Assets/Data/Europe/Germany/foreign_students.csv?raw';
 import germanyBirthHealthRaw from '../../Assets/Data/Europe/Germany/germany_birth_health_indicators.csv?raw';
 import fallbackForeignStudentsRaw from '../../Assets/Data/foreign_student_population_screenshot_countries.csv?raw';
+import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
 import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
 import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
 import {
   CountryRibbonExpandProvider,
   useCountryRibbonExpandController,
 } from '../context/CountryRibbonExpandContext';
+import { useCountryRibbonScrollSpy } from '../hooks/useCountryRibbonScrollSpy';
 import {
   getStatSections,
   GERMANY_IMMIGRATION_TOP_METRICS,
@@ -106,6 +109,9 @@ const FOREIGN_STUDENTS_GERMANY_CSV_URL = '/data/germany_foreign_students.csv';
 const GERMANY_BIRTH_HEALTH_CSV_URL = '/data/germany_birth_health_indicators.csv';
 const CORRUPTION_LOST_CSV_URL = '/data/corruption_money_lost_modeled_estimates.csv';
 const MACRO_INDICATORS_CSV_URL = '/data/countries_latest_inflation_unemployment_interest_with_real_median_wage.csv';
+
+/** Static public CSVs: prefer disk cache on repeat country views. */
+const STATIC_FETCH_INIT: RequestInit = { cache: 'force-cache' };
 
 const METRIC_ORDER = [
   'GDP',
@@ -2550,18 +2556,31 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
     let cancelled = false;
     (async () => {
       try {
-        const [mergedRes, expendituresRes, foreignStudentsRes, corruptionRes, macroIndicatorsRes] = await Promise.all([
-          fetch(MERGED_CSV_URL),
-          fetch(EXPENDITURES_CSV_URL),
-          fetch(FOREIGN_STUDENTS_CSV_URL),
-          fetch(CORRUPTION_LOST_CSV_URL),
-          fetch(MACRO_INDICATORS_CSV_URL),
+        const upper = iso3.toUpperCase();
+        const isDeu = upper === 'DEU';
+
+        const [mergedRes, expendituresRes, corruptionRes, macroIndicatorsRes, foreignStudentsRes] = await Promise.all([
+          fetch(MERGED_CSV_URL, STATIC_FETCH_INIT),
+          fetch(EXPENDITURES_CSV_URL, STATIC_FETCH_INIT),
+          fetch(CORRUPTION_LOST_CSV_URL, STATIC_FETCH_INIT),
+          fetch(MACRO_INDICATORS_CSV_URL, STATIC_FETCH_INIT),
+          isDeu
+            ? Promise.resolve(new Response('', { status: 404 }))
+            : fetch(FOREIGN_STUDENTS_CSV_URL, STATIC_FETCH_INIT),
         ]);
         if (!mergedRes.ok) throw new Error(`Could not load merged country data (${mergedRes.status})`);
-        const mergedText = await mergedRes.text();
+
+        const [mergedText, corruptionText, expendituresText, macroText, foreignStudentsMergedText] = await Promise.all([
+          mergedRes.text(),
+          corruptionRes.ok ? corruptionRes.text() : Promise.resolve(''),
+          expendituresRes.ok ? expendituresRes.text() : Promise.resolve(''),
+          macroIndicatorsRes.ok ? macroIndicatorsRes.text() : Promise.resolve(''),
+          !isDeu && foreignStudentsRes.ok ? foreignStudentsRes.text() : Promise.resolve(''),
+        ]);
+
         const parsedMerged = parseCountriesWideCsv(mergedText);
         const byIso = indexCountriesByIso3(parsedMerged);
-        const row = byIso.get(iso3.toUpperCase());
+        const row = byIso.get(upper);
         if (cancelled) return;
         if (!row) {
           setError(`No statistics row for ISO3 “${iso3}”.`);
@@ -2574,70 +2593,78 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         const countryLabel = row.country || flag.label;
 
         let corruptionRow: CountryWideRow | null = null;
-        if (corruptionRes.ok) {
-          const corruptionText = await corruptionRes.text();
+        if (corruptionText) {
           const corruptionRows = parseCountriesWideCsv(corruptionText);
           corruptionRow = findCorruptionLostRow(corruptionRows, countryLabel);
         }
 
         let expenditureMetrics: CountryStatMetric[] = [];
-        if (expendituresRes.ok) {
-          const expendituresText = await expendituresRes.text();
+        if (expendituresRes.ok && expendituresText.trim()) {
           const expendituresRows = parseCountriesWideCsv(expendituresText);
           const eRow = findExpenditureRow(expendituresRows, row.country || flag.label);
-          if (iso3.toUpperCase() === 'DEU') {
+          if (isDeu) {
             if (eRow) {
-              expenditureMetrics = metricsFromExpenditureRow(eRow, iso3.toUpperCase(), corruptionRow);
+              expenditureMetrics = metricsFromExpenditureRow(eRow, upper, corruptionRow);
             } else {
               expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
             }
           } else if (eRow) {
-            expenditureMetrics = metricsFromExpenditureRow(eRow, iso3.toUpperCase(), corruptionRow);
+            expenditureMetrics = metricsFromExpenditureRow(eRow, upper, corruptionRow);
           }
-        } else if (iso3.toUpperCase() === 'DEU') {
+        } else if (isDeu) {
           expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
         }
         insertLostToCorruptionMetric(expenditureMetrics, corruptionRow, countryLabel);
 
         let macroMetrics: CountryStatMetric[] = metricsFromMacroIndicatorsRow(null, countryLabel);
-        if (macroIndicatorsRes.ok) {
-          const macroText = await macroIndicatorsRes.text();
+        if (macroIndicatorsRes.ok && macroText.trim()) {
           const macroRows = parseCountriesWideCsv(macroText);
           const macroRow = findMacroIndicatorsRow(macroRows, countryLabel);
           macroMetrics = metricsFromMacroIndicatorsRow(macroRow, countryLabel);
         }
 
         let foreignStudentMetrics: CountryStatMetric[] = [];
-        if (iso3.toUpperCase() === 'DEU') {
-          let deText = '';
-          const deRes = await fetch(FOREIGN_STUDENTS_GERMANY_CSV_URL);
-          if (deRes.ok) deText = await deRes.text();
+        if (isDeu) {
+          const [deTextRaw, bhTextRaw] = await Promise.all([
+            fetch(FOREIGN_STUDENTS_GERMANY_CSV_URL, STATIC_FETCH_INIT).then((r) => (r.ok ? r.text() : '')),
+            fetch(GERMANY_BIRTH_HEALTH_CSV_URL, STATIC_FETCH_INIT)
+              .then((r) => (r.ok ? r.text() : ''))
+              .catch(() => ''),
+          ]);
+          let deText = deTextRaw;
           if (!deText.trim()) deText = germanyForeignStudentsRaw;
           foreignStudentMetrics = metricsFromGermanyForeignStudentsCsv(deText);
           if (foreignStudentMetrics.length === 0) {
             foreignStudentMetrics = fallbackGermanyForeignStudentsMetrics();
           }
-        } else {
-          let fsText = '';
-          if (foreignStudentsRes.ok) fsText = await foreignStudentsRes.text();
-          if (!fsText.trim()) fsText = fallbackForeignStudentsRaw;
-          const fsRows = parseCountriesWideCsv(fsText);
-          const fsRow = findForeignStudentsRow(fsRows, row.country || flag.label);
-          if (fsRow) foreignStudentMetrics = metricsFromForeignStudentsRow(fsRow);
+          let bhText = bhTextRaw;
+          if (!bhText.trim()) bhText = germanyBirthHealthRaw;
+          const birthHealthMetrics = metricsFromGermanyBirthHealthCsv(bhText);
+
+          if (cancelled) return;
+          const proxy = proxyFromMergedRow(row);
+          setStatsRow(row);
+          setCrimeRow(crimeFromMergedRow(row));
+          setOrdered(
+            orderMetrics([
+              ...wideRowToStatMetrics(row, upper, proxy),
+              ...macroMetrics,
+              ...expenditureMetrics,
+              ...foreignStudentMetrics,
+              ...birthHealthMetrics,
+            ]),
+          );
+          setError(null);
+          return;
         }
 
-        let birthHealthMetrics: CountryStatMetric[] = [];
-        if (iso3.toUpperCase() === 'DEU') {
-          let bhText = '';
-          try {
-            const bhRes = await fetch(GERMANY_BIRTH_HEALTH_CSV_URL);
-            if (bhRes.ok) bhText = await bhRes.text();
-          } catch {
-            bhText = '';
-          }
-          if (!bhText.trim()) bhText = germanyBirthHealthRaw;
-          birthHealthMetrics = metricsFromGermanyBirthHealthCsv(bhText);
-        }
+        let fsText = foreignStudentsMergedText;
+        if (!fsText.trim()) fsText = fallbackForeignStudentsRaw;
+        const fsRows = parseCountriesWideCsv(fsText);
+        const fsRow = findForeignStudentsRow(fsRows, row.country || flag.label);
+        if (fsRow) foreignStudentMetrics = metricsFromForeignStudentsRow(fsRow);
+
+        const birthHealthMetrics: CountryStatMetric[] = [];
 
         if (cancelled) return;
         const proxy = proxyFromMergedRow(row);
@@ -2645,7 +2672,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         setCrimeRow(crimeFromMergedRow(row));
         setOrdered(
           orderMetrics([
-            ...wideRowToStatMetrics(row, iso3.toUpperCase(), proxy),
+            ...wideRowToStatMetrics(row, upper, proxy),
             ...macroMetrics,
             ...expenditureMetrics,
             ...foreignStudentMetrics,
@@ -2720,6 +2747,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [collapseSignal, setCollapseSignal] = useState(1);
   const [expandSignal, setExpandSignal] = useState(0);
   const [ribbonActiveMainId, setRibbonActiveMainId] = useState<string | null>(null);
+  const ribbonScrollSpyQuietUntilRef = useRef(0);
   const [ribbonBubbleMainId, setRibbonBubbleMainId] = useState<string | null>(null);
   const [ribbonPressedSubAnchorByMain, setRibbonPressedSubAnchorByMain] = useState<Record<string, string>>({});
   const ribbonExpand = useCountryRibbonExpandController();
@@ -2767,6 +2795,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       }
       ribbonExpand.expand(keys);
 
+      ribbonScrollSpyQuietUntilRef.current = performance.now() + 750;
+
       const scrollTarget = subsectionAnchorId ?? entry.anchorId;
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -2797,10 +2827,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
   const handleRibbonSubClick = useCallback(
     (mainId: string, subsectionAnchorId: string) => {
+      setRibbonActiveMainId(mainId);
       navigateFromRibbon(mainId, subsectionAnchorId);
       setRibbonBubbleMainId(null);
     },
     [navigateFromRibbon],
+  );
+
+  const ribbonNavOpen = ordered && ordered.length > 0;
+  useCountryRibbonScrollSpy(
+    Boolean(ribbonNavOpen),
+    ribbonNav,
+    setRibbonActiveMainId,
+    ribbonScrollSpyQuietUntilRef,
   );
 
   function sectionOrderIndex(id: string): number {
@@ -2861,8 +2900,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       </span>
     );
   }
-
-  const ribbonNavOpen = ordered && ordered.length > 0;
 
   return (
     <CountryRibbonExpandProvider value={ribbonExpand}>
@@ -2943,16 +2980,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           </p>
         ) : null}
 
-        {!error && ordered === null ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-36 animate-pulse rounded-md border border-line bg-surface-metric shadow-card"
-              />
-            ))}
-          </div>
-        ) : null}
+        {!error && ordered === null ? <CountryPageIndustrialLoader countryLabel={flag.label} /> : null}
 
         {ordered && ordered.length > 0 ? (
           <>

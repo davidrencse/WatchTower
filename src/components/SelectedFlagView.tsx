@@ -1,6 +1,11 @@
+import { lazy, Suspense } from 'react';
 import { getIso3ForFlagId, flagIdHasCountryStats } from '../lib/flagIsoMapping';
 import type { FlagEntry } from '../types/flag';
-import { CountryStatsDashboard } from './CountryStatsDashboard';
+import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
+
+const CountryStatsDashboard = lazy(() =>
+  import('./CountryStatsDashboard').then((m) => ({ default: m.CountryStatsDashboard })),
+);
 
 type SelectedFlagViewProps = {
   flag: FlagEntry;
@@ -11,7 +16,11 @@ export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
   if (flagIdHasCountryStats(flag.id)) {
     const iso3 = getIso3ForFlagId(flag.id);
     if (iso3) {
-      return <CountryStatsDashboard flag={flag} iso3={iso3} onBack={onBack} />;
+      return (
+        <Suspense fallback={<CountryPageIndustrialLoader countryLabel={flag.label} />}>
+          <CountryStatsDashboard flag={flag} iso3={iso3} onBack={onBack} />
+        </Suspense>
+      );
     }
   }
 

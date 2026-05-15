@@ -1,11 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { AppLayout } from './components/AppLayout';
-import { FlagGallery } from './components/FlagGallery';
 import { HomeHero } from './components/HomeHero';
 import { SelectedFlagView } from './components/SelectedFlagView';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
 import { flagIdHasCountryStats } from './lib/flagIsoMapping';
 import type { FlagEntry } from './types/flag';
+
+const FlagGallery = lazy(() =>
+  import('./components/FlagGallery').then((m) => ({ default: m.FlagGallery })),
+);
+
+function GalleryLoadingFallback() {
+  return (
+    <div className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6">
+      <div className="h-10 w-48 animate-pulse rounded-md bg-neutral-800/80" />
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div key={i} className="aspect-[4/3] animate-pulse rounded-md bg-neutral-800/60" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /** Ignore gallery flag taps briefly after leaving the hero — avoids the same touch/click hitting a tile underneath. */
 function gallerySelectGraceMs(): number {
@@ -43,13 +59,11 @@ function App() {
       {stage === 'home' && !selected ? (
         <HomeHero onExplore={openGalleryFromHero} />
       ) : null}
-      {/* Keep gallery mounted so flag <img> nodes stay in DOM and stay in the browser cache when viewing a country. */}
-      <div
-        className={selected || stage !== 'gallery' ? 'hidden' : undefined}
-        aria-hidden={!!selected || stage !== 'gallery'}
-      >
-        <FlagGallery onSelectFlag={selectFlag} />
-      </div>
+      {stage === 'gallery' && !selected ? (
+        <Suspense fallback={<GalleryLoadingFallback />}>
+          <FlagGallery onSelectFlag={selectFlag} />
+        </Suspense>
+      ) : null}
       {selected ? (
         <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
       ) : null}

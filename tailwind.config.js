@@ -40,6 +40,15 @@ export default {
         soft: 'var(--shadow-soft)',
         inset: 'var(--shadow-inset)',
       },
+      keyframes: {
+        'industrial-fill': {
+          '0%, 100%': { transform: 'scaleX(0.32)', opacity: '0.85' },
+          '50%': { transform: 'scaleX(0.78)', opacity: '1' },
+        },
+      },
+      animation: {
+        'industrial-fill': 'industrial-fill 2.2s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

@@ -309,4 +309,15 @@ function virtualFlagFilenames() {
 
 export default defineConfig({
   plugins: [react(), syncDataCsvToPublic(), syncFlagsToPublic(), syncHeroAssetsToPublic(), virtualFlagFilenames()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/recharts')) return 'vendor-recharts';
+          if (id.includes('node_modules/react-dom')) return 'vendor-react-dom';
+          if (id.includes('node_modules/react')) return 'vendor-react';
+        },
+      },
+    },
+  },
 });
