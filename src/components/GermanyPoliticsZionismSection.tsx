@@ -2,11 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
+import {
+  GermanyPoliticsSecretSocietiesSection,
+  GERMANY_POLITICS_SECRET_SOCIETIES_GROUP_COUNT,
+} from './GermanyPoliticsSecretSocietiesSection';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-export const GERMANY_POLITICS_ZIONISM_GROUP_COUNT = 24;
+export const GERMANY_POLITICS_ZIONISM_GROUP_COUNT = 24 + GERMANY_POLITICS_SECRET_SOCIETIES_GROUP_COUNT;
 
 type ZionGroup = {
   rank: number;
@@ -262,6 +266,11 @@ export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionis
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-4 border-t border-blue-500/20 pt-8">
+        <h2 className={`font-sans text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>Secret Societies</h2>
+        <GermanyPoliticsSecretSocietiesSection />
       </div>
     </div>
   );
