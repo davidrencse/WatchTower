@@ -3479,7 +3479,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 47 : 4) : 0}
+                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 49 : 4) : 0}
                 defaultOpen
                 anchorId="country-section-crime"
                 ribbonExpandKey="main:crime"
@@ -3490,7 +3490,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 <div className="flex flex-col gap-4">
                   <CollapsibleFlagSection
                     title="Statistics"
-                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 1 : 4) : 0}
+                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 3 : 4) : 0}
                     defaultOpen
                     anchorId="country-sub-crime-statistics"
                     ribbonExpandKey="sub:crime:crime_statistics"

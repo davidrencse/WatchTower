@@ -515,27 +515,49 @@ const GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES: readonly GermanyRecordedCr
   },
 ];
 
-const germanyTotalRecordedCrimesChartConfig = {
+const germanyRecordedTotalCrimesChartConfig = {
   totalCrimes: { label: 'Total recorded crimes', color: '#60a5fa' },
+} satisfies ChartConfig;
+
+const germanyRecordedRapesSeriousChartConfig = {
   rapesSerious: { label: 'Rapes & serious sexual assaults', color: '#f472b6' },
+} satisfies ChartConfig;
+
+const germanyRecordedTotalSexCrimesChartConfig = {
   totalSexCrimes: { label: 'Total sex crimes', color: '#a78bfa' },
 } satisfies ChartConfig;
 
-/** Germany-only: national totals vs. sexual-offence series (approximate values as entered). */
-export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecordedCrimesChart() {
+type GermanyRecordedSingleMetricKey = 'totalCrimes' | 'rapesSerious' | 'totalSexCrimes';
+
+function GermanyRecordedSingleMetricChart({
+  title,
+  description,
+  dataKey,
+  chartConfig,
+  yAxisMode,
+}: {
+  title: string;
+  description: string;
+  dataKey: GermanyRecordedSingleMetricKey;
+  chartConfig: ChartConfig;
+  yAxisMode: 'millions' | 'compact';
+}) {
+  const yTickFormatter =
+    yAxisMode === 'millions'
+      ? (value: number) => `${(Number(value) / 1_000_000).toFixed(1)}M`
+      : (value: number) =>
+          new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value));
+
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Recorded crime vs. sexual violence (Germany)
+          {title}
         </CardTitle>
-        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Left axis: all recorded crimes. Right axis: rapes/serious sexual assaults and total sex crimes (approximate
-          values use the numeric part of each label for the line).
-        </CardDescription>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={germanyTotalRecordedCrimesChartConfig} className="h-[360px] w-full font-sans">
+        <ChartContainer config={chartConfig} className="h-[320px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES}
@@ -549,23 +571,11 @@ export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecorde
                 tickLine={false}
               />
               <YAxis
-                yAxisId="left"
-                tickFormatter={(value) => `${(Number(value) / 1_000_000).toFixed(1)}M`}
+                tickFormatter={yTickFormatter}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
                 tickLine={false}
-                width={44}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
-                }
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-                width={36}
+                width={yAxisMode === 'millions' ? 44 : 40}
               />
               <ChartTooltip
                 cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
@@ -589,48 +599,51 @@ export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecorde
                   />
                 }
               />
-              <Legend
-                wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
-                iconType="line"
-              />
+              <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line
-                yAxisId="left"
                 type="monotone"
-                dataKey="totalCrimes"
-                name="Total recorded crimes"
-                stroke="#60a5fa"
+                dataKey={dataKey}
+                stroke={String(chartConfig[dataKey]?.color ?? '#fff')}
                 strokeWidth={2.5}
                 dot={{ r: 2 }}
                 activeDot={{ r: 4 }}
                 isAnimationActive={false}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="rapesSerious"
-                name="Rapes & serious sexual assaults"
-                stroke="#f472b6"
-                strokeWidth={2.5}
-                dot={{ r: 2 }}
-                activeDot={{ r: 4 }}
-                isAnimationActive={false}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="totalSexCrimes"
-                name="Total sex crimes"
-                stroke="#a78bfa"
-                strokeWidth={2.5}
-                dot={{ r: 2 }}
-                activeDot={{ r: 4 }}
-                isAnimationActive={false}
+                name={String(chartConfig[dataKey]?.label ?? '')}
               />
             </ComposedChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>
+  );
+}
+
+/** Germany-only: national totals and sexual-offence series as separate charts (approximate values as entered). */
+export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecordedCrimesChart() {
+  return (
+    <div className="flex flex-col gap-4">
+      <GermanyRecordedSingleMetricChart
+        title="Total recorded crimes (Germany)"
+        description="All recorded criminal offences per year. Axis in millions for readability."
+        dataKey="totalCrimes"
+        chartConfig={germanyRecordedTotalCrimesChartConfig}
+        yAxisMode="millions"
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Rapes & serious sexual assaults (Germany)"
+        description="Rape, sexual coercion & serious sexual assault (incl. resulting in death) — numeric part of each label drives the line."
+        dataKey="rapesSerious"
+        chartConfig={germanyRecordedRapesSeriousChartConfig}
+        yAxisMode="compact"
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Total sex crimes (Germany)"
+        description="Total sexual offences against sexual self-determination (approximate annual totals)."
+        dataKey="totalSexCrimes"
+        chartConfig={germanyRecordedTotalSexCrimesChartConfig}
+        yAxisMode="compact"
+      />
+    </div>
   );
 });
 
