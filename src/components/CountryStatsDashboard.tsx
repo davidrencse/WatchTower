@@ -70,6 +70,10 @@ import {
   GermanyPoliticsZionismSection,
   GERMANY_POLITICS_ZIONISM_GROUP_COUNT,
 } from './GermanyPoliticsZionismSection';
+import {
+  GermanyPoliticsOverviewCharts,
+  GERMANY_POLITICS_OVERVIEW_CHART_COUNT,
+} from './GermanyPoliticsOverviewCharts';
 import { GermanyLaborIncomeSection } from './GermanyLaborIncomeSection';
 import {
   GermanyEconomicStructuralSection,
@@ -3125,10 +3129,16 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length + 3
                     : 0;
 
+                const germanyPoliticsOverviewChartCount =
+                  section.id === 'politics' && iso3.toUpperCase() === 'DEU'
+                    ? GERMANY_POLITICS_OVERVIEW_CHART_COUNT
+                    : 0;
+
                 const sectionCount =
                   leadingTileCount +
                   (section.id === 'population' && iso3.toUpperCase() === 'DEU' ? 1 : 0) +
                   germanyHealthOverviewTileCount +
+                  germanyPoliticsOverviewChartCount +
                   nestedBlocks.reduce((acc, b) => {
                     if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
@@ -3186,6 +3196,9 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                           <GermanyHealthBasicSection />
                           <GermanyBirthRatesExtrasGrid />
                         </div>
+                      ) : null}
+                      {section.id === 'politics' && iso3.toUpperCase() === 'DEU' ? (
+                        <GermanyPoliticsOverviewCharts />
                       ) : null}
                       {nestedBlocks.map((block) =>
                         block.type === 'germany_immigration' ? (
@@ -3492,7 +3505,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   {iso3.toUpperCase() === 'DEU' ? (
                     <CollapsibleFlagSection
                       title="Victims"
-                      count={12}
+                      count={19}
                       defaultOpen
                       anchorId="country-sub-crime-victims"
                       ribbonExpandKey="sub:crime:crime_victims"

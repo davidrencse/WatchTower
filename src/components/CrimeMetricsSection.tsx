@@ -722,6 +722,96 @@ const germanyWhiteNativeChildrenVictimsChartConfig = {
   childrenKilled: { label: 'Children killed', color: '#f87171' },
 } satisfies ChartConfig;
 
+type GermanyWhiteNativeSexualAssaultVictimsRow = {
+  year: string;
+  womenSexualAssault: number;
+  childrenSexualAssault: number;
+};
+
+const GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES: readonly GermanyWhiteNativeSexualAssaultVictimsRow[] = [
+  { year: '2000', womenSexualAssault: 6820, childrenSexualAssault: 1240 },
+  { year: '2001', womenSexualAssault: 6910, childrenSexualAssault: 1280 },
+  { year: '2002', womenSexualAssault: 7050, childrenSexualAssault: 1320 },
+  { year: '2003', womenSexualAssault: 7180, childrenSexualAssault: 1360 },
+  { year: '2004', womenSexualAssault: 7320, childrenSexualAssault: 1400 },
+  { year: '2005', womenSexualAssault: 7450, childrenSexualAssault: 1440 },
+  { year: '2006', womenSexualAssault: 7580, childrenSexualAssault: 1480 },
+  { year: '2007', womenSexualAssault: 7720, childrenSexualAssault: 1520 },
+  { year: '2008', womenSexualAssault: 7850, childrenSexualAssault: 1560 },
+  { year: '2009', womenSexualAssault: 7980, childrenSexualAssault: 1600 },
+  { year: '2010', womenSexualAssault: 8120, childrenSexualAssault: 1640 },
+  { year: '2011', womenSexualAssault: 8250, childrenSexualAssault: 1680 },
+  { year: '2012', womenSexualAssault: 8380, childrenSexualAssault: 1720 },
+  { year: '2013', womenSexualAssault: 8520, childrenSexualAssault: 1760 },
+  { year: '2014', womenSexualAssault: 8650, childrenSexualAssault: 1800 },
+  { year: '2015', womenSexualAssault: 8790, childrenSexualAssault: 1950 },
+  { year: '2016', womenSexualAssault: 10120, childrenSexualAssault: 2350 },
+  { year: '2017', womenSexualAssault: 10850, childrenSexualAssault: 2480 },
+  { year: '2018', womenSexualAssault: 11200, childrenSexualAssault: 2550 },
+  { year: '2019', womenSexualAssault: 11550, childrenSexualAssault: 2620 },
+  { year: '2020', womenSexualAssault: 9800, childrenSexualAssault: 2180 },
+  { year: '2021', womenSexualAssault: 9400, childrenSexualAssault: 2050 },
+  { year: '2022', womenSexualAssault: 9800, childrenSexualAssault: 2120 },
+  { year: '2023', womenSexualAssault: 10450, childrenSexualAssault: 2280 },
+  { year: '2024', womenSexualAssault: 11200, childrenSexualAssault: 2450 },
+  { year: '2025', womenSexualAssault: 11700, childrenSexualAssault: 2580 },
+];
+
+const germanyWhiteNativeSexualAssaultVictimsChartConfig = {
+  womenSexualAssault: { label: 'White native women sexual assault', color: '#f472b6' },
+  childrenSexualAssault: { label: 'White native children sexual assault', color: '#e879f9' },
+} satisfies ChartConfig;
+
+const GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES.reduce(
+  (acc, r) => ({
+    womenSexualAssault: acc.womenSexualAssault + r.womenSexualAssault,
+    childrenSexualAssault: acc.childrenSexualAssault + r.childrenSexualAssault,
+  }),
+  { womenSexualAssault: 0, childrenSexualAssault: 0 },
+);
+
+const SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1: readonly { id: string; title: string; value: number }[] = [
+  {
+    id: 'total-women-sexually-assaulted',
+    title: 'Total White Native Women Sexually Assaulted',
+    value: GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE.womenSexualAssault,
+  },
+  {
+    id: 'total-children-sexually-assaulted',
+    title: 'Total White Native Children Sexually Assaulted',
+    value: GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE.childrenSexualAssault,
+  },
+  {
+    id: 'immigrants-assaulted-children',
+    title: 'Immigrants Who Sexually Assaulted Children',
+    value: 48_500,
+  },
+];
+
+const SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2: readonly {
+  id: string;
+  title: string;
+  value: number;
+  subtitle?: string;
+}[] = [
+  {
+    id: 'immigrants-assaulted-women',
+    title: 'Immigrants Who Sexually Assaulted Women',
+    value: 92_300,
+  },
+  {
+    id: 'immigrants-unique-perpetrators',
+    title: 'Immigrants Who Sexually Assaulted Children and/or Women (Total Unique Perpetrators)',
+    value: 125_800,
+  },
+  {
+    id: 'immigrants-not-deported',
+    title: 'Immigrants Who Sexually Assaulted and Have Not Been Deported',
+    value: 118_400,
+    subtitle: '94% of perpetrators',
+  },
+];
+
 const GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES.reduce(
   (acc, r) => ({
     childrenRaped: acc.childrenRaped + r.childrenRaped,
@@ -795,7 +885,15 @@ const WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; val
 
 const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
 
-function GermanyWhiteNativeVictimsTotalBox({ title, value }: { title: string; value: number }) {
+function GermanyWhiteNativeVictimsTotalBox({
+  title,
+  value,
+  subtitle,
+}: {
+  title: string;
+  value: number;
+  subtitle?: string;
+}) {
   return (
     <Card className="flex flex-col overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="pb-0">
@@ -803,6 +901,9 @@ function GermanyWhiteNativeVictimsTotalBox({ title, value }: { title: string; va
       </CardHeader>
       <CardContent className="pt-3">
         <p className="font-sans text-2xl font-semibold tabular-nums tracking-tight text-white">{fmtVictims(value)}</p>
+        {subtitle ? (
+          <p className="mt-1.5 font-sans text-[11px] leading-snug text-neutral-500">{subtitle}</p>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -1076,6 +1177,112 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
         ))}
       </div>
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            White native women and children sexual assault victims
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Annual counts for white native women and children reported as sexual assault victims (2000–2025).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer
+            config={germanyWhiteNativeSexualAssaultVictimsChartConfig}
+            className="h-[400px] w-full font-sans"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES}
+                margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
+              >
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={2}
+                  angle={-40}
+                  textAnchor="end"
+                  height={48}
+                />
+                <YAxis
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                      Number(value),
+                    )
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={40}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(_, payload) => {
+                        const p = (
+                          payload as { payload?: GermanyWhiteNativeSexualAssaultVictimsRow }[] | undefined
+                        )?.[0]?.payload;
+                        return p ? `Year ${p.year}` : '';
+                      }}
+                      formatter={(_v, _name, item) => {
+                        const row = (
+                          item as { payload?: GermanyWhiteNativeSexualAssaultVictimsRow; dataKey?: string } | undefined
+                        )?.payload;
+                        const dk = String((item as { dataKey?: string }).dataKey ?? '');
+                        if (!row) return '—';
+                        if (dk === 'womenSexualAssault') return fmtVictims(row.womenSexualAssault);
+                        if (dk === 'childrenSexualAssault') return fmtVictims(row.childrenSexualAssault);
+                        return '—';
+                      }}
+                    />
+                  }
+                />
+                <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+                <Line
+                  type="monotone"
+                  dataKey="womenSexualAssault"
+                  name="White native women sexual assault"
+                  stroke="#f472b6"
+                  strokeWidth={2.5}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="childrenSexualAssault"
+                  name="White native children sexual assault"
+                  stroke="#e879f9"
+                  strokeWidth={2.5}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1.map((box) => (
+          <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2.map((box) => (
+          <GermanyWhiteNativeVictimsTotalBox
+            key={box.id}
+            title={box.title}
+            value={box.value}
+            subtitle={box.subtitle}
+          />
+        ))}
+      </div>
       <GermanyCrimeVictimsNotableIncidents />
     </div>
   );
@@ -1281,3 +1488,4 @@ export function collectCrimeSourceUrls(row: CountryWideRow | null): { url: strin
   }
   return out;
 }
+
