@@ -20,7 +20,7 @@ const UC = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
 /** Approximate “card groups” inside Trade for the section header count. */
-export const GERMANY_TRADE_GROUP_COUNT = 15;
+export const GERMANY_TRADE_GROUP_COUNT = 11;
 
 const TOP_TRADING_PARTNERS: readonly { rank: number; partner: string; volume: string }[] = [
   { rank: 1, partner: 'China', volume: '€252.4 billion' },
@@ -396,35 +396,22 @@ function TradeCategoryPieCard({
   );
 }
 
-function RegionalAgreementCard({
-  regionTitle,
-  children,
-}: {
-  regionTitle: string;
-  children: ReactNode;
-}) {
-  return (
-    <Card className="border-white/[0.1] bg-card">
-      <CardHeader className="p-3 pb-2">
-        <CardTitle className={`font-sans text-[11px] text-neutral-100 ${UC}`}>{regionTitle}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-300">
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
 const TRADE_SECTION_HEADING = `font-sans text-xl font-bold tracking-tight text-neutral-100 sm:text-2xl ${UC}`;
 
 const TRADE_AGREEMENT_INSIGHTS: readonly {
+  headerLead: string;
+  headerSub: string;
   title: string;
+  tags: readonly string[];
   summary: string;
   impact: string;
   status: string;
 }[] = [
   {
+    headerLead: 'Deep integration',
+    headerSub: 'EU27 · goods & services',
     title: 'EU Single Market & Customs Union',
+    tags: ['EU', 'Customs union', 'Tariffs: 0%', 'Active'],
     summary:
       'In place since 1993 and deepened over decades—Germany’s core trade architecture. Duty-free trade in goods and far lower friction in services and capital with 26 EU partners than with any third country.',
     impact:
@@ -432,7 +419,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Fully active · permanent',
   },
   {
+    headerLead: 'Bilateral FTA',
+    headerSub: 'EPA · in force 2019',
     title: 'EU–Japan Economic Partnership Agreement (EPA)',
+    tags: ['Japan', 'EPA', 'Tariffs ~99% cut', 'Active'],
     summary:
       'In force since February 2019. Tariffs removed on about 99% of tariff lines; improved access for services and public procurement compared with WTO-only terms.',
     impact:
@@ -440,7 +430,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Active · widely assessed as successful',
   },
   {
+    headerLead: 'Transatlantic FTA',
+    headerSub: 'CETA · provisional 2017',
     title: 'CETA (EU–Canada)',
+    tags: ['Canada', 'CETA', '~98% tariff-free', 'Provisional'],
     summary:
       'Provisionally applied from September 2017. Eliminates tariffs on roughly 98% of lines subject to the agreement.',
     impact:
@@ -448,7 +441,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Provisionally active · full EU ratification still incomplete',
   },
   {
+    headerLead: 'Asia FTA',
+    headerSub: 'In force July 2011',
     title: 'EU–South Korea Free Trade Agreement',
+    tags: ['South Korea', 'Industrial goods', 'Active'],
     summary:
       'In force since July 2011. Deep cuts in industrial tariffs and clearer rules for integrated supply chains.',
     impact:
@@ -456,7 +452,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Active · treated as one of the EU’s strongest Asian FTAs',
   },
   {
+    headerLead: 'Post-Brexit deal',
+    headerSub: 'TCA · from 2021',
     title: 'EU–UK Trade and Cooperation Agreement (TCA)',
+    tags: ['United Kingdom', 'TCA', 'Rules of origin', 'Active'],
     summary:
       'In force from 1 January 2021 after Brexit. Preferential terms for qualifying goods, but customs formalities, rules of origin, and thinner services access versus Single Market membership.',
     impact:
@@ -464,7 +463,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Active · materially narrower than Single Market access',
   },
   {
+    headerLead: 'Southeast Asia',
+    headerSub: 'EVFTA · from 2020',
     title: 'EU–Vietnam Free Trade Agreement (EVFTA)',
+    tags: ['Vietnam', 'EVFTA', 'Supply chains', 'Active'],
     summary:
       'In force since August 2020. Tariff phase-downs and clearer investment and procurement rules for firms using Vietnam in regional production.',
     impact:
@@ -472,7 +474,10 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
     status: 'Fully active',
   },
   {
+    headerLead: 'South America bloc',
+    headerSub: 'Signed · ratification open',
     title: 'EU–Mercosur Trade Agreement',
+    tags: ['Mercosur', 'Pending', 'Environment'],
     summary:
       'Text agreed in 2019; as of 2026 full ratification is still blocked in parts of the EU over environmental and agricultural sensitivities.',
     impact:
@@ -481,36 +486,59 @@ const TRADE_AGREEMENT_INSIGHTS: readonly {
   },
 ];
 
+function AgreementDealCardBookmarkGlyph({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <path
+        d="M7 3.5h10A1.5 1.5 0 0 1 18.5 5v16.25l-5.25-3.5L8 21.25V5A1.5 1.5 0 0 1 9.5 3.5H7Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function AgreementInsightCard({
+  headerLead,
+  headerSub,
   title,
+  tags,
   summary,
   impact,
   status,
-}: {
-  title: string;
-  summary: string;
-  impact: string;
-  status: string;
-}) {
+}: (typeof TRADE_AGREEMENT_INSIGHTS)[number]) {
   return (
-    <article className="flex h-full flex-col rounded-xl border border-white/[0.07] bg-[linear-gradient(160deg,rgba(255,255,255,0.045)_0%,rgba(255,255,255,0.01)_42%,transparent_100%)] p-[1.125rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-      <div className="mb-3 h-px w-8 rounded-full bg-gradient-to-r from-sky-500/70 to-transparent" aria-hidden />
-      <h3 className="font-sans text-[0.8125rem] font-semibold leading-snug tracking-tight text-neutral-100">{title}</h3>
-      <p className="mt-2.5 font-sans text-[12px] leading-[1.6] text-neutral-400">{summary}</p>
-      <dl className="mt-4 flex min-h-0 flex-1 flex-col gap-3 border-t border-white/[0.06] pt-4">
-        <div>
-          <dt className="font-sans text-[9px] font-medium uppercase tracking-[0.14em] text-neutral-500">Impact</dt>
-          <dd className="mt-1.5 font-sans text-[12px] leading-snug text-neutral-300">{impact}</dd>
+    <article className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.08] bg-neutral-950/40 p-4 sm:p-5">
+      {/* Header: two-line meta | corner glyph */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 pt-0.5">
+          <p className="truncate font-sans text-neutral-200">{headerLead}</p>
+          <p className="truncate font-sans text-neutral-500">{headerSub}</p>
         </div>
-        <div className="mt-auto">
-          <dt className="font-sans text-[9px] font-medium uppercase tracking-[0.14em] text-neutral-500">Status</dt>
-          <dd className="mt-1.5">
-            <span className="inline-block max-w-full rounded-md border border-white/[0.08] bg-white/[0.025] px-2.5 py-1.5 font-sans text-[11px] leading-snug text-neutral-400">
-              {status}
-            </span>
-          </dd>
-        </div>
-      </dl>
+        <AgreementDealCardBookmarkGlyph className="h-5 w-5 shrink-0 text-neutral-600" />
+      </div>
+
+      {/* Body: primary title, tag row, supporting copy */}
+      <div className="mt-4 min-w-0 flex-1">
+        <h3 className="font-sans font-semibold leading-snug text-neutral-100">{title}</h3>
+        <ul className="mt-2.5 flex list-none flex-wrap gap-1.5 p-0" role="list">
+          {tags.map((tag) => (
+            <li key={tag}>
+              <span className="inline-flex max-w-full truncate rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 font-sans text-neutral-400">
+                {tag}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 line-clamp-4 font-sans leading-relaxed text-neutral-400">{summary}</p>
+      </div>
+
+      {/* Footer: two-line stack */}
+      <div className="mt-5 space-y-1 border-t border-white/[0.07] pt-4">
+        <p className="line-clamp-2 font-sans leading-snug text-neutral-300">{impact}</p>
+        <p className="line-clamp-2 font-sans leading-snug text-neutral-500">{status}</p>
+      </div>
     </article>
   );
 }
@@ -867,87 +895,8 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
         <h2 className={TRADE_SECTION_HEADING}>Agreements</h2>
         <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
           {TRADE_AGREEMENT_INSIGHTS.map((item) => (
-            <AgreementInsightCard
-              key={item.title}
-              title={item.title}
-              summary={item.summary}
-              impact={item.impact}
-              status={item.status}
-            />
+            <AgreementInsightCard key={item.title} {...item} />
           ))}
-        </div>
-      </section>
-
-      {/* Folder: Major EU trade agreements + regional subfolders */}
-      <section id="trade-block-major" className="scroll-mt-28 space-y-4">
-        <h2 className={TRADE_SECTION_HEADING}>Major EU trade agreements</h2>
-        <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
-          <RegionalAgreementCard regionTitle="Europe & neighbours">
-            <ul className="list-inside list-disc space-y-1.5 marker:text-neutral-500">
-              <li>
-                <strong className="text-neutral-200">EU–UK Trade &amp; Cooperation Agreement (TCA, 2021):</strong>{' '}
-                zero tariffs on qualifying goods (rules of origin apply).{' '}
-                <SourceLink href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02021A0430">EUR-Lex</SourceLink>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–Turkey Customs Union (1995):</strong> zero tariffs on
-                industrial goods.{' '}
-                <SourceLink href="https://www.consilium.europa.eu">Council</SourceLink>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EEA (Norway, Iceland, Liechtenstein, 1994):</strong> full Single
-                Market access.
-              </li>
-            </ul>
-          </RegionalAgreementCard>
-          <RegionalAgreementCard regionTitle="Asia-Pacific">
-            <ul className="list-inside list-disc space-y-1.5 marker:text-neutral-500">
-              <li>
-                <strong className="text-neutral-200">EU–Japan JEFTA (2019):</strong> ~99% tariffs eliminated.{' '}
-                <SourceLink href="https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/countries-and-regions/japan_en">
-                  Commission
-                </SourceLink>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–South Korea FTA (2015)</strong>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–Vietnam FTA (2020)</strong>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–Singapore FTA (2019)</strong>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–New Zealand FTA (2024)</strong>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–Indonesia &amp; EU–India FTAs</strong> (concluded 2025 / Jan
-                2026): major recent deals opening auto and industrial markets.
-              </li>
-            </ul>
-          </RegionalAgreementCard>
-          <RegionalAgreementCard regionTitle="Americas">
-            <ul className="list-inside list-disc space-y-1.5 marker:text-neutral-500">
-              <li>
-                <strong className="text-neutral-200">EU–Canada CETA (provisional 2017):</strong> 98%+ tariff-free.{' '}
-                <SourceLink href="https://www.consilium.europa.eu">Council</SourceLink>
-              </li>
-              <li>
-                <strong className="text-neutral-200">EU–Mercosur interim agreement (provisional from 1 May 2026):</strong>{' '}
-                Brazil, Argentina, Paraguay, Uruguay.{' '}
-                <SourceLink href="https://commission.europa.eu/topics/trade/eu-mercosur-trade-agreement_en">
-                  Commission
-                </SourceLink>
-              </li>
-              <li>Updated agreements with Chile, Central America, and Andean countries (Colombia, Ecuador, Peru).</li>
-            </ul>
-          </RegionalAgreementCard>
-          <RegionalAgreementCard regionTitle="Africa &amp; others (EPAs)">
-            <p>
-              Economic Partnership Agreements (e.g. SADC, West/East Africa): duty-free / quota-free access for
-              developing partners where agreements apply.
-            </p>
-          </RegionalAgreementCard>
         </div>
       </section>
 

@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { GOV_POLITICS_CARD_GRID, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
+import { GermanyImmigrantBenefitsSection } from './GermanyImmigrantBenefitsSection';
 
 const GOV_CSV_URL = '/data/germany_government_politics.csv';
 const LABOR_STATS_CSV_URL = '/data/germany_labor_statistics.csv';
@@ -197,7 +198,12 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   }, [laborFileGroups]);
 
   if (loadError) {
-    return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
+    return (
+      <div className="flex flex-col gap-6">
+        <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
+        <GermanyImmigrantBenefitsSection />
+      </div>
+    );
   }
 
   const hasGov = govGroups.length > 0;
@@ -205,11 +211,14 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
 
   if (!hasGov && !hasLaborFile) {
     return (
-      <p className="font-sans text-xs text-neutral-500">
-        No labor / income rows in <code className="text-neutral-400">germany_government_politics.csv</code> (Government /
-        Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
-        <code className="text-neutral-400">germany_labor_statistics.csv</code>.
-      </p>
+      <div className="flex flex-col gap-6">
+        <p className="font-sans text-xs text-neutral-500">
+          No labor / income rows in <code className="text-neutral-400">germany_government_politics.csv</code> (Government /
+          Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
+          <code className="text-neutral-400">germany_labor_statistics.csv</code>.
+        </p>
+        <GermanyImmigrantBenefitsSection />
+      </div>
     );
   }
 
@@ -373,6 +382,8 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           </p>
         </div>
       ) : null}
+
+      <GermanyImmigrantBenefitsSection />
     </div>
   );
 });
