@@ -3,7 +3,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 
-export const GERMANY_POLITICS_OVERVIEW_CHART_COUNT = 5;
+export const GERMANY_POLITICS_OVERVIEW_CHART_COUNT = 6;
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
@@ -119,12 +119,15 @@ const RUSSIA_UKRAINE_SERIES: readonly RussiaUkraineSupportRow[] = [
   { year: '2025', overallSupportRussiaPct: 19, overallSupportUkrainePct: 61, leftWingSupportRussiaPct: 13, leftWingSupportUkrainePct: 68, rightWingSupportRussiaPct: 37, rightWingSupportUkrainePct: 43 },
 ];
 
-/** Left = red hue (women lighter); right = blue hue (men darker). */
-const LEFT_RIGHT_BY_GENDER_CONFIG = {
-  womenLeftistPct: { label: 'Women — leftist', color: '#f87171' },
-  menLeftistPct: { label: 'Men — leftist', color: '#b91c1c' },
-  womenRightWingPct: { label: 'Women — right-wing', color: '#60a5fa' },
-  menRightWingPct: { label: 'Men — right-wing', color: '#1e40af' },
+/** Leftist = red; right-wing = blue. Men chart uses darker tones. */
+const MEN_LEFT_RIGHT_CONFIG = {
+  menLeftistPct: { label: 'Leftist', color: '#b91c1c' },
+  menRightWingPct: { label: 'Right-wing', color: '#1e40af' },
+} satisfies ChartConfig;
+
+const WOMEN_LEFT_RIGHT_CONFIG = {
+  womenLeftistPct: { label: 'Leftist', color: '#f87171' },
+  womenRightWingPct: { label: 'Right-wing', color: '#60a5fa' },
 } satisfies ChartConfig;
 
 /** Overall: neutral. Left-wing: red family. Right-wing: blue family. */
@@ -153,19 +156,21 @@ const pctTooltipFormatter = (value: unknown) => {
   return Number.isFinite(n) ? `${n}%` : '—';
 };
 
-function LeftRightByGenderChart() {
+const LR_IDEOLOGY_Y = { domain: [30, 60] as [number, number], width: 44 };
+
+function MenLeftistVsRightWingChart() {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
-          Population Identifying as Leftist vs Right-Wing by Gender
+          Men — leftist vs right-wing identification
         </CardTitle>
         <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Share of each gender identifying as leftist or right-wing (%), 2000–2025
+          Share of men identifying as leftist or right-wing (%), 2000–2025
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
-        <ChartContainer config={LEFT_RIGHT_BY_GENDER_CONFIG} className="h-[340px] w-full font-sans">
+        <ChartContainer config={MEN_LEFT_RIGHT_CONFIG} className="h-[300px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={[...LEFT_RIGHT_BY_GENDER_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -177,12 +182,12 @@ function LeftRightByGenderChart() {
                 interval={2}
               />
               <YAxis
-                domain={[30, 60]}
+                domain={LR_IDEOLOGY_Y.domain}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
                 tickLine={false}
-                width={44}
+                width={LR_IDEOLOGY_Y.width}
               />
               <ChartTooltip
                 cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
@@ -194,37 +199,87 @@ function LeftRightByGenderChart() {
                   />
                 }
               />
-              <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
-              <Line
-                type="monotone"
-                dataKey="womenLeftistPct"
-                stroke={LEFT_RIGHT_BY_GENDER_CONFIG.womenLeftistPct.color}
-                strokeWidth={2.2}
-                dot={false}
-                isAnimationActive={false}
-              />
+              <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line
                 type="monotone"
                 dataKey="menLeftistPct"
-                stroke={LEFT_RIGHT_BY_GENDER_CONFIG.menLeftistPct.color}
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="womenRightWingPct"
-                stroke={LEFT_RIGHT_BY_GENDER_CONFIG.womenRightWingPct.color}
-                strokeWidth={2}
-                strokeDasharray="6 4"
+                stroke={MEN_LEFT_RIGHT_CONFIG.menLeftistPct.color}
+                strokeWidth={2.4}
                 dot={false}
                 isAnimationActive={false}
               />
               <Line
                 type="monotone"
                 dataKey="menRightWingPct"
-                stroke={LEFT_RIGHT_BY_GENDER_CONFIG.menRightWingPct.color}
-                strokeWidth={2}
+                stroke={MEN_LEFT_RIGHT_CONFIG.menRightWingPct.color}
+                strokeWidth={2.4}
+                strokeDasharray="6 4"
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function WomenLeftistVsRightWingChart() {
+  return (
+    <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
+          Women — leftist vs right-wing identification
+        </CardTitle>
+        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+          Share of women identifying as leftist or right-wing (%), 2000–2025
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-3 pt-0">
+        <ChartContainer config={WOMEN_LEFT_RIGHT_CONFIG} className="h-[300px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[...LEFT_RIGHT_BY_GENDER_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval={2}
+              />
+              <YAxis
+                domain={LR_IDEOLOGY_Y.domain}
+                tickFormatter={(v) => `${Number(v)}%`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={LR_IDEOLOGY_Y.width}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${String(label)}`}
+                    formatter={pctTooltipFormatter}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
+              <Line
+                type="monotone"
+                dataKey="womenLeftistPct"
+                stroke={WOMEN_LEFT_RIGHT_CONFIG.womenLeftistPct.color}
+                strokeWidth={2.4}
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="womenRightWingPct"
+                stroke={WOMEN_LEFT_RIGHT_CONFIG.womenRightWingPct.color}
+                strokeWidth={2.4}
                 strokeDasharray="6 4"
                 dot={false}
                 isAnimationActive={false}
@@ -506,7 +561,8 @@ function RussiaUkraineRightWingChart() {
 export const GermanyPoliticsOverviewCharts = memo(function GermanyPoliticsOverviewCharts() {
   return (
     <div className="flex flex-col gap-4">
-      <LeftRightByGenderChart />
+      <MenLeftistVsRightWingChart />
+      <WomenLeftistVsRightWingChart />
       <IsraelSupportByGenderChart />
       <RussiaUkraineOverallChart />
       <RussiaUkraineLeftWingChart />

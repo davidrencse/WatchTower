@@ -1,4 +1,4 @@
-import { useCallback, useMemo, memo, type ReactNode } from 'react';
+import { useMemo, memo, type ReactNode } from 'react';
 import {
   CartesianGrid,
   Cell,
@@ -20,7 +20,7 @@ const UC = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
 /** Approximate “card groups” inside Trade for the section header count. */
-export const GERMANY_TRADE_GROUP_COUNT = 18;
+export const GERMANY_TRADE_GROUP_COUNT = 15;
 
 const TOP_TRADING_PARTNERS: readonly { rank: number; partner: string; volume: string }[] = [
   { rank: 1, partner: 'China', volume: '€252.4 billion' },
@@ -209,31 +209,6 @@ function SourceLink({ href, children }: { href: string; children: ReactNode }) {
     >
       {children}
     </a>
-  );
-}
-
-function JumpToCard({
-  title,
-  description,
-  targetId,
-}: {
-  title: string;
-  description: string;
-  targetId: string;
-}) {
-  const onClick = useCallback(() => {
-    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [targetId]);
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex min-h-[4.5rem] w-full flex-col items-start gap-1 rounded-md border border-white/[0.1] bg-card p-3 text-left shadow-sm transition hover:border-sky-500/35 hover:bg-card-hover"
-    >
-      <span className={`font-sans text-[11px] font-semibold text-neutral-100 ${UC}`}>{title}</span>
-      <span className="font-sans text-[10px] leading-snug text-neutral-500">{description}</span>
-    </button>
   );
 }
 
@@ -440,32 +415,112 @@ function RegionalAgreementCard({
   );
 }
 
+const TRADE_SECTION_HEADING = `font-sans text-xl font-bold tracking-tight text-neutral-100 sm:text-2xl ${UC}`;
+
+const TRADE_AGREEMENT_INSIGHTS: readonly {
+  title: string;
+  summary: string;
+  impact: string;
+  status: string;
+}[] = [
+  {
+    title: 'EU Single Market & Customs Union',
+    summary:
+      'In place since 1993 and deepened over decades—Germany’s core trade architecture. Duty-free trade in goods and far lower friction in services and capital with 26 EU partners than with any third country.',
+    impact:
+      'Very large net benefit: order-of-magnitude estimates of €150–200B per year. Roughly 55–60% of German trade is intra-EU; this layer is the base of the export-oriented model.',
+    status: 'Fully active · permanent',
+  },
+  {
+    title: 'EU–Japan Economic Partnership Agreement (EPA)',
+    summary:
+      'In force since February 2019. Tariffs removed on about 99% of tariff lines; improved access for services and public procurement compared with WTO-only terms.',
+    impact:
+      'Strongly positive for Germany—often cited in the €2.5–3.5B/year range, concentrated in autos (BMW, Mercedes, VW) and machinery. Japan is among Germany’s largest non-EU partners.',
+    status: 'Active · widely assessed as successful',
+  },
+  {
+    title: 'CETA (EU–Canada)',
+    summary:
+      'Provisionally applied from September 2017. Eliminates tariffs on roughly 98% of lines subject to the agreement.',
+    impact:
+      'Moderately positive—commonly estimated around €1.2–1.8B/year for Germany, with machinery, vehicles, and chemicals prominent.',
+    status: 'Provisionally active · full EU ratification still incomplete',
+  },
+  {
+    title: 'EU–South Korea Free Trade Agreement',
+    summary:
+      'In force since July 2011. Deep cuts in industrial tariffs and clearer rules for integrated supply chains.',
+    impact:
+      'Strongly positive—often placed at €1.5–2.2B/year; German car exports expanded markedly in the years after entry into force.',
+    status: 'Active · treated as one of the EU’s strongest Asian FTAs',
+  },
+  {
+    title: 'EU–UK Trade and Cooperation Agreement (TCA)',
+    summary:
+      'In force from 1 January 2021 after Brexit. Preferential terms for qualifying goods, but customs formalities, rules of origin, and thinner services access versus Single Market membership.',
+    impact:
+      'Net negative versus pre-2021 integration: UK-bound exports fell after new border and origin rules. Versus full membership access, recurring estimates in the €1.5–3B/year loss range.',
+    status: 'Active · materially narrower than Single Market access',
+  },
+  {
+    title: 'EU–Vietnam Free Trade Agreement (EVFTA)',
+    summary:
+      'In force since August 2020. Tariff phase-downs and clearer investment and procurement rules for firms using Vietnam in regional production.',
+    impact:
+      'Positive—often estimated at €0.8–1.2B/year for German machinery, electronics, and automotive suppliers with Vietnamese operations or sourcing.',
+    status: 'Fully active',
+  },
+  {
+    title: 'EU–Mercosur Trade Agreement',
+    summary:
+      'Text agreed in 2019; as of 2026 full ratification is still blocked in parts of the EU over environmental and agricultural sensitivities.',
+    impact:
+      'If ratified, modelling often points to about €1–2B/year upside for Germany (vehicles, machinery, chemicals)—highly dependent on safeguards and final implementation.',
+    status: 'Signed · not yet in force',
+  },
+];
+
+function AgreementInsightCard({
+  title,
+  summary,
+  impact,
+  status,
+}: {
+  title: string;
+  summary: string;
+  impact: string;
+  status: string;
+}) {
+  return (
+    <article className="flex h-full flex-col rounded-xl border border-white/[0.07] bg-[linear-gradient(160deg,rgba(255,255,255,0.045)_0%,rgba(255,255,255,0.01)_42%,transparent_100%)] p-[1.125rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div className="mb-3 h-px w-8 rounded-full bg-gradient-to-r from-sky-500/70 to-transparent" aria-hidden />
+      <h3 className="font-sans text-[0.8125rem] font-semibold leading-snug tracking-tight text-neutral-100">{title}</h3>
+      <p className="mt-2.5 font-sans text-[12px] leading-[1.6] text-neutral-400">{summary}</p>
+      <dl className="mt-4 flex min-h-0 flex-1 flex-col gap-3 border-t border-white/[0.06] pt-4">
+        <div>
+          <dt className="font-sans text-[9px] font-medium uppercase tracking-[0.14em] text-neutral-500">Impact</dt>
+          <dd className="mt-1.5 font-sans text-[12px] leading-snug text-neutral-300">{impact}</dd>
+        </div>
+        <div className="mt-auto">
+          <dt className="font-sans text-[9px] font-medium uppercase tracking-[0.14em] text-neutral-500">Status</dt>
+          <dd className="mt-1.5">
+            <span className="inline-block max-w-full rounded-md border border-white/[0.08] bg-white/[0.025] px-2.5 py-1.5 font-sans text-[11px] leading-snug text-neutral-400">
+              {status}
+            </span>
+          </dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
+
 export const GermanyTradeSection = memo(function GermanyTradeSection() {
   return (
     <div className="flex flex-col gap-4">
-      {/* Application-style jump row (structure only; theme matches dashboard). */}
-      <div>
-        <p className={`mb-2 font-sans text-[10px] text-neutral-500 ${UC_META}`}>Within Trade</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <JumpToCard
-            title="General trade"
-            description="Goods totals, partners, intra-EU share (Destatis 2025)."
-            targetId="trade-block-general"
-          />
-          <JumpToCard
-            title="Agreements"
-            description="Single Market, WTO baseline, EU common external tariff."
-            targetId="trade-block-agreements"
-          />
-          <JumpToCard
-            title="Major EU deals"
-            description="Regional agreement map: Europe, Asia-Pacific, Americas, Africa."
-            targetId="trade-block-major"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3">
+      <section id="trade-block-general" className="scroll-mt-28 flex flex-col gap-4">
+        <h2 className={TRADE_SECTION_HEADING}>General trade</h2>
+        <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <KpiCard
             primary="€1,562.9B"
@@ -485,7 +540,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
         </div>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_min(100%,400px)] lg:items-stretch lg:min-h-0">
           <div className="flex min-h-0 min-w-0 flex-col gap-3">
-          <Card className="overflow-hidden border-line bg-surface-metric">
+          <Card className="border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
               <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
                 German foreign trade development
@@ -495,17 +550,25 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                 scale; trade balance uses the right scale.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2 p-3 pt-0">
-              <ChartContainer config={tradeFlowChartConfig} className="h-[360px] w-full font-sans md:h-[400px]">
+            <CardContent className="space-y-2 p-3 px-3 pb-4 pt-0">
+              <ChartContainer config={tradeFlowChartConfig} className="h-[380px] w-full font-sans md:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[...TRADE_TIMESERIES]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                  <LineChart data={[...TRADE_TIMESERIES]} margin={{ top: 8, right: 10, left: 0, bottom: 56 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
-                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10 }}
+                      type="category"
+                      ticks={TRADE_TIMESERIES.map((d) => d.year)}
+                      interval={0}
+                      minTickGap={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={54}
+                      tick={{ fill: 'rgba(163,163,163,0.92)', fontSize: 9 }}
                       axisLine={false}
                       tickLine={false}
-                      interval="preserveStartEnd"
+                      tickMargin={0}
+                      padding={{ left: 8, right: 8 }}
                     />
                     <YAxis
                       yAxisId="left"
@@ -783,73 +846,41 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
           </p>
         </aside>
         </div>
-      </div>
-
-      {/* Folder: General trade */}
-      <section id="trade-block-general" className="scroll-mt-28 space-y-2">
-        <h3 className={`font-sans text-xs font-semibold text-neutral-100 ${UC}`}>General trade</h3>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-400">
-          Goods trade, 2025 (Destatis): exports <strong className="text-neutral-200">€1,562.9 billion</strong> (~$
-          1.72 trillion USD); imports <strong className="text-neutral-200">€1,362.5 billion</strong> (~$1.50 trillion
-          USD). Roughly <strong className="text-neutral-200">56%</strong> of trade is intra-EU (zero tariffs via the
-          Single Market). Leading total-trade partners include China (€252.4B — largest overall), the United States
-          (€240.5B — largest export market), the Netherlands (€209.1B), France (~€180–190B), and Poland (~€170–180B).
-        </p>
-        <p className="font-sans text-[10px] text-neutral-500">
-          Source:{' '}
-          <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
-        </p>
+        </div>
+        <div className="space-y-2 border-t border-white/[0.06] pt-4">
+          <p className="font-sans text-[11px] leading-relaxed text-neutral-400">
+            Goods trade, 2025 (Destatis): exports <strong className="text-neutral-200">€1,562.9 billion</strong> (~$
+            1.72 trillion USD); imports <strong className="text-neutral-200">€1,362.5 billion</strong> (~$1.50 trillion
+            USD). Roughly <strong className="text-neutral-200">56%</strong> of trade is intra-EU (zero tariffs via the
+            Single Market). Leading total-trade partners include China (€252.4B — largest overall), the United States
+            (€240.5B — largest export market), the Netherlands (€209.1B), France (~€180–190B), and Poland (~€170–180B).
+          </p>
+          <p className="font-sans text-[10px] text-neutral-500">
+            Source:{' '}
+            <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
+          </p>
+        </div>
       </section>
 
       {/* Folder: Agreements */}
-      <section id="trade-block-agreements" className="scroll-mt-28 space-y-3">
-        <h3 className={`font-sans text-xs font-semibold text-neutral-100 ${UC}`}>Agreements</h3>
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-          <Card className="border-white/[0.1] bg-card">
-            <CardHeader className="p-3 pb-2">
-              <CardTitle className="font-sans text-[11px] leading-snug text-neutral-100">
-                EU Single Market + Customs Union (EU27)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-400">
-              <p>
-                Zero tariffs, quotas, and customs checks inside the EU plus a common external tariff. Deepest economic
-                integration (goods, services, capital, people). Related: all 27 EU members.
-              </p>
-              <p className="text-[10px] text-neutral-500">
-                Official text:{' '}
-                <SourceLink href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:12012E/TXT">TFEU</SourceLink>
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-white/[0.1] bg-card">
-            <CardHeader className="p-3 pb-2">
-              <CardTitle className="font-sans text-[11px] text-neutral-100">WTO agreements (GATT etc.)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-400">
-              <p>Baseline Most-Favored-Nation (MFN) tariff rules for partners without preferential FTAs.</p>
-              <p className="text-[10px] text-neutral-500">
-                <SourceLink href="https://www.wto.org">WTO</SourceLink>
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-white/[0.1] bg-card">
-            <CardHeader className="p-3 pb-2">
-              <CardTitle className="font-sans text-[11px] text-neutral-100">EU common external tariff (CET)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-400">
-              <p>Uniform tariffs on imports from countries without preferential deals. Product-level rates via TARIC.</p>
-              <p className="text-[10px] text-neutral-500">
-                <SourceLink href="https://trade.ec.europa.eu/access-to-markets/en/home">Access2Markets tool</SourceLink>
-              </p>
-            </CardContent>
-          </Card>
+      <section id="trade-block-agreements" className="scroll-mt-28 space-y-4">
+        <h2 className={TRADE_SECTION_HEADING}>Agreements</h2>
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
+          {TRADE_AGREEMENT_INSIGHTS.map((item) => (
+            <AgreementInsightCard
+              key={item.title}
+              title={item.title}
+              summary={item.summary}
+              impact={item.impact}
+              status={item.status}
+            />
+          ))}
         </div>
       </section>
 
       {/* Folder: Major EU trade agreements + regional subfolders */}
-      <section id="trade-block-major" className="scroll-mt-28 space-y-3">
-        <h3 className={`font-sans text-xs font-semibold text-neutral-100 ${UC}`}>Major EU trade agreements</h3>
+      <section id="trade-block-major" className="scroll-mt-28 space-y-4">
+        <h2 className={TRADE_SECTION_HEADING}>Major EU trade agreements</h2>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
           <RegionalAgreementCard regionTitle="Europe & neighbours">
             <ul className="list-inside list-disc space-y-1.5 marker:text-neutral-500">

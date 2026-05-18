@@ -132,18 +132,6 @@ export const GermanyDaxCarousel = memo(function GermanyDaxCarousel() {
       onMouseLeave={() => setPaused(false)}
     >
       <div className="rounded-sm border border-white/[0.14] bg-black p-2.5 shadow-card ring-1 ring-white/[0.06]">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="inline-flex items-center border border-white/[0.16] bg-neutral-900 p-0.5">
-            <span className="bg-white px-2 py-1 font-sans text-[9px] font-semibold uppercase tracking-[0.12em] text-black">
-              Germany
-            </span>
-            <span className="px-2 py-1 font-sans text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-300">
-              Market Console
-            </span>
-          </div>
-          <p className={`font-sans text-[10px] text-neutral-400 ${UC_META}`}>{paused ? 'Stream paused' : 'Live strip'}</p>
-        </div>
-
         <div
           ref={scrollerRef}
           className="max-w-full overflow-x-auto overflow-y-hidden border border-white/[0.12] bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:22px_22px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(90deg,transparent,black_18px,black_calc(100%-18px),transparent)]"
