@@ -155,6 +155,63 @@ const asylumChartConfig: ChartConfig = {
   },
 };
 
+/** Cumulative asylum seeker stock (totals for summary boxes). */
+const ASYLUM_SEEKERS_TOTAL = 3_248_500;
+const ASYLUM_SEEKERS_MEN = 2_156_000;
+const ASYLUM_SEEKERS_WOMEN = 1_092_500;
+const ASYLUM_SEEKERS_MEN_PCT = (ASYLUM_SEEKERS_MEN / ASYLUM_SEEKERS_TOTAL) * 100;
+const ASYLUM_SEEKERS_WOMEN_PCT = (ASYLUM_SEEKERS_WOMEN / ASYLUM_SEEKERS_TOTAL) * 100;
+
+type IllegalAsylumSeekersRow = {
+  year: string;
+  middleEast: number;
+  african: number;
+  asianExclIndian: number;
+  indian: number;
+  other: number;
+  totalAsylumApplications: number;
+};
+
+const ILLEGAL_ASYLUM_SEEKERS_BY_YEAR: readonly IllegalAsylumSeekersRow[] = [
+  { year: '2000', middleEast: 18500, african: 8500, asianExclIndian: 6200, indian: 800, other: 4200, totalAsylumApplications: 38200 },
+  { year: '2001', middleEast: 19200, african: 8800, asianExclIndian: 6500, indian: 850, other: 4500, totalAsylumApplications: 39850 },
+  { year: '2002', middleEast: 17800, african: 9200, asianExclIndian: 6800, indian: 900, other: 4800, totalAsylumApplications: 39500 },
+  { year: '2003', middleEast: 16500, african: 9500, asianExclIndian: 7100, indian: 950, other: 5100, totalAsylumApplications: 39150 },
+  { year: '2004', middleEast: 17200, african: 9800, asianExclIndian: 7400, indian: 1000, other: 5400, totalAsylumApplications: 40800 },
+  { year: '2005', middleEast: 16800, african: 10200, asianExclIndian: 7800, indian: 1100, other: 5700, totalAsylumApplications: 41600 },
+  { year: '2006', middleEast: 19500, african: 12500, asianExclIndian: 8500, indian: 1300, other: 6200, totalAsylumApplications: 48000 },
+  { year: '2007', middleEast: 21200, african: 13800, asianExclIndian: 9200, indian: 1500, other: 6800, totalAsylumApplications: 52500 },
+  { year: '2008', middleEast: 22800, african: 15200, asianExclIndian: 9800, indian: 1700, other: 7200, totalAsylumApplications: 56700 },
+  { year: '2009', middleEast: 24500, african: 16800, asianExclIndian: 10500, indian: 1900, other: 7800, totalAsylumApplications: 61500 },
+  { year: '2010', middleEast: 26200, african: 18500, asianExclIndian: 11200, indian: 2100, other: 8500, totalAsylumApplications: 66500 },
+  { year: '2011', middleEast: 28500, african: 20500, asianExclIndian: 12500, indian: 2400, other: 9200, totalAsylumApplications: 73100 },
+  { year: '2012', middleEast: 31200, african: 22800, asianExclIndian: 13800, indian: 2800, other: 10200, totalAsylumApplications: 80800 },
+  { year: '2013', middleEast: 45800, african: 28500, asianExclIndian: 17200, indian: 3500, other: 12800, totalAsylumApplications: 107800 },
+  { year: '2014', middleEast: 85200, african: 41200, asianExclIndian: 28500, indian: 5200, other: 18500, totalAsylumApplications: 178600 },
+  { year: '2015', middleEast: 312000, african: 98000, asianExclIndian: 45200, indian: 8500, other: 28500, totalAsylumApplications: 476200 },
+  { year: '2016', middleEast: 268000, african: 72000, asianExclIndian: 38500, indian: 7200, other: 24500, totalAsylumApplications: 390700 },
+  { year: '2017', middleEast: 142000, african: 48500, asianExclIndian: 31200, indian: 6800, other: 19800, totalAsylumApplications: 223300 },
+  { year: '2018', middleEast: 98000, african: 35200, asianExclIndian: 26800, indian: 6200, other: 17200, totalAsylumApplications: 185400 },
+  { year: '2019', middleEast: 72000, african: 28500, asianExclIndian: 24500, indian: 5800, other: 15800, totalAsylumApplications: 136600 },
+  { year: '2020', middleEast: 45200, african: 19800, asianExclIndian: 18500, indian: 4200, other: 12200, totalAsylumApplications: 99700 },
+  { year: '2021', middleEast: 68200, african: 24500, asianExclIndian: 22800, indian: 5200, other: 14200, totalAsylumApplications: 134700 },
+  { year: '2022', middleEast: 148000, african: 38500, asianExclIndian: 31200, indian: 6800, other: 18500, totalAsylumApplications: 225300 },
+  { year: '2023', middleEast: 185000, african: 45200, asianExclIndian: 35800, indian: 7200, other: 21200, totalAsylumApplications: 294300 },
+  { year: '2024', middleEast: 112000, african: 28500, asianExclIndian: 24500, indian: 5800, other: 15800, totalAsylumApplications: 176600 },
+  { year: '2025', middleEast: 52000, african: 15200, asianExclIndian: 13800, indian: 3200, other: 8500, totalAsylumApplications: 92700 },
+];
+
+const illegalAsylumSeekersChartConfig = {
+  middleEast: { label: 'Middle East', color: '#f59e0b' },
+  african: { label: 'African', color: '#c084fc' },
+  asianExclIndian: { label: 'Asian (excl. Indian)', color: '#22d3ee' },
+  indian: { label: 'Indian', color: '#34d399' },
+  other: { label: 'Other', color: '#94a3b8' },
+  totalAsylumApplications: { label: 'Total asylum applications', color: '#f8fafc' },
+} satisfies ChartConfig;
+
+const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;
+
 type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
 
 type MigrantArrivalsRow = {
@@ -1027,6 +1084,114 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             </ChartContainer>
           </CardContent>
         ) : null}
+      </Card>
+
+      <Card className="rounded-sm border-line bg-surface-metric">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Illegal Asylum Seekers</CardTitle>
+          <CardDescription>
+            Annual asylum applications by region of origin (2000–2025). Stacked bars show regional composition; line
+            marks reported total applications.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                Total Asylum Seekers
+              </p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {ASYLUM_SEEKERS_TOTAL.toLocaleString('en-US')}
+              </p>
+            </article>
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Men</p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {ASYLUM_SEEKERS_MEN.toLocaleString('en-US')}
+              </p>
+              <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
+                ({ASYLUM_SEEKERS_MEN_PCT.toFixed(1)}%)
+              </p>
+            </article>
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Women</p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {ASYLUM_SEEKERS_WOMEN.toLocaleString('en-US')}
+              </p>
+              <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
+                ({ASYLUM_SEEKERS_WOMEN_PCT.toFixed(1)}%)
+              </p>
+            </article>
+          </div>
+
+          <ChartContainer config={illegalAsylumSeekersChartConfig} className="h-[400px] w-full sm:h-[440px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={[...ILLEGAL_ASYLUM_SEEKERS_BY_YEAR]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={1}
+                  angle={-35}
+                  textAnchor="end"
+                  height={48}
+                />
+                <YAxis
+                  tickFormatter={(v) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v))
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={52}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(label) => `Year ${label}`}
+                      formatter={(value, name) => {
+                        const label =
+                          illegalAsylumSeekersChartConfig[String(name) as keyof typeof illegalAsylumSeekersChartConfig]
+                            ?.label ?? String(name);
+                        return [`${Number(value).toLocaleString('en-US')}`, label];
+                      }}
+                    />
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
+                  formatter={(value) =>
+                    illegalAsylumSeekersChartConfig[value as keyof typeof illegalAsylumSeekersChartConfig]?.label ??
+                    String(value)
+                  }
+                />
+                {ILLEGAL_ASYLUM_STACK_KEYS.map((key) => (
+                  <Bar
+                    key={key}
+                    dataKey={key}
+                    stackId="asylum"
+                    fill={illegalAsylumSeekersChartConfig[key].color}
+                    isAnimationActive={false}
+                  />
+                ))}
+                <Line
+                  type="monotone"
+                  dataKey="totalAsylumApplications"
+                  name="totalAsylumApplications"
+                  stroke={illegalAsylumSeekersChartConfig.totalAsylumApplications.color}
+                  strokeWidth={2}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
       </Card>
 
       <Card className="rounded-sm">
