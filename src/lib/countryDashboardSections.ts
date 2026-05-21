@@ -1,11 +1,10 @@
 /** Shared dashboard layout for CountryStatsDashboard (metrics grouping). */
 
-/** Expenditure tiles + pie (nested under Economic → Government spending). */
+/** Expenditure tiles (nested under Economic → Government spending). */
 export const GOVERNMENT_SPENDING_METRICS = [
   'Immigration welfare spending',
   'Lost to Corruption',
   'Foreign Aid',
-  'Expenditure breakdown (pie)',
 ] as const;
 
 /** Population tiles (Germany moves some into Immigration subsection). */

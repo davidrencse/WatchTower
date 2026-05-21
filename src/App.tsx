@@ -51,6 +51,9 @@ function App() {
 
   const selectFlag = useCallback((flag: FlagEntry) => {
     if (Date.now() < suppressGallerySelectUntil.current) return;
+    if (flagIdHasCountryStats(flag.id)) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
     setSelected(flag);
   }, []);
 

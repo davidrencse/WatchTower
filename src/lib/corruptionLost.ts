@@ -65,20 +65,22 @@ export function lostToCorruptionMetric(row: CountryWideRow | null, geographyLabe
 
 /**
  * Inserts after Immigration welfare spending so order is:
- * Immigration → Lost to Corruption → (Foreign Aid for DE) → Expenditure pie.
+ * Immigration → Lost to Corruption → (Foreign Aid for DE).
  */
 export function insertLostToCorruptionMetric(
   metrics: CountryStatMetric[],
   corruptionRow: CountryWideRow | null,
   geographyLabel: string,
+  iso3?: string,
 ): void {
+  /** Germany uses year-series tile + chart in Government spending (see germanyCorruptionLostByYear). */
+  if (iso3?.toUpperCase() === 'DEU') return;
+
   const lost = lostToCorruptionMetric(corruptionRow, geographyLabel);
   const immIdx = metrics.findIndex((m) => m.metric === 'Immigration welfare spending');
   if (immIdx >= 0) {
     metrics.splice(immIdx + 1, 0, lost);
     return;
   }
-  const pieIdx = metrics.findIndex((m) => m.metric === 'Expenditure breakdown (pie)');
-  if (pieIdx >= 0) metrics.splice(pieIdx, 0, lost);
-  else metrics.push(lost);
+  metrics.push(lost);
 }

@@ -8,11 +8,30 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
-import { Area, AreaChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
 import { collectSourceUrlsFromWideRow, wideRowToStatMetrics } from '../lib/countryStatsMetrics';
 import { findCorruptionLostRow, insertLostToCorruptionMetric } from '../lib/corruptionLost';
+import {
+  GERMANY_CORRUPTION_LOST_BY_YEAR,
+  germanyCorruptionLostRowForYear,
+} from '../lib/germanyCorruptionLostByYear';
 import {
   findExpenditureRow,
   metricsFromExpenditureRow,
@@ -127,7 +146,6 @@ const METRIC_ORDER = [
   'Immigration welfare spending',
   'Lost to Corruption',
   'Foreign Aid',
-  'Expenditure breakdown (pie)',
   'White (native) population',
   'Foreign Population',
   'Christian population',
@@ -397,36 +415,6 @@ function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
   );
 }
 
-/** Distinct saturated hues (no greys) for expenditure pie + legend swatches. */
-const EXPENDITURE_PIE_PALETTE = [
-  '#f59e0b',
-  '#10b981',
-  '#3b82f6',
-  '#a855f7',
-  '#f43f5e',
-  '#06b6d4',
-  '#84cc16',
-  '#f97316',
-  '#8b5cf6',
-  '#14b8a6',
-  '#eab308',
-  '#ec4899',
-  '#6366f1',
-  '#22d3ee',
-  '#4ade80',
-  '#fb7185',
-];
-
-type PieSlice = { label: string; value: number; detailEurBn?: number };
-
-type GermanyGovSpendCategory = {
-  label: string;
-  expenditureText: string;
-  sharePct: number;
-  notes: string;
-  color: string;
-};
-
 type GermanyGovSpendingSeriesKey =
   | 'total'
   | 'socialProtection'
@@ -471,97 +459,6 @@ type GermanyGovSpendingSeriesRow = {
 };
 
 const GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN = 2259.341;
-const GERMANY_GOV_SPEND_CATEGORIES_2025: readonly GermanyGovSpendCategory[] = [
-  {
-    label: 'Social Benefits & Social Protection',
-    expenditureText: '~920 - 950',
-    sharePct: 41,
-    notes: 'Largest category: pensions, unemployment, long-term care, health insurance subsidies',
-    color: '#f59e0b',
-  },
-  {
-    label: 'Health',
-    expenditureText: '~280 - 300',
-    sharePct: 13,
-    notes: 'Strong increase due to medical services and care',
-    color: '#6366f1',
-  },
-  {
-    label: 'Education & Research',
-    expenditureText: '~205 - 210',
-    sharePct: 9.1,
-    notes: 'Includes schools, universities, and federal research funding',
-    color: '#22c55e',
-  },
-  {
-    label: 'Defence / Military',
-    expenditureText: '~86 - 95',
-    sharePct: 4,
-    notes: 'Significant rise; includes special funds',
-    color: '#ef4444',
-  },
-  {
-    label: 'Transport & Infrastructure',
-    expenditureText: '~120 - 130',
-    sharePct: 5.5,
-    notes: 'Major investments via special funds',
-    color: '#0ea5e9',
-  },
-  {
-    label: 'General Public Services & Administration',
-    expenditureText: '~180 - 200',
-    sharePct: 8,
-    notes: 'Includes interest payments and general admin',
-    color: '#a855f7',
-  },
-  {
-    label: 'Interest Payments on Debt',
-    expenditureText: '~50 - 55',
-    sharePct: 2.3,
-    notes: 'Up 8.1% from previous year',
-    color: '#f97316',
-  },
-  {
-    label: 'Housing, Family & Youth',
-    expenditureText: '~80 - 90',
-    sharePct: 4,
-    notes: 'Family benefits, housing subsidies',
-    color: '#14b8a6',
-  },
-  {
-    label: 'Economic Affairs & Subsidies',
-    expenditureText: '~110 - 120',
-    sharePct: 5,
-    notes: 'Includes energy transition and business support',
-    color: '#84cc16',
-  },
-  {
-    label: 'Other (Environment, Culture, etc.)',
-    expenditureText: '~150 - 170',
-    sharePct: 7,
-    notes: 'Remaining categories',
-    color: '#f43f5e',
-  },
-];
-
-const GERMANY_GOV_SPEND_ADDITIONAL_CARDS: readonly GermanyGovSpendCategory[] = [
-  {
-    label: 'PUBLIC INVESTMENT',
-    expenditureText: '115 - 120',
-    sharePct: 5.1,
-    notes:
-      'Record investments in infrastructure, transport and climate projects (core budget + special funds). SOURCE: Federal Ministry of Finance / Destatis 2025',
-    color: '#06b6d4',
-  },
-  {
-    label: 'PENSIONS',
-    expenditureText: '380 - 400',
-    sharePct: 17,
-    notes:
-      'Old-age and survivors\' pensions (largest single component of social spending). SOURCE: Destatis / Federal Pension Insurance 2025',
-    color: '#eab308',
-  },
-];
 
 const GERMANY_GOV_SPENDING_SERIES: readonly GermanyGovSpendingSeriesRow[] = [
   { year: '2000', total: 1023.445, socialProtection: 380, health: 110, educationResearch: 85, defence: 28, transportInfrastructure: 45, generalPublicServices: 95, interestPayments: 45, economicAffairsSubsidies: 55, other: 118, gdpPerCapitaUsd: 23926, laborProductivityIndex: 100.0, hdi: 0.897 },
@@ -622,125 +519,124 @@ const GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly GermanyGovSpendingCat
 
 const GERMANY_GOV_SPENDING_YEARS = Array.from({ length: 26 }, (_, i) => 2000 + i);
 
-const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 16;
+/** 2025-calibrated ratios for cards without a dedicated series column. */
+const GOV_SPEND_PENSION_SHARE_OF_SOCIAL = 390 / 930;
+const GOV_SPEND_PUBLIC_INVESTMENT_SHARE_OF_TOTAL = 117.5 / GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN;
+const GOV_SPEND_HOUSING_SHARE_OF_TOTAL = 85 / GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN;
 
-function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
-  let slices: PieSlice[] = [];
-  try {
-    if (row.value.trim() && row.value.trim() !== 'N/A') {
-      const parsed = JSON.parse(row.value) as PieSlice[];
-      if (Array.isArray(parsed))
-        slices = parsed.filter((s) => s && Number.isFinite(s.value) && s.value > 0);
-    }
-  } catch {
-    slices = [];
-  }
+type GovSpendCardDef = {
+  label: string;
+  notes: string;
+  color: string;
+  getEurBn: (row: GermanyGovSpendingSeriesRow) => number;
+};
 
-  if (row.geography_used.toUpperCase().includes('GERMANY')) {
-    slices = GERMANY_GOV_SPEND_CATEGORIES_2025.map((c) => ({
-      label: c.label,
-      value: c.sharePct,
-      detailEurBn: (GERMANY_GOV_SPEND_TOTAL_2025_EUR_BN * c.sharePct) / 100,
-    }));
-  }
+const GERMANY_GOV_SPEND_CARD_DEFS: readonly GovSpendCardDef[] = [
+  {
+    label: 'Social Benefits & Social Protection',
+    notes: 'Largest category: pensions, unemployment, long-term care, health insurance subsidies',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.socialProtection.color),
+    getEurBn: (r) => r.socialProtection,
+  },
+  {
+    label: 'Health',
+    notes: 'Medical services, care, and public health spending',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.health.color),
+    getEurBn: (r) => r.health,
+  },
+  {
+    label: 'Education & Research',
+    notes: 'Schools, universities, and federal research funding',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.educationResearch.color),
+    getEurBn: (r) => r.educationResearch,
+  },
+  {
+    label: 'Defence / Military',
+    notes: 'Defence budget including special funds where applicable',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.defence.color),
+    getEurBn: (r) => r.defence,
+  },
+  {
+    label: 'Transport & Infrastructure',
+    notes: 'Transport networks and infrastructure investment',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.transportInfrastructure.color),
+    getEurBn: (r) => r.transportInfrastructure,
+  },
+  {
+    label: 'General Public Services & Administration',
+    notes: 'Core administration and general government operations',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.generalPublicServices.color),
+    getEurBn: (r) => r.generalPublicServices,
+  },
+  {
+    label: 'Interest Payments on Debt',
+    notes: 'Federal interest on government debt',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.interestPayments.color),
+    getEurBn: (r) => r.interestPayments,
+  },
+  {
+    label: 'Housing, Family & Youth',
+    notes: 'Family benefits and housing-related support (estimated share of total)',
+    color: '#14b8a6',
+    getEurBn: (r) => r.total * GOV_SPEND_HOUSING_SHARE_OF_TOTAL,
+  },
+  {
+    label: 'Economic Affairs & Subsidies',
+    notes: 'Energy transition, business support, and economic affairs',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.economicAffairsSubsidies.color),
+    getEurBn: (r) => r.economicAffairsSubsidies,
+  },
+  {
+    label: 'Other (Environment, Culture, etc.)',
+    notes: 'Remaining federal spending categories',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.other.color),
+    getEurBn: (r) => r.other,
+  },
+  {
+    label: 'Public investment',
+    notes: 'Infrastructure, transport and climate projects (estimated share of total)',
+    color: '#06b6d4',
+    getEurBn: (r) => r.total * GOV_SPEND_PUBLIC_INVESTMENT_SHARE_OF_TOTAL,
+  },
+  {
+    label: 'Pensions',
+    notes: 'Old-age and survivors\' pensions (estimated share of social protection)',
+    color: '#eab308',
+    getEurBn: (r) => r.socialProtection * GOV_SPEND_PENSION_SHARE_OF_SOCIAL,
+  },
+];
 
-  /** Germany combined pie: weight slices by €bn (`detailEurBn`). Legacy OECD pie: `value` is already %. */
-  const useEurBnWeights =
-    slices.length > 0 &&
-    slices.every((s) => typeof s.detailEurBn === 'number' && Number.isFinite(s.detailEurBn) && s.detailEurBn > 0);
-
-  const chartData = slices.map((s, i) => ({
-    name: s.label,
-    pieValue: useEurBnWeights ? (s.detailEurBn as number) : s.value,
-    pctOfTotal: s.value,
-    detailEurBn: s.detailEurBn,
-    fill: EXPENDITURE_PIE_PALETTE[i % EXPENDITURE_PIE_PALETTE.length],
-  }));
-
-  const chartConfig: ChartConfig = slices.reduce((acc, s, i) => {
-    const key = `slice_${i}`;
-    acc[key] = { label: s.label, color: EXPENDITURE_PIE_PALETTE[i % EXPENDITURE_PIE_PALETTE.length] };
-    return acc;
-  }, {} as ChartConfig);
-
-  return (
-    <article className="col-span-full w-full rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
-      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-        {row.metric}
-      </p>
-      {slices.length > 0 ? (
-        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
-          <ChartContainer config={chartConfig} className="mx-auto h-[300px] w-full max-w-[360px] shrink-0 sm:max-w-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="pieValue"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={52}
-                  outerRadius={116}
-                  paddingAngle={0.4}
-                  stroke="none"
-                >
-                  {chartData.map((entry, i) => (
-                    <Cell key={`cell-${entry.name}-${i}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#0a0a0a',
-                    border: '1px solid #404040',
-                    borderRadius: '4px',
-                    fontFamily: 'ui-monospace, monospace',
-                    fontSize: '11px',
-                  }}
-                  formatter={(value, _name, item) => {
-                    const payload = item?.payload as
-                      | (PieSlice & { fill: string; pieValue?: number; pctOfTotal?: number })
-                      | undefined;
-                    const pct = payload?.pctOfTotal;
-                    const d = payload?.detailEurBn;
-                    if (typeof pct === 'number' && Number.isFinite(pct)) {
-                      if (typeof d === 'number' && Number.isFinite(d)) {
-                        return [`${pct.toFixed(2)}% of combined (~${d.toFixed(1)} €bn)`, 'Share'];
-                      }
-                      return [`${pct.toFixed(2)}%`, 'Share'];
-                    }
-                    const v = typeof value === 'number' ? value : Number(value);
-                    return [`${Number.isFinite(v) ? v.toFixed(2) : '—'}%`, 'Share'];
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-          <ul className="min-w-0 flex-1 space-y-1.5">
-            {slices.map((s, i) => (
-              <li key={s.label} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-sans text-[11px] text-neutral-300">
-                <span
-                  className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-sm"
-                  style={{ backgroundColor: EXPENDITURE_PIE_PALETTE[i % EXPENDITURE_PIE_PALETTE.length] }}
-                />
-                <span className="min-w-0 flex-1 break-words">{s.label}</span>
-                <span className="shrink-0 text-neutral-500">{s.value.toFixed(1)}%</span>
-                {typeof s.detailEurBn === 'number' && Number.isFinite(s.detailEurBn) ? (
-                  <span className="w-full pl-5 font-sans text-[10px] text-neutral-600 sm:pl-0 sm:w-auto sm:pl-2">
-                    ~{s.detailEurBn.toFixed(0)} €bn
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p className="mt-4 font-sans text-sm text-neutral-500">No percentage split available.</p>
-      )}
-      <MetaLine row={row} />
-      <NoteBlock text={row.notes} />
-    </article>
-  );
+function govSpendRowForYear(year: number): GermanyGovSpendingSeriesRow {
+  return GERMANY_GOV_SPENDING_SERIES.find((r) => Number(r.year) === year) ?? GERMANY_GOV_SPENDING_SERIES.at(-1)!;
 }
+
+function buildGovSpendCategoryCardsForYear(row: GermanyGovSpendingSeriesRow): Array<{
+  label: string;
+  eurBn: number;
+  sharePct: number;
+  notes: string;
+  color: string;
+}> {
+  const total = row.total;
+  return GERMANY_GOV_SPEND_CARD_DEFS.map((def) => {
+    const eurBn = def.getEurBn(row);
+    return {
+      label: def.label,
+      eurBn,
+      sharePct: total > 0 ? (eurBn / total) * 100 : 0,
+      notes: def.notes,
+      color: def.color,
+    };
+  });
+}
+
+/** Charts + category block groups below the lead row (excludes lead-row corruption tile). */
+const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 17;
+
+const GERMANY_CORRUPTION_LOST_CHART_CONFIG = {
+  lostBnEur: { label: 'Money lost (€bn)', color: '#f59e0b' },
+  pctGdp: { label: '% of GDP', color: '#a78bfa' },
+} satisfies ChartConfig;
 
 const GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG = {
   total: { label: 'Total government expenditure', color: '#f59e0b' },
@@ -829,24 +725,36 @@ function GermanyGovernmentTotalExpenditureChart() {
   );
 }
 
-function GermanyGovernmentSpendingCategoryCards() {
-  const cards = [...GERMANY_GOV_SPEND_CATEGORIES_2025, ...GERMANY_GOV_SPEND_ADDITIONAL_CARDS];
+function GermanyGovernmentSpendingCategoryCards({ selectedYear }: { selectedYear: number }) {
+  const cards = useMemo(
+    () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear)),
+    [selectedYear],
+  );
+
   return (
     <div className="col-span-full grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((category) => (
-        <Card key={category.label} className="overflow-hidden border-line bg-surface-metric shadow-card">
+        <Card
+          key={`${selectedYear}-${category.label}`}
+          className="overflow-hidden border-line bg-surface-metric shadow-card transition-colors duration-300"
+        >
           <CardHeader className="space-y-1 p-3 pb-1.5">
-            <CardTitle className="font-sans text-xs font-semibold leading-snug text-neutral-100">
-              {category.label}
-            </CardTitle>
+            <div className="flex items-start justify-between gap-2">
+              <CardTitle className="font-sans text-xs font-semibold leading-snug text-neutral-100">
+                {category.label}
+              </CardTitle>
+              <span className="shrink-0 rounded border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 font-sans text-[9px] tabular-nums text-neutral-500">
+                {selectedYear}
+              </span>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
-            <p className="font-sans text-xl font-semibold tabular-nums tracking-tight text-white sm:text-2xl">
-              €{category.expenditureText}B
+            <p className="font-sans text-xl font-semibold tabular-nums tracking-tight text-white transition-all duration-300 sm:text-2xl">
+              €{category.eurBn.toFixed(1)}B
             </p>
             <div className="h-2 w-full rounded-full bg-white/[0.08]">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${Math.max(2, Math.min(100, category.sharePct))}%`, backgroundColor: category.color }}
               />
             </div>
@@ -990,22 +898,24 @@ function GermanyGovernmentSpendingTotalLineChart() {
   );
 }
 
-function GermanyGovernmentSpendingCategoryLineChart() {
-  const [selectedYear, setSelectedYear] = useState(2025);
+function GermanyGovernmentSpendingCategoryLineChart({
+  selectedYear,
+  onYearChange,
+}: {
+  selectedYear: number;
+  onYearChange: (year: number) => void;
+}) {
   const yearButtonRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
   useEffect(() => {
-    yearButtonRefs.current.get(selectedYear)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    });
+    const btn = yearButtonRefs.current.get(selectedYear);
+    const scroller = btn?.parentElement;
+    if (!btn || !scroller) return;
+    const targetLeft = btn.offsetLeft - scroller.clientWidth / 2 + btn.clientWidth / 2;
+    scroller.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
   }, [selectedYear]);
 
-  const yearRow = useMemo(
-    () => GERMANY_GOV_SPENDING_SERIES.find((r) => Number(r.year) === selectedYear) ?? GERMANY_GOV_SPENDING_SERIES.at(-1)!,
-    [selectedYear],
-  );
+  const yearRow = useMemo(() => govSpendRowForYear(selectedYear), [selectedYear]);
 
   const { chartData, chartConfig, totalBn } = useMemo(() => {
     const slices = GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => {
@@ -1041,7 +951,7 @@ function GermanyGovernmentSpendingCategoryLineChart() {
           Government Expenditure By Category (2000-2025)
         </CardTitle>
         <CardDescription className="font-sans text-[10px] text-neutral-500">
-          Select a year below · shares of total government expenditure (€bn)
+          Select a year below · pie and category cards update together (€bn)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -1139,7 +1049,7 @@ function GermanyGovernmentSpendingCategoryLineChart() {
                   role="tab"
                   aria-selected={active}
                   aria-label={`Year ${year}`}
-                  onClick={() => setSelectedYear(year)}
+                  onClick={() => onYearChange(year)}
                   className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition-all duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 ${
                     active
                       ? 'gov-spend-year-pill-active h-8 min-w-[3.75rem] border-white/20 bg-white/[0.08] px-3'
@@ -1166,11 +1076,175 @@ function GermanyGovernmentSpendingCategoryLineChart() {
             })}
           </div>
           <p className="mt-2 text-center font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-600">
-            Tap a dot · active year expands
+            Years 2000 to 2025
           </p>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function GermanyCorruptionLostMetricTile({ selectedYear }: { selectedYear: number }) {
+  const row = useMemo(() => germanyCorruptionLostRowForYear(selectedYear), [selectedYear]);
+
+  return (
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        Lost to Corruption
+      </p>
+      <div className="mt-4 min-w-0 flex-1">
+        <p className="font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight text-neutral-100 transition-all duration-300 sm:text-3xl lg:text-4xl">
+          €{row.lostBnEur.toFixed(1)}B
+        </p>
+        <p className="mt-1.5 font-sans text-[10px] font-medium leading-snug text-neutral-500">
+          {row.pctGdp.toFixed(2)}% of GDP · {selectedYear}
+        </p>
+        <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-600">
+          Updates with the category expenditure year selector above
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function GermanyCorruptionLostChart({ selectedYear }: { selectedYear: number }) {
+  const chartData = useMemo(
+    () => GERMANY_CORRUPTION_LOST_BY_YEAR.map((r) => ({ ...r, yearLabel: String(r.year) })),
+    [],
+  );
+
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Money Lost to Corruption
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] text-neutral-500">
+          Germany · 2000–2025 (billion € and % of GDP) · highlighted year matches category chart and lead tiles
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={GERMANY_CORRUPTION_LOST_CHART_CONFIG} className="h-[280px] w-full sm:h-[320px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                yAxisId="left"
+                tick={{ fill: 'rgba(163,163,163,0.85)', fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+                tickFormatter={(v) => `€${Number(v)}`}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tick={{ fill: 'rgba(163,163,163,0.85)', fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                width={44}
+                tickFormatter={(v) => `${Number(v).toFixed(2)}%`}
+              />
+              <ReferenceLine
+                x={selectedYear}
+                yAxisId="left"
+                stroke="rgba(255,255,255,0.25)"
+                strokeDasharray="4 4"
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(y) => `Year ${y}`}
+                    formatter={(value, name) => {
+                      const n = Number(value);
+                      const label = String(name ?? '');
+                      if (label.includes('GDP')) return [`${n.toFixed(2)}%`, '% of GDP'];
+                      return [`€${n.toFixed(1)}B`, 'Money lost'];
+                    }}
+                  />
+                }
+              />
+              <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} iconType="line" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="lostBnEur"
+                name={GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.label}
+                stroke={GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.color}
+                strokeWidth={2}
+                dot={{ r: 2, fill: GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.color }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="pctGdp"
+                name={GERMANY_CORRUPTION_LOST_CHART_CONFIG.pctGdp.label}
+                stroke={GERMANY_CORRUPTION_LOST_CHART_CONFIG.pctGdp.color}
+                strokeWidth={2}
+                dot={{ r: 2, fill: GERMANY_CORRUPTION_LOST_CHART_CONFIG.pctGdp.color }}
+                activeDot={{ r: 4 }}
+                strokeDasharray="4 3"
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyGovernmentSpendingCategoryBlock({
+  selectedYear,
+  onYearChange,
+}: {
+  selectedYear: number;
+  onYearChange: (year: number) => void;
+}) {
+  return (
+    <>
+      <GermanyGovernmentSpendingCategoryLineChart selectedYear={selectedYear} onYearChange={onYearChange} />
+      <GermanyGovernmentSpendingCategoryCards selectedYear={selectedYear} />
+    </>
+  );
+}
+
+function GermanyGovernmentSpendingDESection({ subRows }: { subRows: CountryStatMetric[] }) {
+  const [selectedYear, setSelectedYear] = useState(2025);
+
+  const immigrationRow = subRows.find((r) => r.metric === 'Immigration welfare spending');
+  const foreignAidRow = subRows.find((r) => r.metric === 'Foreign Aid');
+
+  return (
+    <div className="flex flex-col gap-4">
+      <GermanyGovernmentSpendingSummaryTile />
+      <GermanyGovernmentTotalExpenditureChart />
+      <GermanyGovernmentSpendingTotalLineChart />
+      <GermanyGovernmentSpendingCategoryBlock selectedYear={selectedYear} onYearChange={setSelectedYear} />
+
+      <div className={STAT_GRID}>
+        {immigrationRow ? (
+          <Fragment key={immigrationRow.metric}>{renderStatTile(immigrationRow, { iso3: 'DEU' })}</Fragment>
+        ) : null}
+        <GermanyCorruptionLostMetricTile selectedYear={selectedYear} />
+        {foreignAidRow ? (
+          <Fragment key={foreignAidRow.metric}>{renderStatTile(foreignAidRow, { iso3: 'DEU' })}</Fragment>
+        ) : null}
+      </div>
+
+      <GermanyCorruptionLostChart selectedYear={selectedYear} />
+    </div>
   );
 }
 
@@ -2573,9 +2647,6 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
   if (row.metric === 'Childhood overweight and obesity (Germany)' && opts?.iso3?.toUpperCase() === 'DEU') {
     return <ChildhoodObesityBirthRatesTile row={row} />;
   }
-  if (row.metric === 'Expenditure breakdown (pie)') {
-    return <ExpenditurePieTile row={row} />;
-  }
   if (row.metric === 'Foreign students by origin (pie)') {
     return <ForeignStudentsOriginTile row={row} compact={opts?.foreignStudentsPieCompact} />;
   }
@@ -2685,6 +2756,10 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [iso3]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -2746,7 +2821,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         } else if (isDeu) {
           expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
         }
-        insertLostToCorruptionMetric(expenditureMetrics, corruptionRow, countryLabel);
+        insertLostToCorruptionMetric(expenditureMetrics, corruptionRow, countryLabel, upper);
 
         let macroMetrics: CountryStatMetric[] = metricsFromMacroIndicatorsRow(null, countryLabel);
         if (macroIndicatorsRes.ok && macroText.trim()) {
@@ -3521,7 +3596,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                               block.subRows.length +
                               (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 4 : 0)
                               + (block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU'
-                                ? GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
+                                ? block.subRows.length + 1 + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
                                 : 0)
                             }
                             defaultOpen
@@ -3542,15 +3617,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                   <GermanyBirthsLineChartTile />
                                   <GermanyBirthsByRaceChartTile />
                                   <GermanyMixedRaceBirthsChartTile />
-                                </>
-                              ) : null}
-                              {block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
-                                <>
-                                  <GermanyGovernmentSpendingSummaryTile />
-                                  <GermanyGovernmentTotalExpenditureChart />
-                                  <GermanyGovernmentSpendingTotalLineChart />
-                                  <GermanyGovernmentSpendingCategoryLineChart />
-                                  <GermanyGovernmentSpendingCategoryCards />
                                 </>
                               ) : null}
                               {block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? (
@@ -3585,6 +3651,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                     );
                                   })()}
                                 </>
+                              ) : block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
+                                <GermanyGovernmentSpendingDESection subRows={block.subRows} />
                               ) : (
                                 <div className={STAT_GRID}>
                                   {block.subRows.map((row) => (
