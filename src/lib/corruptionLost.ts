@@ -19,6 +19,12 @@ function extractHttpsUrls(text: string): string {
   return [...new Set(urls)].join('|');
 }
 
+/** Germany modeled-estimate narrative from `corruption_money_lost_modeled_estimates.csv` (three source URLs). */
+const GERMANY_CORRUPTION_MODELED_SOURCE =
+  'Estimated from World Bank GDP (country page / GDP current US$, latest year shown) and Transparency International CPI 2024; formula: GDP × 5% × ((100−CPI)/57), where 5% is the widely cited global corruption-cost anchor and 57 = 100−43 using TI\'s 2024 global average CPI of 43. GDP source family: https://data.worldbank.org/indicator/NY.GDP.MKTP.CD ; CPI source: https://www.transparency.org/en/cpi/2024 ; global cost anchor: https://blogs.worldbank.org/en/governance/what-are-costs-corruption';
+
+export const GERMANY_CORRUPTION_LOST_SOURCE_URL = extractHttpsUrls(GERMANY_CORRUPTION_MODELED_SOURCE);
+
 function fmtUsdBillions(value: number): string {
   const inBillions = value / 1_000_000_000;
   return `$${inBillions.toFixed(1)}B`;

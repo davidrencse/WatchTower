@@ -18,13 +18,10 @@ function toUrlOrEmpty(text: string): string {
   return '';
 }
 
-/** Code-side figure when expenditures CSV has no immigration welfare cell for Germany. */
-const GERMANY_IMMIGRATION_WELFARE_USD = '~$28.6B USD';
-
 function immigrationWelfareDisplay(row: CountryWideRow | null, iso3?: string): string {
   const raw = row ? String(row['Immigration Welfare Spending (latest estimate)'] ?? '').trim() : '';
   const missing = !raw || raw.toUpperCase() === 'N/A';
-  if (iso3 === 'DEU' && missing) return GERMANY_IMMIGRATION_WELFARE_USD;
+  if (iso3 === 'DEU' && missing) return 'See year selector (Government spending)';
   return raw || 'N/A';
 }
 
@@ -54,8 +51,7 @@ export function findExpenditureRow(rows: CountryWideRow[], countryName: string):
 function foreignAidMetricGermany(): CountryStatMetric {
   return {
     metric: 'Foreign Aid',
-    value: '€126 billion',
-    value_subtitle: "0.67% of Germany's GNI",
+    value: 'See year selector (Government spending)',
     reference_period: 'OECD development co-operation profile',
     geography_used: 'Germany',
     source_name: '',

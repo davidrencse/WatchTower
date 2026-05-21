@@ -27,11 +27,16 @@ import {
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
 import { collectSourceUrlsFromWideRow, wideRowToStatMetrics } from '../lib/countryStatsMetrics';
-import { findCorruptionLostRow, insertLostToCorruptionMetric } from '../lib/corruptionLost';
+import {
+  findCorruptionLostRow,
+  GERMANY_CORRUPTION_LOST_SOURCE_URL,
+  insertLostToCorruptionMetric,
+} from '../lib/corruptionLost';
 import {
   GERMANY_CORRUPTION_LOST_BY_YEAR,
   germanyCorruptionLostRowForYear,
 } from '../lib/germanyCorruptionLostByYear';
+import { germanyGovSpendingLeadRowForYear } from '../lib/germanyGovernmentSpendingLeadByYear';
 import {
   findExpenditureRow,
   metricsFromExpenditureRow,
@@ -335,8 +340,16 @@ function MetricTile({
   );
 }
 
-/** Germany: one card, three stacked breakdown rows (Government spending). */
-function ImmigrationWelfareGermanyTile({ row }: { row: CountryStatMetric }) {
+/** Germany government spending lead tile: immigration welfare + family + refugee totals (billion €). */
+function GermanyImmigrationWelfareYearTile({
+  selectedYear,
+  sourceRow,
+}: {
+  selectedYear: number;
+  sourceRow?: CountryStatMetric;
+}) {
+  const data = useMemo(() => germanyGovSpendingLeadRowForYear(selectedYear), [selectedYear]);
+
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
       <div className="divide-y divide-white/[0.06]">
@@ -344,33 +357,78 @@ function ImmigrationWelfareGermanyTile({ row }: { row: CountryStatMetric }) {
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
             Immigration welfare spending
           </p>
-          <p className="mt-2 font-sans text-lg font-semibold leading-tight text-neutral-100 sm:text-xl">
-            $28.6B USD
+          <p className="mt-2 font-sans text-lg font-semibold tabular-nums leading-tight text-neutral-100 transition-all duration-300 sm:text-xl">
+            €{data.immigrationWelfareBn.toFixed(1)}B
           </p>
-          <p className="mt-1 font-sans text-[10px] leading-relaxed text-neutral-500">2023 · Germany</p>
+          <p className="mt-1 font-sans text-[10px] text-neutral-500">{selectedYear} · Germany</p>
         </div>
         <div className="py-3">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Money Given to Immigrant Families
+            Money given to immigrant families
           </p>
-          <p className="mt-1.5 font-sans text-base font-medium text-neutral-100 sm:text-lg">€21.7 billion</p>
+          <p className="mt-1.5 font-sans text-base font-medium tabular-nums text-neutral-100 transition-all duration-300 sm:text-lg">
+            €{data.moneyToFamiliesBn.toFixed(1)}B
+          </p>
         </div>
         <div className="pt-3">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Money Spent on Immigrants/Refugees
+            Total spent on immigrants / refugees
           </p>
-          <p className="mt-1.5 font-sans text-base font-medium text-neutral-100 sm:text-lg">€46.6 billion (2025)</p>
+          <p className="mt-1.5 font-sans text-base font-medium tabular-nums text-neutral-100 transition-all duration-300 sm:text-lg">
+            €{data.totalImmigrantsRefugeesBn.toFixed(1)}B
+          </p>
         </div>
       </div>
-      {row.source_url ? (
+      {sourceRow?.source_url ? (
         <div className="mt-3 border-t border-white/[0.06] pt-3">
           <SourceLinks
-            url={row.source_url}
+            url={sourceRow.source_url}
             className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
       ) : null}
-      <NoteBlock text={row.notes} />
+      {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
+    </article>
+  );
+}
+
+function GermanyForeignAidYearTile({
+  selectedYear,
+  sourceRow,
+}: {
+  selectedYear: number;
+  sourceRow?: CountryStatMetric;
+}) {
+  const data = useMemo(() => germanyGovSpendingLeadRowForYear(selectedYear), [selectedYear]);
+
+  return (
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        Foreign Aid
+      </p>
+      <div className="mt-4 min-w-0 flex-1">
+        <p className="font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight text-neutral-100 transition-all duration-300 sm:text-3xl lg:text-4xl">
+          €{data.foreignAidOdaBn.toFixed(1)}B
+        </p>
+        <p className="mt-1.5 font-sans text-[10px] font-medium leading-snug text-neutral-500">
+          Official development assistance (ODA) · {selectedYear}
+        </p>
+        <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-600">
+          Updates with the category expenditure year selector above
+        </p>
+      </div>
+      <div className="mt-auto">
+        {sourceRow ? <MetaLine row={sourceRow} /> : null}
+        {sourceRow?.source_url ? (
+          <div className="mt-2">
+            <SourceLinks
+              url={sourceRow.source_url}
+              className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            />
+          </div>
+        ) : null}
+        {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
+      </div>
     </article>
   );
 }
@@ -1099,9 +1157,12 @@ function GermanyCorruptionLostMetricTile({ selectedYear }: { selectedYear: numbe
         <p className="mt-1.5 font-sans text-[10px] font-medium leading-snug text-neutral-500">
           {row.pctGdp.toFixed(2)}% of GDP · {selectedYear}
         </p>
-        <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-600">
-          Updates with the category expenditure year selector above
-        </p>
+      </div>
+      <div className="mt-auto pt-3">
+        <SourceLinks
+          url={GERMANY_CORRUPTION_LOST_SOURCE_URL}
+          className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+        />
       </div>
     </article>
   );
@@ -1234,13 +1295,9 @@ function GermanyGovernmentSpendingDESection({ subRows }: { subRows: CountryStatM
       <GermanyGovernmentSpendingCategoryBlock selectedYear={selectedYear} onYearChange={setSelectedYear} />
 
       <div className={STAT_GRID}>
-        {immigrationRow ? (
-          <Fragment key={immigrationRow.metric}>{renderStatTile(immigrationRow, { iso3: 'DEU' })}</Fragment>
-        ) : null}
+        <GermanyImmigrationWelfareYearTile selectedYear={selectedYear} sourceRow={immigrationRow} />
         <GermanyCorruptionLostMetricTile selectedYear={selectedYear} />
-        {foreignAidRow ? (
-          <Fragment key={foreignAidRow.metric}>{renderStatTile(foreignAidRow, { iso3: 'DEU' })}</Fragment>
-        ) : null}
+        <GermanyForeignAidYearTile selectedYear={selectedYear} sourceRow={foreignAidRow} />
       </div>
 
       <GermanyCorruptionLostChart selectedYear={selectedYear} />
@@ -1627,7 +1684,13 @@ const GERMANY_IMMIGRATION_SUBSECTION_COUNT =
 
 const STAT_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3';
 
-type RenderStatTileOpts = { foreignStudentsPieCompact?: boolean; iso3?: string; compactBirthRates?: boolean };
+type RenderStatTileOpts = {
+  foreignStudentsPieCompact?: boolean;
+  iso3?: string;
+  compactBirthRates?: boolean;
+  /** Germany government spending subsection: syncs lead tiles with category year selector. */
+  govSpendSelectedYear?: number;
+};
 
 type GermanyGdpRow = { year: string; gdp: number; gdpPerCapita: number };
 
@@ -2642,7 +2705,15 @@ function GermanyHoverSeriesTile({
 
 function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): ReactNode {
   if (row.metric === 'Immigration welfare spending' && opts?.iso3?.toUpperCase() === 'DEU') {
-    return <ImmigrationWelfareGermanyTile row={row} />;
+    return (
+      <GermanyImmigrationWelfareYearTile
+        selectedYear={opts?.govSpendSelectedYear ?? 2025}
+        sourceRow={row}
+      />
+    );
+  }
+  if (row.metric === 'Foreign Aid' && opts?.iso3?.toUpperCase() === 'DEU') {
+    return <GermanyForeignAidYearTile selectedYear={opts?.govSpendSelectedYear ?? 2025} sourceRow={row} />;
   }
   if (row.metric === 'Childhood overweight and obesity (Germany)' && opts?.iso3?.toUpperCase() === 'DEU') {
     return <ChildhoodObesityBirthRatesTile row={row} />;
