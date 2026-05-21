@@ -620,6 +620,8 @@ const GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly GermanyGovSpendingCat
   'other',
 ];
 
+const GERMANY_GOV_SPENDING_YEARS = Array.from({ length: 26 }, (_, i) => 2000 + i);
+
 const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 16;
 
 function ExpenditurePieTile({ row }: { row: CountryStatMetric }) {
@@ -989,11 +991,48 @@ function GermanyGovernmentSpendingTotalLineChart() {
 }
 
 function GermanyGovernmentSpendingCategoryLineChart() {
-  const [hovered, setHovered] = useState<GermanyGovSpendingSeriesKey | null>(null);
-  const stroke = (k: GermanyGovSpendingSeriesKey) =>
-    hovered !== null && hovered !== k ? '#737373' : String(GERMANY_GOV_SPENDING_LINE_CONFIG[k].color);
-  const opacity = (k: GermanyGovSpendingSeriesKey) => (hovered !== null && hovered !== k ? 0.28 : 1);
-  const width = (k: GermanyGovSpendingSeriesKey) => (hovered === k ? 3 : 2.1);
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const yearButtonRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
+
+  useEffect(() => {
+    yearButtonRefs.current.get(selectedYear)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [selectedYear]);
+
+  const yearRow = useMemo(
+    () => GERMANY_GOV_SPENDING_SERIES.find((r) => Number(r.year) === selectedYear) ?? GERMANY_GOV_SPENDING_SERIES.at(-1)!,
+    [selectedYear],
+  );
+
+  const { chartData, chartConfig, totalBn } = useMemo(() => {
+    const slices = GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => {
+      const eurBn = yearRow[key];
+      return {
+        key,
+        name: GERMANY_GOV_SPENDING_LINE_CONFIG[key].label,
+        eurBn,
+        fill: String(GERMANY_GOV_SPENDING_LINE_CONFIG[key].color),
+        paletteIndex: i,
+      };
+    }).filter((s) => s.eurBn > 0);
+
+    const total = slices.reduce((sum, s) => sum + s.eurBn, 0);
+    const data = slices.map((s) => ({
+      ...s,
+      pieValue: s.eurBn,
+      pctOfTotal: total > 0 ? (s.eurBn / total) * 100 : 0,
+    }));
+
+    const cfg = data.reduce<ChartConfig>((acc, row, i) => {
+      acc[`slice_${i}`] = { label: row.name, color: row.fill };
+      return acc;
+    }, {});
+
+    return { chartData: data, chartConfig: cfg, totalBn: yearRow.total };
+  }, [yearRow]);
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -1002,45 +1041,134 @@ function GermanyGovernmentSpendingCategoryLineChart() {
           Government Expenditure By Category (2000-2025)
         </CardTitle>
         <CardDescription className="font-sans text-[10px] text-neutral-500">
-          Hover a line to focus it; other lines are greyed out.
+          Select a year below · shares of total government expenditure (€bn)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0" onMouseLeave={() => setHovered(null)}>
-        <ChartContainer config={GERMANY_GOV_SPENDING_LINE_CONFIG} className="h-[420px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={GERMANY_GOV_SPENDING_SERIES} margin={{ top: 8, right: 10, left: 12, bottom: 8 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="year" tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} />
-              <YAxis
-                tickFormatter={(v) => `€${Number(v).toFixed(0)}B`}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-                width={72}
-                domain={['auto', 'auto']}
-              />
-              <ChartTooltip
-                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
-                content={<ChartTooltipContent className="rounded-md" formatter={(value) => `€${Number(value).toFixed(1)}B`} labelFormatter={(label) => `Year ${String(label)}`} />}
-              />
-              {GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key) => (
-                <Line
-                  key={key}
-                  type="monotone"
-                  dataKey={key}
-                  name={GERMANY_GOV_SPENDING_LINE_CONFIG[key].label}
-                  stroke={stroke(key)}
-                  strokeOpacity={opacity(key)}
-                  strokeWidth={width(key)}
-                  dot={false}
-                  activeDot={{ r: hovered === key ? 5 : 4 }}
-                  isAnimationActive={false}
-                  onMouseEnter={() => setHovered(key)}
-                />
+      <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
+        <p className="text-center font-sans text-sm tabular-nums text-neutral-500">
+          Total expenditure · <span className="font-semibold text-neutral-300">€{totalBn.toFixed(1)}B</span>
+        </p>
+
+        {chartData.length > 0 ? (
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-center lg:gap-10">
+            <ChartContainer
+              key={selectedYear}
+              config={chartConfig}
+              className="mx-auto h-[300px] w-full max-w-[360px] shrink-0 sm:max-w-[400px]"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#0a0a0a',
+                      border: '1px solid #404040',
+                      borderRadius: '4px',
+                      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                      fontSize: '11px',
+                    }}
+                    formatter={(value, _name, item) => {
+                      const row = (item as { payload?: { eurBn?: number; pctOfTotal?: number } })?.payload;
+                      const bn = row?.eurBn;
+                      const pct = row?.pctOfTotal;
+                      if (typeof bn === 'number' && typeof pct === 'number') {
+                        return [`€${bn.toFixed(1)}B (${pct.toFixed(1)}%)`, 'Share'];
+                      }
+                      return [`€${Number(value).toFixed(1)}B`, 'Share'];
+                    }}
+                  />
+                  <Pie
+                    data={chartData}
+                    dataKey="pieValue"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={52}
+                    outerRadius={116}
+                    paddingAngle={0.4}
+                    stroke="none"
+                    isAnimationActive
+                    animationDuration={520}
+                    animationEasing="ease-out"
+                  >
+                    {chartData.map((entry, i) => (
+                      <Cell key={`${entry.key}-${i}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+            <ul className="min-w-0 flex-1 space-y-1.5">
+              {chartData.map((s) => (
+                <li
+                  key={s.key}
+                  className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-sans text-[11px] text-neutral-300"
+                >
+                  <span
+                    className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-sm"
+                    style={{ backgroundColor: s.fill }}
+                  />
+                  <span className="min-w-0 flex-1 break-words">{s.name}</span>
+                  <span className="shrink-0 tabular-nums text-neutral-500">{s.pctOfTotal.toFixed(1)}%</span>
+                  <span className="w-full pl-5 font-sans text-[10px] tabular-nums text-neutral-600 sm:w-auto sm:pl-2">
+                    €{s.eurBn.toFixed(1)}B
+                  </span>
+                </li>
               ))}
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
+            </ul>
+          </div>
+        ) : (
+          <p className="py-8 text-center font-sans text-xs text-neutral-500">No category data for this year.</p>
+        )}
+
+        <div className="border-t border-white/[0.06] pt-4">
+          <div
+            className="scrollbar-none flex items-end justify-center gap-1.5 overflow-x-auto px-2 pb-1"
+            role="tablist"
+            aria-label="Select expenditure year"
+          >
+            {GERMANY_GOV_SPENDING_YEARS.map((year) => {
+              const active = year === selectedYear;
+              return (
+                <button
+                  key={year}
+                  ref={(el) => {
+                    if (el) yearButtonRefs.current.set(year, el);
+                    else yearButtonRefs.current.delete(year);
+                  }}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-label={`Year ${year}`}
+                  onClick={() => setSelectedYear(year)}
+                  className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition-all duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 ${
+                    active
+                      ? 'gov-spend-year-pill-active h-8 min-w-[3.75rem] border-white/20 bg-white/[0.08] px-3'
+                      : 'h-6 w-6 border-white/[0.10] bg-white/[0.03] hover:scale-110 hover:border-white/25 hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <span
+                    className={`font-sans text-[11px] font-semibold tabular-nums tracking-tight ${
+                      active
+                        ? 'gov-spend-year-label-active text-neutral-100'
+                        : 'pointer-events-none absolute opacity-0'
+                    }`}
+                  >
+                    {year}
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`rounded-full bg-neutral-500 transition-all duration-300 ease-out ${
+                      active ? 'h-0 w-0 scale-0 opacity-0' : 'h-1.5 w-1.5 scale-100 opacity-100'
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-center font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-600">
+            Tap a dot · active year expands
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
