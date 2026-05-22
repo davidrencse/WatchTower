@@ -62,10 +62,9 @@ export function parseGermanyMetricTableCsv(raw: string): GermanyMetricTableRow[]
 
 /**
  * Display order for germany_health_statistics_basic.csv (metric column).
- * Matches Overview: expenditure, obesity, smoking, suicide rate, physicians, doctors, HALE, preventable mortality, alcohol.
+ * Matches Overview: obesity, smoking, suicide rate, physicians, doctors, HALE, preventable mortality, alcohol.
  */
 export const GERMANY_HEALTH_BASIC_METRIC_ORDER = [
-  'Healthcare expenditure',
   'Obesity rate',
   'Smoking prevalence',
   'Suicide Rate',

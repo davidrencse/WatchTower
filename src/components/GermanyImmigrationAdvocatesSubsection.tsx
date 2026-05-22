@@ -8,7 +8,6 @@ type AdvocateCard = {
   metaLabel: string;
   metaValue: string;
   badges: string[];
-  icon: 'users' | 'hands' | 'scale' | 'layers' | 'link';
   overview: string;
   leftistTies: string;
   affiliations: string;
@@ -24,7 +23,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     metaLabel: 'Founded',
     metaValue: '1986 · NGO',
     badges: ['Asylum', 'Linke', 'Grüne', 'EU'],
-    icon: 'hands',
     overview:
       'Leading refugee-rights NGO (founded 1986): active litigation and lobbying against deportations and border tightening; promotes legal “safe passages” and contests asylum restrictions in court.',
     leftistTies:
@@ -45,7 +43,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     metaLabel: 'Role',
     metaValue: 'Welfare · integration',
     badges: ['SPD', 'Faith', 'State €', 'Family'],
-    icon: 'layers',
     overview:
       'Caritasverband and Diakonie Deutschland run large migrant integration and social-welfare programs; publicly push family reunification and oppose numeric “caps” on protection seekers.',
     leftistTies:
@@ -66,7 +63,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     metaLabel: 'Focus',
     metaValue: 'Human rights · borders',
     badges: ['INGO', 'Grüne', 'SPD', 'Frontex'],
-    icon: 'scale',
     overview:
       'German branch of the global NGO; campaigns to decriminalize irregular entry, shrink detention, and end what it calls “Fortress Europe,” including protests aimed at Frontex.',
     leftistTies:
@@ -87,7 +83,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     metaLabel: 'Type',
     metaValue: 'Umbrella org.',
     badges: ['Grüne', 'SPD', 'AfD clash', 'Asylum'],
-    icon: 'users',
     overview:
       'The main Jewish communal umbrella; publicly backs expansive refugee protection, tying openness to pluralism, Holocaust memory, and opposition to right-wing nationalism.',
     leftistTies:
@@ -108,7 +103,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     metaLabel: 'Since',
     metaValue: '1997 · network',
     badges: ['Autonom.', 'Direct act.', 'EU camps', 'No deport'],
-    icon: 'link',
     overview:
       'Grassroots network (since 1997) built around “Kein Mensch ist illegal”; organizes border camps, deportation blockades, and infrastructure for migrant self-organization.',
     leftistTies:
@@ -123,82 +117,6 @@ const ADVOCATES: readonly AdvocateCard[] = [
     ],
   },
 ];
-
-function CardHeaderDecor() {
-  return (
-    <div className="flex items-start justify-between" aria-hidden>
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-neutral-950/60 text-neutral-500">
-        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden>
-          <path d="M12 3.5l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4L7.5 17.2l.9-5L4.8 8.7l5-.7L12 3.5z" />
-        </svg>
-      </span>
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-line bg-neutral-950/60 text-neutral-500">
-        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden>
-          <circle cx="12" cy="6" r="1.5" />
-          <circle cx="12" cy="12" r="1.5" />
-          <circle cx="12" cy="18" r="1.5" />
-        </svg>
-      </span>
-    </div>
-  );
-}
-
-function AdvocateGlyph({ kind, className }: { kind: AdvocateCard['icon']; className?: string }) {
-  const common = cn('h-8 w-8 text-neutral-400', className);
-  switch (kind) {
-    case 'hands':
-      return (
-        <svg viewBox="0 0 24 24" className={common} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
-          />
-        </svg>
-      );
-    case 'layers':
-      return (
-        <svg viewBox="0 0 24 24" className={common} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 8l8 4 8-4M4 16l8 4 8-4M4 12l8 4 8-4"
-          />
-        </svg>
-      );
-    case 'scale':
-      return (
-        <svg viewBox="0 0 24 24" className={common} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3v3m0 12v3M5.5 8.5l2 4m9-4l2 4M6 21h12M6 10l-2 6h5l-1-6m10 0l-2 6h5l-1-6"
-          />
-        </svg>
-      );
-    case 'link':
-      return (
-        <svg viewBox="0 0 24 24" className={common} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M13.5 10.5l3-3a4.5 4.5 0 015 7.3 4.5 4.5 0 01-6.4 0l-3-3M10.5 13.5l-3 3a4.5 4.5 0 00.6 6.7 4.5 4.5 0 006.8-.6l3-3"
-          />
-        </svg>
-      );
-    case 'users':
-    default:
-      return (
-        <svg viewBox="0 0 24 24" className={common} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19a3 3 0 00-6 0M18 9a3 3 0 11-6 0 3 3 0 016 0zM6 10.5a2.5 2.5 0 115 0M3 19a4 4 0 018 0"
-          />
-        </svg>
-      );
-  }
-}
 
 function DiamondRule() {
   return (
@@ -218,20 +136,7 @@ const AdvocateCardView = memo(function AdvocateCardView({ entry }: { entry: Advo
         'p-4 sm:p-5',
       )}
     >
-      <CardHeaderDecor />
-
-      <div className="mt-4 flex justify-center">
-        <div
-          className={cn(
-            'flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-xl',
-            'border border-line bg-neutral-950/55 shadow-inner',
-          )}
-        >
-          <AdvocateGlyph kind={entry.icon} />
-        </div>
-      </div>
-
-      <h3 className="mt-4 text-center font-sans text-sm font-semibold leading-snug tracking-tight text-neutral-100">
+      <h3 className="text-center font-sans text-sm font-semibold leading-snug tracking-tight text-neutral-100">
         {entry.title}
       </h3>
       <p className="mt-1 text-center font-sans text-[10px] leading-snug text-neutral-500">{entry.tagline}</p>
@@ -263,7 +168,7 @@ const AdvocateCardView = memo(function AdvocateCardView({ entry }: { entry: Advo
         </div>
       </div>
 
-      <details className="group mt-4 border-t border-line pt-3">
+      <details open className="group mt-4 border-t border-line pt-3">
         <summary
           className={cn(
             'cursor-pointer list-none font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400',
@@ -355,11 +260,6 @@ export const GermanyImmigrationAdvocatesSubsection = memo(function GermanyImmigr
             BKA statistics
           </a>
           on suspects and residence categories).
-        </p>
-        <p className="font-sans text-[10px] leading-relaxed text-neutral-600">
-          Layout note: cards mimic a three-column &quot;tile&quot; structure — top ornament row, centered glyph, title,
-          diamond-ended rule, metadata column plus tag chips — using this dashboard&apos;s borders and typography rather
-          than the reference screenshot.
         </p>
       </div>
 
