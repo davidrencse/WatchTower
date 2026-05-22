@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { useCountryRibbonExpandOptional } from '../context/CountryRibbonExpandContext';
 import { cn } from '../lib/utils';
 
@@ -41,7 +42,9 @@ export function CollapsibleFlagSection({
   const ribbonExpand = useCountryRibbonExpandOptional();
   useLayoutEffect(() => {
     if (!ribbonExpandKey || !ribbonExpand) return;
-    return ribbonExpand.register(ribbonExpandKey, () => setOpen(true));
+    return ribbonExpand.register(ribbonExpandKey, () => {
+      flushSync(() => setOpen(true));
+    });
   }, [ribbonExpand, ribbonExpandKey]);
   useEffect(() => {
     if (collapseSignal !== undefined && collapseSignal > 0) {

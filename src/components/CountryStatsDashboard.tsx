@@ -118,6 +118,7 @@ import fallbackForeignStudentsRaw from '../../Assets/Data/foreign_student_popula
 import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
 import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
 import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
+import { scrollToCountryAnchor } from '../lib/countryRibbonScroll';
 import {
   CountryRibbonExpandProvider,
   useCountryRibbonExpandController,
@@ -2960,6 +2961,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const germanyRightRailVisible = germanyRightNewsSections.some((s) => s.items.length > 0);
 
   const ribbonNav = useMemo(() => buildCountryRibbonNav(iso3), [iso3]);
+  const ribbonNavById = useMemo(() => new Map(ribbonNav.map((n) => [n.id, n])), [ribbonNav]);
 
   const dismissRibbonBubble = useCallback(() => {
     setRibbonBubbleMainId(null);
@@ -2967,18 +2969,22 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
 
   const navigateFromRibbon = useCallback(
     (mainSectionId: string, subsectionAnchorId?: string) => {
-      const entry = ribbonNav.find((n) => n.id === mainSectionId);
+      const entry = ribbonNavById.get(mainSectionId);
       if (!entry) return;
 
-      setRibbonPressedSubAnchorByMain((prev) => {
-        const next = { ...prev };
-        if (subsectionAnchorId) {
-          next[mainSectionId] = subsectionAnchorId;
-        } else {
+      if (subsectionAnchorId) {
+        setRibbonPressedSubAnchorByMain((prev) => {
+          if (prev[mainSectionId] === subsectionAnchorId) return prev;
+          return { ...prev, [mainSectionId]: subsectionAnchorId };
+        });
+      } else {
+        setRibbonPressedSubAnchorByMain((prev) => {
+          if (!(mainSectionId in prev)) return prev;
+          const next = { ...prev };
           delete next[mainSectionId];
-        }
-        return next;
-      });
+          return next;
+        });
+      }
 
       const keys: string[] = [`main:${mainSectionId}`];
       if (subsectionAnchorId) {
@@ -2987,21 +2993,16 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       }
       ribbonExpand.expand(keys);
 
-      ribbonScrollSpyQuietUntilRef.current = performance.now() + 750;
+      ribbonScrollSpyQuietUntilRef.current = performance.now() + 320;
 
-      const scrollTarget = subsectionAnchorId ?? entry.anchorId;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.getElementById(scrollTarget)?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        });
-      });
+      scrollToCountryAnchor(subsectionAnchorId ?? entry.anchorId);
     },
-    [ribbonNav, ribbonExpand],
+    [ribbonNavById, ribbonExpand],
   );
 
   const handleRibbonMainClick = useCallback(
     (id: string) => {
-      const entry = ribbonNav.find((n) => n.id === id);
+      const entry = ribbonNavById.get(id);
       const hasSubs = Boolean(entry && entry.subsections.length > 0);
 
       if (ribbonActiveMainId === id) {
@@ -3014,14 +3015,14 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       setRibbonBubbleMainId(hasSubs ? id : null);
       navigateFromRibbon(id);
     },
-    [ribbonActiveMainId, navigateFromRibbon, ribbonNav],
+    [ribbonActiveMainId, navigateFromRibbon, ribbonNavById],
   );
 
   const handleRibbonSubClick = useCallback(
     (mainId: string, subsectionAnchorId: string) => {
       setRibbonActiveMainId(mainId);
-      navigateFromRibbon(mainId, subsectionAnchorId);
       setRibbonBubbleMainId(null);
+      navigateFromRibbon(mainId, subsectionAnchorId);
     },
     [navigateFromRibbon],
   );

@@ -22,7 +22,8 @@ type PanelGeometry = {
   originX: number;
 };
 
-const PANEL_TRANSITION_MS = 240;
+const PANEL_TRANSITION_MS = 100;
+const PILL_SLIDE_MS = 120;
 
 /**
  * Floats under the Watch Tower bar (same band as the old ribbon) with no full-width strip:
@@ -148,8 +149,8 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
           },
         ],
         {
-          duration: 320,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          duration: PILL_SLIDE_MS,
+          easing: 'cubic-bezier(0.33, 1, 0.45, 1)',
           fill: 'forwards',
         },
       );
@@ -178,8 +179,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
           hi.style.removeProperty('transition');
         });
     } else {
-      hi.style.transition =
-        'transform 320ms cubic-bezier(0.22, 1, 0.36, 1), width 320ms cubic-bezier(0.22, 1, 0.36, 1), height 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+      hi.style.transition = `transform ${PILL_SLIDE_MS}ms cubic-bezier(0.33, 1, 0.45, 1), width ${PILL_SLIDE_MS}ms cubic-bezier(0.33, 1, 0.45, 1), height ${PILL_SLIDE_MS}ms cubic-bezier(0.33, 1, 0.45, 1)`;
       requestAnimationFrame(() => {
         hi.style.transform = `translate3d(${to.x}px,${to.y}px,0)`;
         hi.style.width = `${to.w}px`;
@@ -245,18 +245,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
 
     dismissingRef.current = false;
     measurePanel();
-    setPanelExpanded(false);
-    let cancelled = false;
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!cancelled) setPanelExpanded(true);
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(id);
-    };
+    setPanelExpanded(true);
   }, [bubbleOpen, bubbleMainId, measurePanel]);
 
   useLayoutEffect(() => {
@@ -334,7 +323,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                   ref={(el) => setTabEl(item.id, el)}
                   type="button"
                   className={cn(
-                    'relative z-10 flex min-h-[44px] min-w-0 flex-1 items-center justify-center rounded-full px-3 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:min-h-[46px] sm:px-5 sm:text-[11px]',
+                    'relative z-10 flex min-h-[44px] min-w-0 flex-1 items-center justify-center rounded-full px-3 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:min-h-[46px] sm:px-5 sm:text-[11px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#d4d4d8]',
                     selected ? 'text-white' : 'bg-transparent text-neutral-900 hover:bg-black/[0.07]',
                   )}
@@ -361,7 +350,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                 transform: panelExpanded ? 'translateY(0) scaleY(1)' : 'translateY(-6px) scaleY(0.92)',
                 transitionProperty: 'max-height, opacity, transform',
                 transitionDuration: `${PANEL_TRANSITION_MS}ms`,
-                transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                transitionTimingFunction: 'cubic-bezier(0.33, 1, 0.45, 1)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -373,7 +362,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                       <button
                         type="button"
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-left font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-150 sm:px-4 sm:text-[11px]',
+                          'flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-left font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:px-4 sm:text-[11px]',
                           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
                           pressed
                             ? 'bg-black text-white shadow-[0_6px_18px_rgba(0,0,0,0.35)]'

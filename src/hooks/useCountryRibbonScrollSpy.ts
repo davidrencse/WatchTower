@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { RibbonMainItem } from '../lib/countryRibbonNav';
 
 /** Only sync after scroll settles — avoids cancelling the pill animation every frame. */
-const SCROLL_SETTLE_MS = 220;
+const SCROLL_SETTLE_MS = 100;
 
 /**
  * Syncs the active main ribbon pill after scroll **settles** (`scrollend` when supported,
