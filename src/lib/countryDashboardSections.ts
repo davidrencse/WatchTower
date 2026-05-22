@@ -64,7 +64,6 @@ export type CustomSubsection =
   | { id: string; title: string; kind: 'germany_marriages' }
   | { id: string; title: string; kind: 'germany_sexual_behavior' }
   | { id: string; title: string; kind: 'germany_labor_income' }
-  | { id: string; title: string; kind: 'germany_economic_structural' }
   | { id: string; title: string; kind: 'germany_economic_taxes' }
   | { id: string; title: string; kind: 'germany_economy_trade' }
   | { id: string; title: string; kind: 'germany_health_suppression' }
@@ -101,11 +100,6 @@ export function getStatSections(iso3: string): StatSectionDef[] {
                 id: 'labor_income_distribution',
                 title: 'Labor & Income Distribution',
                 kind: 'germany_labor_income' as const,
-              },
-              {
-                id: 'fiscal_structural_snapshot',
-                title: 'Fiscal Snapshot',
-                kind: 'germany_economic_structural' as const,
               },
               {
                 id: 'germany_taxes',

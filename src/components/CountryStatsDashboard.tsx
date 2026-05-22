@@ -688,8 +688,15 @@ function buildGovSpendCategoryCardsForYear(row: GermanyGovSpendingSeriesRow): Ar
   });
 }
 
-/** Charts + category block groups below the lead row (excludes lead-row corruption tile). */
-const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 17;
+/** Charts + category block + context metric row below the lead row (excludes lead-row corruption tile). */
+const GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT = 19;
+
+const GERMANY_GOV_SPENDING_CONTEXT_KEYS = [
+  'total',
+  'gdpPerCapitaUsd',
+  'laborProductivityIndex',
+  'hdi',
+] as const satisfies readonly GermanyGovSpendingSeriesKey[];
 
 const GERMANY_CORRUPTION_LOST_CHART_CONFIG = {
   lostBnEur: { label: 'Money lost (€bn)', color: '#f59e0b' },
@@ -699,30 +706,6 @@ const GERMANY_CORRUPTION_LOST_CHART_CONFIG = {
 const GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG = {
   total: { label: 'Total government expenditure', color: '#f59e0b' },
 } satisfies ChartConfig;
-
-function GermanyGovernmentSpendingSummaryTile() {
-  return (
-    <Card className="col-span-full border-line bg-surface-metric shadow-card">
-      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
-        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Total Government Expenditure
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <p className="font-sans text-2xl font-semibold tracking-tight text-neutral-100 sm:text-3xl">
-          €2,259.3 billion
-        </p>
-        <p className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">(2025)</p>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-300">
-          Spending increased by 5.6% (+€119.6 billion) compared to 2024.
-        </p>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-300">
-          The year ended with a general government deficit of €119.1 billion.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
 
 function GermanyGovernmentTotalExpenditureChart() {
   return (
@@ -783,6 +766,69 @@ function GermanyGovernmentTotalExpenditureChart() {
   );
 }
 
+function formatGovSpendingContextValue(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number], value: number): string {
+  if (key === 'total') return `€${value.toFixed(1)}B`;
+  if (key === 'gdpPerCapitaUsd') return `$${Math.round(value).toLocaleString('en-US')}`;
+  if (key === 'laborProductivityIndex') return value.toFixed(1);
+  return value.toFixed(3);
+}
+
+function govSpendingContextSubtitle(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number], year: number): string {
+  if (key === 'total') return `General government expenditure · ${year}`;
+  if (key === 'gdpPerCapitaUsd') return `Nominal USD · ${year}`;
+  if (key === 'laborProductivityIndex') return `Index (2000 = 100) · ${year}`;
+  return `Human Development Index · ${year}`;
+}
+
+function GermanyGovSpendingContextMetricTile({
+  selectedYear,
+  seriesKey,
+}: {
+  selectedYear: number;
+  seriesKey: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number];
+}) {
+  const row = useMemo(() => govSpendRowForYear(selectedYear), [selectedYear]);
+  const cfg = GERMANY_GOV_SPENDING_LINE_CONFIG[seriesKey];
+  const value = row[seriesKey];
+
+  return (
+    <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          {cfg.label}
+        </p>
+        <span
+          className="shrink-0 rounded border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 font-sans text-[9px] tabular-nums text-neutral-500"
+          style={{ borderColor: `${String(cfg.color)}33` }}
+        >
+          {selectedYear}
+        </span>
+      </div>
+      <div className="mt-4 min-w-0 flex-1">
+        <p
+          className="font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight text-neutral-100 transition-all duration-300 sm:text-3xl lg:text-4xl"
+          style={{ color: String(cfg.color) }}
+        >
+          {formatGovSpendingContextValue(seriesKey, value)}
+        </p>
+        <p className="mt-1.5 font-sans text-[10px] font-medium leading-snug text-neutral-500">
+          {govSpendingContextSubtitle(seriesKey, selectedYear)}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function GermanyGovSpendingContextTiles({ selectedYear }: { selectedYear: number }) {
+  return (
+    <div className="col-span-full grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {GERMANY_GOV_SPENDING_CONTEXT_KEYS.map((key) => (
+        <GermanyGovSpendingContextMetricTile key={key} selectedYear={selectedYear} seriesKey={key} />
+      ))}
+    </div>
+  );
+}
+
 function GermanyGovernmentSpendingCategoryCards({ selectedYear }: { selectedYear: number }) {
   const cards = useMemo(
     () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear)),
@@ -825,134 +871,6 @@ function GermanyGovernmentSpendingCategoryCards({ selectedYear }: { selectedYear
         </Card>
       ))}
     </div>
-  );
-}
-
-function GermanyGovernmentSpendingTotalLineChart() {
-  const [hovered, setHovered] = useState<GermanyGovSpendingSeriesKey | null>(null);
-  const activeKey: GermanyGovSpendingSeriesKey = hovered ?? 'total';
-  const formatAxisByKey = (key: GermanyGovSpendingSeriesKey, value: number): string => {
-    if (key === 'gdpPerCapitaUsd') return `$${Math.round(value).toLocaleString('en-US')}`;
-    if (key === 'hdi') return value.toFixed(3);
-    if (key === 'laborProductivityIndex') return value.toFixed(1);
-    return `€${Math.round(value).toLocaleString('en-US')}B`;
-  };
-  const seriesKeys: readonly GermanyGovSpendingSeriesKey[] = [
-    'total',
-    'gdpPerCapitaUsd',
-    'laborProductivityIndex',
-    'hdi',
-  ];
-
-  const axisIdByKey: Record<GermanyGovSpendingSeriesKey, string> = {
-    total: 'axis_total',
-    socialProtection: 'axis_socialProtection',
-    health: 'axis_health',
-    educationResearch: 'axis_educationResearch',
-    defence: 'axis_defence',
-    transportInfrastructure: 'axis_transportInfrastructure',
-    generalPublicServices: 'axis_generalPublicServices',
-    interestPayments: 'axis_interestPayments',
-    economicAffairsSubsidies: 'axis_economicAffairsSubsidies',
-    other: 'axis_other',
-    gdpPerCapitaUsd: 'axis_gdpPerCapitaUsd',
-    laborProductivityIndex: 'axis_laborProductivityIndex',
-    hdi: 'axis_hdi',
-  };
-  const axisLabelByKey: Record<GermanyGovSpendingSeriesKey, string> = {
-    total: 'Government expenditure (€bn)',
-    socialProtection: 'Government expenditure (€bn)',
-    health: 'Government expenditure (€bn)',
-    educationResearch: 'Government expenditure (€bn)',
-    defence: 'Government expenditure (€bn)',
-    transportInfrastructure: 'Government expenditure (€bn)',
-    generalPublicServices: 'Government expenditure (€bn)',
-    interestPayments: 'Government expenditure (€bn)',
-    economicAffairsSubsidies: 'Government expenditure (€bn)',
-    other: 'Government expenditure (€bn)',
-    gdpPerCapitaUsd: 'GDP per capita (USD)',
-    laborProductivityIndex: 'Labor productivity (Index 2000=100)',
-    hdi: 'HDI',
-  };
-  const activeValues = GERMANY_GOV_SPENDING_SERIES.map((row) => Number(row[activeKey]));
-  const activeMin = Math.min(...activeValues);
-  const activeMax = Math.max(...activeValues);
-  const padding = activeKey === 'hdi' ? 0.01 : Math.max((activeMax - activeMin) * 0.08, 1);
-  const contextDomain: [number, number] = [activeMin - padding, activeMax + padding];
-  const stroke = (k: GermanyGovSpendingSeriesKey) =>
-    hovered !== null && hovered !== k ? '#737373' : String(GERMANY_GOV_SPENDING_LINE_CONFIG[k].color);
-  const opacity = (k: GermanyGovSpendingSeriesKey) => (hovered !== null && hovered !== k ? 0.28 : 1);
-  const width = (k: GermanyGovSpendingSeriesKey) => (hovered === k ? 3 : 2.2);
-
-  return (
-    <Card className="col-span-full border-line bg-surface-metric shadow-card">
-      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
-        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Government Expenditure Trends in Context
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0" onMouseLeave={() => setHovered(null)}>
-        <ChartContainer config={GERMANY_GOV_SPENDING_LINE_CONFIG} className="h-[320px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={GERMANY_GOV_SPENDING_SERIES} margin={{ top: 8, right: 10, left: 20, bottom: 8 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="year" tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} />
-              <YAxis
-                tickFormatter={(v) => formatAxisByKey(activeKey, Number(v))}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-                width={104}
-                domain={contextDomain}
-                allowDataOverflow
-                label={{
-                  value: axisLabelByKey[activeKey],
-                  angle: -90,
-                  position: 'insideLeft',
-                  fill: 'rgba(163,163,163,0.65)',
-                  fontSize: 9,
-                }}
-              />
-              {seriesKeys.map((key) => (
-                <YAxis
-                  key={key}
-                  yAxisId={axisIdByKey[key]}
-                  hide
-                  tickFormatter={(v) => formatAxisByKey(key, Number(v))}
-                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={104}
-                  domain={['auto', 'auto']}
-                />
-              ))}
-              <ChartTooltip
-                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
-                content={
-                  <ChartTooltipContent
-                    className="rounded-md"
-                    formatter={(value, name) => {
-                      const n = Number(value);
-                      const lineName = String(name);
-                      if (lineName.includes('GDP per Capita')) return `$${Math.round(n).toLocaleString('en-US')}`;
-                      if (lineName.includes('Labor Productivity')) return n.toFixed(1);
-                      if (lineName === 'HDI') return n.toFixed(3);
-                      return `€${n.toFixed(1)}B`;
-                    }}
-                    labelFormatter={(label) => `Year ${String(label)}`}
-                  />
-                }
-              />
-              <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
-              <Line type="monotone" yAxisId={axisIdByKey.total} dataKey="total" name={GERMANY_GOV_SPENDING_LINE_CONFIG.total.label} stroke={stroke('total')} strokeOpacity={opacity('total')} strokeWidth={width('total')} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} onMouseEnter={() => setHovered('total')} />
-              <Line type="monotone" yAxisId={axisIdByKey.gdpPerCapitaUsd} dataKey="gdpPerCapitaUsd" name={GERMANY_GOV_SPENDING_LINE_CONFIG.gdpPerCapitaUsd.label} stroke={stroke('gdpPerCapitaUsd')} strokeOpacity={opacity('gdpPerCapitaUsd')} strokeWidth={width('gdpPerCapitaUsd')} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} onMouseEnter={() => setHovered('gdpPerCapitaUsd')} />
-              <Line type="monotone" yAxisId={axisIdByKey.laborProductivityIndex} dataKey="laborProductivityIndex" name={GERMANY_GOV_SPENDING_LINE_CONFIG.laborProductivityIndex.label} stroke={stroke('laborProductivityIndex')} strokeOpacity={opacity('laborProductivityIndex')} strokeWidth={width('laborProductivityIndex')} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} onMouseEnter={() => setHovered('laborProductivityIndex')} />
-              <Line type="monotone" yAxisId={axisIdByKey.hdi} dataKey="hdi" name={GERMANY_GOV_SPENDING_LINE_CONFIG.hdi.label} stroke={stroke('hdi')} strokeOpacity={opacity('hdi')} strokeWidth={width('hdi')} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} onMouseEnter={() => setHovered('hdi')} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -1133,9 +1051,6 @@ function GermanyGovernmentSpendingCategoryLineChart({
               );
             })}
           </div>
-          <p className="mt-2 text-center font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-600">
-            Years 2000 to 2025
-          </p>
         </div>
       </CardContent>
     </Card>
@@ -1277,6 +1192,7 @@ function GermanyGovernmentSpendingCategoryBlock({
     <>
       <GermanyGovernmentSpendingCategoryLineChart selectedYear={selectedYear} onYearChange={onYearChange} />
       <GermanyGovernmentSpendingCategoryCards selectedYear={selectedYear} />
+      <GermanyGovSpendingContextTiles selectedYear={selectedYear} />
     </>
   );
 }
@@ -1289,9 +1205,7 @@ function GermanyGovernmentSpendingDESection({ subRows }: { subRows: CountryStatM
 
   return (
     <div className="flex flex-col gap-4">
-      <GermanyGovernmentSpendingSummaryTile />
       <GermanyGovernmentTotalExpenditureChart />
-      <GermanyGovernmentSpendingTotalLineChart />
       <GermanyGovernmentSpendingCategoryBlock selectedYear={selectedYear} onYearChange={setSelectedYear} />
 
       <div className={STAT_GRID}>
@@ -3294,7 +3208,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   | { type: 'germany_marriages'; sub: CustomSubsection }
                   | { type: 'germany_sexual_behavior'; sub: CustomSubsection }
                   | { type: 'germany_labor_income'; sub: CustomSubsection }
-                  | { type: 'germany_economic_structural'; sub: CustomSubsection }
                   | { type: 'germany_economic_taxes'; sub: CustomSubsection }
                   | { type: 'germany_economy_trade'; sub: CustomSubsection }
                   | { type: 'germany_health_suppression'; sub: CustomSubsection }
@@ -3327,12 +3240,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                   if ('kind' in sub && sub.kind === 'germany_labor_income') {
                     if (iso3.toUpperCase() === 'DEU') {
                       nestedBlocks.push({ type: 'germany_labor_income', sub });
-                    }
-                    continue;
-                  }
-                  if ('kind' in sub && sub.kind === 'germany_economic_structural') {
-                    if (iso3.toUpperCase() === 'DEU') {
-                      nestedBlocks.push({ type: 'germany_economic_structural', sub });
                     }
                     continue;
                   }
@@ -3408,17 +3315,22 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     ? GERMANY_POLITICS_OVERVIEW_CHART_COUNT
                     : 0;
 
+                const germanyEconomicStructuralCount =
+                  section.id === 'economic' && iso3.toUpperCase() === 'DEU'
+                    ? GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT
+                    : 0;
+
                 const sectionCount =
                   leadingTileCount +
                   (section.id === 'population' && iso3.toUpperCase() === 'DEU' ? 1 : 0) +
                   germanyHealthOverviewTileCount +
                   germanyPoliticsOverviewChartCount +
+                  germanyEconomicStructuralCount +
                   nestedBlocks.reduce((acc, b) => {
                     if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
                     if (b.type === 'germany_sexual_behavior') return acc + GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT;
                     if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT;
-                    if (b.type === 'germany_economic_structural') return acc + GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT;
                     if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
                     if (b.type === 'germany_economy_trade') return acc + GERMANY_TRADE_GROUP_COUNT;
                     if (b.type === 'germany_health_suppression') return acc + GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT;
@@ -3464,6 +3376,9 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                 <Fragment key={row.metric}>{renderStatTile(row, { iso3 })}</Fragment>
                               ))}
                         </div>
+                      ) : null}
+                      {section.id === 'economic' && iso3.toUpperCase() === 'DEU' ? (
+                        <GermanyEconomicStructuralSection />
                       ) : null}
                       {section.id === 'health' && iso3.toUpperCase() === 'DEU' ? (
                         <div className="flex flex-col gap-3">
@@ -3541,19 +3456,6 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                               expandSignal={expandSignal}
                           >
                             <GermanyLaborIncomeSection />
-                          </CollapsibleFlagSection>
-                        ) : block.type === 'germany_economic_structural' ? (
-                          <CollapsibleFlagSection
-                            key={block.sub.id}
-                            title={block.sub.title}
-                            count={GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT}
-                            defaultOpen
-                            anchorId={`country-sub-${section.id}-${block.sub.id}`}
-                            ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
-                            collapseSignal={collapseSignal}
-                            expandSignal={expandSignal}
-                          >
-                            <GermanyEconomicStructuralSection />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_economic_taxes' ? (
                           <CollapsibleFlagSection
