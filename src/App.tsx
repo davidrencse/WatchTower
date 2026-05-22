@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { AppLayout } from './components/AppLayout';
+import { CustomCursor } from './components/CustomCursor';
 import { HomeHero } from './components/HomeHero';
 import { SelectedFlagView } from './components/SelectedFlagView';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
@@ -58,7 +59,9 @@ function App() {
   }, []);
 
   return (
-    <AppLayout showHeader={!statsView && stage !== 'home'}>
+    <>
+      <CustomCursor />
+      <AppLayout showHeader={!statsView && stage !== 'home'}>
       {stage === 'home' && !selected ? (
         <HomeHero onExplore={openGalleryFromHero} />
       ) : null}
@@ -71,6 +74,7 @@ function App() {
         <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
       ) : null}
     </AppLayout>
+    </>
   );
 }
 

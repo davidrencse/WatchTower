@@ -66,6 +66,64 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+/* Custom cursor — must beat Tailwind cursor-pointer on interactive elements */
+@media (pointer: fine) {
+  html.wt-custom-cursor,
+  html.wt-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+#wt-custom-cursor-root[data-mode='default'] .wt-cursor-default {
+  visibility: visible;
+}
+#wt-custom-cursor-root[data-mode='default'] .wt-cursor-scroll {
+  visibility: hidden;
+}
+
+#wt-custom-cursor-root[data-mode='down'] .wt-cursor-default,
+#wt-custom-cursor-root[data-mode='up'] .wt-cursor-default {
+  visibility: hidden;
+}
+#wt-custom-cursor-root[data-mode='down'] .wt-cursor-scroll,
+#wt-custom-cursor-root[data-mode='up'] .wt-cursor-scroll {
+  visibility: visible;
+}
+
+#wt-custom-cursor-root[data-mode='down'] .wt-cursor-chevron-up,
+#wt-custom-cursor-root[data-mode='up'] .wt-cursor-chevron-down {
+  display: none;
+}
+
+/* DAX strip — GPU translate loop (no per-frame scrollLeft / Recharts) */
+@keyframes wt-dax-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.wt-dax-carousel-viewport {
+  contain: layout style paint;
+}
+
+.wt-dax-carousel-track {
+  animation: wt-dax-marquee 110s linear infinite;
+  will-change: transform;
+}
+
+.wt-dax-carousel:hover .wt-dax-carousel-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-dax-carousel-track {
+    animation: none;
+  }
+}
+
 @layer base {
   h1,
   h2,
