@@ -1,5 +1,6 @@
-const SIZE = 32;
+const SIZE = 40;
 const HOTSPOT = SIZE / 2;
+const CHEVRON_PX = 22;
 const WHEEL_IDLE_MS = 360;
 const HTML_CLASS = 'wt-custom-cursor';
 const ROOT_ID = 'wt-custom-cursor-root';
@@ -45,16 +46,16 @@ export function initCustomCursor(): () => void {
 
   root.innerHTML = `
     <div class="wt-cursor-default" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <svg width="${SIZE}" height="${SIZE}" viewBox="0 0 32 32" fill="none" aria-hidden="true">
         <circle cx="16" cy="16" r="9" stroke="rgba(255,255,255,0.32)" stroke-width="1"/>
-        <circle cx="16" cy="16" r="2.25" fill="#fff"/>
+        <circle cx="16" cy="16" r="2.75" fill="#fff"/>
       </svg>
     </div>
     <div class="wt-cursor-scroll" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-      <svg class="wt-cursor-chevron-down" width="18" height="18" viewBox="0 0 24 24" ${CHEVRON_STROKE} aria-hidden="true">
+      <svg class="wt-cursor-chevron-down" width="${CHEVRON_PX}" height="${CHEVRON_PX}" viewBox="0 0 24 24" ${CHEVRON_STROKE} aria-hidden="true">
         <path d="m6 9 6 6 6-6"/>
       </svg>
-      <svg class="wt-cursor-chevron-up" width="18" height="18" viewBox="0 0 24 24" ${CHEVRON_STROKE} aria-hidden="true">
+      <svg class="wt-cursor-chevron-up" width="${CHEVRON_PX}" height="${CHEVRON_PX}" viewBox="0 0 24 24" ${CHEVRON_STROKE} aria-hidden="true">
         <path d="m18 15-6-6-6 6"/>
       </svg>
     </div>

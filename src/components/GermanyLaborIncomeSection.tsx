@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { GOV_POLITICS_CARD_GRID, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { GermanyImmigrantBenefitsSection } from './GermanyImmigrantBenefitsSection';
+import { GermanyIncomeDistributionSection } from './GermanyIncomeDistributionSection';
 
 const GOV_CSV_URL = '/data/germany_government_politics.csv';
 const LABOR_STATS_CSV_URL = '/data/germany_labor_statistics.csv';
@@ -200,6 +201,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   if (loadError) {
     return (
       <div className="flex flex-col gap-6">
+        <GermanyIncomeDistributionSection />
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
         <GermanyImmigrantBenefitsSection />
       </div>
@@ -212,6 +214,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   if (!hasGov && !hasLaborFile) {
     return (
       <div className="flex flex-col gap-6">
+        <GermanyIncomeDistributionSection />
         <p className="font-sans text-xs text-neutral-500">
           No labor / income rows in <code className="text-neutral-400">germany_government_politics.csv</code> (Government /
           Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
@@ -224,6 +227,8 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
 
   return (
     <div className="flex flex-col gap-6">
+      <GermanyIncomeDistributionSection />
+
       {hasGov ? (
         <div className="flex flex-col gap-3">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">

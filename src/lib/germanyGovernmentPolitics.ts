@@ -1,5 +1,6 @@
 import { GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT } from '../data/germanyImmigrationPolicies';
 import { parseCsvRows } from './csv';
+import { GERMANY_INCOME_DISTRIBUTION_GROUP_COUNT } from './germanyIncomeDistribution';
 import { GERMANY_LABOR_STATISTICS_FILE_GROUP_COUNT } from './germanyLaborStatistics';
 
 export type GermanyGovernmentPoliticsRow = {
@@ -55,7 +56,10 @@ const GERMANY_IMMIGRANT_BENEFITS_GROUP_COUNT = 10;
  * Collapsible section count: government-politics labor rows (clustered) + germany_labor_statistics.csv groups.
  */
 export const GERMANY_LABOR_INCOME_GROUP_COUNT =
-  LABOR_INCOME_METRIC_ORDER.length + GERMANY_LABOR_STATISTICS_FILE_GROUP_COUNT + GERMANY_IMMIGRANT_BENEFITS_GROUP_COUNT;
+  LABOR_INCOME_METRIC_ORDER.length +
+  GERMANY_LABOR_STATISTICS_FILE_GROUP_COUNT +
+  GERMANY_IMMIGRANT_BENEFITS_GROUP_COUNT +
+  GERMANY_INCOME_DISTRIBUTION_GROUP_COUNT;
 
 export const GOVERNMENT_METRIC_ORDER: Record<(typeof SUBSECTION_ORDER)[number], string[]> = {
   Overview: [
