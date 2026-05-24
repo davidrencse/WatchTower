@@ -687,6 +687,29 @@ const NON_GERMAN_CRIME_META: Record<
   },
 };
 
+const CRIME_SUSPECTS_MIGRATION_BACKGROUND_2025 = [
+  { group: 'German Nationals', suspectShare: 64.6, overrepresentationRatio: 0.77 },
+  { group: 'Non-German Citizens', suspectShare: 35.4, overrepresentationRatio: 2.35 },
+  { group: 'Temporary migrants / asylum seekers', suspectShare: 8.8, overrepresentationRatio: 2.5 },
+] as const;
+
+const crimeSuspectsByBackgroundConfig = {
+  suspectShare: { label: 'Share of total suspects (%)', color: '#f97316' },
+  overrepresentationRatio: { label: 'Overrepresentation ratio', color: '#a78bfa' },
+} satisfies ChartConfig;
+
+const NON_GERMAN_SHARE_BY_CRIME_CATEGORY_2025 = [
+  { category: 'Violent crime', nonGermanShare: 38, overrepresentationRatio: 2.5 },
+  { category: 'Sexual offences', nonGermanShare: 42, overrepresentationRatio: 2.8 },
+  { category: 'Theft/property crime', nonGermanShare: 45, overrepresentationRatio: 3.0 },
+  { category: 'Organized crime', nonGermanShare: 51, overrepresentationRatio: 3.4 },
+] as const;
+
+const nonGermanCategoryShareConfig = {
+  nonGermanShare: { label: 'Non-German share of suspects (%)', color: '#22d3ee' },
+  overrepresentationRatio: { label: 'Overrepresentation ratio', color: '#f43f5e' },
+} satisfies ChartConfig;
+
 function GermanyNonGermanSuspectsChart({ metricKey }: { metricKey: NonGermanCrimeMetricKey }) {
   const meta = NON_GERMAN_CRIME_META[metricKey];
   const config = {
@@ -754,6 +777,164 @@ function GermanyNonGermanSuspectsChart({ metricKey }: { metricKey: NonGermanCrim
                 fill={`url(#nonGermanFill-${metricKey})`}
                 fillOpacity={1}
                 dot={{ r: 2, stroke: meta.color, fill: meta.color }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyCrimeSuspectsByBackgroundChart() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Crime suspects by migration background (2024/2025)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Bars show share of total suspects; line shows overrepresentation ratio vs population share.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={crimeSuspectsByBackgroundConfig} className="h-[330px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={CRIME_SUSPECTS_MIGRATION_BACKGROUND_2025} margin={{ top: 8, right: 12, left: 2, bottom: 42 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="group"
+                axisLine={false}
+                tickLine={false}
+                interval={0}
+                angle={-18}
+                textAnchor="end"
+                height={46}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+              />
+              <YAxis
+                yAxisId="left"
+                axisLine={false}
+                tickLine={false}
+                width={42}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                tickFormatter={(v) => `${v}%`}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                axisLine={false}
+                tickLine={false}
+                width={38}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              />
+              <ChartTooltip
+                cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    formatter={(value, name) => {
+                      if (String(name).includes('Share')) return `${Number(value).toFixed(1)}%`;
+                      return Number(value).toFixed(2);
+                    }}
+                  />
+                }
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="suspectShare"
+                name={crimeSuspectsByBackgroundConfig.suspectShare.label}
+                fill={crimeSuspectsByBackgroundConfig.suspectShare.color}
+                radius={[6, 6, 0, 0]}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="overrepresentationRatio"
+                name={crimeSuspectsByBackgroundConfig.overrepresentationRatio.label}
+                stroke={crimeSuspectsByBackgroundConfig.overrepresentationRatio.color}
+                strokeWidth={2.25}
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GermanyNonGermanCategoryShareChart() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Non-German share of crime suspects by category (2025)
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Category-level suspect share and overrepresentation ratio.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={nonGermanCategoryShareConfig} className="h-[330px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={NON_GERMAN_SHARE_BY_CRIME_CATEGORY_2025} margin={{ top: 8, right: 12, left: 2, bottom: 22 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="category"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              />
+              <YAxis
+                yAxisId="left"
+                axisLine={false}
+                tickLine={false}
+                width={44}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                tickFormatter={(v) => `${v}%`}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                axisLine={false}
+                tickLine={false}
+                width={38}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              />
+              <ChartTooltip
+                cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    formatter={(value, name) => {
+                      if (String(name).includes('share')) return `${Number(value).toFixed(1)}%`;
+                      return Number(value).toFixed(2);
+                    }}
+                  />
+                }
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="nonGermanShare"
+                name={nonGermanCategoryShareConfig.nonGermanShare.label}
+                fill={nonGermanCategoryShareConfig.nonGermanShare.color}
+                radius={[6, 6, 0, 0]}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="overrepresentationRatio"
+                name={nonGermanCategoryShareConfig.overrepresentationRatio.label}
+                stroke={nonGermanCategoryShareConfig.overrepresentationRatio.color}
+                strokeWidth={2.25}
+                dot={{ r: 3 }}
                 activeDot={{ r: 5 }}
                 isAnimationActive={false}
               />
@@ -1081,9 +1262,11 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
 
   return (
     <div className="flex flex-col gap-3">
-      <CollapsibleFlagSection title="Graphs" count={5} defaultOpen collapseSignal={collapseSignal} expandSignal={expandSignal}>
+      <CollapsibleFlagSection title="Graphs" count={7} defaultOpen collapseSignal={collapseSignal} expandSignal={expandSignal}>
         <div className="flex flex-col gap-3">
           <GermanyMigrantCrimeInteractiveTrendChart />
+          <GermanyCrimeSuspectsByBackgroundChart />
+          <GermanyNonGermanCategoryShareChart />
           <GermanyNonGermanSuspectsChart metricKey="sexCrimes" />
           <GermanyNonGermanSuspectsChart metricKey="rape" />
           <GermanyNonGermanSuspectsChart metricKey="murder" />

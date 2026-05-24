@@ -1,5 +1,7 @@
 import { useMemo, memo, type ReactNode } from 'react';
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Cell,
   Legend,
@@ -197,6 +199,18 @@ const monthlyTradePerformanceChartConfig = {
   avgMonthlyExports: { label: 'Avg. monthly exports', color: 'hsl(199, 89%, 48%)' },
   avgMonthlyImports: { label: 'Avg. monthly imports', color: 'hsl(215, 25%, 55%)' },
   avgMonthlySurplus: { label: 'Avg. monthly trade surplus', color: 'hsl(142, 71%, 45%)' },
+} satisfies ChartConfig;
+
+const FTA_NET_GDP_IMPACT_2025 = [
+  { agreement: 'EU-Japan EPA', netBenefit: 3.2, jobsSupported: 41_000 },
+  { agreement: 'CETA (Canada)', netBenefit: 1.5, jobsSupported: 18_000 },
+  { agreement: 'EU-South Korea', netBenefit: 2.1, jobsSupported: 27_000 },
+  { agreement: 'EU-Vietnam (EVFTA)', netBenefit: 1.1, jobsSupported: 14_000 },
+  { agreement: 'EU-UK TCA', netBenefit: -2.8, jobsSupported: -35_000 },
+] as const;
+
+const ftaImpactChartConfig = {
+  netBenefit: { label: 'Net annual GDP impact (B€)', color: '#22c55e' },
 } satisfies ChartConfig;
 
 function SourceLink({ href, children }: { href: string; children: ReactNode }) {
@@ -898,6 +912,65 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
             <AgreementInsightCard key={item.title} {...item} />
           ))}
         </div>
+        <Card className="border-line bg-surface-metric">
+          <CardHeader className="space-y-1 p-3 pb-2">
+            <CardTitle className={`font-sans text-sm font-semibold text-neutral-100 ${UC}`}>
+              Quantified net GDP impact of major non-EU FTAs (annual, 2025)
+            </CardTitle>
+            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+              Bars show net annual GDP impact in billions of euros. Positive and negative values are shown around the zero line; hover for jobs supported.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 p-3 pt-0">
+            <ChartContainer config={ftaImpactChartConfig} className="h-[320px] w-full font-sans">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={FTA_NET_GDP_IMPACT_2025} margin={{ top: 8, right: 10, left: 2, bottom: 48 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis
+                    dataKey="agreement"
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    angle={-22}
+                    textAnchor="end"
+                    height={52}
+                    tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                    tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                    tickFormatter={(v) => `${Number(v) > 0 ? '+' : ''}${Number(v).toFixed(1)}`}
+                  />
+                  <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" strokeDasharray="3 3" />
+                  <ChartTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                    content={
+                      <ChartTooltipContent
+                        className="rounded-md"
+                        formatter={(value, _name, item) => {
+                          const payload = item.payload as { jobsSupported?: number } | undefined;
+                          const jobs = payload?.jobsSupported;
+                          const jobsLabel =
+                            typeof jobs === 'number'
+                              ? `${jobs >= 0 ? '+' : ''}${jobs.toLocaleString('en-US')} jobs`
+                              : '—';
+                          return `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(1)} B€ · ${jobsLabel}`;
+                        }}
+                      />
+                    }
+                  />
+                  <Bar dataKey="netBenefit" name={ftaImpactChartConfig.netBenefit.label} radius={[6, 6, 0, 0]} isAnimationActive={false}>
+                    {FTA_NET_GDP_IMPACT_2025.map((row) => (
+                      <Cell key={row.agreement} fill={row.netBenefit >= 0 ? '#22c55e' : '#ef4444'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Notes */}

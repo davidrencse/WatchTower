@@ -1,5 +1,5 @@
 import { Fragment, memo, useEffect, useMemo, useState } from 'react';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import germanyGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/Government Section/germany_government_politics.csv?raw';
 import germanyLaborStatsCsvRaw from '../../Assets/Data/Europe/Germany/germany_labor_statistics.csv?raw';
 import {
@@ -146,6 +146,19 @@ const FISCAL_NATIONALITY_CHART_CONFIG: ChartConfig = FISCAL_NATIONALITY_SERIES.r
   },
   {} as ChartConfig,
 );
+
+const REMITTANCES_OUTFLOW_BY_ORIGIN_2025 = [
+  { originGroup: 'Turkish', remittances: 3.8 },
+  { originGroup: 'Syrian/Afghan/Iraqi', remittances: 2.9 },
+  { originGroup: 'North African', remittances: 1.7 },
+  { originGroup: 'Ukrainian/Russian', remittances: 1.4 },
+  { originGroup: 'Indian/Chinese', remittances: 0.9 },
+  { originGroup: 'Others', remittances: 2.1 },
+] as const;
+
+const REMITTANCES_CHART_CONFIG: ChartConfig = {
+  remittances: { label: 'Annual remittances sent abroad (B€)', color: '#f59e0b' },
+};
 
 export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection() {
   const [govRaw, setGovRaw] = useState(germanyGovernmentCsvRaw);
@@ -378,6 +391,42 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                       />
                     ))}
                   </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+          <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
+                Remittances Outflow by Immigrant Origin (2025)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 p-4 pt-0">
+              <ChartContainer config={REMITTANCES_CHART_CONFIG} className="h-[320px] w-full sm:h-[360px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={REMITTANCES_OUTFLOW_BY_ORIGIN_2025} layout="vertical" margin={{ top: 8, right: 10, left: 24, bottom: 8 }}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
+                    <XAxis
+                      type="number"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                      tickFormatter={(v) => `${Number(v).toFixed(1)}B€`}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="originGroup"
+                      axisLine={false}
+                      tickLine={false}
+                      width={130}
+                      tick={{ fill: 'rgba(212,212,212,0.95)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                    />
+                    <ChartTooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                      content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)} B€`} />}
+                    />
+                    <Bar dataKey="remittances" name={REMITTANCES_CHART_CONFIG.remittances.label} fill={REMITTANCES_CHART_CONFIG.remittances.color} radius={[0, 6, 6, 0]} isAnimationActive={false} />
+                  </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
             </CardContent>

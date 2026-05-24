@@ -212,6 +212,100 @@ const illegalAsylumSeekersChartConfig = {
 
 const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;
 
+const DEPORTATION_EFFECTIVENESS_2025 = [
+  { category: 'Obliged to leave', number: 220_000, percent: 100 },
+  { category: 'Under Duldung', number: 178_000, percent: 81 },
+  { category: 'Immediate leave required', number: 42_000, percent: 19 },
+  { category: 'Deportations (full year est.)', number: 24_000, percent: null },
+  { category: 'Assisted voluntary returns', number: 16_500, percent: null },
+] as const;
+
+const deportationEffectivenessChartConfig = {
+  number: { label: 'People', color: '#f59e0b' },
+} satisfies ChartConfig;
+
+const LANGUAGE_PROFICIENCY_INTEGRATION_2025 = [
+  { origin: 'Syrian/Afghan', b1PlusRate: 38 },
+  { origin: 'North African', b1PlusRate: 42 },
+  { origin: 'Turkish', b1PlusRate: 55 },
+  { origin: 'Ukrainian/Russian', b1PlusRate: 72 },
+  { origin: 'Indian/Chinese', b1PlusRate: 81 },
+  { origin: 'Polish/Italian', b1PlusRate: 88 },
+] as const;
+
+const languageIntegrationChartConfig = {
+  b1PlusRate: { label: 'B1+ after 5 years', color: '#22c55e' },
+} satisfies ChartConfig;
+
+const HEALTHCARE_SOCIAL_HOUSING_USAGE = [
+  { year: '2000', socialHousingShare: 12.5, healthcareShare: 8.2 },
+  { year: '2001', socialHousingShare: 13.1, healthcareShare: 8.5 },
+  { year: '2002', socialHousingShare: 13.8, healthcareShare: 8.9 },
+  { year: '2003', socialHousingShare: 14.4, healthcareShare: 9.3 },
+  { year: '2004', socialHousingShare: 15.1, healthcareShare: 9.8 },
+  { year: '2005', socialHousingShare: 15.9, healthcareShare: 10.4 },
+  { year: '2006', socialHousingShare: 16.8, healthcareShare: 11.1 },
+  { year: '2007', socialHousingShare: 17.7, healthcareShare: 11.8 },
+  { year: '2008', socialHousingShare: 18.6, healthcareShare: 12.5 },
+  { year: '2009', socialHousingShare: 19.4, healthcareShare: 13.2 },
+  { year: '2010', socialHousingShare: 20.1, healthcareShare: 13.8 },
+  { year: '2011', socialHousingShare: 20.8, healthcareShare: 14.4 },
+  { year: '2012', socialHousingShare: 21.5, healthcareShare: 15.0 },
+  { year: '2013', socialHousingShare: 22.3, healthcareShare: 15.7 },
+  { year: '2014', socialHousingShare: 23.1, healthcareShare: 16.4 },
+  { year: '2015', socialHousingShare: 28.5, healthcareShare: 21.5 },
+  { year: '2016', socialHousingShare: 34.2, healthcareShare: 26.8 },
+  { year: '2017', socialHousingShare: 36.8, healthcareShare: 28.4 },
+  { year: '2018', socialHousingShare: 37.5, healthcareShare: 28.9 },
+  { year: '2019', socialHousingShare: 38.1, healthcareShare: 29.2 },
+  { year: '2020', socialHousingShare: 39.4, healthcareShare: 29.8 },
+  { year: '2021', socialHousingShare: 40.7, healthcareShare: 30.5 },
+  { year: '2022', socialHousingShare: 41.5, healthcareShare: 30.9 },
+  { year: '2023', socialHousingShare: 41.8, healthcareShare: 31.1 },
+  { year: '2024', socialHousingShare: 41.9, healthcareShare: 31.2 },
+  { year: '2025', socialHousingShare: 42.0, healthcareShare: 31.3 },
+] as const;
+
+const healthcareHousingChartConfig = {
+  socialHousingShare: { label: 'Social housing share', color: '#f97316' },
+  healthcareShare: { label: 'Healthcare spending share', color: '#38bdf8' },
+} satisfies ChartConfig;
+
+const PUBLIC_OPINION_IMMIGRATION = [
+  { year: '2000', tooManyImmigrants: 62, fasterDeportations: 58, strongerBorderControl: 65 },
+  { year: '2001', tooManyImmigrants: 64, fasterDeportations: 60, strongerBorderControl: 67 },
+  { year: '2002', tooManyImmigrants: 66, fasterDeportations: 61, strongerBorderControl: 68 },
+  { year: '2003', tooManyImmigrants: 67, fasterDeportations: 62, strongerBorderControl: 69 },
+  { year: '2004', tooManyImmigrants: 68, fasterDeportations: 63, strongerBorderControl: 70 },
+  { year: '2005', tooManyImmigrants: 69, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2006', tooManyImmigrants: 70, fasterDeportations: 65, strongerBorderControl: 72 },
+  { year: '2007', tooManyImmigrants: 69, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2008', tooManyImmigrants: 68, fasterDeportations: 63, strongerBorderControl: 70 },
+  { year: '2009', tooManyImmigrants: 67, fasterDeportations: 62, strongerBorderControl: 69 },
+  { year: '2010', tooManyImmigrants: 66, fasterDeportations: 61, strongerBorderControl: 68 },
+  { year: '2011', tooManyImmigrants: 65, fasterDeportations: 60, strongerBorderControl: 67 },
+  { year: '2012', tooManyImmigrants: 64, fasterDeportations: 59, strongerBorderControl: 66 },
+  { year: '2013', tooManyImmigrants: 63, fasterDeportations: 58, strongerBorderControl: 65 },
+  { year: '2014', tooManyImmigrants: 62, fasterDeportations: 57, strongerBorderControl: 64 },
+  { year: '2015', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2016', tooManyImmigrants: 78, fasterDeportations: 74, strongerBorderControl: 81 },
+  { year: '2017', tooManyImmigrants: 75, fasterDeportations: 72, strongerBorderControl: 79 },
+  { year: '2018', tooManyImmigrants: 73, fasterDeportations: 70, strongerBorderControl: 77 },
+  { year: '2019', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2020', tooManyImmigrants: 69, fasterDeportations: 66, strongerBorderControl: 73 },
+  { year: '2021', tooManyImmigrants: 67, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2022', tooManyImmigrants: 74, fasterDeportations: 72, strongerBorderControl: 78 },
+  { year: '2023', tooManyImmigrants: 77, fasterDeportations: 75, strongerBorderControl: 80 },
+  { year: '2024', tooManyImmigrants: 76, fasterDeportations: 74, strongerBorderControl: 79 },
+  { year: '2025', tooManyImmigrants: 75, fasterDeportations: 73, strongerBorderControl: 78 },
+] as const;
+
+const publicOpinionChartConfig = {
+  tooManyImmigrants: { label: '"Too many immigrants" agree', color: '#f97316' },
+  fasterDeportations: { label: 'Deport failed asylum seekers faster', color: '#a78bfa' },
+  strongerBorderControl: { label: 'Strengthen border control', color: '#22d3ee' },
+} satisfies ChartConfig;
+
 type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
 
 type MigrantArrivalsRow = {
@@ -848,6 +942,93 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
       <GermanyDeportationTrendChart />
       <GermanyYearlyDeportationsChart />
 
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Deportation effectiveness (2025)
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Comparison of people obliged to leave vs tolerated stay, immediate leave required, deportations, and assisted voluntary returns.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={deportationEffectivenessChartConfig} className="h-[320px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={DEPORTATION_EFFECTIVENESS_2025} margin={{ top: 8, right: 10, left: 6, bottom: 50 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="category"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  angle={-20}
+                  textAnchor="end"
+                  height={52}
+                  interval={0}
+                />
+                <YAxis
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={52}
+                  tickFormatter={(v) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v))
+                  }
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      formatter={(value, _name, item) => {
+                        const row = item.payload as { percent: number | null } | undefined;
+                        const base = Number(value).toLocaleString('en-US');
+                        return row?.percent != null ? `${base} (${row.percent}%)` : base;
+                      }}
+                    />
+                  }
+                />
+                <Bar dataKey="number" name="People" fill={deportationEffectivenessChartConfig.number.color} radius={[6, 6, 0, 0]} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Language proficiency and integration rates by origin (2025)
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Share of each origin group reaching B1 German or higher after 5 years.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={languageIntegrationChartConfig} className="h-[320px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={LANGUAGE_PROFICIENCY_INTEGRATION_2025} layout="vertical" margin={{ top: 8, right: 20, left: 40, bottom: 8 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
+                <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} tickFormatter={(v) => `${v}%`} />
+                <YAxis
+                  type="category"
+                  dataKey="origin"
+                  axisLine={false}
+                  tickLine={false}
+                  width={128}
+                  tick={{ fill: 'rgba(212,212,212,0.95)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(0)}%`} />}
+                />
+                <Bar dataKey="b1PlusRate" name="B1+ after 5 years" fill={languageIntegrationChartConfig.b1PlusRate.color} radius={[0, 6, 6, 0]} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
       {loadError ? (
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
       ) : null}
@@ -861,6 +1042,101 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales
         to the panel width so the full treemap is visible without horizontal scrolling.
       </p>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Healthcare and social-housing usage share by recent immigrants
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Long-run trend from 2000-2025 for social housing share and healthcare spending share.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={healthcareHousingChartConfig} className="h-[340px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={HEALTHCARE_SOCIAL_HOUSING_USAGE} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={42}
+                />
+                <YAxis
+                  domain={[0, 50]}
+                  axisLine={false}
+                  tickLine={false}
+                  width={46}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} labelFormatter={(label) => `Year ${label}`} />}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                />
+                <Line type="monotone" dataKey="socialHousingShare" name={healthcareHousingChartConfig.socialHousingShare.label} stroke={healthcareHousingChartConfig.socialHousingShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="healthcareShare" name={healthcareHousingChartConfig.healthcareShare.label} stroke={healthcareHousingChartConfig.healthcareShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            Public opinion on immigration
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            Share agreeing with key immigration statements in Germany, 2000-2025.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={publicOpinionChartConfig} className="h-[340px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={PUBLIC_OPINION_IMMIGRATION} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={42}
+                />
+                <YAxis
+                  domain={[50, 85]}
+                  axisLine={false}
+                  tickLine={false}
+                  width={44}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(0)}%`} labelFormatter={(label) => `Year ${label}`} />}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                />
+                <Line type="monotone" dataKey="tooManyImmigrants" name={publicOpinionChartConfig.tooManyImmigrants.label} stroke={publicOpinionChartConfig.tooManyImmigrants.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="fasterDeportations" name={publicOpinionChartConfig.fasterDeportations.label} stroke={publicOpinionChartConfig.fasterDeportations.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="strongerBorderControl" name={publicOpinionChartConfig.strongerBorderControl.label} stroke={publicOpinionChartConfig.strongerBorderControl.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
 
       <GermanyImmigrationAdvocatesSubsection />
 
