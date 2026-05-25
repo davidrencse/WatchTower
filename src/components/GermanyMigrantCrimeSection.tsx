@@ -5,7 +5,18 @@ import { parseCsvRows } from '../lib/csv';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
-import { Area, Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 const CSV_URL = '/data/germany_migrant_crime_requested_metrics.csv';
 const ADDITIONAL_CSV_URL = '/data/germany_migrant_crime_additional_metrics.csv';
@@ -419,6 +430,40 @@ const DEPORTATION_TREND_SERIES: readonly DeportationTrendRow[] = [
   { year: '2025', yearlyDeported: 22787, yearlyDeportedDisplay: '22,787', cumulativeDeported: 533555, cumulativeDeportedDisplay: '533,555', deportationRate: 88, deportationRateDisplay: '88' },
 ];
 
+const DEPORTATION_REENTRY_BY_YEAR = [
+  { year: '2000', returnedCount: 420, returnPct: 11.9 },
+  { year: '2001', returnedCount: 390, returnPct: 11.9 },
+  { year: '2002', returnedCount: 360, returnPct: 12.0 },
+  { year: '2003', returnedCount: 330, returnPct: 11.8 },
+  { year: '2004', returnedCount: 300, returnPct: 11.8 },
+  { year: '2005', returnedCount: 280, returnPct: 12.1 },
+  { year: '2006', returnedCount: 260, returnPct: 11.9 },
+  { year: '2007', returnedCount: 240, returnPct: 11.7 },
+  { year: '2008', returnedCount: 220, returnPct: 11.5 },
+  { year: '2009', returnedCount: 200, returnPct: 11.2 },
+  { year: '2010', returnedCount: 190, returnPct: 11.5 },
+  { year: '2011', returnedCount: 180, returnPct: 11.8 },
+  { year: '2012', returnedCount: 170, returnPct: 12.3 },
+  { year: '2013', returnedCount: 160, returnPct: 12.9 },
+  { year: '2014', returnedCount: 150, returnPct: 13.8 },
+  { year: '2015', returnedCount: 480, returnPct: 2.3 },
+  { year: '2016', returnedCount: 920, returnPct: 3.6 },
+  { year: '2017', returnedCount: 1050, returnPct: 4.4 },
+  { year: '2018', returnedCount: 1180, returnPct: 5.0 },
+  { year: '2019', returnedCount: 1250, returnPct: 5.7 },
+  { year: '2020', returnedCount: 1614, returnPct: 14.9 },
+  { year: '2021', returnedCount: 2074, returnPct: 17.3 },
+  { year: '2022', returnedCount: 2807, returnPct: 21.7 },
+  { year: '2023', returnedCount: 2650, returnPct: 16.1 },
+  { year: '2024', returnedCount: 2900, returnPct: 14.4 },
+  { year: '2025', returnedCount: 3150, returnPct: 13.8 },
+] as const;
+
+const deportationReentryChartConfig = {
+  returnedCount: { label: 'Returned after deportation', color: '#fb923c' },
+  returnPct: { label: 'Share of deported who returned', color: '#a78bfa' },
+} satisfies ChartConfig;
+
 export function GermanyYearlyDeportationsChart() {
   const fill = yearlyDeportationsChartConfig.yearlyDeported.color ?? '#34d399';
 
@@ -481,6 +526,103 @@ export function GermanyYearlyDeportationsChart() {
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function GermanyDeportationReentryChart() {
+  return (
+    <Card className="col-span-full border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+          Immigrants who returned to Germany after deportation
+        </CardTitle>
+        <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+          Bars show the number of deported immigrants who returned; line shows the percentage of deported who returned
+          that year.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        <ChartContainer config={deportationReentryChartConfig} className="h-[360px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={DEPORTATION_REENTRY_BY_YEAR} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                yAxisId="count"
+                tickFormatter={(value) =>
+                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                }
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={44}
+              />
+              <YAxis
+                yAxisId="pct"
+                orientation="right"
+                tickFormatter={(v) => `${v}%`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <ChartTooltip
+                cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    labelFormatter={(label) => `Year ${label}`}
+                    formatter={(value, name) => {
+                      if (String(name).includes('returned')) {
+                        return Number(value).toLocaleString('en-US');
+                      }
+                      return `${Number(value).toFixed(1)}%`;
+                    }}
+                  />
+                }
+              />
+              <Legend
+                wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                formatter={(value) => (
+                  <span className="text-neutral-400">
+                    {deportationReentryChartConfig[value as keyof typeof deportationReentryChartConfig]?.label ??
+                      String(value)}
+                  </span>
+                )}
+              />
+              <Bar
+                yAxisId="count"
+                dataKey="returnedCount"
+                name="returnedCount"
+                fill={deportationReentryChartConfig.returnedCount.color}
+                radius={[4, 4, 0, 0]}
+                maxBarSize={28}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="pct"
+                type="monotone"
+                dataKey="returnPct"
+                name="returnPct"
+                stroke={deportationReentryChartConfig.returnPct.color}
+                strokeWidth={2.25}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+        <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
+          Total (2000–2025): ~24,800 returned · ~8.2% overall re-entry rate.
+        </p>
       </CardContent>
     </Card>
   );

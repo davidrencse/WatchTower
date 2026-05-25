@@ -24,7 +24,11 @@ import {
 } from '../lib/germanyImmigrationTreemapData';
 import { GermanyImmigrationTreemap } from './GermanyImmigrationTreemap';
 import { GermanyImmigrationAdvocatesSubsection } from './GermanyImmigrationAdvocatesSubsection';
-import { GermanyDeportationTrendChart, GermanyYearlyDeportationsChart } from './GermanyMigrantCrimeSection';
+import {
+  GermanyDeportationReentryChart,
+  GermanyDeportationTrendChart,
+  GermanyYearlyDeportationsChart,
+} from './GermanyMigrantCrimeSection';
 
 const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
 const REFUGEE_TOTAL_2024 = 3_304_000;
@@ -211,18 +215,6 @@ const illegalAsylumSeekersChartConfig = {
 } satisfies ChartConfig;
 
 const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;
-
-const DEPORTATION_EFFECTIVENESS_2025 = [
-  { category: 'Obliged to leave', number: 220_000, percent: 100 },
-  { category: 'Under Duldung', number: 178_000, percent: 81 },
-  { category: 'Immediate leave required', number: 42_000, percent: 19 },
-  { category: 'Deportations (full year est.)', number: 24_000, percent: null },
-  { category: 'Assisted voluntary returns', number: 16_500, percent: null },
-] as const;
-
-const deportationEffectivenessChartConfig = {
-  number: { label: 'People', color: '#f59e0b' },
-} satisfies ChartConfig;
 
 const LANGUAGE_PROFICIENCY_INTEGRATION_2025 = [
   { origin: 'Syrian/Afghan', b1PlusRate: 38 },
@@ -941,59 +933,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
       <GermanyDeportationTrendChart />
       <GermanyYearlyDeportationsChart />
-
-      <Card className="col-span-full border-line bg-surface-metric shadow-card">
-        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
-          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Deportation effectiveness (2025)
-          </CardTitle>
-          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Comparison of people obliged to leave vs tolerated stay, immediate leave required, deportations, and assisted voluntary returns.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <ChartContainer config={deportationEffectivenessChartConfig} className="h-[320px] w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={DEPORTATION_EFFECTIVENESS_2025} margin={{ top: 8, right: 10, left: 6, bottom: 50 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis
-                  dataKey="category"
-                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
-                  axisLine={false}
-                  tickLine={false}
-                  angle={-20}
-                  textAnchor="end"
-                  height={52}
-                  interval={0}
-                />
-                <YAxis
-                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={52}
-                  tickFormatter={(v) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v))
-                  }
-                />
-                <ChartTooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                  content={
-                    <ChartTooltipContent
-                      className="rounded-md"
-                      formatter={(value, _name, item) => {
-                        const row = item.payload as { percent: number | null } | undefined;
-                        const base = Number(value).toLocaleString('en-US');
-                        return row?.percent != null ? `${base} (${row.percent}%)` : base;
-                      }}
-                    />
-                  }
-                />
-                <Bar dataKey="number" name="People" fill={deportationEffectivenessChartConfig.number.color} radius={[6, 6, 0, 0]} isAnimationActive={false} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      <GermanyDeportationReentryChart />
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
