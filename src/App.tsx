@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AppLayout } from './components/AppLayout';
 import { CustomCursor } from './components/CustomCursor';
 import { HomeHero } from './components/HomeHero';
+import { CountryPageIndustrialLoader } from './components/CountryPageIndustrialLoader';
 import { SelectedFlagView } from './components/SelectedFlagView';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
 import { flagIdHasCountryStats } from './lib/flagIsoMapping';
@@ -13,14 +14,7 @@ const FlagGallery = lazy(() =>
 
 function GalleryLoadingFallback() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6">
-      <div className="h-10 w-48 animate-pulse rounded-md bg-neutral-800/80" />
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div key={i} className="aspect-[4/3] animate-pulse rounded-md bg-neutral-800/60" />
-        ))}
-      </div>
-    </div>
+    <CountryPageIndustrialLoader countryLabel="countries" />
   );
 }
 

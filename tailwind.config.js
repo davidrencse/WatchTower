@@ -42,12 +42,20 @@ export default {
       },
       keyframes: {
         'industrial-fill': {
-          '0%, 100%': { transform: 'scaleX(0.32)', opacity: '0.85' },
-          '50%': { transform: 'scaleX(0.78)', opacity: '1' },
+          // Progress highlight block is `w-1/4` of the container.
+          // translateX(%) is relative to the element itself, so to move it from
+          // left edge to right edge:
+          //   distance = container - block = 3/4 container
+          //   block width = 1/4 container => 3/4 ÷ 1/4 = 3 element-widths
+          // => translateX(300%) puts the block at the right edge.
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '10%': { transform: 'translateX(0%)', opacity: '1' },
+          '90%': { transform: 'translateX(300%)', opacity: '1' },
+          '100%': { transform: 'translateX(300%)', opacity: '0' },
         },
       },
       animation: {
-        'industrial-fill': 'industrial-fill 2.2s ease-in-out infinite',
+        'industrial-fill': 'industrial-fill 1.8s linear infinite',
       },
     },
   },

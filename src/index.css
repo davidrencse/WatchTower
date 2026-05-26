@@ -68,8 +68,24 @@ body::-webkit-scrollbar {
 
 /* Custom cursor — must beat Tailwind cursor-pointer on interactive elements */
 @media (pointer: fine) {
-  html.wt-custom-cursor,
-  html.wt-custom-cursor * {
+  html.wt-custom-cursor {
+    cursor: none;
+  }
+
+  /* Hide the system cursor on common interactive elements that browsers default to `cursor: pointer`. */
+  html.wt-custom-cursor a,
+  html.wt-custom-cursor button,
+  html.wt-custom-cursor summary,
+  html.wt-custom-cursor [role='button'],
+  html.wt-custom-cursor [role='link'],
+  html.wt-custom-cursor input,
+  html.wt-custom-cursor select,
+  html.wt-custom-cursor textarea {
+    cursor: none !important;
+  }
+
+  /* Also hide cursor for elements that explicitly set a Tailwind `cursor-*` class. */
+  html.wt-custom-cursor [class*="cursor-"] {
     cursor: none !important;
   }
 }
@@ -125,6 +141,11 @@ body::-webkit-scrollbar {
 }
 
 @layer base {
+  /* Force a single font family across the site (even where components use Tailwind `font-mono`). */
+  .font-mono {
+    font-family: var(--font-sans) !important;
+  }
+
   h1,
   h2,
   h3 {

@@ -775,24 +775,16 @@ const germanyWhiteNativeSexualAssaultVictimsChartConfig = {
   childrenSexualAssault: { label: 'White native children sexual assault', color: '#e879f9' },
 } satisfies ChartConfig;
 
-const GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES.reduce(
-  (acc, r) => ({
-    womenSexualAssault: acc.womenSexualAssault + r.womenSexualAssault,
-    childrenSexualAssault: acc.childrenSexualAssault + r.childrenSexualAssault,
-  }),
-  { womenSexualAssault: 0, childrenSexualAssault: 0 },
-);
-
 const SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1: readonly { id: string; title: string; value: number }[] = [
   {
     id: 'total-women-sexually-assaulted',
     title: 'Total White Native Women Sexually Assaulted',
-    value: GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE.womenSexualAssault,
+    value: 232_640,
   },
   {
     id: 'total-children-sexually-assaulted',
     title: 'Total White Native Children Sexually Assaulted',
-    value: GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIM_CUMULATIVE.childrenSexualAssault,
+    value: 47_820,
   },
   {
     id: 'immigrants-assaulted-children',

@@ -216,6 +216,22 @@ const illegalAsylumSeekersChartConfig = {
 
 const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;
 
+/** Recharts SVG text does not inherit Tailwind `font-sans`; match site `--font-sans` / Inter stack. */
+const SITE_CHART_FONT_FAMILY =
+  "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+const SITE_CHART_AXIS_TICK = {
+  fill: 'rgba(163,163,163,0.9)',
+  fontSize: 10,
+  fontFamily: SITE_CHART_FONT_FAMILY,
+} as const;
+
+const SITE_CHART_CATEGORY_TICK = {
+  fill: 'rgba(212,212,212,0.95)',
+  fontSize: 10,
+  fontFamily: SITE_CHART_FONT_FAMILY,
+} as const;
+
 const LANGUAGE_PROFICIENCY_INTEGRATION_2025 = [
   { origin: 'Syrian/Afghan', b1PlusRate: 38 },
   { origin: 'North African', b1PlusRate: 42 },
@@ -947,22 +963,45 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
           <ChartContainer config={languageIntegrationChartConfig} className="h-[320px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={LANGUAGE_PROFICIENCY_INTEGRATION_2025} layout="vertical" margin={{ top: 8, right: 20, left: 40, bottom: 8 }}>
+              <BarChart
+                data={LANGUAGE_PROFICIENCY_INTEGRATION_2025}
+                layout="vertical"
+                margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
+              >
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
-                <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} tickFormatter={(v) => `${v}%`} />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={SITE_CHART_AXIS_TICK}
+                  tickFormatter={(v) => `${v}%`}
+                />
                 <YAxis
                   type="category"
                   dataKey="origin"
                   axisLine={false}
                   tickLine={false}
-                  width={128}
-                  tick={{ fill: 'rgba(212,212,212,0.95)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  width={136}
+                  tick={SITE_CHART_CATEGORY_TICK}
                 />
                 <ChartTooltip
                   cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(0)}%`} />}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md font-sans"
+                      labelFormatter={(label) => String(label)}
+                      formatter={(value) => `${Number(value).toFixed(0)}%`}
+                    />
+                  }
                 />
-                <Bar dataKey="b1PlusRate" name="B1+ after 5 years" fill={languageIntegrationChartConfig.b1PlusRate.color} radius={[0, 6, 6, 0]} isAnimationActive={false} />
+                <Bar
+                  dataKey="b1PlusRate"
+                  name="b1PlusRate"
+                  fill={languageIntegrationChartConfig.b1PlusRate.color}
+                  radius={[0, 6, 6, 0]}
+                  isAnimationActive={false}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

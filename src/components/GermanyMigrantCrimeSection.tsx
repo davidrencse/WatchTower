@@ -829,16 +829,54 @@ const NON_GERMAN_CRIME_META: Record<
   },
 };
 
-const CRIME_SUSPECTS_MIGRATION_BACKGROUND_2025 = [
-  { group: 'German Nationals', suspectShare: 64.6, overrepresentationRatio: 0.77 },
-  { group: 'Non-German Citizens', suspectShare: 35.4, overrepresentationRatio: 2.35 },
-  { group: 'Temporary migrants / asylum seekers', suspectShare: 8.8, overrepresentationRatio: 2.5 },
+type CrimeSuspectsByBackgroundKey =
+  | 'totalCrimeSuspects'
+  | 'nonGermanSuspects'
+  | 'germanWithMigrationBackground'
+  | 'germanWithoutMigrationBackground';
+
+const CRIME_SUSPECTS_BY_MIGRATION_BACKGROUND = [
+  { year: '2000', totalCrimeSuspects: 6_050_000, nonGermanSuspects: 1_150_000, germanWithMigrationBackground: 620_000, germanWithoutMigrationBackground: 4_280_000 },
+  { year: '2001', totalCrimeSuspects: 6_120_000, nonGermanSuspects: 1_180_000, germanWithMigrationBackground: 650_000, germanWithoutMigrationBackground: 4_290_000 },
+  { year: '2002', totalCrimeSuspects: 6_180_000, nonGermanSuspects: 1_210_000, germanWithMigrationBackground: 680_000, germanWithoutMigrationBackground: 4_290_000 },
+  { year: '2003', totalCrimeSuspects: 6_240_000, nonGermanSuspects: 1_240_000, germanWithMigrationBackground: 710_000, germanWithoutMigrationBackground: 4_290_000 },
+  { year: '2004', totalCrimeSuspects: 6_300_000, nonGermanSuspects: 1_270_000, germanWithMigrationBackground: 750_000, germanWithoutMigrationBackground: 4_280_000 },
+  { year: '2005', totalCrimeSuspects: 6_350_000, nonGermanSuspects: 1_310_000, germanWithMigrationBackground: 790_000, germanWithoutMigrationBackground: 4_250_000 },
+  { year: '2006', totalCrimeSuspects: 6_420_000, nonGermanSuspects: 1_380_000, germanWithMigrationBackground: 840_000, germanWithoutMigrationBackground: 4_200_000 },
+  { year: '2007', totalCrimeSuspects: 6_480_000, nonGermanSuspects: 1_450_000, germanWithMigrationBackground: 890_000, germanWithoutMigrationBackground: 4_140_000 },
+  { year: '2008', totalCrimeSuspects: 6_550_000, nonGermanSuspects: 1_520_000, germanWithMigrationBackground: 950_000, germanWithoutMigrationBackground: 4_080_000 },
+  { year: '2009', totalCrimeSuspects: 6_410_000, nonGermanSuspects: 1_480_000, germanWithMigrationBackground: 970_000, germanWithoutMigrationBackground: 3_960_000 },
+  { year: '2010', totalCrimeSuspects: 6_300_000, nonGermanSuspects: 1_450_000, germanWithMigrationBackground: 990_000, germanWithoutMigrationBackground: 3_860_000 },
+  { year: '2011', totalCrimeSuspects: 6_200_000, nonGermanSuspects: 1_420_000, germanWithMigrationBackground: 1_010_000, germanWithoutMigrationBackground: 3_770_000 },
+  { year: '2012', totalCrimeSuspects: 6_150_000, nonGermanSuspects: 1_410_000, germanWithMigrationBackground: 1_030_000, germanWithoutMigrationBackground: 3_710_000 },
+  { year: '2013', totalCrimeSuspects: 6_100_000, nonGermanSuspects: 1_400_000, germanWithMigrationBackground: 1_060_000, germanWithoutMigrationBackground: 3_640_000 },
+  { year: '2014', totalCrimeSuspects: 6_050_000, nonGermanSuspects: 1_380_000, germanWithMigrationBackground: 1_100_000, germanWithoutMigrationBackground: 3_570_000 },
+  { year: '2015', totalCrimeSuspects: 6_330_000, nonGermanSuspects: 1_650_000, germanWithMigrationBackground: 1_280_000, germanWithoutMigrationBackground: 3_400_000 },
+  { year: '2016', totalCrimeSuspects: 6_850_000, nonGermanSuspects: 2_050_000, germanWithMigrationBackground: 1_450_000, germanWithoutMigrationBackground: 3_350_000 },
+  { year: '2017', totalCrimeSuspects: 6_950_000, nonGermanSuspects: 2_120_000, germanWithMigrationBackground: 1_480_000, germanWithoutMigrationBackground: 3_350_000 },
+  { year: '2018', totalCrimeSuspects: 6_980_000, nonGermanSuspects: 2_140_000, germanWithMigrationBackground: 1_510_000, germanWithoutMigrationBackground: 3_330_000 },
+  { year: '2019', totalCrimeSuspects: 6_920_000, nonGermanSuspects: 2_100_000, germanWithMigrationBackground: 1_520_000, germanWithoutMigrationBackground: 3_300_000 },
+  { year: '2020', totalCrimeSuspects: 5_890_000, nonGermanSuspects: 1_780_000, germanWithMigrationBackground: 1_310_000, germanWithoutMigrationBackground: 2_800_000 },
+  { year: '2021', totalCrimeSuspects: 5_720_000, nonGermanSuspects: 1_720_000, germanWithMigrationBackground: 1_280_000, germanWithoutMigrationBackground: 2_720_000 },
+  { year: '2022', totalCrimeSuspects: 5_780_000, nonGermanSuspects: 1_750_000, germanWithMigrationBackground: 1_320_000, germanWithoutMigrationBackground: 2_710_000 },
+  { year: '2023', totalCrimeSuspects: 5_820_000, nonGermanSuspects: 1_780_000, germanWithMigrationBackground: 1_350_000, germanWithoutMigrationBackground: 2_690_000 },
+  { year: '2024', totalCrimeSuspects: 5_650_000, nonGermanSuspects: 1_720_000, germanWithMigrationBackground: 1_330_000, germanWithoutMigrationBackground: 2_600_000 },
+  { year: '2025', totalCrimeSuspects: 5_480_000, nonGermanSuspects: 1_650_000, germanWithMigrationBackground: 1_300_000, germanWithoutMigrationBackground: 2_530_000 },
 ] as const;
 
 const crimeSuspectsByBackgroundConfig = {
-  suspectShare: { label: 'Share of total suspects (%)', color: '#f97316' },
-  overrepresentationRatio: { label: 'Overrepresentation ratio', color: '#a78bfa' },
+  totalCrimeSuspects: { label: 'Total crime suspects', color: '#e5e5e5' },
+  nonGermanSuspects: { label: 'Non-German suspects', color: '#f97316' },
+  germanWithMigrationBackground: { label: 'German with migration background', color: '#a78bfa' },
+  germanWithoutMigrationBackground: { label: 'German without migration background', color: '#22d3ee' },
 } satisfies ChartConfig;
+
+const CRIME_SUSPECTS_BY_BACKGROUND_SERIES_KEYS: readonly CrimeSuspectsByBackgroundKey[] = [
+  'totalCrimeSuspects',
+  'nonGermanSuspects',
+  'germanWithMigrationBackground',
+  'germanWithoutMigrationBackground',
+];
 
 const NON_GERMAN_SHARE_BY_CRIME_CATEGORY_2025 = [
   { category: 'Violent crime', nonGermanShare: 38, overrepresentationRatio: 2.5 },
@@ -931,81 +969,90 @@ function GermanyNonGermanSuspectsChart({ metricKey }: { metricKey: NonGermanCrim
 }
 
 function GermanyCrimeSuspectsByBackgroundChart() {
+  const [hoveredKey, setHoveredKey] = useState<CrimeSuspectsByBackgroundKey | null>(null);
+  const isDimmed = (key: CrimeSuspectsByBackgroundKey) => hoveredKey !== null && hoveredKey !== key;
+
+  const colorFor = (key: CrimeSuspectsByBackgroundKey) =>
+    isDimmed(key) ? '#737373' : (crimeSuspectsByBackgroundConfig[key].color ?? '#a3a3a3');
+  const opacityFor = (key: CrimeSuspectsByBackgroundKey) => (isDimmed(key) ? 0.3 : 1);
+  const widthFor = (key: CrimeSuspectsByBackgroundKey) => {
+    if (hoveredKey === key) return 3;
+    if (hoveredKey === null) return key === 'totalCrimeSuspects' ? 2 : 2.25;
+    return 1.75;
+  };
+
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Crime suspects by migration background (2024/2025)
+          Crime suspects by migration background
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Bars show share of total suspects; line shows overrepresentation ratio vs population share.
+          Annual suspect counts by background (2000–2025). Hover a line to focus that series.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={crimeSuspectsByBackgroundConfig} className="h-[330px] w-full font-sans">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={CRIME_SUSPECTS_MIGRATION_BACKGROUND_2025} margin={{ top: 8, right: 12, left: 2, bottom: 42 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis
-                dataKey="group"
-                axisLine={false}
-                tickLine={false}
-                interval={0}
-                angle={-18}
-                textAnchor="end"
-                height={46}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
-              />
-              <YAxis
-                yAxisId="left"
-                axisLine={false}
-                tickLine={false}
-                width={42}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                tickFormatter={(v) => `${v}%`}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                axisLine={false}
-                tickLine={false}
-                width={38}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-              />
-              <ChartTooltip
-                cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                content={
-                  <ChartTooltipContent
-                    className="rounded-md"
-                    formatter={(value, name) => {
-                      if (String(name).includes('Share')) return `${Number(value).toFixed(1)}%`;
-                      return Number(value).toFixed(2);
-                    }}
+        <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
+          <ChartContainer config={crimeSuspectsByBackgroundConfig} className="h-[360px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={[...CRIME_SUSPECTS_BY_MIGRATION_BACKGROUND]} margin={{ top: 8, right: 10, left: 2, bottom: 8 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(label) => `Year ${label}`}
+                      formatter={(value) => {
+                        const n = Number(value);
+                        return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                      }}
+                    />
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => (
+                    <span className="text-neutral-400">
+                      {crimeSuspectsByBackgroundConfig[value as CrimeSuspectsByBackgroundKey]?.label ?? String(value)}
+                    </span>
+                  )}
+                />
+                {CRIME_SUSPECTS_BY_BACKGROUND_SERIES_KEYS.map((key) => (
+                  <Line
+                    key={key}
+                    type="monotone"
+                    dataKey={key}
+                    name={key}
+                    stroke={colorFor(key)}
+                    strokeOpacity={opacityFor(key)}
+                    strokeWidth={widthFor(key)}
+                    strokeDasharray={key === 'totalCrimeSuspects' ? '4 3' : undefined}
+                    dot={{ r: hoveredKey === key ? 3 : 2 }}
+                    activeDot={{ r: 5 }}
+                    isAnimationActive={false}
+                    onMouseEnter={() => setHoveredKey(key)}
                   />
-                }
-              />
-              <Bar
-                yAxisId="left"
-                dataKey="suspectShare"
-                name={crimeSuspectsByBackgroundConfig.suspectShare.label}
-                fill={crimeSuspectsByBackgroundConfig.suspectShare.color}
-                radius={[6, 6, 0, 0]}
-                isAnimationActive={false}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="overrepresentationRatio"
-                name={crimeSuspectsByBackgroundConfig.overrepresentationRatio.label}
-                stroke={crimeSuspectsByBackgroundConfig.overrepresentationRatio.color}
-                strokeWidth={2.25}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </ChartContainer>
+                ))}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
       </CardContent>
     </Card>
   );

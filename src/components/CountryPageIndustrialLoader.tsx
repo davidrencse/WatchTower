@@ -114,7 +114,9 @@ export function CountryPageIndustrialLoader({ countryLabel }: CountryPageIndustr
 
         <div className="mt-8">
           <div className="relative h-1 overflow-hidden bg-white/25">
-            <div className="absolute inset-y-0 left-0 w-full origin-left bg-white shadow-[0_0_12px_rgba(255,255,255,0.85)] animate-industrial-fill motion-reduce:animate-none motion-reduce:scale-x-[0.55] motion-reduce:opacity-90" />
+            <div
+              className="absolute inset-y-0 left-0 h-full w-1/4 bg-white shadow-[0_0_12px_rgba(255,255,255,0.85)] animate-industrial-fill will-change-transform motion-reduce:animate-none motion-reduce:opacity-90"
+            />
           </div>
           <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">Hydrating tiles · streaming CSV</p>
         </div>
