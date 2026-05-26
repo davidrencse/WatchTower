@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
+import { FLAGS } from '../data/flags';
 import { getIso3ForFlagId, flagIdHasCountryStats } from '../lib/flagIsoMapping';
 import type { FlagEntry } from '../types/flag';
+import { CountryFocusCarousel } from './CountryFocusCarousel';
 import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
 
 const CountryStatsDashboard = lazy(() =>
@@ -10,38 +12,52 @@ const CountryStatsDashboard = lazy(() =>
 type SelectedFlagViewProps = {
   flag: FlagEntry;
   onBack: () => void;
+  onSelectFlag?: (flag: FlagEntry) => void;
 };
 
-export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
+export function SelectedFlagView({ flag, onBack, onSelectFlag }: SelectedFlagViewProps) {
   if (flagIdHasCountryStats(flag.id)) {
     const iso3 = getIso3ForFlagId(flag.id);
     if (iso3) {
       return (
         <Suspense fallback={<CountryPageIndustrialLoader countryLabel={flag.label} />}>
-          <CountryStatsDashboard flag={flag} iso3={iso3} onBack={onBack} />
+          <CountryStatsDashboard
+            flag={flag}
+            iso3={iso3}
+            onBack={onBack}
+            allFlags={FLAGS}
+            onSelectFlag={onSelectFlag}
+          />
         </Suspense>
       );
     }
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-20 pt-10 sm:px-6">
-      <button
-        type="button"
-        onClick={onBack}
-        className="mb-10 text-sm text-neutral-500 transition-colors hover:text-white"
-      >
-        Back
-      </button>
-
-      <div className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card ring-1 ring-white/[0.04]">
-        <div className="flex aspect-[3/2] items-center justify-center bg-black/50 px-8 py-10">
-          <img src={flag.src} alt="" className="max-h-full max-w-full object-contain" decoding="async" />
-        </div>
-        <div className="border-t border-[var(--line)] px-6 py-6">
-          <h2 className="text-center text-xl font-medium tracking-tight text-white">{flag.label}</h2>
-        </div>
+    <div className="wt-dark-stage min-h-screen">
+      <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between px-6 pt-6 sm:px-10">
+        <button
+          type="button"
+          onClick={onBack}
+          className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-neutral-500 transition-colors hover:text-neutral-200"
+        >
+          ← Back
+        </button>
+        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.32em] text-neutral-600">
+          No dossier · browse other countries
+        </p>
       </div>
+      <CountryFocusCarousel
+        flags={FLAGS}
+        activeFlagId={flag.id}
+        onActiveChange={(f) => {
+          if (f.id !== flag.id) onSelectFlag?.(f);
+        }}
+        onSelect={(f) => {
+          if (flagIdHasCountryStats(f.id)) onSelectFlag?.(f);
+        }}
+        showOpenAction
+      />
     </div>
   );
 }

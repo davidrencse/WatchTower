@@ -140,6 +140,264 @@ body::-webkit-scrollbar {
   }
 }
 
+/* Landing → gallery: hero lifts up, gallery rises from below */
+@keyframes wt-hero-slide-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+@keyframes wt-gallery-rise {
+  from {
+    transform: translate3d(0, 12vh, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes wt-header-slide-down {
+  from {
+    transform: translate3d(0, -100%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.wt-hero-exit {
+  animation: wt-hero-slide-up 720ms cubic-bezier(0.33, 1, 0.45, 1) forwards;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.wt-gallery-enter {
+  animation: wt-gallery-rise 720ms cubic-bezier(0.33, 1, 0.45, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.wt-header-enter {
+  animation: wt-header-slide-down 720ms cubic-bezier(0.33, 1, 0.45, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-hero-exit,
+  .wt-gallery-enter,
+  .wt-header-enter {
+    animation: none;
+  }
+}
+
+/* ─── Countries page — cinematic dark stage + perfect-shadow surfaces ─── */
+.wt-dark-stage {
+  position: relative;
+  background-color: #0a0a0c;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 50% 35%, rgba(140, 150, 170, 0.06), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(100, 120, 150, 0.04), transparent 75%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    radial-gradient(ellipse 100% 80% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.55) 100%);
+  background-size:
+    auto,
+    auto,
+    56px 56px,
+    56px 56px,
+    auto;
+  background-position:
+    center,
+    center,
+    center top,
+    center top,
+    center;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
+}
+
+.wt-dark-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+
+.wt-perfect-shadow {
+  box-shadow:
+    0px 0px 0px 1px rgba(165, 165, 165, 0.04),
+    -9px 9px 9px -0.5px rgba(0, 0, 0, 0.04),
+    -18px 18px 18px -1.5px rgba(0, 0, 0, 0.08),
+    -37px 37px 37px -3px rgba(0, 0, 0, 0.16),
+    -75px 75px 75px -6px rgba(0, 0, 0, 0.24),
+    -150px 150px 150px -12px rgba(0, 0, 0, 0.48);
+}
+
+.wt-perfect-shadow-compact {
+  box-shadow:
+    0px 0px 0px 1px rgba(165, 165, 165, 0.04),
+    -4px 4px 6px -0.5px rgba(0, 0, 0, 0.08),
+    -10px 10px 14px -2px rgba(0, 0, 0, 0.14),
+    -22px 22px 28px -5px rgba(0, 0, 0, 0.26);
+}
+
+/* Frosted glass panels — matches landing-page glass card */
+.wt-glass-panel {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .wt-glass-panel {
+    background: rgba(255, 255, 255, 0.055);
+  }
+}
+
+.wt-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.02) 22%,
+    transparent 48%
+  );
+}
+
+.wt-glass-panel-compact {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+.wt-glass-chrome {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.wt-glass-inset {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.wt-glass-fade-top {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 12, 16, 0.72) 0%,
+    rgba(12, 12, 16, 0.35) 45%,
+    transparent 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.wt-glass-fade-bottom {
+  background: linear-gradient(
+    0deg,
+    rgba(12, 12, 16, 0.72) 0%,
+    rgba(12, 12, 16, 0.35) 45%,
+    transparent 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Country rail — soft snap so wheel doesn't fight native scroll */
+.wt-country-rail {
+  scroll-snap-type: y proximity;
+  overscroll-behavior: contain;
+  scroll-padding-block: 50%;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.wt-country-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.wt-country-rail-item {
+  scroll-snap-align: center;
+}
+
+/* Active rail card — slightly brighter border + lifted scale */
+.wt-rail-card {
+  transition:
+    transform 320ms cubic-bezier(0.33, 1, 0.45, 1),
+    opacity 320ms ease,
+    filter 320ms ease,
+    border-color 200ms ease;
+  will-change: transform, opacity;
+}
+
+.wt-rail-card[data-state='active'] {
+  transform: scale(1);
+  opacity: 1;
+  filter: none;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.wt-rail-card[data-state='near'] {
+  transform: scale(0.92);
+  opacity: 0.72;
+  filter: saturate(0.85);
+}
+
+.wt-rail-card[data-state='far'] {
+  transform: scale(0.82);
+  opacity: 0.42;
+  filter: saturate(0.7) blur(0.3px);
+}
+
+@keyframes wt-focus-fade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.wt-focus-fade {
+  animation: wt-focus-fade 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-rail-card,
+  .wt-focus-fade {
+    transition: none;
+    animation: none;
+  }
+}
+
 @layer base {
   /* Force a single font family across the site (even where components use Tailwind `font-mono`). */
   .font-mono {

@@ -1,5 +1,16 @@
 /** Shared dashboard layout for CountryStatsDashboard (metrics grouping). */
 
+/**
+ * Countries that render the full Germany dashboard layout (ribbon nav, all
+ * subsections, all bundled Germany sections). France is mirrored onto Germany's
+ * UI on purpose — France-specific data sources don't exist yet, so we reuse
+ * Germany's bundled assets so the page can still be browsed.
+ */
+export function treatAsGermany(iso3: string): boolean {
+  const u = iso3.toUpperCase();
+  return u === 'DEU' || u === 'FRA';
+}
+
 /** Expenditure tiles (nested under Economic → Government spending). */
 export const GOVERNMENT_SPENDING_METRICS = [
   'Immigration welfare spending',
@@ -54,7 +65,7 @@ export const BIRTH_RATES_SUBSECTION_METRICS_DEFAULT = [
 ] as const;
 
 export function getPopulationSectionMetrics(iso3: string): string[] {
-  if (iso3.toUpperCase() !== 'DEU') return [...POPULATION_SECTION_METRICS];
+  if (!treatAsGermany(iso3)) return [...POPULATION_SECTION_METRICS];
   return POPULATION_SECTION_METRICS.filter((m) => !GERMANY_IMMIGRATION_METRICS_SET.has(m));
 }
 
@@ -82,7 +93,7 @@ export type StatSectionDef = {
 };
 
 export function getStatSections(iso3: string): StatSectionDef[] {
-  const isDeu = iso3.toUpperCase() === 'DEU';
+  const isDeu = treatAsGermany(iso3);
   return [
     {
       id: 'economic',
@@ -149,7 +160,7 @@ export function getStatSections(iso3: string): StatSectionDef[] {
       title: 'Health',
       metrics: [],
       subsections:
-        iso3.toUpperCase() === 'DEU'
+        treatAsGermany(iso3)
           ? [
               { id: 'suppression', title: 'Tap Water', kind: 'germany_health_suppression' as const },
               { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },

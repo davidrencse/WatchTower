@@ -4,21 +4,8 @@ type HomeHeroProps = {
 
 export function HomeHero({ onExplore }: HomeHeroProps) {
   return (
-    <div className="relative min-h-screen min-h-[100dvh] overflow-hidden bg-[#050508] px-5 py-12 text-neutral-100 sm:px-8 sm:py-16">
-      {/* Background — enough detail for glass blur to read */}
-      <div
-        className="absolute inset-0 scale-105 bg-cover bg-center opacity-[0.55] saturate-[0.85] contrast-[1.05] sm:opacity-60"
-        style={{ backgroundImage: 'url(/hero/europe.png), url(/hero/europe.svg)' }}
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-10%,rgba(120,160,220,0.18),transparent_50%),radial-gradient(ellipse_90%_60%_at_100%_50%,rgba(80,100,140,0.12),transparent_45%),linear-gradient(180deg,rgba(8,10,16,0.35)_0%,rgba(5,6,10,0.55)_45%,rgba(3,4,8,0.75)_100%)]"
-        aria-hidden
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.25)_100%)]" aria-hidden />
-
-      <div className="relative mx-auto flex min-h-[calc(100dvh-6rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-8rem)]">
-        {/* Glass panel — frosted layer over scene */}
+    <div className="relative min-h-screen min-h-[100dvh] overflow-hidden px-5 py-12 text-neutral-100 sm:px-8 sm:py-16">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-6rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-8rem)]">
         <section
           className={[
             'w-full max-w-3xl overflow-hidden rounded-[2rem] sm:rounded-[2.25rem]',

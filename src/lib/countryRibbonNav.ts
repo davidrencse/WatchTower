@@ -1,4 +1,4 @@
-import { getStatSections } from './countryDashboardSections';
+import { getStatSections, treatAsGermany } from './countryDashboardSections';
 
 export type RibbonSubItem = {
   id: string;
@@ -15,7 +15,7 @@ export type RibbonMainItem = {
 
 /** Stable subsection anchors aligned with CountryStatsDashboard + GermanyGovernmentSection. */
 export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
-  const upper = iso3.toUpperCase();
+  const germanyLike = treatAsGermany(iso3);
   const statSections = getStatSections(iso3);
 
   const fromStats: RibbonMainItem[] = statSections.map((section) => ({
@@ -39,7 +39,7 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
         label: 'Statistics',
         anchorId: 'country-sub-crime-statistics',
       },
-      ...(upper === 'DEU'
+      ...(germanyLike
         ? [
             {
               id: 'crime_victims',
@@ -56,7 +56,7 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
     ],
   };
 
-  if (upper === 'DEU') {
+  if (germanyLike) {
     const government: RibbonMainItem = {
       id: 'government',
       label: 'Government',

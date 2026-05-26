@@ -104,6 +104,15 @@ import {
   GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
 } from './GermanyEconomicStructuralSection';
 import {
+  FranceEconomicStructuralSection,
+  FRANCE_ECONOMIC_STRUCTURAL_GROUP_COUNT,
+} from './FranceEconomicStructuralSection';
+import { applyFranceEconomyMetricOverrides } from '../lib/franceEconomyStats';
+import {
+  FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES,
+  franceGeneralGovExpenditureForYear,
+} from '../lib/franceGeneralGovernmentExpenditure';
+import {
   GermanyEconomicTaxesSection,
   GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
 } from './GermanyEconomicTaxesSection';
@@ -127,6 +136,7 @@ import { useCountryRibbonScrollSpy } from '../hooks/useCountryRibbonScrollSpy';
 import {
   getStatSections,
   GERMANY_IMMIGRATION_TOP_METRICS,
+  treatAsGermany,
   type CustomSubsection,
   type MetricSubsection,
 } from '../lib/countryDashboardSections';
@@ -704,25 +714,35 @@ const GERMANY_CORRUPTION_LOST_CHART_CONFIG = {
   pctGdp: { label: '% of GDP', color: '#a78bfa' },
 } satisfies ChartConfig;
 
-const GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG = {
-  total: { label: 'Total government expenditure', color: '#f59e0b' },
-} satisfies ChartConfig;
+type GovExpenditureSeriesPoint = { year: string; total: number };
 
-function GermanyGovernmentTotalExpenditureChart() {
+function GovernmentTotalExpenditureChart({
+  title,
+  description,
+  series,
+  seriesLabel,
+}: {
+  title: string;
+  description: string;
+  series: readonly GovExpenditureSeriesPoint[];
+  seriesLabel: string;
+}) {
+  const chartConfig = {
+    total: { label: seriesLabel, color: '#f59e0b' },
+  } satisfies ChartConfig;
+
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Total government expenditure
+          {title}
         </CardTitle>
-        <CardDescription className="font-sans text-[10px] text-neutral-500">
-          Billions of euros (€bn), 2000–2025.
-        </CardDescription>
+        <CardDescription className="font-sans text-[10px] text-neutral-500">{description}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={GERMANY_GOV_TOTAL_EXPENDITURE_CHART_CONFIG} className="h-[300px] w-full">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={GERMANY_GOV_SPENDING_SERIES} margin={{ top: 8, right: 10, left: 12, bottom: 8 }}>
+            <AreaChart data={series} margin={{ top: 8, right: 10, left: 12, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -767,6 +787,28 @@ function GermanyGovernmentTotalExpenditureChart() {
   );
 }
 
+function GermanyGovernmentTotalExpenditureChart() {
+  return (
+    <GovernmentTotalExpenditureChart
+      title="Total government expenditure"
+      description="Billions of euros (€bn), 2000–2025."
+      series={GERMANY_GOV_SPENDING_SERIES}
+      seriesLabel="Total government expenditure"
+    />
+  );
+}
+
+function FranceGovernmentTotalExpenditureChart() {
+  return (
+    <GovernmentTotalExpenditureChart
+      title="Total General Government Expenditure"
+      description="Billion Euros (€bn) – Official INSEE / Eurostat general government (S13) data · 2000–2025"
+      series={FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES}
+      seriesLabel="Total General Government Expenditure"
+    />
+  );
+}
+
 function formatGovSpendingContextValue(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number], value: number): string {
   if (key === 'total') return `€${value.toFixed(1)}B`;
   if (key === 'gdpPerCapitaUsd') return `$${Math.round(value).toLocaleString('en-US')}`;
@@ -774,7 +816,14 @@ function formatGovSpendingContextValue(key: (typeof GERMANY_GOV_SPENDING_CONTEXT
   return value.toFixed(3);
 }
 
-function govSpendingContextSubtitle(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number], year: number): string {
+function govSpendingContextSubtitle(
+  key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number],
+  year: number,
+  iso3?: string,
+): string {
+  if (key === 'total' && iso3?.toUpperCase() === 'FRA') {
+    return `INSEE / Eurostat general government (S13) · ${year}`;
+  }
   if (key === 'total') return `General government expenditure · ${year}`;
   if (key === 'gdpPerCapitaUsd') return `Nominal USD · ${year}`;
   if (key === 'laborProductivityIndex') return `Index (2000 = 100) · ${year}`;
@@ -784,19 +833,25 @@ function govSpendingContextSubtitle(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KE
 function GermanyGovSpendingContextMetricTile({
   selectedYear,
   seriesKey,
+  iso3,
 }: {
   selectedYear: number;
   seriesKey: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number];
+  iso3: string;
 }) {
+  const isFrance = iso3.toUpperCase() === 'FRA';
   const row = useMemo(() => govSpendRowForYear(selectedYear), [selectedYear]);
   const cfg = GERMANY_GOV_SPENDING_LINE_CONFIG[seriesKey];
-  const value = row[seriesKey];
+  const value =
+    isFrance && seriesKey === 'total' ? franceGeneralGovExpenditureForYear(selectedYear).total : row[seriesKey];
+  const label =
+    isFrance && seriesKey === 'total' ? 'Total General Government Expenditure' : cfg.label;
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-          {cfg.label}
+          {label}
         </p>
         <span
           className="shrink-0 rounded border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 font-sans text-[9px] tabular-nums text-neutral-500"
@@ -813,18 +868,23 @@ function GermanyGovSpendingContextMetricTile({
           {formatGovSpendingContextValue(seriesKey, value)}
         </p>
         <p className="mt-1.5 font-sans text-[10px] font-medium leading-snug text-neutral-500">
-          {govSpendingContextSubtitle(seriesKey, selectedYear)}
+          {govSpendingContextSubtitle(seriesKey, selectedYear, iso3)}
         </p>
       </div>
     </article>
   );
 }
 
-function GermanyGovSpendingContextTiles({ selectedYear }: { selectedYear: number }) {
+function GermanyGovSpendingContextTiles({ selectedYear, iso3 }: { selectedYear: number; iso3: string }) {
   return (
     <div className="col-span-full grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {GERMANY_GOV_SPENDING_CONTEXT_KEYS.map((key) => (
-        <GermanyGovSpendingContextMetricTile key={key} selectedYear={selectedYear} seriesKey={key} />
+        <GermanyGovSpendingContextMetricTile
+          key={key}
+          selectedYear={selectedYear}
+          seriesKey={key}
+          iso3={iso3}
+        />
       ))}
     </div>
   );
@@ -878,10 +938,13 @@ function GermanyGovernmentSpendingCategoryCards({ selectedYear }: { selectedYear
 function GermanyGovernmentSpendingCategoryLineChart({
   selectedYear,
   onYearChange,
+  iso3,
 }: {
   selectedYear: number;
   onYearChange: (year: number) => void;
+  iso3: string;
 }) {
+  const isFrance = iso3.toUpperCase() === 'FRA';
   const yearButtonRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
   useEffect(() => {
@@ -918,8 +981,11 @@ function GermanyGovernmentSpendingCategoryLineChart({
       return acc;
     }, {});
 
-    return { chartData: data, chartConfig: cfg, totalBn: yearRow.total };
-  }, [yearRow]);
+    const totalBn = isFrance
+      ? franceGeneralGovExpenditureForYear(selectedYear).total
+      : yearRow.total;
+    return { chartData: data, chartConfig: cfg, totalBn };
+  }, [yearRow, isFrance, selectedYear]);
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -933,7 +999,8 @@ function GermanyGovernmentSpendingCategoryLineChart({
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
         <p className="text-center font-sans text-sm tabular-nums text-neutral-500">
-          Total expenditure · <span className="font-semibold text-neutral-300">€{totalBn.toFixed(1)}B</span>
+          {isFrance ? 'Total General Government Expenditure' : 'Total expenditure'} ·{' '}
+          <span className="font-semibold text-neutral-300">€{totalBn.toFixed(1)}B</span>
         </p>
 
         {chartData.length > 0 ? (
@@ -1185,29 +1252,46 @@ function GermanyCorruptionLostChart({ selectedYear }: { selectedYear: number }) 
 function GermanyGovernmentSpendingCategoryBlock({
   selectedYear,
   onYearChange,
+  iso3,
 }: {
   selectedYear: number;
   onYearChange: (year: number) => void;
+  iso3: string;
 }) {
   return (
     <>
-      <GermanyGovernmentSpendingCategoryLineChart selectedYear={selectedYear} onYearChange={onYearChange} />
+      <GermanyGovernmentSpendingCategoryLineChart
+        selectedYear={selectedYear}
+        onYearChange={onYearChange}
+        iso3={iso3}
+      />
       <GermanyGovernmentSpendingCategoryCards selectedYear={selectedYear} />
-      <GermanyGovSpendingContextTiles selectedYear={selectedYear} />
+      <GermanyGovSpendingContextTiles selectedYear={selectedYear} iso3={iso3} />
     </>
   );
 }
 
-function GermanyGovernmentSpendingDESection({ subRows }: { subRows: CountryStatMetric[] }) {
+function GermanyGovernmentSpendingDESection({
+  subRows,
+  iso3,
+}: {
+  subRows: CountryStatMetric[];
+  iso3: string;
+}) {
   const [selectedYear, setSelectedYear] = useState(2025);
+  const isFrance = iso3.toUpperCase() === 'FRA';
 
   const immigrationRow = subRows.find((r) => r.metric === 'Immigration welfare spending');
   const foreignAidRow = subRows.find((r) => r.metric === 'Foreign Aid');
 
   return (
     <div className="flex flex-col gap-4">
-      <GermanyGovernmentTotalExpenditureChart />
-      <GermanyGovernmentSpendingCategoryBlock selectedYear={selectedYear} onYearChange={setSelectedYear} />
+      {isFrance ? <FranceGovernmentTotalExpenditureChart /> : <GermanyGovernmentTotalExpenditureChart />}
+      <GermanyGovernmentSpendingCategoryBlock
+        selectedYear={selectedYear}
+        onYearChange={setSelectedYear}
+        iso3={iso3}
+      />
 
       <div className={STAT_GRID}>
         <GermanyImmigrationWelfareYearTile selectedYear={selectedYear} sourceRow={immigrationRow} />
@@ -2750,7 +2834,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
     (async () => {
       try {
         const upper = iso3.toUpperCase();
-        const isDeu = upper === 'DEU';
+        const isDeu = treatAsGermany(iso3);
 
         const [mergedRes, expendituresRes, corruptionRes, macroIndicatorsRes, foreignStudentsRes] = await Promise.all([
           fetch(MERGED_CSV_URL, STATIC_FETCH_INIT),
@@ -2887,10 +2971,16 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
     };
   }, [iso3, flag.label]);
 
+  const displayOrdered = useMemo(() => {
+    if (!ordered) return null;
+    if (iso3.toUpperCase() === 'FRA') return applyFranceEconomyMetricOverrides(ordered);
+    return ordered;
+  }, [ordered, iso3]);
+
   const sources = useMemo(() => {
-    if (!ordered) return [];
+    if (!displayOrdered) return [];
     const map = new Map<string, { name: string; url: string; date: string }>();
-    for (const r of ordered) {
+    for (const r of displayOrdered) {
       const urls = r.source_url
         .split('|')
         .map((s) => s.trim())
@@ -2923,18 +3013,18 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       map.set(c.url, { name: c.label, url: c.url, date: '' });
     }
     return [...map.values()];
-  }, [ordered, statsRow, crimeRow]);
+  }, [displayOrdered, statsRow, crimeRow]);
 
   const displayTitle = flag.label.toUpperCase();
 
   const metricsByName = useMemo(() => {
-    if (!ordered) return new Map<string, CountryStatMetric>();
-    return new Map(ordered.map((r) => [r.metric, r]));
-  }, [ordered]);
+    if (!displayOrdered) return new Map<string, CountryStatMetric>();
+    return new Map(displayOrdered.map((r) => [r.metric, r]));
+  }, [displayOrdered]);
 
   const statSections = useMemo(() => getStatSections(iso3), [iso3]);
 
-  const isGermany = iso3.toUpperCase() === 'DEU';
+  const isGermany = treatAsGermany(iso3);
   const [sectionOrder, setSectionOrder] = useState<string[]>([...DRAGGABLE_TOP_SECTION_ORDER]);
   const [allExpanded, setAllExpanded] = useState(false);
   const [collapseSignal, setCollapseSignal] = useState(1);
@@ -3221,73 +3311,73 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 const nestedBlocks: NestedBlock[] = [];
                 for (const sub of section.subsections ?? []) {
                   if ('kind' in sub && sub.kind === 'germany_immigration') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_immigration', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_marriages') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_marriages', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_sexual_behavior') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_sexual_behavior', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_labor_income') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_labor_income', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_economic_taxes') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_economic_taxes', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_economy_trade') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_economy_trade', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_health_suppression') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_health_suppression', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_lgbt_stats') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_lgbt_stats', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_politics_leftism') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_politics_leftism', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_politics_rightwing') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_politics_rightwing', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_politics_zionism') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_politics_zionism', sub });
                     }
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_abortion_stats') {
-                    if (iso3.toUpperCase() === 'DEU') {
+                    if (treatAsGermany(iso3)) {
                       nestedBlocks.push({ type: 'germany_abortion_stats', sub });
                     }
                     continue;
@@ -3302,31 +3392,35 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 if (leadingRows.length === 0 && nestedBlocks.length === 0) return null;
 
                 const leadingTileCount =
-                  section.id === 'population' && iso3.toUpperCase() === 'DEU'
+                  section.id === 'population' && treatAsGermany(iso3)
                     ? germanyPopulationLeadingTileCount(leadingRows)
                     : leadingRows.length;
 
                 const germanyHealthOverviewTileCount =
-                  section.id === 'health' && iso3.toUpperCase() === 'DEU'
+                  section.id === 'health' && treatAsGermany(iso3)
                     ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length + 3
                     : 0;
 
                 const germanyPoliticsOverviewChartCount =
-                  section.id === 'politics' && iso3.toUpperCase() === 'DEU'
+                  section.id === 'politics' && treatAsGermany(iso3)
                     ? GERMANY_POLITICS_OVERVIEW_CHART_COUNT
                     : 0;
 
-                const germanyEconomicStructuralCount =
-                  section.id === 'economic' && iso3.toUpperCase() === 'DEU'
-                    ? GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT
+                const economicStructuralCount =
+                  section.id === 'economic'
+                    ? iso3.toUpperCase() === 'DEU'
+                      ? GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT
+                      : iso3.toUpperCase() === 'FRA'
+                        ? FRANCE_ECONOMIC_STRUCTURAL_GROUP_COUNT
+                        : 0
                     : 0;
 
                 const sectionCount =
                   leadingTileCount +
-                  (section.id === 'population' && iso3.toUpperCase() === 'DEU' ? 1 : 0) +
+                  (section.id === 'population' && treatAsGermany(iso3) ? 1 : 0) +
                   germanyHealthOverviewTileCount +
                   germanyPoliticsOverviewChartCount +
-                  germanyEconomicStructuralCount +
+                  economicStructuralCount +
                   nestedBlocks.reduce((acc, b) => {
                     if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
                     if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
@@ -3340,10 +3434,10 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     if (b.type === 'germany_politics_rightwing') return acc + GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT;
                     if (b.type === 'germany_politics_zionism') return acc + GERMANY_POLITICS_ZIONISM_GROUP_COUNT;
                     if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
-                    if (b.type === 'metrics' && b.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU') {
+                    if (b.type === 'metrics' && b.sub.id === 'birth_rates' && treatAsGermany(iso3)) {
                       return acc + b.subRows.length + 4;
                     }
-                    if (b.type === 'metrics' && b.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU') {
+                    if (b.type === 'metrics' && b.sub.id === 'government_spending' && treatAsGermany(iso3)) {
                       return acc + b.subRows.length + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT;
                     }
                     if (b.type === 'metrics') return acc + b.subRows.length;
@@ -3366,12 +3460,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       expandSignal={expandSignal}
                     >
                     <div className="flex flex-col gap-4">
-                      {section.id === 'population' && iso3.toUpperCase() === 'DEU' ? (
+                      {section.id === 'population' && treatAsGermany(iso3) ? (
                         <GermanyPopulationPyramid />
                       ) : null}
                       {leadingRows.length > 0 ? (
                         <div className={STAT_GRID}>
-                          {section.id === 'population' && iso3.toUpperCase() === 'DEU'
+                          {section.id === 'population' && treatAsGermany(iso3)
                             ? renderGermanyPopulationLeadingTiles(leadingRows, iso3)
                             : leadingRows.map((row) => (
                                 <Fragment key={row.metric}>{renderStatTile(row, { iso3 })}</Fragment>
@@ -3381,13 +3475,16 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       {section.id === 'economic' && iso3.toUpperCase() === 'DEU' ? (
                         <GermanyEconomicStructuralSection />
                       ) : null}
-                      {section.id === 'health' && iso3.toUpperCase() === 'DEU' ? (
+                      {section.id === 'economic' && iso3.toUpperCase() === 'FRA' ? (
+                        <FranceEconomicStructuralSection />
+                      ) : null}
+                      {section.id === 'health' && treatAsGermany(iso3) ? (
                         <div className="flex flex-col gap-3">
                           <GermanyHealthBasicSection />
                           <GermanyBirthRatesExtrasGrid />
                         </div>
                       ) : null}
-                      {section.id === 'politics' && iso3.toUpperCase() === 'DEU' ? (
+                      {section.id === 'politics' && treatAsGermany(iso3) ? (
                         <GermanyPoliticsOverviewCharts />
                       ) : null}
                       {nestedBlocks.map((block) =>
@@ -3568,8 +3665,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             title={block.sub.title}
                             count={
                               block.subRows.length +
-                              (block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? 4 : 0)
-                              + (block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU'
+                              (block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? 4 : 0)
+                              + (block.sub.id === 'government_spending' && treatAsGermany(iso3)
                                 ? block.subRows.length + 1 + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
                                 : 0)
                             }
@@ -3581,19 +3678,19 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                           >
                             <div
                               className={
-                                block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU'
+                                block.sub.id === 'birth_rates' && treatAsGermany(iso3)
                                   ? 'relative flex flex-col gap-4'
                                   : 'flex flex-col gap-4'
                               }
                             >
-                              {block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? (
+                              {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
                                 <>
                                   <GermanyBirthsLineChartTile />
                                   <GermanyBirthsByRaceChartTile />
                                   <GermanyMixedRaceBirthsChartTile />
                                 </>
                               ) : null}
-                              {block.sub.id === 'birth_rates' && iso3.toUpperCase() === 'DEU' ? (
+                              {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
                                 <>
                                   {(() => {
                                     const obesityRow =
@@ -3625,8 +3722,8 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                                     );
                                   })()}
                                 </>
-                              ) : block.sub.id === 'government_spending' && iso3.toUpperCase() === 'DEU' ? (
-                                <GermanyGovernmentSpendingDESection subRows={block.subRows} />
+                              ) : block.sub.id === 'government_spending' && treatAsGermany(iso3) ? (
+                                <GermanyGovernmentSpendingDESection subRows={block.subRows} iso3={iso3} />
                               ) : (
                                 <div className={STAT_GRID}>
                                   {block.subRows.map((row) => (
@@ -3649,7 +3746,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 49 : 4) : 0}
+                count={crimeRow ? (treatAsGermany(iso3) ? 49 : 4) : 0}
                 defaultOpen
                 anchorId="country-section-crime"
                 ribbonExpandKey="main:crime"
@@ -3660,7 +3757,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                 <div className="flex flex-col gap-4">
                   <CollapsibleFlagSection
                     title="Statistics"
-                    count={crimeRow ? (iso3.toUpperCase() === 'DEU' ? 15 + 4 + 3 : 4) : 0}
+                    count={crimeRow ? (treatAsGermany(iso3) ? 15 + 4 + 3 : 4) : 0}
                     defaultOpen
                     anchorId="country-sub-crime-statistics"
                     ribbonExpandKey="sub:crime:crime_statistics"
@@ -3668,11 +3765,11 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     expandSignal={expandSignal}
                   >
                     <div className="flex flex-col gap-4">
-                      {iso3.toUpperCase() === 'DEU' ? <GermanyTotalRecordedCrimesChart /> : null}
+                      {treatAsGermany(iso3) ? <GermanyTotalRecordedCrimesChart /> : null}
                       <CrimeMetricsSection crimeRow={crimeRow} iso3={iso3} />
                     </div>
                   </CollapsibleFlagSection>
-                  {iso3.toUpperCase() === 'DEU' ? (
+                  {treatAsGermany(iso3) ? (
                     <CollapsibleFlagSection
                       title="Victims"
                       count={19}
@@ -3685,7 +3782,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       <GermanyWhiteNativeVictimsChart />
                     </CollapsibleFlagSection>
                   ) : null}
-                  {iso3.toUpperCase() === 'DEU' ? (
+                  {treatAsGermany(iso3) ? (
                     <CollapsibleFlagSection
                       title="Migrant data"
                       count={16}
@@ -3702,7 +3799,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
               </CollapsibleFlagSection>
             </div>
 
-            {iso3.toUpperCase() === 'DEU' ? (
+            {treatAsGermany(iso3) ? (
               <div
                 style={{ order: sectionOrderIndex('government') }}
               >
