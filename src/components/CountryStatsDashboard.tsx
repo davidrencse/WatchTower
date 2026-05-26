@@ -38,6 +38,14 @@ import {
 } from '../lib/germanyCorruptionLostByYear';
 import { germanyGovSpendingLeadRowForYear } from '../lib/germanyGovernmentSpendingLeadByYear';
 import {
+  FRANCE_CORRUPTION_LOST_BY_YEAR,
+  franceCorruptionLostRowForYear,
+} from '../lib/franceCorruptionLostByYear';
+import {
+  FRANCE_GOV_SPENDING_SERIES,
+  franceGovSpendRowForYear,
+} from '../lib/franceGovernmentSpendingByYear';
+import {
   findExpenditureRow,
   metricsFromExpenditureRow,
   metricsGermanyGovernmentSpendingWithoutExpenditureCsv,
@@ -108,10 +116,6 @@ import {
   FRANCE_ECONOMIC_STRUCTURAL_GROUP_COUNT,
 } from './FranceEconomicStructuralSection';
 import { applyFranceEconomyMetricOverrides } from '../lib/franceEconomyStats';
-import {
-  FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES,
-  franceGeneralGovExpenditureForYear,
-} from '../lib/franceGeneralGovernmentExpenditure';
 import {
   GermanyEconomicTaxesSection,
   GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
@@ -351,15 +355,31 @@ function MetricTile({
   );
 }
 
-/** Germany government spending lead tile: immigration welfare + family + refugee totals (billion €). */
+function govSpendLeadRowForYear(year: number, iso3: string) {
+  if (iso3.toUpperCase() === 'FRA') {
+    const r = franceGovSpendRowForYear(year);
+    return {
+      immigrationWelfareBn: r.immigrationWelfareBn,
+      moneyToFamiliesBn: r.moneyToFamiliesBn,
+      totalImmigrantsRefugeesBn: r.totalImmigrantsRefugeesBn,
+      foreignAidOdaBn: r.foreignAidOdaBn,
+    };
+  }
+  return germanyGovSpendingLeadRowForYear(year);
+}
+
+/** Government spending lead tile: immigration welfare + family + refugee totals (billion €). */
 function GermanyImmigrationWelfareYearTile({
   selectedYear,
   sourceRow,
+  iso3,
 }: {
   selectedYear: number;
   sourceRow?: CountryStatMetric;
+  iso3: string;
 }) {
-  const data = useMemo(() => germanyGovSpendingLeadRowForYear(selectedYear), [selectedYear]);
+  const data = useMemo(() => govSpendLeadRowForYear(selectedYear, iso3), [selectedYear, iso3]);
+  const countryLabel = iso3.toUpperCase() === 'FRA' ? 'France' : 'Germany';
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
@@ -371,7 +391,9 @@ function GermanyImmigrationWelfareYearTile({
           <p className="mt-2 font-sans text-lg font-semibold tabular-nums leading-tight text-neutral-100 transition-all duration-300 sm:text-xl">
             €{data.immigrationWelfareBn.toFixed(1)}B
           </p>
-          <p className="mt-1 font-sans text-[10px] text-neutral-500">{selectedYear} · Germany</p>
+          <p className="mt-1 font-sans text-[10px] text-neutral-500">
+            {selectedYear} · {countryLabel}
+          </p>
         </div>
         <div className="py-3">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
@@ -406,11 +428,13 @@ function GermanyImmigrationWelfareYearTile({
 function GermanyForeignAidYearTile({
   selectedYear,
   sourceRow,
+  iso3,
 }: {
   selectedYear: number;
   sourceRow?: CountryStatMetric;
+  iso3: string;
 }) {
-  const data = useMemo(() => germanyGovSpendingLeadRowForYear(selectedYear), [selectedYear]);
+  const data = useMemo(() => govSpendLeadRowForYear(selectedYear, iso3), [selectedYear, iso3]);
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
@@ -675,11 +699,74 @@ const GERMANY_GOV_SPEND_CARD_DEFS: readonly GovSpendCardDef[] = [
   },
 ];
 
-function govSpendRowForYear(year: number): GermanyGovSpendingSeriesRow {
+function govSpendRowForYear(year: number, iso3: string): GermanyGovSpendingSeriesRow {
+  if (iso3.toUpperCase() === 'FRA') {
+    return franceGovSpendRowForYear(year) as GermanyGovSpendingSeriesRow;
+  }
   return GERMANY_GOV_SPENDING_SERIES.find((r) => Number(r.year) === year) ?? GERMANY_GOV_SPENDING_SERIES.at(-1)!;
 }
 
-function buildGovSpendCategoryCardsForYear(row: GermanyGovSpendingSeriesRow): Array<{
+const FRANCE_GOV_SPEND_CARD_DEFS: readonly GovSpendCardDef[] = [
+  {
+    label: 'Social Protection',
+    notes: 'Pensions, unemployment, family benefits, and social transfers (INSEE / Eurostat S13)',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.socialProtection.color),
+    getEurBn: (r) => r.socialProtection,
+  },
+  {
+    label: 'Health',
+    notes: 'Public health care and medical services',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.health.color),
+    getEurBn: (r) => r.health,
+  },
+  {
+    label: 'Education & Research',
+    notes: 'Schools, higher education, and research funding',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.educationResearch.color),
+    getEurBn: (r) => r.educationResearch,
+  },
+  {
+    label: 'Defence',
+    notes: 'Military and defence expenditure',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.defence.color),
+    getEurBn: (r) => r.defence,
+  },
+  {
+    label: 'Transport & Infrastructure',
+    notes: 'Transport networks and public infrastructure',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.transportInfrastructure.color),
+    getEurBn: (r) => r.transportInfrastructure,
+  },
+  {
+    label: 'General Public Services',
+    notes: 'Core administration and general government operations',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.generalPublicServices.color),
+    getEurBn: (r) => r.generalPublicServices,
+  },
+  {
+    label: 'Interest Payments',
+    notes: 'Interest on general government debt',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.interestPayments.color),
+    getEurBn: (r) => r.interestPayments,
+  },
+  {
+    label: 'Economic Affairs & Subsidies',
+    notes: 'Economic affairs, business support, and subsidies',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.economicAffairsSubsidies.color),
+    getEurBn: (r) => r.economicAffairsSubsidies,
+  },
+  {
+    label: 'Other',
+    notes: 'Remaining general government spending categories',
+    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.other.color),
+    getEurBn: (r) => r.other,
+  },
+];
+
+function buildGovSpendCategoryCardsForYear(
+  row: GermanyGovSpendingSeriesRow,
+  iso3: string,
+): Array<{
   label: string;
   eurBn: number;
   sharePct: number;
@@ -687,7 +774,8 @@ function buildGovSpendCategoryCardsForYear(row: GermanyGovSpendingSeriesRow): Ar
   color: string;
 }> {
   const total = row.total;
-  return GERMANY_GOV_SPEND_CARD_DEFS.map((def) => {
+  const defs = iso3.toUpperCase() === 'FRA' ? FRANCE_GOV_SPEND_CARD_DEFS : GERMANY_GOV_SPEND_CARD_DEFS;
+  return defs.map((def) => {
     const eurBn = def.getEurBn(row);
     return {
       label: def.label,
@@ -803,7 +891,7 @@ function FranceGovernmentTotalExpenditureChart() {
     <GovernmentTotalExpenditureChart
       title="Total General Government Expenditure"
       description="Billion Euros (€bn) – Official INSEE / Eurostat general government (S13) data · 2000–2025"
-      series={FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES}
+      series={FRANCE_GOV_SPENDING_SERIES}
       seriesLabel="Total General Government Expenditure"
     />
   );
@@ -840,10 +928,9 @@ function GermanyGovSpendingContextMetricTile({
   iso3: string;
 }) {
   const isFrance = iso3.toUpperCase() === 'FRA';
-  const row = useMemo(() => govSpendRowForYear(selectedYear), [selectedYear]);
+  const row = useMemo(() => govSpendRowForYear(selectedYear, iso3), [selectedYear, iso3]);
   const cfg = GERMANY_GOV_SPENDING_LINE_CONFIG[seriesKey];
-  const value =
-    isFrance && seriesKey === 'total' ? franceGeneralGovExpenditureForYear(selectedYear).total : row[seriesKey];
+  const value = row[seriesKey];
   const label =
     isFrance && seriesKey === 'total' ? 'Total General Government Expenditure' : cfg.label;
 
@@ -890,10 +977,16 @@ function GermanyGovSpendingContextTiles({ selectedYear, iso3 }: { selectedYear: 
   );
 }
 
-function GermanyGovernmentSpendingCategoryCards({ selectedYear }: { selectedYear: number }) {
+function GermanyGovernmentSpendingCategoryCards({
+  selectedYear,
+  iso3,
+}: {
+  selectedYear: number;
+  iso3: string;
+}) {
   const cards = useMemo(
-    () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear)),
-    [selectedYear],
+    () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear, iso3), iso3),
+    [selectedYear, iso3],
   );
 
   return (
@@ -955,7 +1048,7 @@ function GermanyGovernmentSpendingCategoryLineChart({
     scroller.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
   }, [selectedYear]);
 
-  const yearRow = useMemo(() => govSpendRowForYear(selectedYear), [selectedYear]);
+  const yearRow = useMemo(() => govSpendRowForYear(selectedYear, iso3), [selectedYear, iso3]);
 
   const { chartData, chartConfig, totalBn } = useMemo(() => {
     const slices = GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => {
@@ -981,17 +1074,16 @@ function GermanyGovernmentSpendingCategoryLineChart({
       return acc;
     }, {});
 
-    const totalBn = isFrance
-      ? franceGeneralGovExpenditureForYear(selectedYear).total
-      : yearRow.total;
-    return { chartData: data, chartConfig: cfg, totalBn };
-  }, [yearRow, isFrance, selectedYear]);
+    return { chartData: data, chartConfig: cfg, totalBn: yearRow.total };
+  }, [yearRow]);
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Government Expenditure By Category (2000-2025)
+          {isFrance
+            ? 'France – Government Expenditure by Category (2000–2025)'
+            : 'Government Expenditure By Category (2000-2025)'}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] text-neutral-500">
           Select a year below · pie and category cards update together (€bn)
@@ -1125,8 +1217,20 @@ function GermanyGovernmentSpendingCategoryLineChart({
   );
 }
 
-function GermanyCorruptionLostMetricTile({ selectedYear }: { selectedYear: number }) {
-  const row = useMemo(() => germanyCorruptionLostRowForYear(selectedYear), [selectedYear]);
+function GermanyCorruptionLostMetricTile({
+  selectedYear,
+  iso3,
+}: {
+  selectedYear: number;
+  iso3: string;
+}) {
+  const row = useMemo(
+    () =>
+      iso3.toUpperCase() === 'FRA'
+        ? franceCorruptionLostRowForYear(selectedYear)
+        : germanyCorruptionLostRowForYear(selectedYear),
+    [selectedYear, iso3],
+  );
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
@@ -1151,10 +1255,15 @@ function GermanyCorruptionLostMetricTile({ selectedYear }: { selectedYear: numbe
   );
 }
 
-function GermanyCorruptionLostChart({ selectedYear }: { selectedYear: number }) {
+function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: number; iso3: string }) {
+  const isFrance = iso3.toUpperCase() === 'FRA';
   const chartData = useMemo(
-    () => GERMANY_CORRUPTION_LOST_BY_YEAR.map((r) => ({ ...r, yearLabel: String(r.year) })),
-    [],
+    () =>
+      (isFrance ? FRANCE_CORRUPTION_LOST_BY_YEAR : GERMANY_CORRUPTION_LOST_BY_YEAR).map((r) => ({
+        ...r,
+        yearLabel: String(r.year),
+      })),
+    [isFrance],
   );
 
   return (
@@ -1164,7 +1273,8 @@ function GermanyCorruptionLostChart({ selectedYear }: { selectedYear: number }) 
           Money Lost to Corruption
         </CardTitle>
         <CardDescription className="font-sans text-[10px] text-neutral-500">
-          Germany · 2000–2025 (billion € and % of GDP) · highlighted year matches category chart and lead tiles
+          {isFrance ? 'France' : 'Germany'} · 2000–2025 (billion € and % of GDP) · highlighted year matches category
+          chart and lead tiles
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -1265,7 +1375,7 @@ function GermanyGovernmentSpendingCategoryBlock({
         onYearChange={onYearChange}
         iso3={iso3}
       />
-      <GermanyGovernmentSpendingCategoryCards selectedYear={selectedYear} />
+      <GermanyGovernmentSpendingCategoryCards selectedYear={selectedYear} iso3={iso3} />
       <GermanyGovSpendingContextTiles selectedYear={selectedYear} iso3={iso3} />
     </>
   );
@@ -1294,12 +1404,16 @@ function GermanyGovernmentSpendingDESection({
       />
 
       <div className={STAT_GRID}>
-        <GermanyImmigrationWelfareYearTile selectedYear={selectedYear} sourceRow={immigrationRow} />
-        <GermanyCorruptionLostMetricTile selectedYear={selectedYear} />
-        <GermanyForeignAidYearTile selectedYear={selectedYear} sourceRow={foreignAidRow} />
+        <GermanyImmigrationWelfareYearTile
+          selectedYear={selectedYear}
+          sourceRow={immigrationRow}
+          iso3={iso3}
+        />
+        <GermanyCorruptionLostMetricTile selectedYear={selectedYear} iso3={iso3} />
+        <GermanyForeignAidYearTile selectedYear={selectedYear} sourceRow={foreignAidRow} iso3={iso3} />
       </div>
 
-      <GermanyCorruptionLostChart selectedYear={selectedYear} />
+      <GermanyCorruptionLostChart selectedYear={selectedYear} iso3={iso3} />
     </div>
   );
 }
@@ -2703,16 +2817,26 @@ function GermanyHoverSeriesTile({
 }
 
 function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): ReactNode {
-  if (row.metric === 'Immigration welfare spending' && opts?.iso3?.toUpperCase() === 'DEU') {
+  if (
+    row.metric === 'Immigration welfare spending' &&
+    (opts?.iso3?.toUpperCase() === 'DEU' || opts?.iso3?.toUpperCase() === 'FRA')
+  ) {
     return (
       <GermanyImmigrationWelfareYearTile
         selectedYear={opts?.govSpendSelectedYear ?? 2025}
         sourceRow={row}
+        iso3={opts.iso3}
       />
     );
   }
-  if (row.metric === 'Foreign Aid' && opts?.iso3?.toUpperCase() === 'DEU') {
-    return <GermanyForeignAidYearTile selectedYear={opts?.govSpendSelectedYear ?? 2025} sourceRow={row} />;
+  if (row.metric === 'Foreign Aid' && (opts?.iso3?.toUpperCase() === 'DEU' || opts?.iso3?.toUpperCase() === 'FRA')) {
+    return (
+      <GermanyForeignAidYearTile
+        selectedYear={opts?.govSpendSelectedYear ?? 2025}
+        sourceRow={row}
+        iso3={opts.iso3}
+      />
+    );
   }
   if (row.metric === 'Childhood overweight and obesity (Germany)' && opts?.iso3?.toUpperCase() === 'DEU') {
     return <ChildhoodObesityBirthRatesTile row={row} />;
