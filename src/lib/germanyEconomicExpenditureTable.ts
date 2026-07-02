@@ -3,7 +3,7 @@ const USD_TO_EUR = 0.92;
 
 /**
  * Fallback if `table.csv` is empty at build time or parses to no rows.
- * Mirrors `Assets/Data/Europe/Germany/Economic Statistics Section/table.csv`.
+ * Mirrors `Assets/Data/countries/Germany/economy/table.csv`.
  */
 export const GERMANY_ECONOMIC_EXPENDITURE_TABLE_CSV_FALLBACK = `Category,% of Total Expenditure,€ billion (2025 estimate)
 "Social Protection (pensions, unemployment, long-term care, family benefits, etc.)",39.0%,~€861

@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
-import germanyMigrantCrimeRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_requested_metrics.csv?raw';
-import germanyMigrantCrimeAdditionalRaw from '../../Assets/Data/Europe/Germany/germany_migrant_crime_additional_metrics.csv?raw';
+import germanyMigrantCrimeRaw from '../../Assets/Data/countries/Germany/germany_migrant_crime_requested_metrics.csv?raw';
+import germanyMigrantCrimeAdditionalRaw from '../../Assets/Data/countries/Germany/germany_migrant_crime_additional_metrics.csv?raw';
 import { parseCsvRows } from '../lib/csv';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';

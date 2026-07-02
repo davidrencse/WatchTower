@@ -25,8 +25,6 @@ export function SelectedFlagView({ flag, onBack, onSelectFlag }: SelectedFlagVie
             flag={flag}
             iso3={iso3}
             onBack={onBack}
-            allFlags={FLAGS}
-            onSelectFlag={onSelectFlag}
           />
         </Suspense>
       );

@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import newsCsvRaw from '../../Assets/Data/Europe/Germany/news.csv?raw';
+import newsCsvRaw from '../../Assets/Data/countries/Germany/news.csv?raw';
 import {
   GERMANY_NEWS_TOPIC_LABEL,
   faviconUrlForHostname,

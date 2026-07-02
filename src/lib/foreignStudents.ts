@@ -120,7 +120,7 @@ export function metricsFromGermanyForeignStudentsCsv(raw: string): CountryStatMe
   }));
 
   const notes =
-    'Germany-specific source: Assets/Data/Europe/Germany/foreign_students.csv (WS 2024/25).';
+    'Germany-specific source: Assets/Data/countries/Germany/foreign_students.csv (WS 2024/25).';
   const payload = JSON.stringify(withShares);
   const aidDenominator = totalAid ?? aidOrigins.reduce((s, o) => s + o.aidCount, 0);
   const aidPayload: AidPayload = {
@@ -172,7 +172,7 @@ export function fallbackGermanyForeignStudentsMetrics(): CountryStatMetric[] {
     { country: 'Syria', count: 13800, sharePct: (13800 / 402083) * 100 },
   ];
   const notes =
-    'Guaranteed fallback from Assets/Data/Europe/Germany/foreign_students.csv (WS 2024/25).';
+    'Guaranteed fallback from Assets/Data/countries/Germany/foreign_students.csv (WS 2024/25).';
   return [
     tile('Foreign students (total)', '402,083', 'WS 2024/25', 'Germany', '', notes),
     tile(

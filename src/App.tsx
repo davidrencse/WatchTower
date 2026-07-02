@@ -21,7 +21,6 @@ function App() {
   const [stage, setStage] = useState<'home' | 'gallery'>('home');
   const [heroExiting, setHeroExiting] = useState(false);
   const [selected, setSelected] = useState<FlagEntry | null>(null);
-  const statsView = selected ? flagIdHasCountryStats(selected.id) : false;
   const openingGalleryFromHero = useRef(false);
   const suppressGallerySelectUntil = useRef(0);
 

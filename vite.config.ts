@@ -20,202 +20,69 @@ function listFlagFilenames(srcDir: string): string[] {
 }
 
 /**
- * Copy PNGs from `Assets/Flags` → `public/flags` so they are served at `/flags/<file>.png`
- * in dev and copied to `dist/flags` in production (no bundler glob / gitignore edge cases).
+ * Mirror CSV data from `Assets/Data` (the source of truth) into `public/data` so it is
+ * served at `/data/<file>.csv` in dev and copied into `dist/data` for production.
+ * Shared multi-country tables live in `Assets/Data/shared`; per-country files live under
+ * `Assets/Data/countries/<Country>`. Output filenames are kept stable (the app fetches
+ * fixed `/data/*.csv` URLs), so reorganising the source tree never changes runtime paths.
  */
 function syncDataCsvToPublic() {
   return {
     name: 'sync-data-csv-to-public',
     enforce: 'pre' as const,
     buildStart() {
-      const srcDir = path.join(__dirname, 'Assets', 'Data');
+      const dataDir = path.join(__dirname, 'Assets', 'Data');
       const destDir = path.join(__dirname, 'public', 'data');
-      if (!fs.existsSync(srcDir)) {
-        if (fs.existsSync(destDir)) {
-          for (const name of fs.readdirSync(destDir)) {
-            if (name.toLowerCase().endsWith('.csv')) fs.unlinkSync(path.join(destDir, name));
-          }
-        }
-        return;
-      }
+      const germanyDirPublic = path.join(__dirname, 'public', 'germany');
+      const germanyDir = path.join(dataDir, 'countries', 'Germany');
+
       fs.mkdirSync(destDir, { recursive: true });
+      fs.mkdirSync(germanyDirPublic, { recursive: true });
+
+      // Clear previously-mirrored CSVs (source of truth is Assets/Data).
       for (const name of fs.readdirSync(destDir)) {
         if (name.toLowerCase().endsWith('.csv')) fs.unlinkSync(path.join(destDir, name));
       }
-      for (const name of fs.readdirSync(srcDir)) {
-        if (!name.toLowerCase().endsWith('.csv')) continue;
-        fs.copyFileSync(path.join(srcDir, name), path.join(destDir, name));
+
+      // Shared multi-country tables → copied verbatim (same filename).
+      const sharedDir = path.join(dataDir, 'shared');
+      if (fs.existsSync(sharedDir)) {
+        for (const name of fs.readdirSync(sharedDir)) {
+          if (name.toLowerCase().endsWith('.csv')) {
+            fs.copyFileSync(path.join(sharedDir, name), path.join(destDir, name));
+          }
+        }
       }
 
-      const germanyForeignStudents = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'foreign_students.csv',
-      );
-      if (fs.existsSync(germanyForeignStudents)) {
-        fs.copyFileSync(germanyForeignStudents, path.join(destDir, 'germany_foreign_students.csv'));
+      // Germany per-country CSVs → stable public/data names the app fetches at runtime.
+      const csvCopies: ReadonlyArray<readonly [string, string]> = [
+        [path.join(germanyDir, 'foreign_students.csv'), 'germany_foreign_students.csv'],
+        [
+          path.join(germanyDir, 'germany_populationpyramid_2024_treemap_labeled_items.csv'),
+          'germany_immigration_treemap_labeled_items.csv',
+        ],
+        [path.join(germanyDir, 'germany_birth_health_indicators.csv'), 'germany_birth_health_indicators.csv'],
+        [path.join(germanyDir, 'germany_migrant_crime_requested_metrics.csv'), 'germany_migrant_crime_requested_metrics.csv'],
+        [path.join(germanyDir, 'germany_migrant_crime_additional_metrics.csv'), 'germany_migrant_crime_additional_metrics.csv'],
+        [path.join(germanyDir, 'germany_labor_statistics.csv'), 'germany_labor_statistics.csv'],
+        [path.join(germanyDir, 'news.csv'), 'news.csv'],
+        [path.join(germanyDir, 'government', 'germany_government_politics.csv'), 'germany_government_politics.csv'],
+        [path.join(germanyDir, 'economy', 'table.csv'), 'germany_economic_expenditure_table.csv'],
+        [path.join(germanyDir, 'health', 'germany_health_statistics_basic.csv'), 'germany_health_statistics_basic.csv'],
+        [path.join(germanyDir, 'health', 'germany_abortion_statistics.csv'), 'germany_abortion_statistics.csv'],
+        [path.join(germanyDir, 'health', 'germany_gender_care_statistics.csv'), 'germany_gender_care_statistics.csv'],
+      ];
+      for (const [src, destName] of csvCopies) {
+        if (fs.existsSync(src)) fs.copyFileSync(src, path.join(destDir, destName));
       }
 
-      const germanyTreemapCsv = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'germany_populationpyramid_2024_treemap_labeled_items.csv',
-      );
-      if (fs.existsSync(germanyTreemapCsv)) {
-        fs.copyFileSync(
-          germanyTreemapCsv,
-          path.join(destDir, 'germany_immigration_treemap_labeled_items.csv'),
-        );
-      }
-
-      const germanyBirthHealth = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'germany_birth_health_indicators.csv',
-      );
-      if (fs.existsSync(germanyBirthHealth)) {
-        fs.copyFileSync(germanyBirthHealth, path.join(destDir, 'germany_birth_health_indicators.csv'));
-      }
-
-      const germanyMigrantCrime = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'germany_migrant_crime_requested_metrics.csv',
-      );
-      if (fs.existsSync(germanyMigrantCrime)) {
-        fs.copyFileSync(germanyMigrantCrime, path.join(destDir, 'germany_migrant_crime_requested_metrics.csv'));
-      }
-
-      const germanyMigrantCrimeAdditional = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'germany_migrant_crime_additional_metrics.csv',
-      );
-      if (fs.existsSync(germanyMigrantCrimeAdditional)) {
-        fs.copyFileSync(
-          germanyMigrantCrimeAdditional,
-          path.join(destDir, 'germany_migrant_crime_additional_metrics.csv'),
-        );
-      }
-
-      const germanyDirPublic = path.join(__dirname, 'public', 'germany');
-      fs.mkdirSync(germanyDirPublic, { recursive: true });
-      const poppyra = path.join(__dirname, 'Assets', 'Data', 'Europe', 'Germany', 'poppyra.png');
-      if (fs.existsSync(poppyra)) {
-        fs.copyFileSync(poppyra, path.join(germanyDirPublic, 'poppyra.png'));
-      }
-
-      const germanyGovCsv = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Government Section',
-        'germany_government_politics.csv',
-      );
-      if (fs.existsSync(germanyGovCsv)) {
-        fs.copyFileSync(germanyGovCsv, path.join(destDir, 'germany_government_politics.csv'));
-      }
-
-      const politicsPng = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Government Section',
-        'politics.png',
-      );
-      if (fs.existsSync(politicsPng)) {
-        fs.copyFileSync(politicsPng, path.join(germanyDirPublic, 'politics.png'));
-      }
-
-      const germanyNewsCsv = path.join(__dirname, 'Assets', 'Data', 'Europe', 'Germany', 'news.csv');
-      if (fs.existsSync(germanyNewsCsv)) {
-        fs.copyFileSync(germanyNewsCsv, path.join(destDir, 'news.csv'));
-      }
-
-      const germanyLaborStats = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'germany_labor_statistics.csv',
-      );
-      if (fs.existsSync(germanyLaborStats)) {
-        fs.copyFileSync(germanyLaborStats, path.join(destDir, 'germany_labor_statistics.csv'));
-      }
-
-      const germanyHealthBasic = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Health Section',
-        'germany_health_statistics_basic.csv',
-      );
-      if (fs.existsSync(germanyHealthBasic)) {
-        fs.copyFileSync(germanyHealthBasic, path.join(destDir, 'germany_health_statistics_basic.csv'));
-      }
-
-      const germanyAbortionStats = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Health Section',
-        'germany_abortion_statistics.csv',
-      );
-      if (fs.existsSync(germanyAbortionStats)) {
-        fs.copyFileSync(germanyAbortionStats, path.join(destDir, 'germany_abortion_statistics.csv'));
-      }
-
-      const germanyGenderCareStats = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Health Section',
-        'germany_gender_care_statistics.csv',
-      );
-      if (fs.existsSync(germanyGenderCareStats)) {
-        fs.copyFileSync(germanyGenderCareStats, path.join(destDir, 'germany_gender_care_statistics.csv'));
-      }
-
-      const germanyEconomicExpenditureTable = path.join(
-        __dirname,
-        'Assets',
-        'Data',
-        'Europe',
-        'Germany',
-        'Economic Statistics Section',
-        'table.csv',
-      );
-      if (fs.existsSync(germanyEconomicExpenditureTable)) {
-        fs.copyFileSync(
-          germanyEconomicExpenditureTable,
-          path.join(destDir, 'germany_economic_expenditure_table.csv'),
-        );
+      // Germany images served from /germany/*.png.
+      const imageCopies: ReadonlyArray<readonly [string, string]> = [
+        [path.join(germanyDir, 'poppyra.png'), 'poppyra.png'],
+        [path.join(germanyDir, 'government', 'politics.png'), 'politics.png'],
+      ];
+      for (const [src, destName] of imageCopies) {
+        if (fs.existsSync(src)) fs.copyFileSync(src, path.join(germanyDirPublic, destName));
       }
     },
   };

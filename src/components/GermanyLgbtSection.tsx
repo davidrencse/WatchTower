@@ -1,5 +1,5 @@
 import { Fragment, memo, useEffect, useMemo, useState, type ReactNode } from 'react';
-import lgbtCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_gender_care_statistics.csv?raw';
+import lgbtCsvRaw from '../../Assets/Data/countries/Germany/health/germany_gender_care_statistics.csv?raw';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
   clusterMetricTable,
@@ -341,8 +341,8 @@ function LgbtHighlightsPanel({
 
 const TRIPLE_ROW_WRAP = 'grid grid-cols-1 gap-1 sm:grid-cols-3 sm:gap-1';
 
-const CHILD_ROW_A_SKIP = new Set(CHILDREN_COMPACT_ROW_A.slice(1));
-const CHILD_ROW_B_SKIP = new Set(CHILDREN_COMPACT_ROW_B.slice(1));
+const CHILD_ROW_A_SKIP = new Set<string>(CHILDREN_COMPACT_ROW_A.slice(1));
+const CHILD_ROW_B_SKIP = new Set<string>(CHILDREN_COMPACT_ROW_B.slice(1));
 
 function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPoliticsRow[]>): ReactNode[] {
   const nodes: ReactNode[] = [];

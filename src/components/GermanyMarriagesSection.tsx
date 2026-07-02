@@ -503,7 +503,7 @@ function LgbtLineCard() {
               <YAxis tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} width={52} />
               <ChartTooltip
                 cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
-                content={<ChartTooltipContent className="rounded-md" formatter={(value) => Number(value).toLocaleString('en-US')} labelFormatter={(label, payload: any) => `Year ${String(label)} - ${payload?.[0]?.payload?.type ?? ''}`} />}
+                content={<ChartTooltipContent className="rounded-md" formatter={(value) => Number(value).toLocaleString('en-US')} labelFormatter={(label, payload) => `Year ${String(label)} - ${(payload as ReadonlyArray<{ payload?: { type?: string } }> | undefined)?.[0]?.payload?.type ?? ''}`} />}
               />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line type="monotone" dataKey="total" name="Total same-sex unions" stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />

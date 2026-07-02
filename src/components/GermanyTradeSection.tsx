@@ -950,7 +950,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                       <ChartTooltipContent
                         className="rounded-md"
                         formatter={(value, _name, item) => {
-                          const payload = item.payload as { jobsSupported?: number } | undefined;
+                          const payload = (item as { payload?: { jobsSupported?: number } } | undefined)?.payload;
                           const jobs = payload?.jobsSupported;
                           const jobsLabel =
                             typeof jobs === 'number'

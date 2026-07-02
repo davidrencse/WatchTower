@@ -1,7 +1,7 @@
 import { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import germanyGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/Government Section/germany_government_politics.csv?raw';
-import germanyLaborStatsCsvRaw from '../../Assets/Data/Europe/Germany/germany_labor_statistics.csv?raw';
+import germanyGovernmentCsvRaw from '../../Assets/Data/countries/Germany/government/germany_government_politics.csv?raw';
+import germanyLaborStatsCsvRaw from '../../Assets/Data/countries/Germany/germany_labor_statistics.csv?raw';
 import {
   clusterRowsByMetric,
   laborIncomeDistributionRows,

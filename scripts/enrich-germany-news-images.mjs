@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CSV_PATH = path.join(__dirname, '..', 'Assets', 'Data', 'Europe', 'Germany', 'news.csv');
+const CSV_PATH = path.join(__dirname, '..', 'Assets', 'Data', 'countries', 'Germany', 'news.csv');
 
 const DELAY_MS = 2200;
 

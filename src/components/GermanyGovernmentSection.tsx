@@ -1,5 +1,5 @@
 import { Fragment, memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import germanyGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/Government Section/germany_government_politics.csv?raw';
+import germanyGovernmentCsvRaw from '../../Assets/Data/countries/Germany/government/germany_government_politics.csv?raw';
 import { GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT } from '../data/germanyImmigrationPolicies';
 import {
   clusterRowsByMetric,
@@ -733,23 +733,22 @@ function CitizenshipGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][
                       const d = sliceData as { group?: string; count?: number; percentage?: string; fill?: string };
                       const pos = getLocalChartPosition(event);
                       if (!pos || typeof d.group !== 'string' || typeof d.count !== 'number') return;
+                      const group = d.group;
+                      const count = d.count;
+                      const percentage = d.percentage ?? '';
+                      const color = d.fill ?? '#60a5fa';
                       moveAgeTooltip(pos);
                       setAgeGroupHover((prev) => {
                         if (
                           prev &&
-                          prev.group === d.group &&
-                          prev.count === d.count &&
-                          prev.percentage === (d.percentage ?? '') &&
-                          prev.color === (d.fill ?? '#60a5fa')
+                          prev.group === group &&
+                          prev.count === count &&
+                          prev.percentage === percentage &&
+                          prev.color === color
                         ) {
                           return prev;
                         }
-                        return {
-                          group: d.group,
-                          count: d.count,
-                          percentage: d.percentage ?? '',
-                          color: d.fill ?? '#60a5fa',
-                        };
+                        return { group, count, percentage, color };
                       });
                     }}
                   >

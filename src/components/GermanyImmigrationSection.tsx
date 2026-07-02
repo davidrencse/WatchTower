@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import germanyTreemapCsvRaw from '../../Assets/Data/Europe/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
+import germanyTreemapCsvRaw from '../../Assets/Data/countries/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from './ui/chart';

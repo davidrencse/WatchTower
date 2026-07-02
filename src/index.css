@@ -363,6 +363,10 @@ body::-webkit-scrollbar {
   border-color: rgba(255, 255, 255, 0.14);
 }
 
+/* Non-active tiles share one scale so a neighbour never resizes (and appears to
+   shift) when the active country changes past it — only the tile gaining/losing
+   focus scales. Depth between near/far is conveyed via opacity + filter, which
+   don't move the box. */
 .wt-rail-card[data-state='near'] {
   transform: scale(0.92);
   opacity: 0.72;
@@ -370,7 +374,7 @@ body::-webkit-scrollbar {
 }
 
 .wt-rail-card[data-state='far'] {
-  transform: scale(0.82);
+  transform: scale(0.92);
   opacity: 0.42;
   filter: saturate(0.7) blur(0.3px);
 }

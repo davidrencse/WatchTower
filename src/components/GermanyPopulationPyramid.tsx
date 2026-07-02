@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import germanyPopulationByAgeCsvRaw from '../../Assets/Data/Europe/Germany/germany_2025_population_by_age_and_gender.csv?raw';
+import germanyPopulationByAgeCsvRaw from '../../Assets/Data/countries/Germany/germany_2025_population_by_age_and_gender.csv?raw';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from './ui/chart';
 import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts';

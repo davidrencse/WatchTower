@@ -251,23 +251,22 @@ export function NaturalizationsPriorNationalityDataGrid() {
                     const d = sliceData as { name?: string; count?: number; percentage?: string; fill?: string };
                     const pos = getLocalChartPosition(event);
                     if (!pos || typeof d.name !== 'string' || typeof d.count !== 'number') return;
+                    const name = d.name;
+                    const count = d.count;
+                    const percentage = d.percentage ?? '';
+                    const color = d.fill ?? '#a78bfa';
                     movePriorTooltip(pos);
                     setHoveredSlice((prev) => {
                       if (
                         prev &&
-                        prev.name === d.name &&
-                        prev.count === d.count &&
-                        prev.percentage === (d.percentage ?? '') &&
-                        prev.color === (d.fill ?? '#a78bfa')
+                        prev.name === name &&
+                        prev.count === count &&
+                        prev.percentage === percentage &&
+                        prev.color === color
                       ) {
                         return prev;
                       }
-                      return {
-                        name: d.name,
-                        count: d.count,
-                        percentage: d.percentage ?? '',
-                        color: d.fill ?? '#a78bfa',
-                      };
+                      return { name, count, percentage, color };
                     });
                   }}
                 >

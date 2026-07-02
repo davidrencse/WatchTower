@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import jewishGovernmentCsvRaw from '../../Assets/Data/Europe/Germany/jewish.csv?raw';
+import jewishGovernmentCsvRaw from '../../Assets/Data/countries/Germany/jewish.csv?raw';
 import starImage from '../../Assets/star.png';
 import {
   GERMANY_JEWISH_GOVERNMENT_PEOPLE,
@@ -180,7 +180,7 @@ export function GermanyJewishGovernmentCarousel() {
           <div className="shrink-0 border-t border-white/[0.08] px-1 pt-3">
               <p className={`font-sans text-[10px] text-neutral-600 ${UC_META}`}>
                 Curated dataset: <code className="text-neutral-500">src/data/germanyJewishGovernmentPeople.ts</code> ·
-                Legacy CSV: <code className="text-neutral-500">Assets/Data/Europe/Germany/jewish.csv</code>
+                Legacy CSV: <code className="text-neutral-500">Assets/Data/countries/Germany/jewish.csv</code>
               </p>
           </div>
         </div>

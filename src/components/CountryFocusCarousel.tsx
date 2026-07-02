@@ -21,8 +21,6 @@ type CountryFocusCarouselProps = {
 };
 
 const RAIL_ITEM_HEIGHT = 132;
-const RAIL_GAP = 14;
-const RAIL_STEP = RAIL_ITEM_HEIGHT + RAIL_GAP;
 
 /**
  * Two-pane country browser:

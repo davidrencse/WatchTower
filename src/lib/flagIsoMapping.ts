@@ -1,6 +1,6 @@
 /**
  * Maps `flag-of-*.png` ids to ISO 3166-1 alpha-3 codes present in
- * `Assets/Data/centralized_merged_country_stats.csv` (or legacy screenshot CSV).
+ * `Assets/Data/shared/centralized_merged_country_stats.csv` (or legacy screenshot CSV).
  */
 export const FLAG_ID_TO_ISO3: Record<string, string> = {
   'flag-of-Australia.png': 'AUS',

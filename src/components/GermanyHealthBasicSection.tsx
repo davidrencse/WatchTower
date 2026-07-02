@@ -1,5 +1,5 @@
 import { Fragment, memo, useEffect, useMemo, useState } from 'react';
-import healthBasicCsvRaw from '../../Assets/Data/Europe/Germany/Health Section/germany_health_statistics_basic.csv?raw';
+import healthBasicCsvRaw from '../../Assets/Data/countries/Germany/health/germany_health_statistics_basic.csv?raw';
 import type { GermanyGovernmentPoliticsRow } from '../lib/germanyGovernmentPolitics';
 import {
   clusterMetricTable,

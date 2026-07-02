@@ -335,7 +335,7 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
                   stroke="none"
                   isAnimationActive={false}
                 >
-                  {STATUS_STOCK_OVERVIEW.map((entry, i) => (
+                  {STATUS_STOCK_OVERVIEW.map((entry) => (
                     <Cell key={entry.name} fill={entry.fill} />
                   ))}
                 </Pie>
