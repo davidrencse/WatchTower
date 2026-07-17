@@ -1,0 +1,7 @@
+flow_type,country,population,male_share_percent,share_of_total_flow_percent,total_flow_2024,source,source_url,original_source
+Immigrants,Switzerland,14847,50,55.9,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Austria,3985,50,15,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Germany,1935,50,7.3,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Italy,836,50,3.1,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Turkiye,585,50,2.2,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Other countries (combined),4372,50,16.5,26560,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock

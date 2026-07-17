@@ -1394,21 +1394,29 @@ function CompactMigrantCard({
 type GermanyMigrantCrimeSectionProps = {
   collapseSignal?: number;
   expandSignal?: number;
+  /** Per-country CSVs (same schemas); default to Germany's. */
+  csvUrl?: string;
+  additionalCsvUrl?: string;
+  /** Germany also renders its bundled national trend charts. */
+  isGermany?: boolean;
 };
 
 export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSection({
   collapseSignal,
   expandSignal,
+  csvUrl = CSV_URL,
+  additionalCsvUrl = ADDITIONAL_CSV_URL,
+  isGermany = true,
 }: GermanyMigrantCrimeSectionProps) {
-  const [raw, setRaw] = useState<string>(germanyMigrantCrimeRaw);
-  const [additionalRaw, setAdditionalRaw] = useState<string>(germanyMigrantCrimeAdditionalRaw);
+  const [raw, setRaw] = useState<string>(isGermany ? germanyMigrantCrimeRaw : '');
+  const [additionalRaw, setAdditionalRaw] = useState<string>(isGermany ? germanyMigrantCrimeAdditionalRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [resRequested, resAdditional] = await Promise.all([fetch(CSV_URL), fetch(ADDITIONAL_CSV_URL)]);
+        const [resRequested, resAdditional] = await Promise.all([fetch(csvUrl), fetch(additionalCsvUrl)]);
         let textRequested = '';
         let textAdditional = '';
         if (resRequested.ok) textRequested = await resRequested.text();
@@ -1427,7 +1435,7 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [csvUrl, additionalCsvUrl]);
 
   const rows = useMemo(() => parseRows(raw), [raw]);
   const byRequested = useMemo(() => {
@@ -1451,17 +1459,19 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
 
   return (
     <div className="flex flex-col gap-3">
-      <CollapsibleFlagSection title="Graphs" count={7} defaultOpen collapseSignal={collapseSignal} expandSignal={expandSignal}>
-        <div className="flex flex-col gap-3">
-          <GermanyMigrantCrimeInteractiveTrendChart />
-          <GermanyCrimeSuspectsByBackgroundChart />
-          <GermanyNonGermanCategoryShareChart />
-          <GermanyNonGermanSuspectsChart metricKey="sexCrimes" />
-          <GermanyNonGermanSuspectsChart metricKey="rape" />
-          <GermanyNonGermanSuspectsChart metricKey="murder" />
-          <GermanyNonGermanSuspectsChart metricKey="violentCrimes" />
-        </div>
-      </CollapsibleFlagSection>
+      {isGermany ? (
+        <CollapsibleFlagSection title="Graphs" count={7} defaultOpen collapseSignal={collapseSignal} expandSignal={expandSignal}>
+          <div className="flex flex-col gap-3">
+            <GermanyMigrantCrimeInteractiveTrendChart />
+            <GermanyCrimeSuspectsByBackgroundChart />
+            <GermanyNonGermanCategoryShareChart />
+            <GermanyNonGermanSuspectsChart metricKey="sexCrimes" />
+            <GermanyNonGermanSuspectsChart metricKey="rape" />
+            <GermanyNonGermanSuspectsChart metricKey="murder" />
+            <GermanyNonGermanSuspectsChart metricKey="violentCrimes" />
+          </div>
+        </CollapsibleFlagSection>
+      ) : null}
 
       {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
       <div className={CARD_GRID}>

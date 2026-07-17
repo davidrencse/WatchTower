@@ -2,15 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
-import {
-  GermanyPoliticsSecretSocietiesSection,
-  GERMANY_POLITICS_SECRET_SOCIETIES_GROUP_COUNT,
-} from './GermanyPoliticsSecretSocietiesSection';
+import { GermanyPoliticsSecretSocietiesSection } from './GermanyPoliticsSecretSocietiesSection';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
-
-export const GERMANY_POLITICS_ZIONISM_GROUP_COUNT = 24 + GERMANY_POLITICS_SECRET_SOCIETIES_GROUP_COUNT;
 
 type ZionGroup = {
   rank: number;

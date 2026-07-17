@@ -64,7 +64,8 @@ const StockSparkline = memo(function StockSparkline({
       <path
         d={path}
         fill="none"
-        stroke={positive ? '#fafafa' : '#9ca3af'}
+        stroke="currentColor"
+        className={positive ? 'text-neutral-100' : 'text-neutral-400'}
         strokeWidth="2"
         vectorEffect="non-scaling-stroke"
       />

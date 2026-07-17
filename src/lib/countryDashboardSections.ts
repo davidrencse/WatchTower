@@ -105,13 +105,16 @@ export function getStatSections(iso3: string): StatSectionDef[] {
           title: 'Government spending',
           metrics: GOVERNMENT_SPENDING_METRICS,
         },
+        // Labor & Income Distribution renders per-country data for every country
+        // (component is generalized + each country has a generated CSV).
+        {
+          id: 'labor_income_distribution',
+          title: 'Labor & Income Distribution',
+          kind: 'germany_labor_income' as const,
+        },
+        // Taxes/Trade use Germany-only bundled data; shown only for Germany/France.
         ...(isDeu
           ? [
-              {
-                id: 'labor_income_distribution',
-                title: 'Labor & Income Distribution',
-                kind: 'germany_labor_income' as const,
-              },
               {
                 id: 'germany_taxes',
                 title: 'Taxes',
@@ -167,6 +170,9 @@ export function getStatSections(iso3: string): StatSectionDef[] {
               { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },
             ]
           : [
+              // LGBT + Abortions render per-country generated data; birth rates from shared metrics.
+              { id: 'lgbt', title: 'LGBT', kind: 'germany_lgbt_stats' as const },
+              { id: 'abortions', title: 'Abortions', kind: 'germany_abortion_stats' as const },
               {
                 id: 'birth_rates',
                 title: 'Birth rates',

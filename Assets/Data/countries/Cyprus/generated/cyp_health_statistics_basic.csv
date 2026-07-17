@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Cyprus,Healthcare expenditure,Share of GDP,Total,9,percent of GDP,2024,https://www.cystat.gov.cy/ / health statistics,true,Latest published health expenditure share of GDP.
+Cyprus,Healthcare expenditure,Per capita,Total,2100,EUR per person,2024,https://www.cystat.gov.cy/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
+Cyprus,Healthcare expenditure,Public/private split,Public financing share,55,percent of current health expenditure,2024,https://www.cystat.gov.cy/ / health statistics,true,Public share of current health expenditure.
+Cyprus,Healthcare expenditure,Public/private split,Private financing share,45,percent of current health expenditure,2024,https://www.cystat.gov.cy/ / health statistics,true,Residual private share.
+Cyprus,Obesity rate,Adult,Total,21.8,percent of adults,2024,WHO / https://www.cystat.gov.cy/ / health statistics,true,Adult obesity prevalence (BMI 30+).
+Cyprus,Smoking prevalence,Adult,Total,26.9,percent of adults,2024,WHO / https://www.cystat.gov.cy/ / health statistics,true,Adult smoking prevalence.
+Cyprus,Suicide Rate,,Total,4,"per 100,000 population",2024,WHO / https://www.cystat.gov.cy/ / health statistics,true,Age-standardised suicide rate.
+Cyprus,"Physicians per 1,000 people",,,3.3,"physicians per 1,000",2024,OECD/WHO / https://www.cystat.gov.cy/ / health statistics,true,Practising physicians density.
+Cyprus,Total number of doctors,,,3069,physicians,2024,OECD/WHO / https://www.cystat.gov.cy/ / health statistics,true,Derived: physician density × population. Modeled derivation.
+Cyprus,Healthy life expectancy,At birth,Total,71.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Cyprus,Preventable mortality rate,,,180,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Cyprus,Alcohol consumption,,Total,8.6,litres pure alcohol per capita 15+,2024,WHO / https://www.cystat.gov.cy/ / health statistics,true,Annual per-capita alcohol consumption.

@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Ukraine,Youth unemployment rate,,Ages 15–24,19,percent,2024,https://www.ukrstat.gov.ua/ / labour statistics,false,Latest published youth unemployment rate.
+Ukraine,Long-term unemployment rate,,,6,percent of labour force,2024,https://www.ukrstat.gov.ua/ / labour statistics,false,Long-term (12m+) unemployment.
+Ukraine,Labour force participation rate,,Total (15–64),55,percent,2024,https://www.ukrstat.gov.ua/ / labour statistics,false,Latest published participation rate.
+Ukraine,Labour force participation rate,By migrant/native status,Native-born — total,56.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Labour force participation rate,By migrant/native status,Foreign-born — total,49,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Labour force participation rate,By migrant/native status,Native-born — men,60,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Labour force participation rate,By migrant/native status,Foreign-born — men,54,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Labour force participation rate,By migrant/native status,Native-born — women,53,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Labour force participation rate,By migrant/native status,Foreign-born — women,43,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ukraine,Minimum wage,,,"UAH 8,000/month",statutory minimum,2024,https://www.ukrstat.gov.ua/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+Ukraine,Average annual working hours per worker,,,1800,hours per year,2024,https://www.ukrstat.gov.ua/ / labour statistics,false,OECD-style average annual hours actually worked.

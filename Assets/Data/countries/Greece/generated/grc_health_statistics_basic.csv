@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Greece,Healthcare expenditure,Share of GDP,Total,8.6,percent of GDP,2024,https://www.statistics.gr/ / health statistics,true,Latest published health expenditure share of GDP.
+Greece,Healthcare expenditure,Per capita,Total,1600,EUR per person,2024,https://www.statistics.gr/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
+Greece,Healthcare expenditure,Public/private split,Public financing share,60,percent of current health expenditure,2024,https://www.statistics.gr/ / health statistics,true,Public share of current health expenditure.
+Greece,Healthcare expenditure,Public/private split,Private financing share,40,percent of current health expenditure,2024,https://www.statistics.gr/ / health statistics,true,Residual private share.
+Greece,Obesity rate,Adult,Total,24.9,percent of adults,2024,WHO / https://www.statistics.gr/ / health statistics,true,Adult obesity prevalence (BMI 30+).
+Greece,Smoking prevalence,Adult,Total,30.6,percent of adults,2024,WHO / https://www.statistics.gr/ / health statistics,true,Adult smoking prevalence.
+Greece,Suicide Rate,,Total,5.1,"per 100,000 population",2024,WHO / https://www.statistics.gr/ / health statistics,true,Age-standardised suicide rate.
+Greece,"Physicians per 1,000 people",,,6.3,"physicians per 1,000",2024,OECD/WHO / https://www.statistics.gr/ / health statistics,true,Practising physicians density.
+Greece,Total number of doctors,,,65520,physicians,2024,OECD/WHO / https://www.statistics.gr/ / health statistics,true,Derived: physician density × population. Modeled derivation.
+Greece,Healthy life expectancy,At birth,Total,69.1,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Greece,Preventable mortality rate,,,200,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Greece,Alcohol consumption,,Total,10.4,litres pure alcohol per capita 15+,2024,WHO / https://www.statistics.gr/ / health statistics,true,Annual per-capita alcohol consumption.

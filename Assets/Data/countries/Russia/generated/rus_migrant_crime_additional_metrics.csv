@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Russia,violent_crimes_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,https://www.demoscope.ru/weekly/2025/01075/barom05.php,"Not published as a foreigner-specific count. The MVD reports that grave and especially-grave crimes by foreign nationals fell 3.9% in 2024, without an absolute figure."
+Russia,property_crimes_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,https://www.demoscope.ru/weekly/2025/01075/barom05.php,"Not published by type; theft, fraud and robbery are named as the most common foreigner offences but without counts."
+Russia,burglary_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,,"Not published as a foreigner-specific count."
+Russia,fraud_rate_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,,"Not published as a foreigner-specific count."
+Russia,court_dismissals_by_migrants,,not published,2024,Russian MVD / Судебный департамент,,"Not published as a foreigner-specific figure. Context: ~21,953 foreign citizens were convicted by Russian courts in 2024."
+Russia,incarceration_percentage_by_migrants,,not published,2024,Russian MVD / ФСИН,,"Not published as a foreigner-specific share."
+Russia,juvenile_crimes_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,,"Not published as a foreigner-specific count."
+Russia,kidnapping_abduction_of_minors_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,,"Not published as a foreigner-specific count."
+Russia,sexual_offenses_against_minors_by_migrants,,not published,2024,Russian MVD — Состояние преступности в России,,"Not published as a foreigner-specific count."

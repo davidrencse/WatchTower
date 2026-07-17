@@ -1,0 +1,7 @@
+flow_type,country,population,male_share_percent,share_of_total_flow_percent,total_flow_2024,source,source_url,original_source
+Immigrants,Ukraine,272594,50,33.4,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Germany,100688,50,12.3,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Belarus,100175,50,12.3,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Lithuania,66555,50,8.1,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Russian Federation,50329,50,6.2,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Other countries (combined),226913,50,27.8,817254,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock

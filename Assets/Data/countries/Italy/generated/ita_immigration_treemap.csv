@@ -1,0 +1,7 @@
+flow_type,country,population,male_share_percent,share_of_total_flow_percent,total_flow_2024,source,source_url,original_source
+Immigrants,Romania,913159,50,14.6,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Albania,505323,50,8.1,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Morocco,457002,50,7.3,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,China,260187,50,4.2,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Germany,198273,50,3.2,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock
+Immigrants,Other countries (combined),3928263,50,62.7,6262207,UN DESA / KNOMAD bilateral migrant stock (via WatchTower central dataset),https://www.un.org/development/desa/pd/content/international-migrant-stock,UN DESA International Migrant Stock

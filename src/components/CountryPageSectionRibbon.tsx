@@ -293,6 +293,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
   return (
     <>
       <nav
+        data-theme="dark"
         className="pointer-events-none fixed left-0 right-0 top-16 z-[60] flex justify-center px-3 sm:px-4"
         aria-label="Country sections"
       >

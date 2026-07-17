@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Netherlands,violent_crimes_by_migrants,73000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,property_crimes_by_migrants,350000.00000000006,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,burglary_by_migrants,6600,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,fraud_rate_by_migrants,27000,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,court_dismissals_by_migrants,15000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,incarceration_percentage_by_migrants,7.1,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,juvenile_crimes_by_migrants,29000,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,kidnapping_abduction_of_minors_by_migrants,1200,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.
+Netherlands,sexual_offenses_against_minors_by_migrants,2300,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.cbs.nl/,Modeled estimate: scaled by relative foreign-born population.

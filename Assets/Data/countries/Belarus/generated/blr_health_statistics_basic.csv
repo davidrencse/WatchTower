@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Belarus,Healthcare expenditure,Share of GDP,Total,5.5,percent of GDP,2024,Belstat / health statistics,https://www.belstat.gov.by/,Latest published health expenditure share of GDP.
+Belarus,Healthcare expenditure,Per capita,Total,1100,EUR per person,2024,Belstat / health statistics,https://www.belstat.gov.by/,Approximate per-capita health expenditure (EUR-converted).
+Belarus,Healthcare expenditure,Public/private split,Public financing share,68,percent of current health expenditure,2024,Belstat / health statistics,https://www.belstat.gov.by/,Public share of current health expenditure.
+Belarus,Healthcare expenditure,Public/private split,Private financing share,32,percent of current health expenditure,2024,Belstat / health statistics,https://www.belstat.gov.by/,Residual private share.
+Belarus,Obesity rate,Adult,Total,25.4,percent of adults,2024,WHO / Belstat / health statistics,https://www.belstat.gov.by/,Adult obesity prevalence (BMI 30+).
+Belarus,Smoking prevalence,Adult,Total,25,percent of adults,2024,WHO / Belstat / health statistics,https://www.belstat.gov.by/,Adult smoking prevalence.
+Belarus,Suicide Rate,,Total,16.5,"per 100,000 population",2024,WHO / Belstat / health statistics,https://www.belstat.gov.by/,Age-standardised suicide rate.
+Belarus,"Physicians per 1,000 people",,,5.2,"physicians per 1,000",2024,OECD/WHO / Belstat / health statistics,https://www.belstat.gov.by/,Practising physicians density.
+Belarus,Total number of doctors,,,47320,physicians,2024,OECD/WHO / Belstat / health statistics,https://www.belstat.gov.by/,Derived: physician density × population. Modeled derivation.
+Belarus,Healthy life expectancy,At birth,Total,65.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Belarus,Preventable mortality rate,,,380,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Belarus,Alcohol consumption,,Total,10.9,litres pure alcohol per capita 15+,2024,WHO / Belstat / health statistics,https://www.belstat.gov.by/,Annual per-capita alcohol consumption.

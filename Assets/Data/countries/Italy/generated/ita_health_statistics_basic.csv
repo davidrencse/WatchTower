@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Italy,Healthcare expenditure,Share of GDP,Total,9.4,percent of GDP,2024,https://www.istat.it/ / health statistics,true,Latest published health expenditure share of GDP.
+Italy,Healthcare expenditure,Per capita,Total,3100,EUR per person,2024,https://www.istat.it/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
+Italy,Healthcare expenditure,Public/private split,Public financing share,76,percent of current health expenditure,2024,https://www.istat.it/ / health statistics,true,Public share of current health expenditure.
+Italy,Healthcare expenditure,Public/private split,Private financing share,24,percent of current health expenditure,2024,https://www.istat.it/ / health statistics,true,Residual private share.
+Italy,Obesity rate,Adult,Total,19.9,percent of adults,2024,WHO / https://www.istat.it/ / health statistics,true,Adult obesity prevalence (BMI 30+).
+Italy,Smoking prevalence,Adult,Total,19,percent of adults,2024,WHO / https://www.istat.it/ / health statistics,true,Adult smoking prevalence.
+Italy,Suicide Rate,,Total,6.3,"per 100,000 population",2024,WHO / https://www.istat.it/ / health statistics,true,Age-standardised suicide rate.
+Italy,"Physicians per 1,000 people",,,4.1,"physicians per 1,000",2024,OECD/WHO / https://www.istat.it/ / health statistics,true,Practising physicians density.
+Italy,Total number of doctors,,,241490,physicians,2024,OECD/WHO / https://www.istat.it/ / health statistics,true,Derived: physician density × population. Modeled derivation.
+Italy,Healthy life expectancy,At birth,Total,71.9,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Italy,Preventable mortality rate,,,160,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Italy,Alcohol consumption,,Total,7.7,litres pure alcohol per capita 15+,2024,WHO / https://www.istat.it/ / health statistics,true,Annual per-capita alcohol consumption.

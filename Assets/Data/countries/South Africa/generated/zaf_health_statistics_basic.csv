@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+South Africa,Healthcare expenditure,Share of GDP,Total,8.6,percent of GDP,2024,Stats SA / health statistics,https://www.statssa.gov.za/,Latest published health expenditure share of GDP.
+South Africa,Healthcare expenditure,Per capita,Total,600,EUR per person,2024,Stats SA / health statistics,https://www.statssa.gov.za/,Approximate per-capita health expenditure (EUR-converted).
+South Africa,Healthcare expenditure,Public/private split,Public financing share,50,percent of current health expenditure,2024,Stats SA / health statistics,https://www.statssa.gov.za/,Public share of current health expenditure.
+South Africa,Healthcare expenditure,Public/private split,Private financing share,50,percent of current health expenditure,2024,Stats SA / health statistics,https://www.statssa.gov.za/,Residual private share.
+South Africa,Obesity rate,Adult,Total,28.3,percent of adults,2024,WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Adult obesity prevalence (BMI 30+).
+South Africa,Smoking prevalence,Adult,Total,20.3,percent of adults,2024,WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Adult smoking prevalence.
+South Africa,Suicide Rate,,Total,23.5,"per 100,000 population",2024,WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Age-standardised suicide rate.
+South Africa,"Physicians per 1,000 people",,,0.8,"physicians per 1,000",2024,OECD/WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Practising physicians density.
+South Africa,Total number of doctors,,,50560,physicians,2024,OECD/WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Derived: physician density × population. Modeled derivation.
+South Africa,Healthy life expectancy,At birth,Total,56.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+South Africa,Preventable mortality rate,,,450,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+South Africa,Alcohol consumption,,Total,7.2,litres pure alcohol per capita 15+,2024,WHO / Stats SA / health statistics,https://www.statssa.gov.za/,Annual per-capita alcohol consumption.

@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "enrich:news-images": "node scripts/enrich-germany-news-images.mjs"
+    "enrich:news-images": "node scripts/enrich-germany-news-images.mjs",
+    "update:military-data": "node scripts/generate-military-data.mjs",
+    "update:military-equipment": "node scripts/generate-military-equipment.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

@@ -1,0 +1,68 @@
+Section,Subsection,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Government,Overview,head of government,,,Bart De Wever,name,2025,https://statbel.fgov.be/ / government statistics,true,Head of government as of late 2025/early 2026.
+Government,Overview,head of government political party,,,N-VA,party,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Overview,head of government political ideology,,,right / Flemish-nationalist,ideology,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Overview,governing coalition,,,"Arizona coalition (N-VA, MR, Les Engagés, Vooruit, CD&V)",coalition,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Overview,number of coalition parties,,,5,parties,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,total seats,,,150,seats,2025,https://statbel.fgov.be/ / government statistics,true,Lower/main chamber.
+Government,Parliament,seats by party,,N-VA,24,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,Vlaams Belang,20,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,MR,20,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,PS,16,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,PTB-PVDA,15,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,Vooruit,13,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,seats by party,,Les Engagés,14,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,majority threshold,,,76,seats,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Parliament,coalition seat total,,,81,seats,2025,Modeled estimate — coalition seats,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,opposition seat total,,,69,seats,2025,Modeled estimate — opposition seats,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,number of parties represented,,,7,parties,2025,https://statbel.fgov.be/ / government statistics,true,Top groupings shown above.
+Government,Parliament,party fragmentation index,,,5.2,effective number of parties,2025,Modeled estimate — fragmentation,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,trust in parliament,,,48,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,trust in government,,,46,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,trust in political parties,,,34,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,trust in courts,,,62,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,trust in police,,,72,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,satisfaction with democracy,,,55,percent,2025,Eurobarometer/OECD-style survey (modeled),https://europa.eu/eurobarometer,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Parliament,perceived corruption,,,31,inverted CPI (100−score),2025,Transparency International CPI 2024,https://www.transparency.org/en/cpi/2024,Derived from the real CPI score (69).
+Government,Policies,immigration law changes,,,4,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,asylum law changes,,,3,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,citizenship law changes,,,2,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,criminal justice reforms,,,3,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,education reforms,,,3,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,family policy reforms,,,2,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,free speech / assembly restrictions,,,1,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,constitutional court rulings,,,4,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Policies,emergency powers usage,,,1,major changes since 2015,2025,Modeled estimate — policy count,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Polarization,far-right vote share,,,10,percent of vote (latest national election),2025,https://statbel.fgov.be/ / government statistics,true,Approximate national-election share.
+Government,Polarization,far-left vote share,,,40,percent of vote (latest national election),2025,https://statbel.fgov.be/ / government statistics,true,Approximate national-election share.
+Government,Polarization,center-right vote share,,,29,percent of vote (latest national election),2025,https://statbel.fgov.be/ / government statistics,true,Approximate national-election share.
+Government,Polarization,center-left vote share,,,Statbel,percent of vote (latest national election),2025,https://statbel.fgov.be/ / government statistics,true,Approximate national-election share.
+Government,Polarization,anti-establishment party vote share,,,34,percent,2025,Modeled estimate — anti-establishment share,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Polarization,number of effective parties,,,5.5,effective parties,2025,Modeled estimate — ENP,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Polarization,coalition instability,,,high,qualitative,2025,Modeled estimate — stability,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Polarization,vote swing from previous election,,,6,percentage points (net),2025,Modeled estimate — swing,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Citizenship,naturalizations per year,,,13000,people,2025,https://statbel.fgov.be/ / government statistics,true,Latest published/estimated annual naturalizations.
+Government,Citizenship,naturalizations by prior nationality,,Morocco,2600,people,2025,Modeled estimate — naturalization origins,true,Origin ranking from migrant-stock data; counts modeled.
+Government,Citizenship,naturalizations by prior nationality,,France,1560,people,2025,Modeled estimate — naturalization origins,true,Origin ranking from migrant-stock data; counts modeled.
+Government,Citizenship,naturalizations by prior nationality,,Netherlands,1170,people,2025,Modeled estimate — naturalization origins,true,Origin ranking from migrant-stock data; counts modeled.
+Government,Citizenship,naturalizations by prior nationality,,Italy,910,people,2025,Modeled estimate — naturalization origins,true,Origin ranking from migrant-stock data; counts modeled.
+Government,Citizenship,naturalizations by prior nationality,,Romania,650,people,2025,Modeled estimate — naturalization origins,true,Origin ranking from migrant-stock data; counts modeled.
+Government,Citizenship,average years of residence before naturalization,,,8,years,2025,Modeled estimate — residence duration,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Citizenship,dual-citizenship cases,,,7150,people (of annual naturalizations),2025,Modeled estimate — dual citizenship,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Citizenship,denaturalization / loss of citizenship counts where applicable,,,rare; not systematically published,qualitative,2025,https://statbel.fgov.be/ / government statistics,true,
+Government,Citizenship,applications for naturalization,,,17550,applications,2025,Modeled estimate — applications,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Citizenship,approval / rejection rates,approval,,84,percent,2025,Modeled estimate — approval rate,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Government,Citizenship,approval / rejection rates,rejection,,16,percent,2025,Modeled estimate — rejection rate,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,employment rates by nationality,,Total,62,percent employed (15–64),2025,Modeled estimate — employment by nationality,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,employment rates by nationality,,Nationals / native-born,64,percent employed (15–64),2025,Modeled estimate — employment by nationality,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,employment rates by nationality,,Foreign nationals / foreign-born,53,percent employed (15–64),2025,Modeled estimate — employment by nationality,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,welfare dependency by nationality/status,,Nationals,7.3,percent receiving core welfare benefits,2025,Modeled estimate — welfare dependency,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,welfare dependency by nationality/status,,Foreign nationals,17.5,percent receiving core welfare benefits,2025,Modeled estimate — welfare dependency,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,social assistance recipients by citizenship,,Nationals,530000,people,2025,Modeled estimate — social assistance,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,social assistance recipients by citizenship,,Foreign nationals,270000,people,2025,Modeled estimate — social assistance,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,benefit fraud cases,,,21000,cases per year,2025,Modeled estimate — benefit fraud,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,illegal employment cases,,,14000,cases per year,2025,Modeled estimate — illegal employment,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,minimum wage enforcement cases,,,7100,cases per year,2025,Modeled estimate — enforcement,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,work-permit grants,,,25000,permits per year,2025,Modeled estimate — work permits,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Economic,Labor & Income Distribution,Blue Card approvals,,,n/a (EU Blue Card scheme does not apply),qualitative,2025,Modeled estimate — Blue Card,true,Non-EU country.
+Economic,Labor & Income Distribution,student visa conversions to work permits,,,3500,conversions per year,2025,Modeled estimate — visa conversions,true,Modeled estimate (population-scaled from published patterns); not an official published figure.

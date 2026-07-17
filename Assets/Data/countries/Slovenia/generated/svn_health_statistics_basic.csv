@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Slovenia,Healthcare expenditure,Share of GDP,Total,9.5,percent of GDP,2024,https://www.stat.si/ / health statistics,true,Latest published health expenditure share of GDP.
+Slovenia,Healthcare expenditure,Per capita,Total,2900,EUR per person,2024,https://www.stat.si/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
+Slovenia,Healthcare expenditure,Public/private split,Public financing share,72,percent of current health expenditure,2024,https://www.stat.si/ / health statistics,true,Public share of current health expenditure.
+Slovenia,Healthcare expenditure,Public/private split,Private financing share,28,percent of current health expenditure,2024,https://www.stat.si/ / health statistics,true,Residual private share.
+Slovenia,Obesity rate,Adult,Total,20.4,percent of adults,2024,WHO / https://www.stat.si/ / health statistics,true,Adult obesity prevalence (BMI 30+).
+Slovenia,Smoking prevalence,Adult,Total,17.4,percent of adults,2024,WHO / https://www.stat.si/ / health statistics,true,Adult smoking prevalence.
+Slovenia,Suicide Rate,,Total,15.7,"per 100,000 population",2024,WHO / https://www.stat.si/ / health statistics,true,Age-standardised suicide rate.
+Slovenia,"Physicians per 1,000 people",,,3.3,"physicians per 1,000",2024,OECD/WHO / https://www.stat.si/ / health statistics,true,Practising physicians density.
+Slovenia,Total number of doctors,,,6996,physicians,2024,OECD/WHO / https://www.stat.si/ / health statistics,true,Derived: physician density × population. Modeled derivation.
+Slovenia,Healthy life expectancy,At birth,Total,69.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Slovenia,Preventable mortality rate,,,190,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Slovenia,Alcohol consumption,,Total,11.1,litres pure alcohol per capita 15+,2024,WHO / https://www.stat.si/ / health statistics,true,Annual per-capita alcohol consumption.

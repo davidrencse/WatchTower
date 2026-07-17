@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+United Kingdom,Healthcare expenditure,Share of GDP,Total,11.3,percent of GDP,2024,https://www.ons.gov.uk/ / health statistics,false,Latest published health expenditure share of GDP.
+United Kingdom,Healthcare expenditure,Per capita,Total,4400,EUR per person,2024,https://www.ons.gov.uk/ / health statistics,false,Approximate per-capita health expenditure (EUR-converted).
+United Kingdom,Healthcare expenditure,Public/private split,Public financing share,80,percent of current health expenditure,2024,https://www.ons.gov.uk/ / health statistics,false,Public share of current health expenditure.
+United Kingdom,Healthcare expenditure,Public/private split,Private financing share,20,percent of current health expenditure,2024,https://www.ons.gov.uk/ / health statistics,false,Residual private share.
+United Kingdom,Obesity rate,Adult,Total,26.9,percent of adults,2024,WHO / https://www.ons.gov.uk/ / health statistics,false,Adult obesity prevalence (BMI 30+).
+United Kingdom,Smoking prevalence,Adult,Total,11.9,percent of adults,2024,WHO / https://www.ons.gov.uk/ / health statistics,false,Adult smoking prevalence.
+United Kingdom,Suicide Rate,,Total,7.9,"per 100,000 population",2024,WHO / https://www.ons.gov.uk/ / health statistics,false,Age-standardised suicide rate.
+United Kingdom,"Physicians per 1,000 people",,,3.2,"physicians per 1,000",2024,OECD/WHO / https://www.ons.gov.uk/ / health statistics,false,Practising physicians density.
+United Kingdom,Total number of doctors,,,218560,physicians,2024,OECD/WHO / https://www.ons.gov.uk/ / health statistics,false,Derived: physician density × population. Modeled derivation.
+United Kingdom,Healthy life expectancy,At birth,Total,70.1,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+United Kingdom,Preventable mortality rate,,,180,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+United Kingdom,Alcohol consumption,,Total,9.7,litres pure alcohol per capita 15+,2024,WHO / https://www.ons.gov.uk/ / health statistics,false,Annual per-capita alcohol consumption.

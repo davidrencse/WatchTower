@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Norway,Youth unemployment rate,,Ages 15–24,11,percent,2024,https://www.ssb.no/ / labour statistics,false,Latest published youth unemployment rate.
+Norway,Long-term unemployment rate,,,0.7,percent of labour force,2024,https://www.ssb.no/ / labour statistics,false,Long-term (12m+) unemployment.
+Norway,Labour force participation rate,,Total (15–64),72,percent,2024,https://www.ssb.no/ / labour statistics,false,Latest published participation rate.
+Norway,Labour force participation rate,By migrant/native status,Native-born — total,73.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Labour force participation rate,By migrant/native status,Foreign-born — total,66,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Labour force participation rate,By migrant/native status,Native-born — men,77,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Labour force participation rate,By migrant/native status,Foreign-born — men,71,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Labour force participation rate,By migrant/native status,Native-born — women,70,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Labour force participation rate,By migrant/native status,Foreign-born — women,60,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Norway,Minimum wage,,,none (collective agreements),statutory minimum,2024,https://www.ssb.no/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+Norway,Average annual working hours per worker,,,1418,hours per year,2024,https://www.ssb.no/ / labour statistics,false,OECD-style average annual hours actually worked.

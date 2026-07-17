@@ -21,8 +21,54 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 const UC = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-/** Approximate “card groups” inside Trade for the section header count. */
-export const GERMANY_TRADE_GROUP_COUNT = 11;
+export type TradeKpi = { primary: string; label: string; secondary: string };
+export type TradePartnerRow = { rank: number; partner: string; volume: string };
+export type TradeTimeseriesRow = { year: string; exports: number; imports: number; balance: number };
+export type MonthlyTradeRow = {
+  year: string;
+  avgMonthlyExports: number;
+  avgMonthlyImports: number;
+  avgMonthlySurplus: number;
+};
+export type FtaImpactRow = { agreement: string; netBenefit: number; jobsSupported: number };
+export type AgreementInsight = {
+  headerLead: string;
+  headerSub: string;
+  title: string;
+  tags: readonly string[];
+  summary: string;
+  impact: string;
+  status: string;
+};
+
+/** Full per-country payload for this section (defaults to Germany's when omitted). */
+export type TradeSectionData = {
+  kpis: readonly TradeKpi[];
+  timeseries: readonly TradeTimeseriesRow[];
+  timeseriesTitle: string;
+  timeseriesDescription: string;
+  partnerBalanceByYear: readonly Record<string, string | number>[];
+  partnerBalanceConfig: ChartConfig;
+  partnerBalanceTitle: string;
+  partnerBalanceDescription: string;
+  monthlyPerformance: readonly MonthlyTradeRow[];
+  monthlyConfig: ChartConfig;
+  monthlyTitle: string;
+  monthlyDescription: string;
+  topPartners: readonly TradePartnerRow[];
+  importSlices: readonly TradePieSlice[];
+  exportSlices: readonly TradePieSlice[];
+  geoExportSlices: readonly TradePieSlice[];
+  geoImportSlices: readonly TradePieSlice[];
+  importTitle: string;
+  exportTitle: string;
+  railNote: ReactNode;
+  summary: ReactNode;
+  agreements: readonly AgreementInsight[];
+  ftaImpacts: readonly FtaImpactRow[];
+  ftaTitle: string;
+  notes: ReactNode;
+};
 
 const TOP_TRADING_PARTNERS: readonly { rank: number; partner: string; volume: string }[] = [
   { rank: 1, partner: 'China', volume: '€252.4 billion' },
@@ -41,7 +87,7 @@ const PIE_SLICE_COLORS = [
   'hsl(215, 14%, 34%)',
 ] as const;
 
-type TradePieSlice = {
+export type TradePieSlice = {
   name: string;
   /** Midpoint or stated % used for slice area */
   value: number;
@@ -240,7 +286,7 @@ function KpiCard({ primary, label, secondary }: { primary: string; label: string
   );
 }
 
-function TopTradingPartnersTable() {
+function TopTradingPartnersTable({ rows }: { rows: readonly TradePartnerRow[] }) {
   return (
     <div className="rounded-md border border-white/[0.08] bg-white/[0.02] p-1.5 pt-1">
       <p className="mb-1 px-0.5 font-sans text-[10px] font-semibold text-neutral-100">Top 5 Major Trading Partners</p>
@@ -256,7 +302,7 @@ function TopTradingPartnersTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {TOP_TRADING_PARTNERS.map((r) => (
+            {rows.map((r) => (
               <TableRow key={r.rank}>
                 <TableCell className="px-2 py-1.5 tabular-nums text-neutral-500">{r.rank}</TableCell>
                 <TableCell className="px-2 py-1.5 text-neutral-200">{r.partner}</TableCell>
@@ -557,50 +603,111 @@ function AgreementInsightCard({
   );
 }
 
-export const GermanyTradeSection = memo(function GermanyTradeSection() {
+const GERMANY_KPIS: readonly TradeKpi[] = [
+  { primary: '€1,562.9B', label: 'Exports (goods, 2025)', secondary: '≈ $1.72 trillion USD · Destatis goods trade.' },
+  { primary: '€1,362.5B', label: 'Imports (goods, 2025)', secondary: '≈ $1.50 trillion USD · Destatis goods trade.' },
+  {
+    primary: '~56%',
+    label: 'Intra-EU share',
+    secondary: 'Zero tariffs via Single Market; largest integrated trade share.',
+  },
+];
+
+const GERMANY_RAIL_NOTE = (
+  <>
+    China: largest overall trade; US: largest export destination. Full partner tables:{' '}
+    <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>.
+  </>
+);
+
+const GERMANY_SUMMARY = (
+  <>
+    <p className="font-sans text-[11px] leading-relaxed text-neutral-400">
+      Goods trade, 2025 (Destatis): exports <strong className="text-neutral-200">€1,562.9 billion</strong> (~$1.72
+      trillion USD); imports <strong className="text-neutral-200">€1,362.5 billion</strong> (~$1.50 trillion USD).
+      Roughly <strong className="text-neutral-200">56%</strong> of trade is intra-EU (zero tariffs via the Single
+      Market). Leading total-trade partners include China (€252.4B — largest overall), the United States (€240.5B —
+      largest export market), the Netherlands (€209.1B), France (~€180–190B), and Poland (~€170–180B).
+    </p>
+    <p className="font-sans text-[10px] text-neutral-500">
+      Source:{' '}
+      <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
+    </p>
+  </>
+);
+
+const GERMANY_NOTES = (
+  <>
+    <p>
+      Product-specific tariffs, rules of origin, and market access:{' '}
+      <SourceLink href="https://trade.ec.europa.eu/access-to-markets/en/home">Access2Markets</SourceLink>.
+    </p>
+    <p>
+      Full official list of EU trade agreements:{' '}
+      <SourceLink href="https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/negotiations-and-agreements_en">
+        EU trade agreements hub
+      </SourceLink>
+      .
+    </p>
+    <p>Always verify with HS code and origin rules — tariffs change when agreements update.</p>
+  </>
+);
+
+export const GermanyTradeSection = memo(function GermanyTradeSection({
+  kpis = GERMANY_KPIS,
+  timeseries = TRADE_TIMESERIES,
+  timeseriesTitle = 'German foreign trade development',
+  timeseriesDescription = 'Goods + services, billions of € (official Destatis-style series). Exports and imports use the left scale; trade balance uses the right scale.',
+  partnerBalanceByYear = PARTNER_BALANCE_BY_YEAR as unknown as readonly Record<string, string | number>[],
+  partnerBalanceConfig = partnerBalanceChartConfig,
+  partnerBalanceTitle = "Germany's trade balance by key partners",
+  partnerBalanceDescription = 'Bilateral balance in billions of € (positive = surplus for Germany, negative = deficit). China shown as deficit; others as surplus per series labels.',
+  monthlyPerformance = MONTHLY_TRADE_PERFORMANCE,
+  monthlyConfig = monthlyTradePerformanceChartConfig,
+  monthlyTitle = "Germany's monthly trade performance",
+  monthlyDescription = 'Each point is one calendar year: average monthly exports and imports (left scale, B€) and average monthly trade surplus (right scale, B€).',
+  topPartners = TOP_TRADING_PARTNERS,
+  importSlices = TOP_IMPORT_SLICES,
+  exportSlices = TOP_EXPORT_SLICES,
+  geoExportSlices = GEOGRAPHIC_EXPORT_BREAKDOWN_SLICES,
+  geoImportSlices = GEOGRAPHIC_IMPORT_BREAKDOWN_SLICES,
+  importTitle = 'Top 5 Germany imports',
+  exportTitle = 'Top 5 Germany exports',
+  railNote = GERMANY_RAIL_NOTE,
+  summary = GERMANY_SUMMARY,
+  agreements = TRADE_AGREEMENT_INSIGHTS,
+  ftaImpacts = FTA_NET_GDP_IMPACT_2025,
+  ftaTitle = 'Quantified net GDP impact of major non-EU FTAs (annual, 2025)',
+  notes = GERMANY_NOTES,
+}: Partial<TradeSectionData> = {}) {
   return (
     <div className="flex flex-col gap-4">
       <section id="trade-block-general" className="scroll-mt-28 flex flex-col gap-4">
         <h2 className={TRADE_SECTION_HEADING}>General trade</h2>
         <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <KpiCard
-            primary="€1,562.9B"
-            label="Exports (goods, 2025)"
-            secondary="≈ $1.72 trillion USD · Destatis goods trade."
-          />
-          <KpiCard
-            primary="€1,362.5B"
-            label="Imports (goods, 2025)"
-            secondary="≈ $1.50 trillion USD · Destatis goods trade."
-          />
-          <KpiCard
-            primary="~56%"
-            label="Intra-EU share"
-            secondary="Zero tariffs via Single Market; largest integrated trade share."
-          />
+          {kpis.map((kpi) => (
+            <KpiCard key={kpi.label} primary={kpi.primary} label={kpi.label} secondary={kpi.secondary} />
+          ))}
         </div>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_min(100%,400px)] lg:items-stretch lg:min-h-0">
           <div className="flex min-h-0 min-w-0 flex-col gap-3">
           <Card className="border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
-              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
-                German foreign trade development
-              </CardTitle>
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>{timeseriesTitle}</CardTitle>
               <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-                Goods + services, billions of € (official Destatis-style series). Exports and imports use the left
-                scale; trade balance uses the right scale.
+                {timeseriesDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 p-3 px-3 pb-4 pt-0">
               <ChartContainer config={tradeFlowChartConfig} className="h-[380px] w-full font-sans md:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[...TRADE_TIMESERIES]} margin={{ top: 8, right: 10, left: 0, bottom: 56 }}>
+                  <LineChart data={[...timeseries]} margin={{ top: 8, right: 10, left: 0, bottom: 56 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
                       type="category"
-                      ticks={TRADE_TIMESERIES.map((d) => d.year)}
+                      ticks={timeseries.map((d) => d.year)}
                       interval={0}
                       minTickGap={0}
                       angle={-45}
@@ -685,18 +792,15 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
 
           <Card className="overflow-hidden border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
-              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
-                Germany&apos;s trade balance by key partners
-              </CardTitle>
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>{partnerBalanceTitle}</CardTitle>
               <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-                Bilateral balance in billions of € (positive = surplus for Germany, negative = deficit). China shown as
-                deficit; others as surplus per series labels.
+                {partnerBalanceDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0">
-              <ChartContainer config={partnerBalanceChartConfig} className="h-[340px] w-full font-sans md:h-[380px]">
+              <ChartContainer config={partnerBalanceConfig} className="h-[340px] w-full font-sans md:h-[380px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[...PARTNER_BALANCE_BY_YEAR]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                  <LineChart data={[...partnerBalanceByYear]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -730,20 +834,18 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                       wrapperStyle={{ fontSize: 9, paddingTop: 6 }}
                       formatter={(value) => <span className="text-neutral-400">{value}</span>}
                     />
-                    {(Object.keys(partnerBalanceChartConfig) as (keyof typeof partnerBalanceChartConfig)[]).map(
-                      (key) => (
-                        <Line
-                          key={key}
-                          type="monotone"
-                          dataKey={key}
-                          name={partnerBalanceChartConfig[key].label}
-                          stroke={partnerBalanceChartConfig[key].color}
-                          strokeWidth={2}
-                          dot={{ r: 2 }}
-                          isAnimationActive={false}
-                        />
-                      ),
-                    )}
+                    {Object.keys(partnerBalanceConfig).map((key) => (
+                      <Line
+                        key={key}
+                        type="monotone"
+                        dataKey={key}
+                        name={partnerBalanceConfig[key].label as string}
+                        stroke={partnerBalanceConfig[key].color}
+                        strokeWidth={2}
+                        dot={{ r: 2 }}
+                        isAnimationActive={false}
+                      />
+                    ))}
                   </LineChart>
                 </ResponsiveContainer>
               </ChartContainer>
@@ -752,21 +854,15 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
 
           <Card className="overflow-hidden border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
-              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>
-                Germany&apos;s monthly trade performance
-              </CardTitle>
+              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC}`}>{monthlyTitle}</CardTitle>
               <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-                Each point is one calendar year: average monthly exports and imports (left scale, B€) and average
-                monthly trade surplus (right scale, B€).
+                {monthlyDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0">
-              <ChartContainer
-                config={monthlyTradePerformanceChartConfig}
-                className="h-[340px] w-full font-sans md:h-[380px]"
-              >
+              <ChartContainer config={monthlyConfig} className="h-[340px] w-full font-sans md:h-[380px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[...MONTHLY_TRADE_PERFORMANCE]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                  <LineChart data={[...monthlyPerformance]} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -813,8 +909,8 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                       yAxisId="left"
                       type="monotone"
                       dataKey="avgMonthlyExports"
-                      name={monthlyTradePerformanceChartConfig.avgMonthlyExports.label}
-                      stroke={monthlyTradePerformanceChartConfig.avgMonthlyExports.color}
+                      name={monthlyConfig.avgMonthlyExports.label}
+                      stroke={monthlyConfig.avgMonthlyExports.color}
                       strokeWidth={2}
                       dot={false}
                       isAnimationActive={false}
@@ -823,8 +919,8 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                       yAxisId="left"
                       type="monotone"
                       dataKey="avgMonthlyImports"
-                      name={monthlyTradePerformanceChartConfig.avgMonthlyImports.label}
-                      stroke={monthlyTradePerformanceChartConfig.avgMonthlyImports.color}
+                      name={monthlyConfig.avgMonthlyImports.label}
+                      stroke={monthlyConfig.avgMonthlyImports.color}
                       strokeWidth={2}
                       dot={false}
                       isAnimationActive={false}
@@ -833,8 +929,8 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                       yAxisId="right"
                       type="monotone"
                       dataKey="avgMonthlySurplus"
-                      name={monthlyTradePerformanceChartConfig.avgMonthlySurplus.label}
-                      stroke={monthlyTradePerformanceChartConfig.avgMonthlySurplus.color}
+                      name={monthlyConfig.avgMonthlySurplus.label}
+                      stroke={monthlyConfig.avgMonthlySurplus.color}
                       strokeWidth={2}
                       dot={false}
                       strokeDasharray="4 3"
@@ -853,70 +949,52 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
         >
           <div className="shrink-0 space-y-1">
             <p className={`font-sans text-[10px] text-neutral-500 ${UC_META}`}>Snapshot</p>
-            <TopTradingPartnersTable />
+            <TopTradingPartnersTable rows={topPartners} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col gap-2.5">
             <TradeCategoryPieCard
               variant="rail"
-              title="Top 5 Germany imports"
+              title={importTitle}
               footnote="Midpoint ranges; remainder = other to reach 100%."
-              slices={TOP_IMPORT_SLICES}
+              slices={importSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
-              title="Top 5 Germany exports"
+              title={exportTitle}
               footnote="Shares as given; remainder = other in pie."
-              slices={TOP_EXPORT_SLICES}
+              slices={exportSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
               title="Geographic breakdown of exports"
               footnote="By export destination; Oceania as small slice under 1%."
-              slices={GEOGRAPHIC_EXPORT_BREAKDOWN_SLICES}
+              slices={geoExportSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
               title="Geographic breakdown of imports"
               footnote="By import sourcing region. Key notes in hover."
-              slices={GEOGRAPHIC_IMPORT_BREAKDOWN_SLICES}
+              slices={geoImportSlices}
             />
           </div>
-          <p className="mt-auto shrink-0 font-sans text-[10px] leading-relaxed text-neutral-500">
-            China: largest overall trade; US: largest export destination. Full partner tables:{' '}
-            <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
-            .
-          </p>
+          <p className="mt-auto shrink-0 font-sans text-[10px] leading-relaxed text-neutral-500">{railNote}</p>
         </aside>
         </div>
         </div>
-        <div className="space-y-2 border-t border-white/[0.06] pt-4">
-          <p className="font-sans text-[11px] leading-relaxed text-neutral-400">
-            Goods trade, 2025 (Destatis): exports <strong className="text-neutral-200">€1,562.9 billion</strong> (~$
-            1.72 trillion USD); imports <strong className="text-neutral-200">€1,362.5 billion</strong> (~$1.50 trillion
-            USD). Roughly <strong className="text-neutral-200">56%</strong> of trade is intra-EU (zero tariffs via the
-            Single Market). Leading total-trade partners include China (€252.4B — largest overall), the United States
-            (€240.5B — largest export market), the Netherlands (€209.1B), France (~€180–190B), and Poland (~€170–180B).
-          </p>
-          <p className="font-sans text-[10px] text-neutral-500">
-            Source:{' '}
-            <SourceLink href="https://www.destatis.de/EN/Themes/Economy/Foreign-Trade/_node.html">Destatis</SourceLink>
-          </p>
-        </div>
+        <div className="space-y-2 border-t border-white/[0.06] pt-4">{summary}</div>
       </section>
 
       {/* Folder: Agreements */}
       <section id="trade-block-agreements" className="scroll-mt-28 space-y-4">
         <h2 className={TRADE_SECTION_HEADING}>Agreements</h2>
         <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
-          {TRADE_AGREEMENT_INSIGHTS.map((item) => (
+          {agreements.map((item) => (
             <AgreementInsightCard key={item.title} {...item} />
           ))}
         </div>
         <Card className="border-line bg-surface-metric">
           <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`font-sans text-sm font-semibold text-neutral-100 ${UC}`}>
-              Quantified net GDP impact of major non-EU FTAs (annual, 2025)
-            </CardTitle>
+            <CardTitle className={`font-sans text-sm font-semibold text-neutral-100 ${UC}`}>{ftaTitle}</CardTitle>
             <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
               Bars show net annual GDP impact in billions of euros. Positive and negative values are shown around the zero line; hover for jobs supported.
             </CardDescription>
@@ -924,7 +1002,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
           <CardContent className="space-y-2 p-3 pt-0">
             <ChartContainer config={ftaImpactChartConfig} className="h-[320px] w-full font-sans">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={FTA_NET_GDP_IMPACT_2025} margin={{ top: 8, right: 10, left: 2, bottom: 48 }}>
+                <BarChart data={[...ftaImpacts]} margin={{ top: 8, right: 10, left: 2, bottom: 48 }}>
                   <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                   <XAxis
                     dataKey="agreement"
@@ -962,7 +1040,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
                     }
                   />
                   <Bar dataKey="netBenefit" name={ftaImpactChartConfig.netBenefit.label} radius={[6, 6, 0, 0]} isAnimationActive={false}>
-                    {FTA_NET_GDP_IMPACT_2025.map((row) => (
+                    {ftaImpacts.map((row) => (
                       <Cell key={row.agreement} fill={row.netBenefit >= 0 ? '#22c55e' : '#ef4444'} />
                     ))}
                   </Bar>
@@ -979,18 +1057,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection() {
           <CardTitle className={`font-sans text-[11px] text-neutral-200 ${UC}`}>Notes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-400">
-          <p>
-            Product-specific tariffs, rules of origin, and market access:{' '}
-            <SourceLink href="https://trade.ec.europa.eu/access-to-markets/en/home">Access2Markets</SourceLink>.
-          </p>
-          <p>
-            Full official list of EU trade agreements:{' '}
-            <SourceLink href="https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/negotiations-and-agreements_en">
-              EU trade agreements hub
-            </SourceLink>
-            .
-          </p>
-          <p>Always verify with HS code and origin rules — tariffs change when agreements update.</p>
+          {notes}
         </CardContent>
       </Card>
     </div>

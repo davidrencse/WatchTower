@@ -225,7 +225,7 @@ function OverviewBlock({
               <div className="pt-1">
                 {headUrls.slice(0, 2).map((u, i) => (
                   <a
-                    key={u}
+                    key={`${u}-${i}`}
                     href={u}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -259,7 +259,7 @@ function OverviewBlock({
   );
 }
 
-function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][] }) {
+function ParliamentGroups({ groups, isGermany = true }: { groups: GermanyGovernmentPoliticsRow[][]; isGermany?: boolean }) {
   const totalSeatsGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'total seats');
   const majorityThresholdGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'majority threshold');
   const trustInCivilServiceRow: GermanyGovernmentPoliticsRow = {
@@ -339,7 +339,7 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
       );
     }
     out.push(<Fragment key={g[0]!.metric}>{renderMetricGroup(g)}</Fragment>);
-    if (m === 'perceived corruption') {
+    if (isGermany && m === 'perceived corruption') {
       out.push(
         <GovStatCard key="trust-in-civil-service" row={trustInCivilServiceRow} title="Trust in Civil Service" />,
         <GovStatCard
@@ -362,6 +362,7 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
                 title="Total seats"
               />
             ) : null}
+            {isGermany ? (
             <Card className="h-full">
               <CardHeader className="space-y-1 p-3 pb-2">
                 <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Voter turnout</CardTitle>
@@ -376,6 +377,7 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
                 </p>
               </CardContent>
             </Card>
+            ) : null}
             {majorityThresholdGroup ? (
               <GovStatCard
                 key={majorityThresholdGroup[0]!.metric}
@@ -383,6 +385,7 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
                 title="Majority threshold"
               />
             ) : null}
+            {isGermany ? (
             <Card className="h-full">
               <CardHeader className="space-y-1 p-3 pb-2">
                 <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Registered voters</CardTitle>
@@ -392,8 +395,10 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
                 <p className="font-sans text-2xl font-semibold text-white">60,510,631</p>
               </CardContent>
             </Card>
+            ) : null}
           </div>
 
+          {isGermany ? (
           <Card className="h-full self-stretch">
             <CardHeader className="space-y-1 p-3 pb-2">
               <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Current polling trends</CardTitle>
@@ -451,6 +456,7 @@ function ParliamentGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][]
               </details>
             </CardContent>
           </Card>
+          ) : null}
         </div>
       ) : null}
 
@@ -821,19 +827,25 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
   collapseSignal,
   expandSignal,
   headerControls,
+  csvUrl = CSV_URL,
+  isGermany = true,
 }: {
   collapseSignal?: number;
   expandSignal?: number;
   headerControls?: ReactNode;
+  /** Per-country CSV (same schema); defaults to Germany's. */
+  csvUrl?: string;
+  /** Germany also renders bundled manual cards, policy carousel and polling charts. */
+  isGermany?: boolean;
 }) {
-  const [raw, setRaw] = useState(germanyGovernmentCsvRaw);
+  const [raw, setRaw] = useState(isGermany ? germanyGovernmentCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(CSV_URL);
+        const res = await fetch(csvUrl);
         const text = res.ok ? await res.text() : '';
         if (!cancelled && text.trim()) {
           setRaw(text);
@@ -846,7 +858,7 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [csvUrl]);
 
   const allRows = useMemo(() => parseGermanyGovernmentPoliticsCsv(raw), [raw]);
   const germanyRows = useMemo(() => governmentRowsForGermany(allRows), [allRows]);
@@ -888,11 +900,11 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
           const groups = clusterRowsByMetric(sorted);
           if (groups.length === 0) return null;
           const subsectionCount =
-            key === 'Citizenship'
+            key === 'Citizenship' && isGermany
               ? groups.length + 5
               : key === 'Parliament'
                 ? groups.length
-                : key === 'Policies'
+                : key === 'Policies' && isGermany
                   ? groups.length + GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT
                   : groups.length;
           return (
@@ -908,8 +920,8 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
               expandSignal={expandSignal}
             >
               {key === 'Parliament' ? (
-                <ParliamentGroups groups={groups} />
-              ) : key === 'Policies' ? (
+                <ParliamentGroups groups={groups} isGermany={isGermany} />
+              ) : key === 'Policies' && isGermany ? (
                 <div className="flex flex-col gap-3">
                   <GermanyPolicyCarousel policyRows={sorted} />
                   <CollapsibleFlagSection
@@ -923,7 +935,7 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
                     <GermanyImmigrationPoliciesSection />
                   </CollapsibleFlagSection>
                 </div>
-              ) : key === 'Citizenship' ? (
+              ) : key === 'Citizenship' && isGermany ? (
                 <CitizenshipGroups groups={groups} />
               ) : (
                 <div className={GOV_POLITICS_CARD_GRID}>{groups.map((g) => renderMetricGroup(g))}</div>
@@ -934,7 +946,7 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
 
         <p className={`font-sans text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
           Primary table:{' '}
-          <code className="text-neutral-500">germany_government_politics.csv</code> (Government and Economic labor rows).
+          <code className="text-neutral-500">{csvUrl.split('/').pop()}</code> (Government and Economic labor rows).
           Values, years, and notes follow that file.
         </p>
       </div>

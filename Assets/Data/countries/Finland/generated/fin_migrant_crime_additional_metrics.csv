@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Finland,violent_crimes_by_migrants,13000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,property_crimes_by_migrants,63000,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,burglary_by_migrants,1200,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,fraud_rate_by_migrants,4900,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,court_dismissals_by_migrants,2700,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,incarceration_percentage_by_migrants,1.3,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,juvenile_crimes_by_migrants,5300,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,kidnapping_abduction_of_minors_by_migrants,210,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Finland,sexual_offenses_against_minors_by_migrants,420,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.

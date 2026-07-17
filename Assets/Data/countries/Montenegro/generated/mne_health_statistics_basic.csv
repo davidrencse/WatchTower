@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Montenegro,Healthcare expenditure,Share of GDP,Total,9,percent of GDP,2024,MONSTAT / health statistics,https://www.monstat.org/,Latest published health expenditure share of GDP.
+Montenegro,Healthcare expenditure,Per capita,Total,900,EUR per person,2024,MONSTAT / health statistics,https://www.monstat.org/,Approximate per-capita health expenditure (EUR-converted).
+Montenegro,Healthcare expenditure,Public/private split,Public financing share,66,percent of current health expenditure,2024,MONSTAT / health statistics,https://www.monstat.org/,Public share of current health expenditure.
+Montenegro,Healthcare expenditure,Public/private split,Private financing share,34,percent of current health expenditure,2024,MONSTAT / health statistics,https://www.monstat.org/,Residual private share.
+Montenegro,Obesity rate,Adult,Total,23.3,percent of adults,2024,WHO / MONSTAT / health statistics,https://www.monstat.org/,Adult obesity prevalence (BMI 30+).
+Montenegro,Smoking prevalence,Adult,Total,31,percent of adults,2024,WHO / MONSTAT / health statistics,https://www.monstat.org/,Adult smoking prevalence.
+Montenegro,Suicide Rate,,Total,7.9,"per 100,000 population",2024,WHO / MONSTAT / health statistics,https://www.monstat.org/,Age-standardised suicide rate.
+Montenegro,"Physicians per 1,000 people",,,2.8,"physicians per 1,000",2024,OECD/WHO / MONSTAT / health statistics,https://www.monstat.org/,Practising physicians density.
+Montenegro,Total number of doctors,,,1736,physicians,2024,OECD/WHO / MONSTAT / health statistics,https://www.monstat.org/,Derived: physician density × population. Modeled derivation.
+Montenegro,Healthy life expectancy,At birth,Total,66.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Montenegro,Preventable mortality rate,,,310,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Montenegro,Alcohol consumption,,Total,9.9,litres pure alcohol per capita 15+,2024,WHO / MONSTAT / health statistics,https://www.monstat.org/,Annual per-capita alcohol consumption.

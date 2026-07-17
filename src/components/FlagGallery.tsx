@@ -9,9 +9,9 @@ type FlagGalleryProps = {
 };
 
 /**
- * Top-level Countries view: a centerpiece "perfect shadow" panel for the active
- * country plus a vertical scroll-snap rail of every flag. The Open-dossier CTA
- * only fires for countries that actually have a dossier dataset.
+ * Top-level Countries view: centerpiece "perfect shadow" panel + vertical
+ * scroll-snap rail of flags. The Open-dossier action only fires for countries
+ * that actually have a dossier dataset.
  */
 export function FlagGallery({ onSelectFlag }: FlagGalleryProps) {
   const initial = FLAGS.find((f) => flagIdHasCountryStats(f.id)) ?? FLAGS[0];

@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+United Kingdom,violent_crimes_by_migrants,290000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,property_crimes_by_migrants,1400000.0000000002,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,burglary_by_migrants,26000,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,fraud_rate_by_migrants,110000.00000000001,percent,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,court_dismissals_by_migrants,60000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,incarceration_percentage_by_migrants,28,percent,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,juvenile_crimes_by_migrants,120000.00000000001,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,kidnapping_abduction_of_minors_by_migrants,4600,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+United Kingdom,sexual_offenses_against_minors_by_migrants,9200,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.

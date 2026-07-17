@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Netherlands,Youth unemployment rate,,Ages 15–24,9.1,percent,2024,CBS Netherlands / labour statistics,https://www.cbs.nl/,Latest published youth unemployment rate.
+Netherlands,Long-term unemployment rate,,,0.8,percent of labour force,2024,CBS Netherlands / labour statistics,https://www.cbs.nl/,Long-term (12m+) unemployment.
+Netherlands,Labour force participation rate,,Total (15–64),72.5,percent,2024,CBS Netherlands / labour statistics,https://www.cbs.nl/,Latest published participation rate.
+Netherlands,Labour force participation rate,By migrant/native status,Native-born — total,74,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Labour force participation rate,By migrant/native status,Foreign-born — total,66.5,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Labour force participation rate,By migrant/native status,Native-born — men,77.5,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Labour force participation rate,By migrant/native status,Foreign-born — men,71.5,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Labour force participation rate,By migrant/native status,Native-born — women,70.5,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Labour force participation rate,By migrant/native status,Foreign-born — women,60.5,percent,2024,Modeled estimate — labour,https://www.cbs.nl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Netherlands,Minimum wage,,,€14.06/hour,statutory minimum,2024,CBS Netherlands / labour statistics,https://www.cbs.nl/,Statutory minimum wage (or none where wages are set by collective agreements).
+Netherlands,Average annual working hours per worker,,,1449,hours per year,2024,CBS Netherlands / labour statistics,https://www.cbs.nl/,OECD-style average annual hours actually worked.

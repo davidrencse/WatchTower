@@ -211,7 +211,7 @@ const illegalAsylumSeekersChartConfig = {
   asianExclIndian: { label: 'Asian (excl. Indian)', color: '#22d3ee' },
   indian: { label: 'Indian', color: '#34d399' },
   other: { label: 'Other', color: '#94a3b8' },
-  totalAsylumApplications: { label: 'Total asylum applications', color: '#f8fafc' },
+  totalAsylumApplications: { label: 'Total asylum applications', color: '#64748b' },
 } satisfies ChartConfig;
 
 const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;

@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Bulgaria,violent_crimes_by_migrants,6000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,property_crimes_by_migrants,29000,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,burglary_by_migrants,540,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,fraud_rate_by_migrants,2200,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,court_dismissals_by_migrants,1200,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,incarceration_percentage_by_migrants,0.59,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,juvenile_crimes_by_migrants,2400,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,kidnapping_abduction_of_minors_by_migrants,96,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Bulgaria,sexual_offenses_against_minors_by_migrants,190,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.

@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Switzerland,Healthcare expenditure,Share of GDP,Total,11.7,percent of GDP,2024,https://www.bfs.admin.ch/ / health statistics,false,Latest published health expenditure share of GDP.
+Switzerland,Healthcare expenditure,Per capita,Total,8100,EUR per person,2024,https://www.bfs.admin.ch/ / health statistics,false,Approximate per-capita health expenditure (EUR-converted).
+Switzerland,Healthcare expenditure,Public/private split,Public financing share,68,percent of current health expenditure,2024,https://www.bfs.admin.ch/ / health statistics,false,Public share of current health expenditure.
+Switzerland,Healthcare expenditure,Public/private split,Private financing share,32,percent of current health expenditure,2024,https://www.bfs.admin.ch/ / health statistics,false,Residual private share.
+Switzerland,Obesity rate,Adult,Total,12.1,percent of adults,2024,WHO / https://www.bfs.admin.ch/ / health statistics,false,Adult obesity prevalence (BMI 30+).
+Switzerland,Smoking prevalence,Adult,Total,24,percent of adults,2024,WHO / https://www.bfs.admin.ch/ / health statistics,false,Adult smoking prevalence.
+Switzerland,Suicide Rate,,Total,11.2,"per 100,000 population",2024,WHO / https://www.bfs.admin.ch/ / health statistics,false,Age-standardised suicide rate.
+Switzerland,"Physicians per 1,000 people",,,4.4,"physicians per 1,000",2024,OECD/WHO / https://www.bfs.admin.ch/ / health statistics,false,Practising physicians density.
+Switzerland,Total number of doctors,,,39600,physicians,2024,OECD/WHO / https://www.bfs.admin.ch/ / health statistics,false,Derived: physician density × population. Modeled derivation.
+Switzerland,Healthy life expectancy,At birth,Total,72.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Switzerland,Preventable mortality rate,,,100,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Switzerland,Alcohol consumption,,Total,8.7,litres pure alcohol per capita 15+,2024,WHO / https://www.bfs.admin.ch/ / health statistics,false,Annual per-capita alcohol consumption.

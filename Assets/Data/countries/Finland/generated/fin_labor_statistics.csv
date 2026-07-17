@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Finland,Youth unemployment rate,,Ages 15–24,17.2,percent,2024,https://www.stat.fi/ / labour statistics,true,Latest published youth unemployment rate.
+Finland,Long-term unemployment rate,,,1.9,percent of labour force,2024,https://www.stat.fi/ / labour statistics,true,Long-term (12m+) unemployment.
+Finland,Labour force participation rate,,Total (15–64),66.5,percent,2024,https://www.stat.fi/ / labour statistics,true,Latest published participation rate.
+Finland,Labour force participation rate,By migrant/native status,Native-born — total,68,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Labour force participation rate,By migrant/native status,Foreign-born — total,60.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Labour force participation rate,By migrant/native status,Native-born — men,71.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Labour force participation rate,By migrant/native status,Foreign-born — men,65.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Labour force participation rate,By migrant/native status,Native-born — women,64.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Labour force participation rate,By migrant/native status,Foreign-born — women,54.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Finland,Minimum wage,,,none (collective agreements),statutory minimum,2024,https://www.stat.fi/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Finland,Average annual working hours per worker,,,1499,hours per year,2024,https://www.stat.fi/ / labour statistics,true,OECD-style average annual hours actually worked.

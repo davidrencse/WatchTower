@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Slovenia,Youth unemployment rate,,Ages 15–24,10.2,percent,2024,https://www.stat.si/ / labour statistics,true,Latest published youth unemployment rate.
+Slovenia,Long-term unemployment rate,,,1.4,percent of labour force,2024,https://www.stat.si/ / labour statistics,true,Long-term (12m+) unemployment.
+Slovenia,Labour force participation rate,,Total (15–64),63,percent,2024,https://www.stat.si/ / labour statistics,true,Latest published participation rate.
+Slovenia,Labour force participation rate,By migrant/native status,Native-born — total,64.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Labour force participation rate,By migrant/native status,Foreign-born — total,57,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Labour force participation rate,By migrant/native status,Native-born — men,68,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Labour force participation rate,By migrant/native status,Foreign-born — men,62,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Labour force participation rate,By migrant/native status,Native-born — women,61,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Labour force participation rate,By migrant/native status,Foreign-born — women,51,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Slovenia,Minimum wage,,,"€1,254/month",statutory minimum,2024,https://www.stat.si/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Slovenia,Average annual working hours per worker,,,1620,hours per year,2024,https://www.stat.si/ / labour statistics,true,OECD-style average annual hours actually worked.

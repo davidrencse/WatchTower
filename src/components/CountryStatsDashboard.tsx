@@ -1,10 +1,14 @@
 import {
   Fragment,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type ComponentProps,
+  type ComponentType,
   type CSSProperties,
   type ReactNode,
 } from 'react';
@@ -41,10 +45,20 @@ import {
   FRANCE_CORRUPTION_LOST_BY_YEAR,
   franceCorruptionLostRowForYear,
 } from '../lib/franceCorruptionLostByYear';
+import { franceFiscalSupportRowForYear } from '../lib/franceFiscalSupportByYear';
+import { FRANCE_LABOR_MIGRATION_ENFORCEMENT_ROWS } from '../lib/franceLaborMigrationEnforcement';
+import { FRANCE_LABOR_STATISTICS_ROWS } from '../lib/franceLaborStatistics';
 import {
-  FRANCE_GOV_SPENDING_SERIES,
   franceGovSpendRowForYear,
 } from '../lib/franceGovernmentSpendingByYear';
+import {
+  FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES,
+  franceGeneralGovExpenditureForYear,
+} from '../lib/franceGeneralGovernmentExpenditure';
+import {
+  franceGovernmentExpenditureCategoryRowForYear,
+  type FranceGovernmentExpenditureCategoryKey,
+} from '../lib/franceGovernmentExpenditureByCategory';
 import {
   findExpenditureRow,
   metricsFromExpenditureRow,
@@ -64,72 +78,75 @@ import { indexCountriesByIso3, parseCountriesWideCsv } from '../lib/parseCountri
 import {
   collectCrimeSourceUrls,
   CrimeMetricsSection,
+  FranceTotalRecordedCrimesChart,
   GermanyTotalRecordedCrimesChart,
   GermanyWhiteNativeVictimsChart,
 } from './CrimeMetricsSection';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
-import { GermanyImmigrationSection } from './GermanyImmigrationSection';
-import { GermanyGovernmentSection } from './GermanyGovernmentSection';
-import { GermanyMigrantCrimeSection } from './GermanyMigrantCrimeSection';
 import {
   GermanyNewsRail,
-  useBundledGermanyNews,
+  useCountryNews,
   type GermanyNewsRailSection,
 } from './GermanyNewsSidebar';
 import { bucketGermanyNewsItems } from '../lib/germanyNews';
 import { GERMANY_LABOR_INCOME_GROUP_COUNT } from '../lib/germanyGovernmentPolitics';
+import {
+  FRANCE_INCOME_DISTRIBUTION_GROUPS,
+  FRANCE_INCOME_DISTRIBUTION_CAPTION,
+} from '../lib/franceIncomeDistribution';
+import { FRANCE_IMMIGRANT_BENEFITS } from '../lib/franceImmigrantBenefits';
+import { FRANCE_TRADE } from '../lib/franceTrade';
+import {
+  FRANCE_CORPORATE_TAXES,
+  FRANCE_INCOME_BRACKETS,
+  FRANCE_OTHER_TAXES,
+  FRANCE_SOCIAL_SECURITY,
+  FRANCE_VAT_RATES,
+} from '../lib/franceTaxes';
+import {
+  FRANCE_MEDIAN_MONTHLY_NET_INCOME_BY_ETHNIC_GROUP,
+  FRANCE_MEDIAN_MONTHLY_NET_INCOME_SERIES,
+  FRANCE_MEDIAN_MONTHLY_NET_INCOME_TITLE,
+} from '../lib/franceMedianIncomeByEthnicGroup';
+import {
+  FRANCE_NET_FISCAL_CONTRIBUTION_BY_ETHNIC_GROUP,
+  FRANCE_NET_FISCAL_CONTRIBUTION_SERIES,
+  FRANCE_NET_FISCAL_CONTRIBUTION_TITLE,
+} from '../lib/franceNetFiscalContributionByEthnicGroup';
+import {
+  FRANCE_REMITTANCES_OUTFLOW_2025,
+  FRANCE_REMITTANCES_OUTFLOW_NOTE,
+  FRANCE_REMITTANCES_OUTFLOW_TITLE,
+} from '../lib/franceRemittancesOutflow';
 import {
   GERMANY_ABORTION_SECTION_GROUP_COUNT,
   GERMANY_HEALTH_BASIC_GROUP_COUNT,
   GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT,
   GERMANY_LGBT_SECTION_GROUP_COUNT,
 } from '../lib/germanyHealthCsv';
-import { GermanyAbortionStatisticsSection } from './GermanyAbortionStatisticsSection';
-import { GermanyHealthBasicSection } from './GermanyHealthBasicSection';
-import { GermanyHealthSuppressionSection } from './GermanyHealthSuppressionSection';
-import { GermanyLgbtSection } from './GermanyLgbtSection';
 import {
-  GermanyPoliticsLeftismSection,
-  GERMANY_POLITICS_LEFTISM_GROUP_COUNT,
-} from './GermanyPoliticsLeftismSection';
-import {
-  GermanyPoliticsRightWingSection,
-  GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT,
-} from './GermanyPoliticsRightWingSection';
-import {
-  GermanyPoliticsZionismSection,
-  GERMANY_POLITICS_ZIONISM_GROUP_COUNT,
-} from './GermanyPoliticsZionismSection';
-import {
-  GermanyPoliticsOverviewCharts,
-  GERMANY_POLITICS_OVERVIEW_CHART_COUNT,
-} from './GermanyPoliticsOverviewCharts';
-import { GermanyLaborIncomeSection } from './GermanyLaborIncomeSection';
-import {
-  GermanyEconomicStructuralSection,
-  GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
-} from './GermanyEconomicStructuralSection';
-import {
-  FranceEconomicStructuralSection,
+  applyFranceEconomyMetricOverrides,
   FRANCE_ECONOMIC_STRUCTURAL_GROUP_COUNT,
-} from './FranceEconomicStructuralSection';
-import { applyFranceEconomyMetricOverrides } from '../lib/franceEconomyStats';
+} from '../lib/franceEconomyStats';
 import {
-  GermanyEconomicTaxesSection,
+  GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
   GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
-} from './GermanyEconomicTaxesSection';
-import { GermanyTradeSection, GERMANY_TRADE_GROUP_COUNT } from './GermanyTradeSection';
-import { GermanyPopulationPyramid } from './GermanyPopulationPyramid';
-import { GermanyDaxCarousel } from './GermanyDaxCarousel';
-import { GermanyMarriagesSection, GERMANY_MARRIAGES_GROUP_COUNT } from './GermanyMarriagesSection';
-import { GermanySexualBehaviorSection, GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT } from './GermanySexualBehaviorSection';
+  GERMANY_MARRIAGES_GROUP_COUNT,
+  GERMANY_POLITICS_LEFTISM_GROUP_COUNT,
+  GERMANY_POLITICS_OVERVIEW_CHART_COUNT,
+  GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT,
+  GERMANY_POLITICS_ZIONISM_GROUP_COUNT,
+  GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT,
+  GERMANY_TRADE_GROUP_COUNT,
+} from '../lib/germanySectionCounts';
 import germanyForeignStudentsRaw from '../../Assets/Data/countries/Germany/foreign_students.csv?raw';
 import germanyBirthHealthRaw from '../../Assets/Data/countries/Germany/germany_birth_health_indicators.csv?raw';
 import fallbackForeignStudentsRaw from '../../Assets/Data/shared/foreign_student_population_screenshot_countries.csv?raw';
 import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
 import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
+import { ThemeToggle } from './ThemeToggle';
 import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
 import { scrollToCountryAnchor } from '../lib/countryRibbonScroll';
 import {
@@ -145,6 +162,102 @@ import {
   type MetricSubsection,
 } from '../lib/countryDashboardSections';
 
+/**
+ * Section components are code-split: each is fetched only when it first mounts.
+ * `CollapsibleFlagSection` mounts its children only when scrolled near the
+ * viewport (and when open), so these dynamic imports fire on demand as the user
+ * scrolls — and Germany-only sections are never fetched for other countries.
+ * A lightweight sized placeholder holds layout while the chunk loads.
+ */
+// React.lazy's current component constraint uses `any`; preserve prop inference at this code-splitting boundary.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lazySection<T extends ComponentType<any>>(
+  loader: () => Promise<{ default: T }>,
+  minHeight = 240,
+) {
+  const Lazy = lazy(loader);
+  return function LazySection(props: ComponentProps<T>) {
+    return (
+      <Suspense
+        fallback={<div aria-hidden className="animate-pulse rounded-md bg-white/[0.02]" style={{ minHeight }} />}
+      >
+        <Lazy {...(props as ComponentProps<typeof Lazy>)} />
+      </Suspense>
+    );
+  };
+}
+
+const GermanyImmigrationSection = lazySection(() =>
+  import('./GermanyImmigrationSection').then((m) => ({ default: m.GermanyImmigrationSection })),
+);
+const GermanyGovernmentSection = lazySection(() =>
+  import('./GermanyGovernmentSection').then((m) => ({ default: m.GermanyGovernmentSection })),
+);
+const GermanyMilitarySection = lazySection(() =>
+  import('./GermanyMilitarySection').then((m) => ({ default: m.GermanyMilitarySection })),
+);
+const CountryMilitarySection = lazySection(() =>
+  import('./CountryMilitarySection').then((m) => ({ default: m.CountryMilitarySection })),
+);
+const GermanyMigrantCrimeSection = lazySection(() =>
+  import('./GermanyMigrantCrimeSection').then((m) => ({ default: m.GermanyMigrantCrimeSection })),
+);
+const GermanyAbortionStatisticsSection = lazySection(() =>
+  import('./GermanyAbortionStatisticsSection').then((m) => ({ default: m.GermanyAbortionStatisticsSection })),
+);
+const GermanyHealthBasicSection = lazySection(() =>
+  import('./GermanyHealthBasicSection').then((m) => ({ default: m.GermanyHealthBasicSection })),
+);
+const GermanyHealthSuppressionSection = lazySection(() =>
+  import('./GermanyHealthSuppressionSection').then((m) => ({ default: m.GermanyHealthSuppressionSection })),
+);
+const GermanyLgbtSection = lazySection(() =>
+  import('./GermanyLgbtSection').then((m) => ({ default: m.GermanyLgbtSection })),
+);
+const GermanyPoliticsLeftismSection = lazySection(() =>
+  import('./GermanyPoliticsLeftismSection').then((m) => ({ default: m.GermanyPoliticsLeftismSection })),
+);
+const GermanyPoliticsRightWingSection = lazySection(() =>
+  import('./GermanyPoliticsRightWingSection').then((m) => ({ default: m.GermanyPoliticsRightWingSection })),
+);
+const GermanyPoliticsZionismSection = lazySection(() =>
+  import('./GermanyPoliticsZionismSection').then((m) => ({ default: m.GermanyPoliticsZionismSection })),
+);
+const GermanyPoliticsOverviewCharts = lazySection(() =>
+  import('./GermanyPoliticsOverviewCharts').then((m) => ({ default: m.GermanyPoliticsOverviewCharts })),
+);
+const GermanyLaborIncomeSection = lazySection(() =>
+  import('./GermanyLaborIncomeSection').then((m) => ({ default: m.GermanyLaborIncomeSection })),
+);
+const GermanyEconomicStructuralSection = lazySection(() =>
+  import('./GermanyEconomicStructuralSection').then((m) => ({ default: m.GermanyEconomicStructuralSection })),
+);
+const FranceEconomicStructuralSection = lazySection(() =>
+  import('./FranceEconomicStructuralSection').then((m) => ({ default: m.FranceEconomicStructuralSection })),
+);
+const GermanyEconomicTaxesSection = lazySection(() =>
+  import('./GermanyEconomicTaxesSection').then((m) => ({ default: m.GermanyEconomicTaxesSection })),
+);
+const FranceNetIncomeCalculator = lazySection(() =>
+  import('./FranceNetIncomeCalculator').then((m) => ({ default: m.FranceNetIncomeCalculator })),
+);
+const GermanyTradeSection = lazySection(() =>
+  import('./GermanyTradeSection').then((m) => ({ default: m.GermanyTradeSection })),
+);
+const GermanyPopulationPyramid = lazySection(() =>
+  import('./GermanyPopulationPyramid').then((m) => ({ default: m.GermanyPopulationPyramid })),
+);
+const GermanyDaxCarousel = lazySection(
+  () => import('./GermanyDaxCarousel').then((m) => ({ default: m.GermanyDaxCarousel })),
+  120,
+);
+const GermanyMarriagesSection = lazySection(() =>
+  import('./GermanyMarriagesSection').then((m) => ({ default: m.GermanyMarriagesSection })),
+);
+const GermanySexualBehaviorSection = lazySection(() =>
+  import('./GermanySexualBehaviorSection').then((m) => ({ default: m.GermanySexualBehaviorSection })),
+);
+
 const MERGED_CSV_URL = '/data/centralized_merged_country_stats.csv';
 const EXPENDITURES_CSV_URL = '/data/expenditures.csv';
 const FOREIGN_STUDENTS_CSV_URL = '/data/foreign_student_population_screenshot_countries.csv';
@@ -155,6 +268,9 @@ const MACRO_INDICATORS_CSV_URL = '/data/countries_latest_inflation_unemployment_
 
 /** Static public CSVs: prefer disk cache on repeat country views. */
 const STATIC_FETCH_INIT: RequestInit = { cache: 'force-cache' };
+
+/** Shared font stack for chart axis/tooltip text so SVG labels match the Inter UI. */
+const CHART_AXIS_FONT = 'Inter, ui-sans-serif, system-ui, sans-serif';
 
 const METRIC_ORDER = [
   'GDP',
@@ -259,7 +375,7 @@ function SourceLinks({ url, className }: { url: string; className: string }) {
   return (
     <ul className="mt-2 flex flex-col gap-1">
       {urls.map((u, i) => (
-        <li key={u}>
+        <li key={`${u}-${i}`}>
           <a href={u} target="_blank" rel="noopener noreferrer" className={className}>
             Source {i + 1} ↗
           </a>
@@ -357,7 +473,7 @@ function MetricTile({
 
 function govSpendLeadRowForYear(year: number, iso3: string) {
   if (iso3.toUpperCase() === 'FRA') {
-    const r = franceGovSpendRowForYear(year);
+    const r = franceFiscalSupportRowForYear(year);
     return {
       immigrationWelfareBn: r.immigrationWelfareBn,
       moneyToFamiliesBn: r.moneyToFamiliesBn,
@@ -610,6 +726,32 @@ const GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly GermanyGovSpendingCat
   'other',
 ];
 
+const FRANCE_GOV_SPENDING_LINE_CONFIG = {
+  publicServices: { label: 'Public services', color: '#a855f7' },
+  defence: { label: 'Defence', color: '#ef4444' },
+  publicOrder: { label: 'Public order', color: '#f97316' },
+  economicAffairs: { label: 'Economic affairs', color: '#84cc16' },
+  environment: { label: 'Environment', color: '#14b8a6' },
+  housing: { label: 'Housing', color: '#06b6d4' },
+  health: { label: 'Health', color: '#60a5fa' },
+  cultureRecreation: { label: 'Culture/recreation', color: '#f43f5e' },
+  education: { label: 'Education', color: '#c084fc' },
+  socialProtection: { label: 'Social protection', color: '#22c55e' },
+} satisfies ChartConfig;
+
+const FRANCE_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly FranceGovernmentExpenditureCategoryKey[] = [
+  'publicServices',
+  'defence',
+  'publicOrder',
+  'economicAffairs',
+  'environment',
+  'housing',
+  'health',
+  'cultureRecreation',
+  'education',
+  'socialProtection',
+];
+
 const GERMANY_GOV_SPENDING_YEARS = Array.from({ length: 26 }, (_, i) => 2000 + i);
 
 /** 2025-calibrated ratios for cards without a dedicated series column. */
@@ -701,71 +843,16 @@ const GERMANY_GOV_SPEND_CARD_DEFS: readonly GovSpendCardDef[] = [
 
 function govSpendRowForYear(year: number, iso3: string): GermanyGovSpendingSeriesRow {
   if (iso3.toUpperCase() === 'FRA') {
-    return franceGovSpendRowForYear(year) as GermanyGovSpendingSeriesRow;
+    return {
+      ...franceGovSpendRowForYear(year),
+      total: franceGeneralGovExpenditureForYear(year).total,
+    } as GermanyGovSpendingSeriesRow;
   }
   return GERMANY_GOV_SPENDING_SERIES.find((r) => Number(r.year) === year) ?? GERMANY_GOV_SPENDING_SERIES.at(-1)!;
 }
 
-const FRANCE_GOV_SPEND_CARD_DEFS: readonly GovSpendCardDef[] = [
-  {
-    label: 'Social Protection',
-    notes: 'Pensions, unemployment, family benefits, and social transfers (INSEE / Eurostat S13)',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.socialProtection.color),
-    getEurBn: (r) => r.socialProtection,
-  },
-  {
-    label: 'Health',
-    notes: 'Public health care and medical services',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.health.color),
-    getEurBn: (r) => r.health,
-  },
-  {
-    label: 'Education & Research',
-    notes: 'Schools, higher education, and research funding',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.educationResearch.color),
-    getEurBn: (r) => r.educationResearch,
-  },
-  {
-    label: 'Defence',
-    notes: 'Military and defence expenditure',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.defence.color),
-    getEurBn: (r) => r.defence,
-  },
-  {
-    label: 'Transport & Infrastructure',
-    notes: 'Transport networks and public infrastructure',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.transportInfrastructure.color),
-    getEurBn: (r) => r.transportInfrastructure,
-  },
-  {
-    label: 'General Public Services',
-    notes: 'Core administration and general government operations',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.generalPublicServices.color),
-    getEurBn: (r) => r.generalPublicServices,
-  },
-  {
-    label: 'Interest Payments',
-    notes: 'Interest on general government debt',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.interestPayments.color),
-    getEurBn: (r) => r.interestPayments,
-  },
-  {
-    label: 'Economic Affairs & Subsidies',
-    notes: 'Economic affairs, business support, and subsidies',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.economicAffairsSubsidies.color),
-    getEurBn: (r) => r.economicAffairsSubsidies,
-  },
-  {
-    label: 'Other',
-    notes: 'Remaining general government spending categories',
-    color: String(GERMANY_GOV_SPENDING_LINE_CONFIG.other.color),
-    getEurBn: (r) => r.other,
-  },
-];
-
 function buildGovSpendCategoryCardsForYear(
   row: GermanyGovSpendingSeriesRow,
-  iso3: string,
 ): Array<{
   label: string;
   eurBn: number;
@@ -774,8 +861,7 @@ function buildGovSpendCategoryCardsForYear(
   color: string;
 }> {
   const total = row.total;
-  const defs = iso3.toUpperCase() === 'FRA' ? FRANCE_GOV_SPEND_CARD_DEFS : GERMANY_GOV_SPEND_CARD_DEFS;
-  return defs.map((def) => {
+  return GERMANY_GOV_SPEND_CARD_DEFS.map((def) => {
     const eurBn = def.getEurBn(row);
     return {
       label: def.label,
@@ -822,10 +908,10 @@ function GovernmentTotalExpenditureChart({
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
-        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-300">
           {title}
         </CardTitle>
-        <CardDescription className="font-sans text-[10px] text-neutral-500">{description}</CardDescription>
+        <CardDescription className="font-sans text-[10px] font-medium text-neutral-400">{description}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -834,13 +920,14 @@ function GovernmentTotalExpenditureChart({
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                tick={{ fill: 'rgba(212,212,212,0.9)', fontSize: 11, fontWeight: 500, fontFamily: CHART_AXIS_FONT }}
                 axisLine={false}
                 tickLine={false}
+                minTickGap={28}
               />
               <YAxis
                 tickFormatter={(v) => `€${Number(v).toFixed(0)}B`}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                tick={{ fill: 'rgba(212,212,212,0.9)', fontSize: 11, fontWeight: 500, fontFamily: CHART_AXIS_FONT }}
                 axisLine={false}
                 tickLine={false}
                 width={76}
@@ -891,7 +978,7 @@ function FranceGovernmentTotalExpenditureChart() {
     <GovernmentTotalExpenditureChart
       title="Total General Government Expenditure"
       description="Billion Euros (€bn) – Official INSEE / Eurostat general government (S13) data · 2000–2025"
-      series={FRANCE_GOV_SPENDING_SERIES}
+      series={FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES}
       seriesLabel="Total General Government Expenditure"
     />
   );
@@ -985,7 +1072,7 @@ function GermanyGovernmentSpendingCategoryCards({
   iso3: string;
 }) {
   const cards = useMemo(
-    () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear, iso3), iso3),
+    () => buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear, iso3)),
     [selectedYear, iso3],
   );
 
@@ -1049,8 +1136,33 @@ function GermanyGovernmentSpendingCategoryLineChart({
   }, [selectedYear]);
 
   const yearRow = useMemo(() => govSpendRowForYear(selectedYear, iso3), [selectedYear, iso3]);
+  const franceYearRow = useMemo(
+    () => (isFrance ? franceGovernmentExpenditureCategoryRowForYear(selectedYear) : null),
+    [isFrance, selectedYear],
+  );
 
   const { chartData, chartConfig, totalBn } = useMemo(() => {
+    if (isFrance) {
+      if (!franceYearRow) return { chartData: [], chartConfig: {}, totalBn: null };
+      const slices = FRANCE_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => ({
+        key,
+        name: String(FRANCE_GOV_SPENDING_LINE_CONFIG[key].label),
+        eurBn: franceYearRow[key],
+        fill: String(FRANCE_GOV_SPENDING_LINE_CONFIG[key].color),
+        paletteIndex: i,
+      })).filter((slice) => slice.eurBn > 0);
+      const data = slices.map((slice) => ({
+        ...slice,
+        pieValue: slice.eurBn,
+        pctOfTotal: franceYearRow.total > 0 ? (slice.eurBn / franceYearRow.total) * 100 : 0,
+      }));
+      const cfg = data.reduce<ChartConfig>((acc, row, i) => {
+        acc[`slice_${i}`] = { label: row.name, color: row.fill };
+        return acc;
+      }, {});
+      return { chartData: data, chartConfig: cfg, totalBn: franceYearRow.total };
+    }
+
     const slices = GERMANY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => {
       const eurBn = yearRow[key];
       return {
@@ -1075,24 +1187,28 @@ function GermanyGovernmentSpendingCategoryLineChart({
     }, {});
 
     return { chartData: data, chartConfig: cfg, totalBn: yearRow.total };
-  }, [yearRow]);
+  }, [franceYearRow, isFrance, yearRow]);
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
-        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+        <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-300">
           {isFrance
             ? 'France – Government Expenditure by Category (2000–2025)'
             : 'Government Expenditure By Category (2000-2025)'}
         </CardTitle>
-        <CardDescription className="font-sans text-[10px] text-neutral-500">
-          Select a year below · pie and category cards update together (€bn)
+        <CardDescription className="font-sans text-[10px] font-medium text-neutral-400">
+          {isFrance
+            ? '€ billions, current prices — General Government, S13 · Select a year below'
+            : 'Select a year below · pie and category cards update together (€bn)'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
         <p className="text-center font-sans text-sm tabular-nums text-neutral-500">
           {isFrance ? 'Total General Government Expenditure' : 'Total expenditure'} ·{' '}
-          <span className="font-semibold text-neutral-300">€{totalBn.toFixed(1)}B</span>
+          <span className="font-semibold text-neutral-300">
+            {totalBn == null ? 'Not available' : `€${totalBn.toFixed(isFrance ? 3 : 1)}B`}
+          </span>
         </p>
 
         {chartData.length > 0 ? (
@@ -1109,7 +1225,7 @@ function GermanyGovernmentSpendingCategoryLineChart({
                       backgroundColor: '#0a0a0a',
                       border: '1px solid #404040',
                       borderRadius: '4px',
-                      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                      fontFamily: CHART_AXIS_FONT,
                       fontSize: '11px',
                     }}
                     formatter={(value, _name, item) => {
@@ -1117,9 +1233,9 @@ function GermanyGovernmentSpendingCategoryLineChart({
                       const bn = row?.eurBn;
                       const pct = row?.pctOfTotal;
                       if (typeof bn === 'number' && typeof pct === 'number') {
-                        return [`€${bn.toFixed(1)}B (${pct.toFixed(1)}%)`, 'Share'];
+                        return [`€${bn.toFixed(isFrance ? 3 : 1)}B (${pct.toFixed(1)}%)`, 'Share'];
                       }
-                      return [`€${Number(value).toFixed(1)}B`, 'Share'];
+                      return [`€${Number(value).toFixed(isFrance ? 3 : 1)}B`, 'Share'];
                     }}
                   />
                   <Pie
@@ -1155,8 +1271,8 @@ function GermanyGovernmentSpendingCategoryLineChart({
                   />
                   <span className="min-w-0 flex-1 break-words">{s.name}</span>
                   <span className="shrink-0 tabular-nums text-neutral-500">{s.pctOfTotal.toFixed(1)}%</span>
-                  <span className="w-full pl-5 font-sans text-[10px] tabular-nums text-neutral-600 sm:w-auto sm:pl-2">
-                    €{s.eurBn.toFixed(1)}B
+                  <span className="w-full pl-5 font-sans text-[10px] font-medium tabular-nums text-neutral-500 sm:w-auto sm:pl-2">
+                    €{s.eurBn.toFixed(isFrance ? 3 : 1)}B
                   </span>
                 </li>
               ))}
@@ -1388,8 +1504,12 @@ function GermanyGovernmentSpendingDESection({
   subRows: CountryStatMetric[];
   iso3: string;
 }) {
-  const [selectedYear, setSelectedYear] = useState(2025);
   const isFrance = iso3.toUpperCase() === 'FRA';
+  const [selectedYear, setSelectedYear] = useState(() => (isFrance ? 2024 : 2025));
+
+  useEffect(() => {
+    setSelectedYear(isFrance ? 2024 : 2025);
+  }, [isFrance]);
 
   const immigrationRow = subRows.find((r) => r.metric === 'Immigration welfare spending');
   const foreignAidRow = subRows.find((r) => r.metric === 'Foreign Aid');
@@ -2729,6 +2849,8 @@ function GermanyHoverSeriesTile({
   yearRangeLabel,
   yTickFormatter,
   tooltipFormatter,
+  yDomain,
+  yTicks,
   minHeightClass,
   footnote,
 }: {
@@ -2740,6 +2862,8 @@ function GermanyHoverSeriesTile({
   yearRangeLabel: string;
   yTickFormatter: (n: number) => string;
   tooltipFormatter: (v: number) => string;
+  yDomain?: [number, number];
+  yTicks?: number[];
   minHeightClass?: string;
   footnote?: string;
 }) {
@@ -2761,27 +2885,30 @@ function GermanyHoverSeriesTile({
         <div className="pointer-events-none absolute inset-0 z-40">
           <Card className="flex h-full flex-col border-line bg-surface-metric shadow-card ring-1 ring-white/[0.04]">
             <CardHeader className="p-3 pb-1.5">
-              <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+              <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-300">
                 {title} ({yearRangeLabel})
               </CardTitle>
             </CardHeader>
             <CardContent className="flex min-h-0 flex-1 flex-col p-3 pt-0">
               <ChartContainer config={config} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data}>
+                  <AreaChart data={data} margin={{ top: 6, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
-                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                      tick={{ fill: 'rgba(212,212,212,0.9)', fontSize: 11, fontWeight: 500, fontFamily: CHART_AXIS_FONT }}
                       axisLine={false}
                       tickLine={false}
+                      minTickGap={12}
                     />
                     <YAxis
+                      domain={yDomain}
+                      ticks={yTicks}
                       tickFormatter={(v) => yTickFormatter(Number(v))}
-                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                      tick={{ fill: 'rgba(212,212,212,0.9)', fontSize: 11, fontWeight: 500, fontFamily: CHART_AXIS_FONT }}
                       axisLine={false}
                       tickLine={false}
-                      width={44}
+                      width={46}
                     />
                     <ChartTooltip
                       cursor={{ stroke: 'rgba(255,255,255,0.1)' }}
@@ -2806,7 +2933,9 @@ function GermanyHoverSeriesTile({
                 </ResponsiveContainer>
               </ChartContainer>
               {footnote ? (
-                <p className="mt-1 text-center font-sans text-[9px] leading-snug text-neutral-600">{footnote}</p>
+                <p className="mt-1.5 text-center font-sans text-[10px] font-medium leading-snug text-neutral-500">
+                  {footnote}
+                </p>
               ) : null}
             </CardContent>
           </Card>
@@ -2863,8 +2992,10 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
           seriesKey="gdp"
           title="GDP (USD billions)"
           yearRangeLabel="2015–2025"
-          yTickFormatter={(n) => `${Math.round(n / 1000)}T`}
-          tooltipFormatter={(v) => `${v.toLocaleString()}B`}
+          yDomain={[3200, 5250]}
+          yTicks={[3500, 4000, 4500, 5000]}
+          yTickFormatter={(n) => `${(n / 1000).toFixed(1)}T`}
+          tooltipFormatter={(v) => `$${v.toLocaleString()}B`}
           minHeightClass="min-h-[240px]"
           footnote="2025 is estimated"
         />
@@ -2881,6 +3012,8 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
           seriesKey="gdpPerCapita"
           title="GDP per capita (USD)"
           yearRangeLabel="2015–2025"
+          yDomain={[40000, 62000]}
+          yTicks={[42000, 48000, 54000, 60000]}
           yTickFormatter={(n) => `${Math.round(n / 1000)}k`}
           tooltipFormatter={(v) => `$${Math.round(v).toLocaleString()}`}
           minHeightClass="min-h-[240px]"
@@ -2939,11 +3072,23 @@ type CountryStatsDashboardProps = {
   flag: FlagEntry;
   iso3: string;
   onBack: () => void;
+  /**
+    * ISO3 whose data/components drive the Crime → Statistics subsection. Defaults to `iso3`.
+    * This can differ from the main dashboard ISO when a country-specific crime source is needed.
+   */
+  crimeIso3?: string;
 };
 
-const DRAGGABLE_TOP_SECTION_ORDER = ['economic', 'politics', 'population', 'health', 'crime', 'government'] as const;
+const DRAGGABLE_TOP_SECTION_ORDER = ['economic', 'politics', 'population', 'health', 'crime', 'government', 'military'] as const;
 
-export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashboardProps) {
+/** Served URL of a generated per-country dossier CSV (see scripts/generate-country-dossiers.mjs). */
+function countryCsvUrl(iso3: string, name: string): string {
+  return `/data/${iso3.toLowerCase()}_${name}.csv`;
+}
+
+export function CountryStatsDashboard({ flag, iso3, onBack, crimeIso3 }: CountryStatsDashboardProps) {
+  // Country driving the Crime → Statistics subsection. Identical to `iso3` by default.
+  const effectiveCrimeIso3 = crimeIso3 ?? iso3;
   const [ordered, setOrdered] = useState<CountryStatMetric[] | null>(null);
   const [statsRow, setStatsRow] = useState<CountryWideRow | null>(null);
   const [crimeRow, setCrimeRow] = useState<CountryWideRow | null>(null);
@@ -2992,6 +3137,10 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         }
 
         const countryLabel = row.country || flag.label;
+
+        // Crime → Statistics may use a separate country row when explicitly requested.
+        const crimeUpper = effectiveCrimeIso3.toUpperCase();
+        const crimeSourceRow = crimeUpper === upper ? row : byIso.get(crimeUpper) ?? row;
 
         let corruptionRow: CountryWideRow | null = null;
         if (corruptionText) {
@@ -3045,7 +3194,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
           if (cancelled) return;
           const proxy = proxyFromMergedRow(row);
           setStatsRow(row);
-          setCrimeRow(crimeFromMergedRow(row));
+          setCrimeRow(crimeFromMergedRow(crimeSourceRow));
           setOrdered(
             orderMetrics([
               ...wideRowToStatMetrics(row, upper, proxy),
@@ -3070,7 +3219,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         if (cancelled) return;
         const proxy = proxyFromMergedRow(row);
         setStatsRow(row);
-        setCrimeRow(crimeFromMergedRow(row));
+        setCrimeRow(crimeFromMergedRow(crimeSourceRow));
         setOrdered(
           orderMetrics([
             ...wideRowToStatMetrics(row, upper, proxy),
@@ -3093,7 +3242,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
     return () => {
       cancelled = true;
     };
-  }, [iso3, flag.label]);
+  }, [iso3, effectiveCrimeIso3, flag.label]);
 
   const displayOrdered = useMemo(() => {
     if (!ordered) return null;
@@ -3158,7 +3307,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   const [ribbonBubbleMainId, setRibbonBubbleMainId] = useState<string | null>(null);
   const [ribbonPressedSubAnchorByMain, setRibbonPressedSubAnchorByMain] = useState<Record<string, string>>({});
   const ribbonExpand = useCountryRibbonExpandController();
-  const germanyNewsItems = useBundledGermanyNews(isGermany);
+  const germanyNewsItems = useCountryNews(isGermany, isGermany ? null : countryCsvUrl(iso3, 'news'));
   const { germanyLeftNewsSections, germanyRightNewsSections } = useMemo(() => {
     const b = bucketGermanyNewsItems(germanyNewsItems);
     const left: GermanyNewsRailSection[] = [
@@ -3255,7 +3404,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   }
 
   function moveSection(id: string, direction: 'up' | 'down') {
-    const active = [...statSections.map((s) => s.id), 'crime', ...(isGermany ? ['government'] : [])];
+    const active = [...statSections.map((s) => s.id), 'crime', 'government', 'military'];
     setSectionOrder((prev) => {
       const orderedActive = active
         .map((sid) => ({ sid, idx: prev.indexOf(sid) }))
@@ -3277,7 +3426,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   }
 
   function sectionControls(id: string) {
-    const active = [...statSections.map((s) => s.id), 'crime', ...(isGermany ? ['government'] : [])]
+    const active = [...statSections.map((s) => s.id), 'crime', 'government', 'military']
       .map((sid) => ({ sid, idx: sectionOrderIndex(sid) }))
       .sort((a, b) => a.idx - b.idx)
       .map((x) => x.sid);
@@ -3311,7 +3460,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
   return (
     <CountryRibbonExpandProvider value={ribbonExpand}>
       <div
-        className="flex min-h-screen min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased"
+        className="flex min-h-[100dvh] flex-col bg-surface-app font-sans text-neutral-200 antialiased"
       style={
         {
           '--country-nav-scroll-margin': ribbonBubbleMainId ? '14rem' : '7.5rem',
@@ -3328,7 +3477,10 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
             ← Back
           </button>
           <div className="justify-self-center text-center">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">Watch Tower</p>
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">Watch Tower</p>
+              <ThemeToggle className="scale-[0.92]" />
+            </div>
           </div>
           <div className="flex items-center justify-self-end gap-3">
             <div className="hidden h-10 w-14 rounded-md border border-line bg-black/45 shadow-inset sm:flex sm:items-center sm:justify-center sm:px-2">
@@ -3356,7 +3508,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
       ) : null}
 
       <div className="flex min-h-0 min-w-0 w-full flex-1 gap-0">
-        {isGermany && germanyLeftRailVisible ? (
+        {germanyLeftRailVisible ? (
           <GermanyNewsRail side="left" sections={germanyLeftNewsSections} />
         ) : null}
         <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden">
@@ -3453,9 +3605,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_labor_income') {
-                    if (treatAsGermany(iso3)) {
-                      nestedBlocks.push({ type: 'germany_labor_income', sub });
-                    }
+                    nestedBlocks.push({ type: 'germany_labor_income', sub });
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_economic_taxes') {
@@ -3477,9 +3627,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_lgbt_stats') {
-                    if (treatAsGermany(iso3)) {
-                      nestedBlocks.push({ type: 'germany_lgbt_stats', sub });
-                    }
+                    nestedBlocks.push({ type: 'germany_lgbt_stats', sub });
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_politics_leftism') {
@@ -3501,9 +3649,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     continue;
                   }
                   if ('kind' in sub && sub.kind === 'germany_abortion_stats') {
-                    if (treatAsGermany(iso3)) {
-                      nestedBlocks.push({ type: 'germany_abortion_stats', sub });
-                    }
+                    nestedBlocks.push({ type: 'germany_abortion_stats', sub });
                     continue;
                   }
                   const metricSub = sub as MetricSubsection;
@@ -3584,8 +3730,15 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       expandSignal={expandSignal}
                     >
                     <div className="flex flex-col gap-4">
-                      {section.id === 'population' && treatAsGermany(iso3) ? (
-                        <GermanyPopulationPyramid />
+                      {section.id === 'population' ? (
+                        treatAsGermany(iso3) ? (
+                          <GermanyPopulationPyramid />
+                        ) : (
+                          <GermanyPopulationPyramid
+                            csvUrl={countryCsvUrl(iso3, 'population_pyramid')}
+                            countryLabel={flag.label}
+                          />
+                        )
                       ) : null}
                       {leadingRows.length > 0 ? (
                         <div className={STAT_GRID}>
@@ -3602,11 +3755,20 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       {section.id === 'economic' && iso3.toUpperCase() === 'FRA' ? (
                         <FranceEconomicStructuralSection />
                       ) : null}
-                      {section.id === 'health' && treatAsGermany(iso3) ? (
-                        <div className="flex flex-col gap-3">
-                          <GermanyHealthBasicSection />
-                          <GermanyBirthRatesExtrasGrid />
-                        </div>
+                      {section.id === 'health' ? (
+                        treatAsGermany(iso3) ? (
+                          <div className="flex flex-col gap-3">
+                            <GermanyHealthBasicSection />
+                            <GermanyBirthRatesExtrasGrid />
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-3">
+                            <GermanyHealthBasicSection
+                              csvUrl={countryCsvUrl(iso3, 'health_statistics_basic')}
+                              isGermany={false}
+                            />
+                          </div>
+                        )
                       ) : null}
                       {section.id === 'politics' && treatAsGermany(iso3) ? (
                         <GermanyPoliticsOverviewCharts />
@@ -3677,7 +3839,60 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            <GermanyLaborIncomeSection />
+                            {treatAsGermany(iso3) ? (
+                              <GermanyLaborIncomeSection
+                                govRowsOverride={
+                                  iso3.toUpperCase() === 'FRA' ? FRANCE_LABOR_MIGRATION_ENFORCEMENT_ROWS : undefined
+                                }
+                                laborRowsOverride={
+                                  iso3.toUpperCase() === 'FRA' ? FRANCE_LABOR_STATISTICS_ROWS : undefined
+                                }
+                                incomeDistribution={
+                                  iso3.toUpperCase() === 'FRA'
+                                    ? {
+                                        groups: FRANCE_INCOME_DISTRIBUTION_GROUPS,
+                                        caption: FRANCE_INCOME_DISTRIBUTION_CAPTION,
+                                      }
+                                    : undefined
+                                }
+                                incomeNationalityChart={
+                                  iso3.toUpperCase() === 'FRA'
+                                    ? {
+                                        title: FRANCE_MEDIAN_MONTHLY_NET_INCOME_TITLE,
+                                        data: FRANCE_MEDIAN_MONTHLY_NET_INCOME_BY_ETHNIC_GROUP,
+                                        series: FRANCE_MEDIAN_MONTHLY_NET_INCOME_SERIES,
+                                      }
+                                    : undefined
+                                }
+                                fiscalNationalityChart={
+                                  iso3.toUpperCase() === 'FRA'
+                                    ? {
+                                        title: FRANCE_NET_FISCAL_CONTRIBUTION_TITLE,
+                                        data: FRANCE_NET_FISCAL_CONTRIBUTION_BY_ETHNIC_GROUP,
+                                        series: FRANCE_NET_FISCAL_CONTRIBUTION_SERIES,
+                                      }
+                                    : undefined
+                                }
+                                remittancesChart={
+                                  iso3.toUpperCase() === 'FRA'
+                                    ? {
+                                        title: FRANCE_REMITTANCES_OUTFLOW_TITLE,
+                                        data: FRANCE_REMITTANCES_OUTFLOW_2025,
+                                        note: FRANCE_REMITTANCES_OUTFLOW_NOTE,
+                                      }
+                                    : undefined
+                                }
+                                immigrantBenefits={
+                                  iso3.toUpperCase() === 'FRA' ? FRANCE_IMMIGRANT_BENEFITS : undefined
+                                }
+                              />
+                            ) : (
+                              <GermanyLaborIncomeSection
+                                govCsvUrl={countryCsvUrl(iso3, 'government_politics')}
+                                laborCsvUrl={countryCsvUrl(iso3, 'labor_statistics')}
+                                isGermany={false}
+                              />
+                            )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_economic_taxes' ? (
                           <CollapsibleFlagSection
@@ -3690,7 +3905,23 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            <GermanyEconomicTaxesSection />
+                            {iso3.toUpperCase() === 'FRA' ? (
+                              <GermanyEconomicTaxesSection
+                                incomeBrackets={FRANCE_INCOME_BRACKETS}
+                                bracketsTitle="Income Tax Brackets 2026 (per part)"
+                                bracketsDescription="Barème IR on 2025 income, applied to the quotient familial (€)."
+                                socialSecurity={FRANCE_SOCIAL_SECURITY}
+                                socialTitle="Social Contributions 2026"
+                                socialDescription="Employee / employer shares (illustrative)."
+                                corporateTaxes={FRANCE_CORPORATE_TAXES}
+                                vatRates={FRANCE_VAT_RATES}
+                                otherTaxes={FRANCE_OTHER_TAXES}
+                                calculator={<FranceNetIncomeCalculator />}
+                                footnote="Reference figures are overview-only; verify against official impots.gouv.fr / URSSAF guidance for filing."
+                              />
+                            ) : (
+                              <GermanyEconomicTaxesSection />
+                            )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_economy_trade' ? (
                           <CollapsibleFlagSection
@@ -3703,7 +3934,11 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            <GermanyTradeSection />
+                            {iso3.toUpperCase() === 'FRA' ? (
+                              <GermanyTradeSection {...FRANCE_TRADE} />
+                            ) : (
+                              <GermanyTradeSection />
+                            )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_health_suppression' ? (
                           <CollapsibleFlagSection
@@ -3729,7 +3964,14 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            <GermanyLgbtSection />
+                            {treatAsGermany(iso3) ? (
+                              <GermanyLgbtSection />
+                            ) : (
+                              <GermanyLgbtSection
+                                csvUrl={countryCsvUrl(iso3, 'gender_care_statistics')}
+                                isGermany={false}
+                              />
+                            )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_politics_leftism' ? (
                           <CollapsibleFlagSection
@@ -3781,7 +4023,14 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            <GermanyAbortionStatisticsSection />
+                            {treatAsGermany(iso3) ? (
+                              <GermanyAbortionStatisticsSection />
+                            ) : (
+                              <GermanyAbortionStatisticsSection
+                                csvUrl={countryCsvUrl(iso3, 'abortion_statistics')}
+                                isGermany={false}
+                              />
+                            )}
                           </CollapsibleFlagSection>
                         ) : (
                           <CollapsibleFlagSection
@@ -3889,8 +4138,12 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                     expandSignal={expandSignal}
                   >
                     <div className="flex flex-col gap-4">
-                      {treatAsGermany(iso3) ? <GermanyTotalRecordedCrimesChart /> : null}
-                      <CrimeMetricsSection crimeRow={crimeRow} iso3={iso3} />
+                      {effectiveCrimeIso3.toUpperCase() === 'FRA' ? (
+                        <FranceTotalRecordedCrimesChart />
+                      ) : treatAsGermany(effectiveCrimeIso3) ? (
+                        <GermanyTotalRecordedCrimesChart />
+                      ) : null}
+                      <CrimeMetricsSection crimeRow={crimeRow} iso3={effectiveCrimeIso3} />
                     </div>
                   </CollapsibleFlagSection>
                   {treatAsGermany(iso3) ? (
@@ -3903,37 +4156,71 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
                       collapseSignal={collapseSignal}
                       expandSignal={expandSignal}
                     >
-                      <GermanyWhiteNativeVictimsChart />
+                      <GermanyWhiteNativeVictimsChart iso3={iso3} />
                     </CollapsibleFlagSection>
                   ) : null}
-                  {treatAsGermany(iso3) ? (
-                    <CollapsibleFlagSection
-                      title="Migrant data"
-                      count={16}
-                      defaultOpen
-                      anchorId="country-sub-crime-migrant"
-                      ribbonExpandKey="sub:crime:crime_migrant"
-                      collapseSignal={collapseSignal}
-                      expandSignal={expandSignal}
-                    >
+                  <CollapsibleFlagSection
+                    title="Migrant data"
+                    count={treatAsGermany(iso3) ? 16 : 7}
+                    defaultOpen
+                    anchorId="country-sub-crime-migrant"
+                    ribbonExpandKey="sub:crime:crime_migrant"
+                    collapseSignal={collapseSignal}
+                    expandSignal={expandSignal}
+                  >
+                    {treatAsGermany(iso3) ? (
                       <GermanyMigrantCrimeSection collapseSignal={collapseSignal} expandSignal={expandSignal} />
-                    </CollapsibleFlagSection>
-                  ) : null}
+                    ) : (
+                      <GermanyMigrantCrimeSection
+                        collapseSignal={collapseSignal}
+                        expandSignal={expandSignal}
+                        csvUrl={countryCsvUrl(iso3, 'migrant_crime_requested_metrics')}
+                        additionalCsvUrl={countryCsvUrl(iso3, 'migrant_crime_additional_metrics')}
+                        isGermany={false}
+                      />
+                    )}
+                  </CollapsibleFlagSection>
                 </div>
               </CollapsibleFlagSection>
             </div>
 
-            {treatAsGermany(iso3) ? (
-              <div
-                style={{ order: sectionOrderIndex('government') }}
-              >
+            <div
+              style={{ order: sectionOrderIndex('government') }}
+            >
+              {treatAsGermany(iso3) ? (
                 <GermanyGovernmentSection
                   collapseSignal={collapseSignal}
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
                 />
-              </div>
-            ) : null}
+              ) : (
+                <GermanyGovernmentSection
+                  collapseSignal={collapseSignal}
+                  expandSignal={expandSignal}
+                  headerControls={sectionControls('government')}
+                  csvUrl={countryCsvUrl(iso3, 'government_politics')}
+                  isGermany={false}
+                />
+              )}
+            </div>
+
+            <div style={{ order: sectionOrderIndex('military') }}>
+              {treatAsGermany(iso3) ? (
+                <GermanyMilitarySection
+                  collapseSignal={collapseSignal}
+                  expandSignal={expandSignal}
+                  headerControls={sectionControls('military')}
+                />
+              ) : (
+                <CountryMilitarySection
+                  iso3={iso3}
+                  countryName={flag.label}
+                  collapseSignal={collapseSignal}
+                  expandSignal={expandSignal}
+                  headerControls={sectionControls('military')}
+                />
+              )}
+            </div>
             </div>
 
             <section className="mt-10 rounded-md border border-line bg-surface-metric p-4 shadow-card ring-1 ring-white/[0.03] sm:p-6">
@@ -3965,7 +4252,7 @@ export function CountryStatsDashboard({ flag, iso3, onBack }: CountryStatsDashbo
         ) : null}
           </div>
         </div>
-        {isGermany && germanyRightRailVisible ? (
+        {germanyRightRailVisible ? (
           <GermanyNewsRail side="right" sections={germanyRightNewsSections} />
         ) : null}
       </div>

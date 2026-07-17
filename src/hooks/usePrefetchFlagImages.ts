@@ -5,8 +5,19 @@ import { FLAGS } from '../data/flags';
  * Warms the HTTP cache for every flag PNG so gallery / details load from disk cache.
  * Chunked via idle callbacks to avoid blocking the main thread.
  */
-export function usePrefetchFlagImages() {
+export function usePrefetchFlagImages(enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
+
+    const connection = (navigator as Navigator & {
+      connection?: {
+        saveData?: boolean;
+        effectiveType?: string;
+      };
+    }).connection;
+    if (connection?.saveData) return;
+    if (connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
+
     const urls = FLAGS.map((f) => f.src);
     let cancelled = false;
     let i = 0;
@@ -32,5 +43,5 @@ export function usePrefetchFlagImages() {
         cancelIdleCallback(idleId);
       }
     };
-  }, []);
+  }, [enabled]);
 }

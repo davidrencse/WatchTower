@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Belarus,Youth unemployment rate,,Ages 15–24,9,percent,2024,Belstat / labour statistics,https://www.belstat.gov.by/,Latest published youth unemployment rate.
+Belarus,Long-term unemployment rate,,,1,percent of labour force,2024,Belstat / labour statistics,https://www.belstat.gov.by/,Long-term (12m+) unemployment.
+Belarus,Labour force participation rate,,Total (15–64),68,percent,2024,Belstat / labour statistics,https://www.belstat.gov.by/,Latest published participation rate.
+Belarus,Labour force participation rate,By migrant/native status,Native-born — total,69.5,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Labour force participation rate,By migrant/native status,Foreign-born — total,62,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Labour force participation rate,By migrant/native status,Native-born — men,73,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Labour force participation rate,By migrant/native status,Foreign-born — men,67,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Labour force participation rate,By migrant/native status,Native-born — women,66,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Labour force participation rate,By migrant/native status,Foreign-born — women,56,percent,2024,Modeled estimate — labour,https://www.belstat.gov.by/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belarus,Minimum wage,,,BYN 726/month,statutory minimum,2024,Belstat / labour statistics,https://www.belstat.gov.by/,Statutory minimum wage (or none where wages are set by collective agreements).
+Belarus,Average annual working hours per worker,,,1750,hours per year,2024,Belstat / labour statistics,https://www.belstat.gov.by/,OECD-style average annual hours actually worked.

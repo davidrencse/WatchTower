@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+United Kingdom,Youth unemployment rate,,Ages 15–24,14.5,percent,2024,https://www.ons.gov.uk/ / labour statistics,false,Latest published youth unemployment rate.
+United Kingdom,Long-term unemployment rate,,,1.2,percent of labour force,2024,https://www.ons.gov.uk/ / labour statistics,false,Long-term (12m+) unemployment.
+United Kingdom,Labour force participation rate,,Total (15–64),63,percent,2024,https://www.ons.gov.uk/ / labour statistics,false,Latest published participation rate.
+United Kingdom,Labour force participation rate,By migrant/native status,Native-born — total,64.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Labour force participation rate,By migrant/native status,Foreign-born — total,57,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Labour force participation rate,By migrant/native status,Native-born — men,68,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Labour force participation rate,By migrant/native status,Foreign-born — men,62,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Labour force participation rate,By migrant/native status,Native-born — women,61,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Labour force participation rate,By migrant/native status,Foreign-born — women,51,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United Kingdom,Minimum wage,,,£12.21/hour,statutory minimum,2024,https://www.ons.gov.uk/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+United Kingdom,Average annual working hours per worker,,,1524,hours per year,2024,https://www.ons.gov.uk/ / labour statistics,false,OECD-style average annual hours actually worked.

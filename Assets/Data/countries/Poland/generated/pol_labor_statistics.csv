@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Poland,Youth unemployment rate,,Ages 15–24,10.5,percent,2024,GUS Poland / labour statistics,https://stat.gov.pl/,Latest published youth unemployment rate.
+Poland,Long-term unemployment rate,,,0.8,percent of labour force,2024,GUS Poland / labour statistics,https://stat.gov.pl/,Long-term (12m+) unemployment.
+Poland,Labour force participation rate,,Total (15–64),58.5,percent,2024,GUS Poland / labour statistics,https://stat.gov.pl/,Latest published participation rate.
+Poland,Labour force participation rate,By migrant/native status,Native-born — total,60,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Labour force participation rate,By migrant/native status,Foreign-born — total,52.5,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Labour force participation rate,By migrant/native status,Native-born — men,63.5,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Labour force participation rate,By migrant/native status,Foreign-born — men,57.5,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Labour force participation rate,By migrant/native status,Native-born — women,56.5,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Labour force participation rate,By migrant/native status,Foreign-born — women,46.5,percent,2024,Modeled estimate — labour,https://stat.gov.pl/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Poland,Minimum wage,,,"PLN 4,666/month",statutory minimum,2024,GUS Poland / labour statistics,https://stat.gov.pl/,Statutory minimum wage (or none where wages are set by collective agreements).
+Poland,Average annual working hours per worker,,,1803,hours per year,2024,GUS Poland / labour statistics,https://stat.gov.pl/,OECD-style average annual hours actually worked.

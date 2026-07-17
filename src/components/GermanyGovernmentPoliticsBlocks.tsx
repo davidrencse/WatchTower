@@ -448,7 +448,7 @@ function GovLaborDistributionPanel({
           {sourceLinks.length > 0 ? (
             <div className="flex flex-col gap-3 rounded-md border border-white/[0.06] bg-black/20 p-3 sm:flex-row sm:divide-x sm:divide-white/[0.08]">
               {sourceLinks.map(({ url: u, label }, idx) => (
-                <div key={u} className="min-w-0 flex-1 sm:px-4 sm:first:pl-1">
+                <div key={`${u}-${idx}`} className="min-w-0 flex-1 sm:px-4 sm:first:pl-1">
                   <div className="font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-neutral-300">
                     {sourceLinks.length > 1 ? `Reference ${String(idx + 1).padStart(2, '0')}` : 'Reference'}
                   </div>

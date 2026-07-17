@@ -300,7 +300,7 @@ function LgbtHighlightsPanel({
             )}
           >
             {sourceEntries.map(({ url, label: srcLabel }, i) => (
-              <li key={url}>
+              <li key={`${url}-${i}`}>
                 <a
                   href={url}
                   target="_blank"
@@ -383,15 +383,24 @@ function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPolitics
   return nodes;
 }
 
-export const GermanyLgbtSection = memo(function GermanyLgbtSection() {
-  const [raw, setRaw] = useState(lgbtCsvRaw);
+type GermanyLgbtSectionProps = {
+  /** Per-country CSV (same schema); defaults to Germany's. */
+  csvUrl?: string;
+  isGermany?: boolean;
+};
+
+export const GermanyLgbtSection = memo(function GermanyLgbtSection({
+  csvUrl = CSV_URL,
+  isGermany = true,
+}: GermanyLgbtSectionProps) {
+  const [raw, setRaw] = useState(isGermany ? lgbtCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(CSV_URL);
+        const res = await fetch(csvUrl);
         const text = res.ok ? await res.text() : '';
         if (!cancelled && text.trim()) {
           setRaw(text);
@@ -404,7 +413,7 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [csvUrl]);
 
   const { adultGroups, childrenGroups } = useMemo(() => {
     const parsed = parseGermanyMetricTableCsv(raw);
@@ -429,7 +438,7 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection() {
   if (adultGroups.length === 0 && childrenGroups.length === 0) {
     return (
       <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">germany_gender_care_statistics.csv</code>.
+        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
       </p>
     );
   }
@@ -451,13 +460,13 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection() {
           <div className={cn(LGBT_STACK, '-mx-1')}>{childrenPanelNodes}</div>
         ) : (
           <p className="font-sans text-xs text-neutral-500">
-            No child-focused rows found in <code className="text-neutral-400">germany_gender_care_statistics.csv</code>.
+            No child-focused rows found in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
           </p>
         )}
       </CollapsibleFlagSection>
 
       <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-        Source: <code className="text-neutral-500">germany_gender_care_statistics.csv</code>
+        Source: <code className="text-neutral-500">{csvUrl.split('/').pop()}</code>
       </p>
     </div>
   );

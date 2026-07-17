@@ -630,8 +630,6 @@ function MarriageRatesAgeLineCard() {
   );
 }
 
-export const GERMANY_MARRIAGES_GROUP_COUNT = 11;
-
 export const GermanyMarriagesSection = memo(function GermanyMarriagesSection() {
   const femaleAggregate = aggregateMarriageSeries(FEMALE_SERIES);
   const maleAggregate = aggregateMarriageSeries(MALE_SERIES);

@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Portugal,Youth unemployment rate,,Ages 15–24,20.5,percent,2024,INE Portugal / labour statistics,https://www.ine.pt/,Latest published youth unemployment rate.
+Portugal,Long-term unemployment rate,,,2.8,percent of labour force,2024,INE Portugal / labour statistics,https://www.ine.pt/,Long-term (12m+) unemployment.
+Portugal,Labour force participation rate,,Total (15–64),59.5,percent,2024,INE Portugal / labour statistics,https://www.ine.pt/,Latest published participation rate.
+Portugal,Labour force participation rate,By migrant/native status,Native-born — total,61,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Labour force participation rate,By migrant/native status,Foreign-born — total,53.5,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Labour force participation rate,By migrant/native status,Native-born — men,64.5,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Labour force participation rate,By migrant/native status,Foreign-born — men,58.5,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Labour force participation rate,By migrant/native status,Native-born — women,57.5,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Labour force participation rate,By migrant/native status,Foreign-born — women,47.5,percent,2024,Modeled estimate — labour,https://www.ine.pt/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Portugal,Minimum wage,,,€870/month,statutory minimum,2024,INE Portugal / labour statistics,https://www.ine.pt/,Statutory minimum wage (or none where wages are set by collective agreements).
+Portugal,Average annual working hours per worker,,,1716,hours per year,2024,INE Portugal / labour statistics,https://www.ine.pt/,OECD-style average annual hours actually worked.

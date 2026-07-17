@@ -83,15 +83,25 @@ const HEALTH_OVERVIEW_OECD_EXTRA_ROWS: GermanyGovernmentPoliticsRow[] = [
   },
 ];
 
-export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection() {
-  const [raw, setRaw] = useState(healthBasicCsvRaw);
+type GermanyHealthBasicSectionProps = {
+  /** Per-country CSV (same schema); defaults to Germany's. */
+  csvUrl?: string;
+  /** Germany renders bundled fallback data + OECD extra cards; other countries skip both. */
+  isGermany?: boolean;
+};
+
+export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection({
+  csvUrl = CSV_URL,
+  isGermany = true,
+}: GermanyHealthBasicSectionProps) {
+  const [raw, setRaw] = useState(isGermany ? healthBasicCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(CSV_URL);
+        const res = await fetch(csvUrl);
         const text = res.ok ? await res.text() : '';
         if (!cancelled && text.trim()) {
           setRaw(text);
@@ -104,7 +114,7 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [csvUrl]);
 
   const groups = useMemo(() => {
     const parsed = parseGermanyMetricTableCsv(raw);
@@ -120,7 +130,7 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
   if (groups.length === 0) {
     return (
       <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">germany_health_statistics_basic.csv</code>.
+        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
       </p>
     );
   }
@@ -141,9 +151,11 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
           }
           return <Fragment key={metric}>{renderMetricGroup(g)}</Fragment>;
         })}
-        {HEALTH_OVERVIEW_OECD_EXTRA_ROWS.map((row, i) => (
-          <GovStatCard key={`health-overview-oecd-${i}-${row.metric}`} row={row} />
-        ))}
+        {isGermany
+          ? HEALTH_OVERVIEW_OECD_EXTRA_ROWS.map((row, i) => (
+              <GovStatCard key={`health-overview-oecd-${i}-${row.metric}`} row={row} />
+            ))
+          : null}
       </div>
     </div>
   );

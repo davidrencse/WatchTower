@@ -15,17 +15,27 @@ const ORIGIN_COLORS = {
   other: 'hsl(215, 14%, 38%)',
 } as const;
 
-type OriginKey = keyof typeof ORIGIN_COLORS;
+export type OriginKey = keyof typeof ORIGIN_COLORS;
 
-type OriginSlice = { key: OriginKey; label: string; value: number };
+export type OriginSlice = { key: OriginKey; label: string; value: number };
 
-type ImmigrantStatusClass = {
+export type ImmigrantStatusClass = {
   index: number;
   title: string;
   stockLabel: string;
   stockDetail: string;
   benefits: readonly string[];
   origins: readonly OriginSlice[];
+};
+
+export type ImmigrantStockRow = { name: string; value: number; fill: string };
+
+/** Full per-country payload for this section (defaults to Germany's when omitted). */
+export type ImmigrantBenefitsData = {
+  statusClasses: readonly ImmigrantStatusClass[];
+  stockOverview: readonly ImmigrantStockRow[];
+  caption: string;
+  notes: readonly string[];
 };
 
 const IMMIGRANT_STATUS_CLASSES: readonly ImmigrantStatusClass[] = [
@@ -183,10 +193,13 @@ const STATUS_STOCK_OVERVIEW = [
   { name: 'Spätaussiedler (annual)', value: 0.004, fill: 'hsl(215, 14%, 45%)' },
 ] as const;
 
-const overviewChartConfig = STATUS_STOCK_OVERVIEW.reduce<ChartConfig>((acc, row, i) => {
-  acc[`slice_${i}`] = { label: row.name, color: row.fill };
-  return acc;
-}, {});
+const GERMANY_CAPTION =
+  'Eight residence classes · benefits are status-based (not origin-based). Foreign population ~14.1M (2025); ~21M with migration background.';
+
+const GERMANY_NOTES: readonly string[] = [
+  'BAMF Migration Reports 2023–2024 · Destatis Central Register of Foreigners (2025) · Eurostat. Germany does not track “race”; origin shares are illustrative regional approximations from official migration statistics.',
+  'Recent policy shifts: Skilled Immigration Act (2024), AsylbLG cuts (2025), tighter integration funding. Humanitarian classes rely more on state support; labor and student routes require upfront self-sufficiency.',
+];
 
 function OriginMixChart({ slices, compact }: { slices: readonly OriginSlice[]; compact?: boolean }) {
   const { chartData, chartConfig } = useMemo(() => {
@@ -289,17 +302,28 @@ function StatusClassCard({ item }: { item: ImmigrantStatusClass }) {
   );
 }
 
-export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBenefitsSection() {
+export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBenefitsSection({
+  statusClasses = IMMIGRANT_STATUS_CLASSES,
+  stockOverview = STATUS_STOCK_OVERVIEW,
+  caption = GERMANY_CAPTION,
+  notes = GERMANY_NOTES,
+}: Partial<ImmigrantBenefitsData> = {}) {
+  const overviewChartConfig = useMemo(
+    () =>
+      stockOverview.reduce<ChartConfig>((acc, row, i) => {
+        acc[`slice_${i}`] = { label: row.name, color: row.fill };
+        return acc;
+      }, {}),
+    [stockOverview],
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="space-y-1">
         <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
           Immigrant benefits by status
         </h3>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">
-          Eight residence classes · benefits are status-based (not origin-based). Foreign population ~14.1M (2025);
-          ~21M with migration background.
-        </p>
+        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{caption}</p>
       </div>
 
       <Card className="border-line bg-surface-metric">
@@ -324,7 +348,7 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
                   }
                 />
                 <Pie
-                  data={[...STATUS_STOCK_OVERVIEW]}
+                  data={[...stockOverview]}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
@@ -335,7 +359,7 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
                   stroke="none"
                   isAnimationActive={false}
                 >
-                  {STATUS_STOCK_OVERVIEW.map((entry) => (
+                  {stockOverview.map((entry) => (
                     <Cell key={entry.name} fill={entry.fill} />
                   ))}
                 </Pie>
@@ -343,7 +367,7 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
             </ResponsiveContainer>
           </ChartContainer>
           <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-            {STATUS_STOCK_OVERVIEW.map((row) => (
+            {stockOverview.map((row) => (
               <li key={row.name} className="flex items-center gap-2 font-sans text-[10px]">
                 <span className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: row.fill }} />
                 <span className="min-w-0 flex-1 truncate text-neutral-400">{row.name}</span>
@@ -357,7 +381,7 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
       </Card>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        {IMMIGRANT_STATUS_CLASSES.map((item) => (
+        {statusClasses.map((item) => (
           <StatusClassCard key={item.index} item={item} />
         ))}
       </div>
@@ -369,15 +393,9 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-3 pt-0 font-sans text-[10px] leading-relaxed text-neutral-500">
-          <p>
-            BAMF Migration Reports 2023–2024 · Destatis Central Register of Foreigners (2025) · Eurostat. Germany does
-            not track &ldquo;race&rdquo;; origin shares are illustrative regional approximations from official migration
-            statistics.
-          </p>
-          <p>
-            Recent policy shifts: Skilled Immigration Act (2024), AsylbLG cuts (2025), tighter integration funding.
-            Humanitarian classes rely more on state support; labor and student routes require upfront self-sufficiency.
-          </p>
+          {notes.map((note) => (
+            <p key={note}>{note}</p>
+          ))}
         </CardContent>
       </Card>
     </div>

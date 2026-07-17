@@ -5,8 +5,26 @@ import { cn } from '../lib/utils';
 
 const UC = 'uppercase tracking-[0.05em]';
 
-/** Collapsible subsection badge count (logical blocks). */
-export const GERMANY_ECONOMIC_TAXES_GROUP_COUNT = 7;
+export type TaxBandRow = { band: string; rate: string };
+export type SocialSecurityRow = { type: string; employee: string; employer: string; total: string };
+export type TaxRateRow = { tax: string; rate: string };
+export type VatRateRow = { type: string; rate: string };
+
+/** Per-country payload for this section (defaults to Germany's when omitted). */
+export type EconomicTaxesData = {
+  incomeBrackets: readonly TaxBandRow[];
+  bracketsTitle: string;
+  bracketsDescription: string;
+  socialSecurity: readonly SocialSecurityRow[];
+  socialTitle: string;
+  socialDescription: string;
+  corporateTaxes: readonly TaxRateRow[];
+  vatRates: readonly VatRateRow[];
+  otherTaxes: readonly TaxRateRow[];
+  /** Country-specific payroll calculator card. */
+  calculator: ReactNode;
+  footnote: string;
+};
 
 const INCOME_BRACKETS = [
   { band: '0 – 12,348', rate: '0%' },
@@ -294,11 +312,26 @@ function GermanyNetIncomeCalculator() {
   );
 }
 
-export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSection() {
+const GERMANY_FOOTNOTE =
+  'Reference figures are overview-only; verify against official BMF / KV / DRV guidance for filing.';
+
+export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSection({
+  incomeBrackets = INCOME_BRACKETS,
+  bracketsTitle = 'Income Tax Brackets 2026 (Single)',
+  bracketsDescription = 'Taxable income (€).',
+  socialSecurity = SOCIAL_SECURITY,
+  socialTitle = 'Social Security Contributions 2026',
+  socialDescription = 'Employee / employer shares (illustrative).',
+  corporateTaxes = CORPORATE_TAXES,
+  vatRates = VAT_RATES,
+  otherTaxes = OTHER_TAXES,
+  calculator = <GermanyNetIncomeCalculator />,
+  footnote = GERMANY_FOOTNOTE,
+}: Partial<EconomicTaxesData> = {}) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <TaxReferenceTable title="Income Tax Brackets 2026 (Single)" description="Taxable income (€).">
+        <TaxReferenceTable title={bracketsTitle} description={bracketsDescription}>
           <Table>
             <TableHeader>
               <TableRow className="border-white/[0.06] hover:bg-transparent">
@@ -307,7 +340,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
               </TableRow>
             </TableHeader>
             <TableBody>
-              {INCOME_BRACKETS.map((row) => (
+              {incomeBrackets.map((row) => (
                 <TableRow key={row.band}>
                   <TableCell className="py-2 font-sans text-[12px] text-neutral-200">{row.band}</TableCell>
                   <TableCell className="py-2 text-right font-sans text-[12px] tabular-nums text-white">{row.rate}</TableCell>
@@ -317,7 +350,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
           </Table>
         </TaxReferenceTable>
 
-        <TaxReferenceTable title="Social Security Contributions 2026" description="Employee / employer shares (illustrative).">
+        <TaxReferenceTable title={socialTitle} description={socialDescription}>
           <Table>
             <TableHeader>
               <TableRow className="border-white/[0.06] hover:bg-transparent">
@@ -328,7 +361,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
               </TableRow>
             </TableHeader>
             <TableBody>
-              {SOCIAL_SECURITY.map((row) => (
+              {socialSecurity.map((row) => (
                 <TableRow key={row.type}>
                   <TableCell className="py-2 font-sans text-[12px] text-neutral-200">{row.type}</TableCell>
                   <TableCell className="py-2 font-sans text-[11px] text-neutral-300">{row.employee}</TableCell>
@@ -349,7 +382,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
               </TableRow>
             </TableHeader>
             <TableBody>
-              {CORPORATE_TAXES.map((row) => (
+              {corporateTaxes.map((row) => (
                 <TableRow key={row.tax}>
                   <TableCell className="py-2 font-sans text-[12px] text-neutral-200">{row.tax}</TableCell>
                   <TableCell className="py-2 text-right font-sans text-[12px] tabular-nums text-white">{row.rate}</TableCell>
@@ -370,7 +403,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
               </TableRow>
             </TableHeader>
             <TableBody>
-              {VAT_RATES.map((row) => (
+              {vatRates.map((row) => (
                 <TableRow key={row.type}>
                   <TableCell className="py-2 font-sans text-[12px] text-neutral-200">{row.type}</TableCell>
                   <TableCell className="py-2 text-right font-sans text-[12px] tabular-nums text-white">{row.rate}</TableCell>
@@ -389,7 +422,7 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
               </TableRow>
             </TableHeader>
             <TableBody>
-              {OTHER_TAXES.map((row) => (
+              {otherTaxes.map((row) => (
                 <TableRow key={row.tax}>
                   <TableCell className="py-2 font-sans text-[12px] text-neutral-200">{row.tax}</TableCell>
                   <TableCell className="py-2 text-right font-sans text-[11px] text-neutral-100">{row.rate}</TableCell>
@@ -400,11 +433,9 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
         </TaxReferenceTable>
       </div>
 
-      <GermanyNetIncomeCalculator />
+      {calculator}
 
-      <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-        Reference figures are overview-only; verify against official BMF / KV / DRV guidance for filing.
-      </p>
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">{footnote}</p>
     </div>
   );
 });

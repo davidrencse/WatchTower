@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Luxembourg,Healthcare expenditure,Share of GDP,Total,5.5,percent of GDP,2024,STATEC / health statistics,https://statistiques.public.lu/,Latest published health expenditure share of GDP.
+Luxembourg,Healthcare expenditure,Per capita,Total,6200,EUR per person,2024,STATEC / health statistics,https://statistiques.public.lu/,Approximate per-capita health expenditure (EUR-converted).
+Luxembourg,Healthcare expenditure,Public/private split,Public financing share,84,percent of current health expenditure,2024,STATEC / health statistics,https://statistiques.public.lu/,Public share of current health expenditure.
+Luxembourg,Healthcare expenditure,Public/private split,Private financing share,16,percent of current health expenditure,2024,STATEC / health statistics,https://statistiques.public.lu/,Residual private share.
+Luxembourg,Obesity rate,Adult,Total,22.6,percent of adults,2024,WHO / STATEC / health statistics,https://statistiques.public.lu/,Adult obesity prevalence (BMI 30+).
+Luxembourg,Smoking prevalence,Adult,Total,20.5,percent of adults,2024,WHO / STATEC / health statistics,https://statistiques.public.lu/,Adult smoking prevalence.
+Luxembourg,Suicide Rate,,Total,9.4,"per 100,000 population",2024,WHO / STATEC / health statistics,https://statistiques.public.lu/,Age-standardised suicide rate.
+Luxembourg,"Physicians per 1,000 people",,,3,"physicians per 1,000",2024,OECD/WHO / STATEC / health statistics,https://statistiques.public.lu/,Practising physicians density.
+Luxembourg,Total number of doctors,,,2010,physicians,2024,OECD/WHO / STATEC / health statistics,https://statistiques.public.lu/,Derived: physician density × population. Modeled derivation.
+Luxembourg,Healthy life expectancy,At birth,Total,71,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Luxembourg,Preventable mortality rate,,,130,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Luxembourg,Alcohol consumption,,Total,10.9,litres pure alcohol per capita 15+,2024,WHO / STATEC / health statistics,https://statistiques.public.lu/,Annual per-capita alcohol consumption.

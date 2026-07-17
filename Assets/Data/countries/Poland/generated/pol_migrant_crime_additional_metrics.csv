@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Poland,violent_crimes_by_migrants,24000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,property_crimes_by_migrants,120000.00000000001,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,burglary_by_migrants,2200,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,fraud_rate_by_migrants,9000,percent,2024,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,court_dismissals_by_migrants,5000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,incarceration_percentage_by_migrants,2.4,percent,2024,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,juvenile_crimes_by_migrants,9700,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,kidnapping_abduction_of_minors_by_migrants,390,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.
+Poland,sexual_offenses_against_minors_by_migrants,780,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://stat.gov.pl/,Modeled estimate: scaled by relative foreign-born population.

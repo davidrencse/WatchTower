@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Greece,Youth unemployment rate,,Ages 15–24,22,percent,2024,https://www.statistics.gr/ / labour statistics,true,Latest published youth unemployment rate.
+Greece,Long-term unemployment rate,,,5.5,percent of labour force,2024,https://www.statistics.gr/ / labour statistics,true,Long-term (12m+) unemployment.
+Greece,Labour force participation rate,,Total (15–64),60,percent,2024,https://www.statistics.gr/ / labour statistics,true,Latest published participation rate.
+Greece,Labour force participation rate,By migrant/native status,Native-born — total,61.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Labour force participation rate,By migrant/native status,Foreign-born — total,54,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Labour force participation rate,By migrant/native status,Native-born — men,65,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Labour force participation rate,By migrant/native status,Foreign-born — men,59,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Labour force participation rate,By migrant/native status,Native-born — women,58,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Labour force participation rate,By migrant/native status,Foreign-born — women,48,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Greece,Minimum wage,,,€880/month,statutory minimum,2024,https://www.statistics.gr/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Greece,Average annual working hours per worker,,,1897,hours per year,2024,https://www.statistics.gr/ / labour statistics,true,OECD-style average annual hours actually worked.

@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+France,Youth unemployment rate,,Ages 15–24,18.9,percent,2024,https://www.insee.fr/ / labour statistics,true,Latest published youth unemployment rate.
+France,Long-term unemployment rate,,,2,percent of labour force,2024,https://www.insee.fr/ / labour statistics,true,Long-term (12m+) unemployment.
+France,Labour force participation rate,,Total (15–64),63.5,percent,2024,https://www.insee.fr/ / labour statistics,true,Latest published participation rate.
+France,Labour force participation rate,By migrant/native status,Native-born — total,65,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Labour force participation rate,By migrant/native status,Foreign-born — total,57.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Labour force participation rate,By migrant/native status,Native-born — men,68.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Labour force participation rate,By migrant/native status,Foreign-born — men,62.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Labour force participation rate,By migrant/native status,Native-born — women,61.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Labour force participation rate,By migrant/native status,Foreign-born — women,51.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+France,Minimum wage,,,€11.88/hour,statutory minimum,2024,https://www.insee.fr/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+France,Average annual working hours per worker,,,1494,hours per year,2024,https://www.insee.fr/ / labour statistics,true,OECD-style average annual hours actually worked.

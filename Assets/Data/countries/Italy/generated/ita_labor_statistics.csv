@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Italy,Youth unemployment rate,,Ages 15–24,20.1,percent,2024,https://www.istat.it/ / labour statistics,true,Latest published youth unemployment rate.
+Italy,Long-term unemployment rate,,,3.6,percent of labour force,2024,https://www.istat.it/ / labour statistics,true,Long-term (12m+) unemployment.
+Italy,Labour force participation rate,,Total (15–64),58.5,percent,2024,https://www.istat.it/ / labour statistics,true,Latest published participation rate.
+Italy,Labour force participation rate,By migrant/native status,Native-born — total,60,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Labour force participation rate,By migrant/native status,Foreign-born — total,52.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Labour force participation rate,By migrant/native status,Native-born — men,63.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Labour force participation rate,By migrant/native status,Foreign-born — men,57.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Labour force participation rate,By migrant/native status,Native-born — women,56.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Labour force participation rate,By migrant/native status,Foreign-born — women,46.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Italy,Minimum wage,,,none (collective agreements),statutory minimum,2024,https://www.istat.it/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Italy,Average annual working hours per worker,,,1734,hours per year,2024,https://www.istat.it/ / labour statistics,true,OECD-style average annual hours actually worked.

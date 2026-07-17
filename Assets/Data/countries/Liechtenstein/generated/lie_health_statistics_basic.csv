@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Liechtenstein,Healthcare expenditure,Share of GDP,Total,7.5,percent of GDP,2024,Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Latest published health expenditure share of GDP.
+Liechtenstein,Healthcare expenditure,Per capita,Total,6800,EUR per person,2024,Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Approximate per-capita health expenditure (EUR-converted).
+Liechtenstein,Healthcare expenditure,Public/private split,Public financing share,72,percent of current health expenditure,2024,Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Public share of current health expenditure.
+Liechtenstein,Healthcare expenditure,Public/private split,Private financing share,28,percent of current health expenditure,2024,Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Residual private share.
+Liechtenstein,Obesity rate,Adult,Total,15,percent of adults,2024,WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Adult obesity prevalence (BMI 30+).
+Liechtenstein,Smoking prevalence,Adult,Total,17,percent of adults,2024,WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Adult smoking prevalence.
+Liechtenstein,Suicide Rate,,Total,7,"per 100,000 population",2024,WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Age-standardised suicide rate.
+Liechtenstein,"Physicians per 1,000 people",,,3.7,"physicians per 1,000",2024,OECD/WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Practising physicians density.
+Liechtenstein,Total number of doctors,,,148,physicians,2024,OECD/WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Derived: physician density × population. Modeled derivation.
+Liechtenstein,Healthy life expectancy,At birth,Total,72.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Liechtenstein,Preventable mortality rate,,,110,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Liechtenstein,Alcohol consumption,,Total,7,litres pure alcohol per capita 15+,2024,WHO / Amt für Statistik Liechtenstein / health statistics,https://www.statistikportal.li/,Annual per-capita alcohol consumption.

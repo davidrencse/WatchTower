@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Bulgaria,Youth unemployment rate,,Ages 15–24,12.5,percent,2024,https://www.nsi.bg/ / labour statistics,true,Latest published youth unemployment rate.
+Bulgaria,Long-term unemployment rate,,,2.4,percent of labour force,2024,https://www.nsi.bg/ / labour statistics,true,Long-term (12m+) unemployment.
+Bulgaria,Labour force participation rate,,Total (15–64),56,percent,2024,https://www.nsi.bg/ / labour statistics,true,Latest published participation rate.
+Bulgaria,Labour force participation rate,By migrant/native status,Native-born — total,57.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Labour force participation rate,By migrant/native status,Foreign-born — total,50,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Labour force participation rate,By migrant/native status,Native-born — men,61,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Labour force participation rate,By migrant/native status,Foreign-born — men,55,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Labour force participation rate,By migrant/native status,Native-born — women,54,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Labour force participation rate,By migrant/native status,Foreign-born — women,44,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Bulgaria,Minimum wage,,,"BGN 1,077/month",statutory minimum,2024,https://www.nsi.bg/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Bulgaria,Average annual working hours per worker,,,1650,hours per year,2024,https://www.nsi.bg/ / labour statistics,true,OECD-style average annual hours actually worked.

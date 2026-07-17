@@ -257,15 +257,25 @@ function AbortionCleanMetricCard({ rows, className }: { rows: GermanyGovernmentP
   );
 }
 
-export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionStatisticsSection() {
-  const [raw, setRaw] = useState(abortionCsvRaw);
+type GermanyAbortionStatisticsSectionProps = {
+  /** Per-country CSV (same schema); defaults to Germany's. */
+  csvUrl?: string;
+  /** Germany also renders manually-entered cards and its national time-series charts. */
+  isGermany?: boolean;
+};
+
+export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionStatisticsSection({
+  csvUrl = CSV_URL,
+  isGermany = true,
+}: GermanyAbortionStatisticsSectionProps) {
+  const [raw, setRaw] = useState(isGermany ? abortionCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(CSV_URL);
+        const res = await fetch(csvUrl);
         const text = res.ok ? await res.text() : '';
         if (!cancelled && text.trim()) {
           setRaw(text);
@@ -278,7 +288,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [csvUrl]);
 
   const groups = useMemo(() => {
     const parsed = parseGermanyMetricTableCsv(raw);
@@ -302,7 +312,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
   if (groups.length === 0) {
     return (
       <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">germany_abortion_statistics.csv</code>.
+        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
       </p>
     );
   }
@@ -313,18 +323,23 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
         <>
           <div className={GOV_POLITICS_CARD_GRID}>
             <AbortionCleanMetricCard rows={totalGroup} />
-            <ManualAbortionStatCard
-              title="Prior live births (≥1)"
-              valueDisplay="60,679"
-              body="Abortions were performed on women who already had at least 1 previous live birth."
-            />
-            <ManualAbortionStatCard
-              title="Prior live births (0)"
-              valueDisplay="45,776"
-              body="Abortions were performed on women with 0 previous live births."
-            />
+            {isGermany ? (
+              <>
+                <ManualAbortionStatCard
+                  title="Prior live births (≥1)"
+                  valueDisplay="60,679"
+                  body="Abortions were performed on women who already had at least 1 previous live birth."
+                />
+                <ManualAbortionStatCard
+                  title="Prior live births (0)"
+                  valueDisplay="45,776"
+                  body="Abortions were performed on women with 0 previous live births."
+                />
+              </>
+            ) : null}
           </div>
 
+          {isGermany ? (
           <Card className="overflow-hidden border-line bg-surface-metric">
             <CardHeader className="space-y-1 p-3 pb-2">
               <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
@@ -384,13 +399,14 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
               </p>
             </CardContent>
           </Card>
+          ) : null}
         </>
       ) : (
         <div className={GOV_POLITICS_CARD_GRID}>
           {groups.map((g) => (
             <Fragment key={g[0]!.metric}>
               <AbortionCleanMetricCard rows={g} />
-              {g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
+              {isGermany && g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
             </Fragment>
           ))}
         </div>
@@ -401,7 +417,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
           {otherByMetric.get(ABORTION_RATIO_METRIC) ? (
             <div className={GOV_POLITICS_CARD_GRID}>
               <AbortionCleanMetricCard rows={otherByMetric.get(ABORTION_RATIO_METRIC)!} className="col-span-full" />
-              <AbortionRateReproductiveAgeChart />
+              {isGermany ? <AbortionRateReproductiveAgeChart /> : null}
             </div>
           ) : null}
 
@@ -423,6 +439,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
         </>
       ) : null}
 
+      {isGermany ? (
       <Card className="overflow-hidden border-line bg-surface-metric">
         <CardHeader className="space-y-1 p-3 pb-2">
           <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
@@ -447,9 +464,11 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
           </p>
         </CardContent>
       </Card>
+      ) : null}
 
       <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-        Source: <code className="text-neutral-500">germany_abortion_statistics.csv</code> (other figures noted on-card).
+        Source: <code className="text-neutral-500">{csvUrl.split('/').pop()}</code>
+        {isGermany ? ' (other figures noted on-card).' : ' (modeled values labeled on-card).'}
       </p>
     </div>
   );

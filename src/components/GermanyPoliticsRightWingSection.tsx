@@ -5,8 +5,6 @@ import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-export const GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT = 18;
-
 type RightWingGroup = {
   rank: number;
   group: string;

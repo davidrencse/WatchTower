@@ -9,6 +9,14 @@ const CountryStatsDashboard = lazy(() =>
   import('./CountryStatsDashboard').then((m) => ({ default: m.CountryStatsDashboard })),
 );
 
+/**
+ * Warm the dashboard chunk (and its recharts dependency) ahead of selection so opening a
+ * country dossier is instant. Safe to call repeatedly — the module cache dedupes it.
+ */
+export function prefetchCountryDashboard(): void {
+  void import('./CountryStatsDashboard');
+}
+
 type SelectedFlagViewProps = {
   flag: FlagEntry;
   onBack: () => void;
@@ -24,6 +32,7 @@ export function SelectedFlagView({ flag, onBack, onSelectFlag }: SelectedFlagVie
           <CountryStatsDashboard
             flag={flag}
             iso3={iso3}
+            crimeIso3={iso3}
             onBack={onBack}
           />
         </Suspense>

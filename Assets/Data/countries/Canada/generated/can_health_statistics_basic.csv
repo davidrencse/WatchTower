@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Canada,Healthcare expenditure,Share of GDP,Total,12.2,percent of GDP,2024,https://www.statcan.gc.ca/ / health statistics,false,Latest published health expenditure share of GDP.
+Canada,Healthcare expenditure,Per capita,Total,5200,EUR per person,2024,https://www.statcan.gc.ca/ / health statistics,false,Approximate per-capita health expenditure (EUR-converted).
+Canada,Healthcare expenditure,Public/private split,Public financing share,70,percent of current health expenditure,2024,https://www.statcan.gc.ca/ / health statistics,false,Public share of current health expenditure.
+Canada,Healthcare expenditure,Public/private split,Private financing share,30,percent of current health expenditure,2024,https://www.statcan.gc.ca/ / health statistics,false,Residual private share.
+Canada,Obesity rate,Adult,Total,29.4,percent of adults,2024,WHO / https://www.statcan.gc.ca/ / health statistics,false,Adult obesity prevalence (BMI 30+).
+Canada,Smoking prevalence,Adult,Total,11.8,percent of adults,2024,WHO / https://www.statcan.gc.ca/ / health statistics,false,Adult smoking prevalence.
+Canada,Suicide Rate,,Total,10.2,"per 100,000 population",2024,WHO / https://www.statcan.gc.ca/ / health statistics,false,Age-standardised suicide rate.
+Canada,"Physicians per 1,000 people",,,2.8,"physicians per 1,000",2024,OECD/WHO / https://www.statcan.gc.ca/ / health statistics,false,Practising physicians density.
+Canada,Total number of doctors,,,112280,physicians,2024,OECD/WHO / https://www.statcan.gc.ca/ / health statistics,false,Derived: physician density × population. Modeled derivation.
+Canada,Healthy life expectancy,At birth,Total,71.3,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Canada,Preventable mortality rate,,,140,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Canada,Alcohol consumption,,Total,8,litres pure alcohol per capita 15+,2024,WHO / https://www.statcan.gc.ca/ / health statistics,false,Annual per-capita alcohol consumption.

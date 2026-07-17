@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Bosnia and Herzegovina,Healthcare expenditure,Share of GDP,Total,9,percent of GDP,2024,Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Latest published health expenditure share of GDP.
+Bosnia and Herzegovina,Healthcare expenditure,Per capita,Total,700,EUR per person,2024,Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Approximate per-capita health expenditure (EUR-converted).
+Bosnia and Herzegovina,Healthcare expenditure,Public/private split,Public financing share,70,percent of current health expenditure,2024,Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Public share of current health expenditure.
+Bosnia and Herzegovina,Healthcare expenditure,Public/private split,Private financing share,30,percent of current health expenditure,2024,Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Residual private share.
+Bosnia and Herzegovina,Obesity rate,Adult,Total,19.4,percent of adults,2024,WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Adult obesity prevalence (BMI 30+).
+Bosnia and Herzegovina,Smoking prevalence,Adult,Total,35,percent of adults,2024,WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Adult smoking prevalence.
+Bosnia and Herzegovina,Suicide Rate,,Total,7.4,"per 100,000 population",2024,WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Age-standardised suicide rate.
+Bosnia and Herzegovina,"Physicians per 1,000 people",,,2.2,"physicians per 1,000",2024,OECD/WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Practising physicians density.
+Bosnia and Herzegovina,Total number of doctors,,,7040,physicians,2024,OECD/WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Derived: physician density × population. Modeled derivation.
+Bosnia and Herzegovina,Healthy life expectancy,At birth,Total,64.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Bosnia and Herzegovina,Preventable mortality rate,,,320,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Bosnia and Herzegovina,Alcohol consumption,,Total,7.1,litres pure alcohol per capita 15+,2024,WHO / Agencija za statistiku BiH / health statistics,https://bhas.gov.ba/,Annual per-capita alcohol consumption.

@@ -2,8 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+[data-theme='dark'] {
   color-scheme: dark;
+
+  /* Core palette channels (consumed by Tailwind's white/black/neutral tokens).
+     Values match Tailwind's defaults so dark mode is byte-for-byte unchanged. */
+  --c-white: 255 255 255;
+  --c-black: 0 0 0;
+  --n-50: 250 250 250;
+  --n-100: 245 245 245;
+  --n-200: 229 229 229;
+  --n-300: 212 212 212;
+  --n-400: 163 163 163;
+  --n-500: 115 115 115;
+  --n-600: 82 82 82;
+  --n-700: 64 64 64;
+  --n-800: 38 38 38;
+  --n-900: 23 23 23;
+  --n-950: 10 10 10;
+
   --bg: #080808;
   --fg: #e8e8e8;
   --muted: #737373;
@@ -33,6 +51,155 @@
 
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif;
   --ring-focus: rgba(107, 127, 143, 0.55);
+}
+
+/* ─── Light theme ───────────────────────────────────────────────────────────
+   The neutral ramp is mirrored (50↔950, 100↔900 …) so a shade used as bright
+   foreground in dark becomes dark foreground in light, and dark surfaces become
+   light surfaces — flipping ~1000 hardcoded utility usages with no JSX changes.
+   `white`/`black` channels swap too, so `text-white` becomes near-black text and
+   `bg-white/6` (a faint light overlay) becomes a faint dark overlay. */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --c-white: 24 24 27;
+  --c-black: 255 255 255;
+  --n-50: 10 10 10;
+  --n-100: 23 23 23;
+  --n-200: 38 38 38;
+  --n-300: 64 64 64;
+  --n-400: 82 82 82;
+  --n-500: 115 115 115;
+  --n-600: 163 163 163;
+  --n-700: 212 212 212;
+  --n-800: 229 229 229;
+  --n-900: 245 245 245;
+  --n-950: 250 250 250;
+
+  --bg: #f5f6f8;
+  --fg: #1b1c1f;
+  --muted: #5b6472;
+  --line: rgba(15, 23, 42, 0.1);
+  --card: #ffffff;
+  --card-hover: #f1f3f6;
+  --uk-accent: #45606f;
+  --uk-accent-dim: rgba(69, 96, 111, 0.3);
+  --uk-accent-surface: rgba(69, 96, 111, 0.1);
+  --uk-accent-border: rgba(69, 96, 111, 0.4);
+
+  --surface-metric: #ffffff;
+  --surface-app: #eceef2;
+  --rail-bg: #e9ebef;
+  --shell-header: rgba(247, 248, 250, 0.9);
+
+  --shadow-card:
+    0 1px 0 rgba(15, 23, 42, 0.02) inset,
+    0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-header: 0 1px 0 rgba(15, 23, 42, 0.03), 0 10px 30px rgba(15, 23, 42, 0.08);
+  --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.1);
+  --shadow-inset: inset 0 1px 0 rgba(15, 23, 42, 0.03);
+
+  --ring-focus: rgba(69, 96, 111, 0.55);
+}
+
+/* Light-mode treatments for the dark-native surface classes (their hardcoded
+   white/black alphas can't flip through the token system). */
+[data-theme='light'] .wt-glass-panel,
+[data-theme='light'] .wt-glass-panel-compact {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  [data-theme='light'] .wt-glass-panel,
+  [data-theme='light'] .wt-glass-panel-compact {
+    background: rgba(255, 255, 255, 0.55);
+  }
+}
+
+[data-theme='light'] .wt-glass-panel::before {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.12) 30%,
+    transparent 55%
+  );
+}
+
+[data-theme='light'] .wt-glass-chrome {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.15) 100%);
+}
+
+[data-theme='light'] .wt-glass-inset {
+  border-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme='light'] .wt-glass-fade-top {
+  background: linear-gradient(180deg, rgba(245, 246, 248, 0.9) 0%, rgba(245, 246, 248, 0.4) 45%, transparent 100%);
+}
+[data-theme='light'] .wt-glass-fade-bottom {
+  background: linear-gradient(0deg, rgba(245, 246, 248, 0.9) 0%, rgba(245, 246, 248, 0.4) 45%, transparent 100%);
+}
+
+[data-theme='light'] .wt-dark-stage {
+  background-color: #eceef2;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 50% 35%, rgba(70, 96, 120, 0.05), transparent 70%),
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 100% 80% at 50% 50%, transparent 45%, rgba(15, 23, 42, 0.05) 100%);
+  background-size: auto, 56px 56px, 56px 56px, auto;
+  background-position: center, center top, center top, center;
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
+}
+[data-theme='light'] .wt-dark-stage::before {
+  opacity: 0;
+}
+
+[data-theme='light'] .wt-perfect-shadow {
+  box-shadow:
+    0px 0px 0px 1px rgba(15, 23, 42, 0.05),
+    -8px 8px 18px -6px rgba(15, 23, 42, 0.1),
+    -22px 22px 40px -12px rgba(15, 23, 42, 0.14),
+    -50px 50px 80px -20px rgba(15, 23, 42, 0.16);
+}
+[data-theme='light'] .wt-perfect-shadow-compact {
+  box-shadow:
+    0px 0px 0px 1px rgba(15, 23, 42, 0.05),
+    -4px 4px 10px -3px rgba(15, 23, 42, 0.1),
+    -12px 12px 22px -8px rgba(15, 23, 42, 0.14);
+}
+
+[data-theme='light'] .wt-rail-card[data-state='active'] {
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+[data-theme='light'] code {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+/* Recharts chrome: axis text, grid and reference lines are hardcoded to light
+   values inline (near-invisible on light chart cards). Recolor just the chrome —
+   data marks (lines, areas, pie slices, series-coloured legends) are untouched. */
+[data-theme='light'] .recharts-cartesian-axis-tick-value,
+[data-theme='light'] .recharts-cartesian-axis-tick-value tspan {
+  fill: #475569 !important;
+}
+[data-theme='light'] .recharts-cartesian-grid line {
+  stroke: rgba(15, 23, 42, 0.09) !important;
+}
+[data-theme='light'] .recharts-reference-line line {
+  stroke: rgba(15, 23, 42, 0.28) !important;
+}
+[data-theme='light'] .recharts-cartesian-axis-line,
+[data-theme='light'] .recharts-cartesian-axis-tick-line {
+  stroke: rgba(15, 23, 42, 0.2) !important;
 }
 
 html,
@@ -109,6 +276,14 @@ body::-webkit-scrollbar {
 #wt-custom-cursor-root[data-mode='down'] .wt-cursor-chevron-up,
 #wt-custom-cursor-root[data-mode='up'] .wt-cursor-chevron-down {
   display: none;
+}
+
+#wt-custom-cursor-root {
+  color: #fff;
+}
+
+html[data-theme='light'] #wt-custom-cursor-root {
+  color: #000;
 }
 
 /* DAX strip — GPU translate loop (no per-frame scrollLeft / Recharts) */

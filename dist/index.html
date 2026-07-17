@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WatchTower</title>
+    <script>
+      (() => {
+        const storageKey = 'wt-theme';
+        const root = document.documentElement;
+        let theme = null;
+
+        try {
+          theme = localStorage.getItem(storageKey);
+        } catch {
+          theme = null;
+        }
+
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        root.setAttribute('data-theme', theme);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,10 +37,10 @@
         rel="stylesheet"
       />
     </noscript>
-    <script type="module" crossorigin src="/assets/index-PwWwNWp1.js"></script>
+    <script type="module" crossorigin src="/assets/index-D7DPKdil.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/vendor-react-DqFDm2ni.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-react-dom-CeRiJ6Ku.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-CpDX7nYd.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-Bm1UHbMw.css">
   </head>
   <body>
     <div id="root"></div>

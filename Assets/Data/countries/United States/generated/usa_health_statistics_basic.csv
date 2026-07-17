@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+United States,Healthcare expenditure,Share of GDP,Total,17.6,percent of GDP,2024,US Census Bureau / BLS / health statistics,https://www.bls.gov/,Latest published health expenditure share of GDP.
+United States,Healthcare expenditure,Per capita,Total,12000,EUR per person,2024,US Census Bureau / BLS / health statistics,https://www.bls.gov/,Approximate per-capita health expenditure (EUR-converted).
+United States,Healthcare expenditure,Public/private split,Public financing share,55,percent of current health expenditure,2024,US Census Bureau / BLS / health statistics,https://www.bls.gov/,Public share of current health expenditure.
+United States,Healthcare expenditure,Public/private split,Private financing share,45,percent of current health expenditure,2024,US Census Bureau / BLS / health statistics,https://www.bls.gov/,Residual private share.
+United States,Obesity rate,Adult,Total,42.9,percent of adults,2024,WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Adult obesity prevalence (BMI 30+).
+United States,Smoking prevalence,Adult,Total,11.5,percent of adults,2024,WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Adult smoking prevalence.
+United States,Suicide Rate,,Total,14.2,"per 100,000 population",2024,WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Age-standardised suicide rate.
+United States,"Physicians per 1,000 people",,,2.7,"physicians per 1,000",2024,OECD/WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Practising physicians density.
+United States,Total number of doctors,,,904500,physicians,2024,OECD/WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Derived: physician density × population. Modeled derivation.
+United States,Healthy life expectancy,At birth,Total,66.1,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+United States,Preventable mortality rate,,,270,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+United States,Alcohol consumption,,Total,9.5,litres pure alcohol per capita 15+,2024,WHO / US Census Bureau / BLS / health statistics,https://www.bls.gov/,Annual per-capita alcohol consumption.

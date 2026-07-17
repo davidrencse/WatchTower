@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Australia,Healthcare expenditure,Share of GDP,Total,10.5,percent of GDP,2024,https://www.abs.gov.au/ / health statistics,false,Latest published health expenditure share of GDP.
+Australia,Healthcare expenditure,Per capita,Total,4900,EUR per person,2024,https://www.abs.gov.au/ / health statistics,false,Approximate per-capita health expenditure (EUR-converted).
+Australia,Healthcare expenditure,Public/private split,Public financing share,72,percent of current health expenditure,2024,https://www.abs.gov.au/ / health statistics,false,Public share of current health expenditure.
+Australia,Healthcare expenditure,Public/private split,Private financing share,28,percent of current health expenditure,2024,https://www.abs.gov.au/ / health statistics,false,Residual private share.
+Australia,Obesity rate,Adult,Total,31.7,percent of adults,2024,WHO / https://www.abs.gov.au/ / health statistics,false,Adult obesity prevalence (BMI 30+).
+Australia,Smoking prevalence,Adult,Total,10.6,percent of adults,2024,WHO / https://www.abs.gov.au/ / health statistics,false,Adult smoking prevalence.
+Australia,Suicide Rate,,Total,12.1,"per 100,000 population",2024,WHO / https://www.abs.gov.au/ / health statistics,false,Age-standardised suicide rate.
+Australia,"Physicians per 1,000 people",,,4,"physicians per 1,000",2024,OECD/WHO / https://www.abs.gov.au/ / health statistics,false,Practising physicians density.
+Australia,Total number of doctors,,,106800,physicians,2024,OECD/WHO / https://www.abs.gov.au/ / health statistics,false,Derived: physician density × population. Modeled derivation.
+Australia,Healthy life expectancy,At birth,Total,70.9,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Australia,Preventable mortality rate,,,150,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Australia,Alcohol consumption,,Total,9.5,litres pure alcohol per capita 15+,2024,WHO / https://www.abs.gov.au/ / health statistics,false,Annual per-capita alcohol consumption.

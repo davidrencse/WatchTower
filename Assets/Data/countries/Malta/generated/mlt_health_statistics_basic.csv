@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Malta,Healthcare expenditure,Share of GDP,Total,9,percent of GDP,2024,NSO Malta / health statistics,https://nso.gov.mt/,Latest published health expenditure share of GDP.
+Malta,Healthcare expenditure,Per capita,Total,2600,EUR per person,2024,NSO Malta / health statistics,https://nso.gov.mt/,Approximate per-capita health expenditure (EUR-converted).
+Malta,Healthcare expenditure,Public/private split,Public financing share,63,percent of current health expenditure,2024,NSO Malta / health statistics,https://nso.gov.mt/,Public share of current health expenditure.
+Malta,Healthcare expenditure,Public/private split,Private financing share,37,percent of current health expenditure,2024,NSO Malta / health statistics,https://nso.gov.mt/,Residual private share.
+Malta,Obesity rate,Adult,Total,28.9,percent of adults,2024,WHO / NSO Malta / health statistics,https://nso.gov.mt/,Adult obesity prevalence (BMI 30+).
+Malta,Smoking prevalence,Adult,Total,23.4,percent of adults,2024,WHO / NSO Malta / health statistics,https://nso.gov.mt/,Adult smoking prevalence.
+Malta,Suicide Rate,,Total,5.1,"per 100,000 population",2024,WHO / NSO Malta / health statistics,https://nso.gov.mt/,Age-standardised suicide rate.
+Malta,"Physicians per 1,000 people",,,4.3,"physicians per 1,000",2024,OECD/WHO / NSO Malta / health statistics,https://nso.gov.mt/,Practising physicians density.
+Malta,Total number of doctors,,,2365,physicians,2024,OECD/WHO / NSO Malta / health statistics,https://nso.gov.mt/,Derived: physician density × population. Modeled derivation.
+Malta,Healthy life expectancy,At birth,Total,71.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Malta,Preventable mortality rate,,,150,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Malta,Alcohol consumption,,Total,7,litres pure alcohol per capita 15+,2024,WHO / NSO Malta / health statistics,https://nso.gov.mt/,Annual per-capita alcohol consumption.

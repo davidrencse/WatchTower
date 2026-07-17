@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Ireland,Youth unemployment rate,,Ages 15–24,11,percent,2024,CSO Ireland / labour statistics,https://www.cso.ie/,Latest published youth unemployment rate.
+Ireland,Long-term unemployment rate,,,1,percent of labour force,2024,CSO Ireland / labour statistics,https://www.cso.ie/,Long-term (12m+) unemployment.
+Ireland,Labour force participation rate,,Total (15–64),66,percent,2024,CSO Ireland / labour statistics,https://www.cso.ie/,Latest published participation rate.
+Ireland,Labour force participation rate,By migrant/native status,Native-born — total,67.5,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Labour force participation rate,By migrant/native status,Foreign-born — total,60,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Labour force participation rate,By migrant/native status,Native-born — men,71,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Labour force participation rate,By migrant/native status,Foreign-born — men,65,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Labour force participation rate,By migrant/native status,Native-born — women,64,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Labour force participation rate,By migrant/native status,Foreign-born — women,54,percent,2024,Modeled estimate — labour,https://www.cso.ie/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Ireland,Minimum wage,,,€13.50/hour,statutory minimum,2024,CSO Ireland / labour statistics,https://www.cso.ie/,Statutory minimum wage (or none where wages are set by collective agreements).
+Ireland,Average annual working hours per worker,,,1658,hours per year,2024,CSO Ireland / labour statistics,https://www.cso.ie/,OECD-style average annual hours actually worked.

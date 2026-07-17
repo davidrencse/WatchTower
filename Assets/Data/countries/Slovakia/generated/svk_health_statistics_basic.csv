@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Slovakia,Healthcare expenditure,Share of GDP,Total,7.8,percent of GDP,2024,https://slovak.statistics.sk/ / health statistics,true,Latest published health expenditure share of GDP.
+Slovakia,Healthcare expenditure,Per capita,Total,1600,EUR per person,2024,https://slovak.statistics.sk/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
+Slovakia,Healthcare expenditure,Public/private split,Public financing share,80,percent of current health expenditure,2024,https://slovak.statistics.sk/ / health statistics,true,Public share of current health expenditure.
+Slovakia,Healthcare expenditure,Public/private split,Private financing share,20,percent of current health expenditure,2024,https://slovak.statistics.sk/ / health statistics,true,Residual private share.
+Slovakia,Obesity rate,Adult,Total,20.5,percent of adults,2024,WHO / https://slovak.statistics.sk/ / health statistics,true,Adult obesity prevalence (BMI 30+).
+Slovakia,Smoking prevalence,Adult,Total,21,percent of adults,2024,WHO / https://slovak.statistics.sk/ / health statistics,true,Adult smoking prevalence.
+Slovakia,Suicide Rate,,Total,9.3,"per 100,000 population",2024,WHO / https://slovak.statistics.sk/ / health statistics,true,Age-standardised suicide rate.
+Slovakia,"Physicians per 1,000 people",,,3.6,"physicians per 1,000",2024,OECD/WHO / https://slovak.statistics.sk/ / health statistics,true,Practising physicians density.
+Slovakia,Total number of doctors,,,19440,physicians,2024,OECD/WHO / https://slovak.statistics.sk/ / health statistics,true,Derived: physician density × population. Modeled derivation.
+Slovakia,Healthy life expectancy,At birth,Total,67,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Slovakia,Preventable mortality rate,,,260,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Slovakia,Alcohol consumption,,Total,10.3,litres pure alcohol per capita 15+,2024,WHO / https://slovak.statistics.sk/ / health statistics,true,Annual per-capita alcohol consumption.

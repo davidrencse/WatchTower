@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Austria,Healthcare expenditure,Share of GDP,Total,11.5,percent of GDP,2024,Statistik Austria / health statistics,https://www.statistik.at/,Latest published health expenditure share of GDP.
+Austria,Healthcare expenditure,Per capita,Total,5400,EUR per person,2024,Statistik Austria / health statistics,https://www.statistik.at/,Approximate per-capita health expenditure (EUR-converted).
+Austria,Healthcare expenditure,Public/private split,Public financing share,76,percent of current health expenditure,2024,Statistik Austria / health statistics,https://www.statistik.at/,Public share of current health expenditure.
+Austria,Healthcare expenditure,Public/private split,Private financing share,24,percent of current health expenditure,2024,Statistik Austria / health statistics,https://www.statistik.at/,Residual private share.
+Austria,Obesity rate,Adult,Total,20.1,percent of adults,2024,WHO / Statistik Austria / health statistics,https://www.statistik.at/,Adult obesity prevalence (BMI 30+).
+Austria,Smoking prevalence,Adult,Total,20.6,percent of adults,2024,WHO / Statistik Austria / health statistics,https://www.statistik.at/,Adult smoking prevalence.
+Austria,Suicide Rate,,Total,12.4,"per 100,000 population",2024,WHO / Statistik Austria / health statistics,https://www.statistik.at/,Age-standardised suicide rate.
+Austria,"Physicians per 1,000 people",,,5.5,"physicians per 1,000",2024,OECD/WHO / Statistik Austria / health statistics,https://www.statistik.at/,Practising physicians density.
+Austria,Total number of doctors,,,50380,physicians,2024,OECD/WHO / Statistik Austria / health statistics,https://www.statistik.at/,Derived: physician density × population. Modeled derivation.
+Austria,Healthy life expectancy,At birth,Total,70.9,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Austria,Preventable mortality rate,,,160,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Austria,Alcohol consumption,,Total,11.1,litres pure alcohol per capita 15+,2024,WHO / Statistik Austria / health statistics,https://www.statistik.at/,Annual per-capita alcohol consumption.

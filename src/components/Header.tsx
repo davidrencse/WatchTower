@@ -1,7 +1,9 @@
+import { ThemeToggle } from './ThemeToggle';
+
 export function Header() {
   return (
-    <header className="border-b border-[var(--line)] px-6 py-8 shadow-header">
-      <h1 className="text-lg font-semibold tracking-tight text-white">Flags</h1>
-    </header>
+    <div className="flex items-center justify-end gap-4 px-6 py-5 sm:py-6">
+      <ThemeToggle />
+    </div>
   );
 }

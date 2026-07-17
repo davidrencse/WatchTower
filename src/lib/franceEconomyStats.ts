@@ -14,11 +14,11 @@ export const FRANCE_ECONOMIC_STRUCTURAL_INDICATORS: readonly EconomicStructuralI
   {
     id: 'public-debt-gdp',
     title: 'Public debt (% of GDP)',
-    valueMain: '115.5%',
+    valueMain: '115.6%',
     valueSub: '(end 2025)',
     details:
       'General government debt remains among the highest in the euro area; consolidation and interest costs weigh on fiscal room.',
-    source: 'INSEE / European Commission (end 2025).',
+    source: 'End of 2025.',
   },
   {
     id: 'budget-deficit',
@@ -32,63 +32,63 @@ export const FRANCE_ECONOMIC_STRUCTURAL_INDICATORS: readonly EconomicStructuralI
   {
     id: 'productivity',
     title: 'Labour productivity',
-    valueMain: 'Modest growth',
-    valueSub: 'after years of stagnation; +0.6% early 2025',
+    valueMain: '+0.44%',
+    valueSub: '(2024)',
     details:
-      'France has performed better than Germany and most large Eurozone peers in the post-COVID recovery, though overall productivity remains below its pre-2019 trend.',
-    source: 'Eurostat and INSEE (2025 data).',
+      'Latest France-specific annual labour-productivity figure.',
+    source: 'France-specific annual figure (2024).',
   },
   {
     id: 'youth-unemployment',
     title: 'Youth unemployment (15-24)',
-    valueMain: '10.2%',
-    valueSub: '(2025 avg)',
+    valueMain: '21.1%',
+    valueSub: '(Q1 2026)',
     details:
-      'Below the euro-area youth average in some years but still a structural challenge for entry-level hiring.',
-    source: 'INSEE (2025 avg).',
+      'Unemployment rate among people aged 15 to 24.',
+    source: 'Q1 2026.',
   },
   {
     id: 'current-account',
-    title: 'Current account surplus',
-    valueMain: '+4.5%',
-    valueSub: 'of GDP',
+    title: 'Current-account balance',
+    valueMain: '≈−0.4%',
+    valueSub: 'of GDP (2026 projection)',
     details:
-      'External balance supported by goods exports, tourism, and income flows; energy import costs remain a swing factor.',
-    source: 'Deutsche Bundesbank / INSEE.',
+      'Projected current-account deficit as a share of gross domestic product.',
+    source: '2026 projection.',
   },
   {
     id: 'public-debt-total',
     title: 'Total public debt (absolute)',
-    valueMain: '€2.84T',
-    valueSub: '(end 2025)',
+    valueMain: '€3.536T',
+    valueSub: '(Q1 2026)',
     details: 'General government gross debt stock (federal and social-security components per national accounts).',
-    source: 'Deutsche Bundesbank (end 2025).',
+    source: 'Q1 2026.',
   },
   {
     id: 'oil-dependency',
     title: 'Oil dependency',
-    valueMain: '98%',
+    valueMain: '≈98%',
     valueSub: 'imported',
     details:
-      'Domestic crude production is minimal; refining and strategic stocks buffer short-term shocks but imports dominate supply.',
+      'France produces about 0.8 Mt domestically versus roughly 46.5 Mt imported.',
     source: 'Official energy reports.',
   },
   {
     id: 'gold-reserves',
     title: 'Gold reserves',
-    valueMain: '3,350',
-    valueSub: 'tonnes',
+    valueMain: '2,436.8',
+    valueSub: 'tonnes (2026)',
     details: 'Among the largest official gold holdings globally; held as a reserve asset by the Banque de France.',
     source: 'Official holdings.',
   },
   {
     id: 'credit-rating',
     title: 'Credit rating',
-    valueMain: 'AAA',
-    valueSub: '(stable) — S&P, Moody’s, Fitch',
+    valueMain: 'A+ stable',
+    valueSub: 'S&P (May 2026) · Fitch (March 2026)',
     details:
-      'Top-tier sovereign ratings retained despite elevated debt, underpinned by deep markets and institutional capacity.',
-    source: 'S&P / Moody’s / Fitch.',
+      'Moody’s: Aa3 negative (April 2026).',
+    source: 'S&P / Fitch / Moody’s (2026).',
   },
 ];
 
@@ -126,40 +126,52 @@ function patchMetric(
 export function applyFranceEconomyMetricOverrides(metrics: CountryStatMetric[]): CountryStatMetric[] {
   let m = metrics;
   m = patchMetric(m, 'GDP', {
-    value: '$3,061 billion',
-    reference_period: '2024',
-    source_publication_or_access_date: '2024',
-    notes: 'INSEE / IMF (2024 final).',
+    value: '$3.6 trillion',
+    reference_period: 'IMF 2026 estimate',
+    source_name: 'IMF',
+    source_url: '',
+    source_publication_or_access_date: '2026',
+    notes: 'IMF 2026 estimate.',
   });
   m = patchMetric(m, 'GDP per capita', {
-    value: '$46,100',
-    reference_period: '2024',
-    source_publication_or_access_date: '2024',
-    notes: 'IMF / World Bank (2024).',
+    value: '$52,080',
+    reference_period: 'IMF 2026 estimate',
+    source_name: 'IMF',
+    source_url: '',
+    source_publication_or_access_date: '2026',
+    notes: 'IMF 2026 estimate.',
   });
   m = patchMetric(m, 'Inflation', {
-    value: '2.2%',
-    reference_period: 'April 2026',
-    source_publication_or_access_date: 'April 2026',
-    notes: 'INSEE (April 2026).',
+    value: '1.8%',
+    reference_period: 'June 2026',
+    source_name: 'INSEE',
+    source_url: '',
+    source_publication_or_access_date: 'June 2026',
+    notes: 'June 2026, year-on-year CPI.',
   });
   m = patchMetric(m, 'Unemployment', {
     value: '8.1%',
     reference_period: 'Q1 2026',
+    source_name: 'INSEE',
+    source_url: '',
     source_publication_or_access_date: 'Q1 2026',
     notes: 'INSEE (Q1 2026).',
   });
   m = patchMetric(m, 'Interest', {
-    value: '2.15%',
-    reference_period: '2026',
-    source_publication_or_access_date: '2026',
-    notes: 'ECB / French 10-year bond.',
+    value: '2.40%',
+    reference_period: 'Effective June 17, 2026',
+    source_name: 'European Central Bank',
+    source_url: '',
+    source_publication_or_access_date: 'June 17, 2026',
+    notes: 'ECB main refinancing rate.',
   });
   m = patchMetric(m, 'Real Median Wage', {
-    value: '€2,830 monthly',
-    reference_period: '2025',
-    source_publication_or_access_date: '2025',
-    notes: 'INSEE / Eurostat (latest 2025).',
+    value: '€2,180 net/month',
+    reference_period: '2023',
+    source_name: 'INSEE',
+    source_url: '',
+    source_publication_or_access_date: '2023',
+    notes: 'Private-sector median; latest directly published figure.',
   });
   return m;
 }

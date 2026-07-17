@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Canada,Youth unemployment rate,,Ages 15–24,13.2,percent,2024,https://www.statcan.gc.ca/ / labour statistics,false,Latest published youth unemployment rate.
+Canada,Long-term unemployment rate,,,0.9,percent of labour force,2024,https://www.statcan.gc.ca/ / labour statistics,false,Long-term (12m+) unemployment.
+Canada,Labour force participation rate,,Total (15–64),65.5,percent,2024,https://www.statcan.gc.ca/ / labour statistics,false,Latest published participation rate.
+Canada,Labour force participation rate,By migrant/native status,Native-born — total,67,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Labour force participation rate,By migrant/native status,Foreign-born — total,59.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Labour force participation rate,By migrant/native status,Native-born — men,70.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Labour force participation rate,By migrant/native status,Foreign-born — men,64.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Labour force participation rate,By migrant/native status,Native-born — women,63.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Labour force participation rate,By migrant/native status,Foreign-born — women,53.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Canada,Minimum wage,,,C$17.75/hour (federal),statutory minimum,2024,https://www.statcan.gc.ca/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+Canada,Average annual working hours per worker,,,1685,hours per year,2024,https://www.statcan.gc.ca/ / labour statistics,false,OECD-style average annual hours actually worked.

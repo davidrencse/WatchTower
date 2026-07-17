@@ -33,11 +33,9 @@ function syncDataCsvToPublic() {
     buildStart() {
       const dataDir = path.join(__dirname, 'Assets', 'Data');
       const destDir = path.join(__dirname, 'public', 'data');
-      const germanyDirPublic = path.join(__dirname, 'public', 'germany');
       const germanyDir = path.join(dataDir, 'countries', 'Germany');
 
       fs.mkdirSync(destDir, { recursive: true });
-      fs.mkdirSync(germanyDirPublic, { recursive: true });
 
       // Clear previously-mirrored CSVs (source of truth is Assets/Data).
       for (const name of fs.readdirSync(destDir)) {
@@ -76,13 +74,19 @@ function syncDataCsvToPublic() {
         if (fs.existsSync(src)) fs.copyFileSync(src, path.join(destDir, destName));
       }
 
-      // Germany images served from /germany/*.png.
-      const imageCopies: ReadonlyArray<readonly [string, string]> = [
-        [path.join(germanyDir, 'poppyra.png'), 'poppyra.png'],
-        [path.join(germanyDir, 'government', 'politics.png'), 'politics.png'],
-      ];
-      for (const [src, destName] of imageCopies) {
-        if (fs.existsSync(src)) fs.copyFileSync(src, path.join(germanyDirPublic, destName));
+      // Generated per-country dossier CSVs (scripts/generate-country-dossiers.mjs) →
+      // served at /data/<iso3>_<section>.csv for every non-Germany country.
+      const countriesDir = path.join(dataDir, 'countries');
+      if (fs.existsSync(countriesDir)) {
+        for (const countryName of fs.readdirSync(countriesDir)) {
+          const genDir = path.join(countriesDir, countryName, 'generated');
+          if (!fs.existsSync(genDir)) continue;
+          for (const file of fs.readdirSync(genDir)) {
+            if (file.toLowerCase().endsWith('.csv')) {
+              fs.copyFileSync(path.join(genDir, file), path.join(destDir, file));
+            }
+          }
+        }
       }
     },
   };
@@ -124,7 +128,15 @@ function syncHeroAssetsToPublic() {
       const destDir = path.join(__dirname, 'public', 'hero');
       fs.mkdirSync(destDir, { recursive: true });
 
+      // Clear stale hero backdrops (source of truth is Assets/). Avoids shipping the
+      // original 16 MB PNG once the optimized JPEG exists.
+      for (const name of fs.readdirSync(destDir)) {
+        if (/^europe\.(png|jpe?g|svg|webp)$/i.test(name)) fs.unlinkSync(path.join(destDir, name));
+      }
+
+      // Prefer the optimized JPEG backdrop (~300 KB) over the multi-MB PNG source.
       const candidates = [
+        { src: path.join(__dirname, 'Assets', 'europe.jpg'), dest: 'europe.jpg' },
         { src: path.join(__dirname, 'Assets', 'europe.png'), dest: 'europe.png' },
         { src: path.join(__dirname, 'Assets', 'europe_countries.svg'), dest: 'europe.svg' },
         { src: path.join(__dirname, 'Assets', 'eu.svg'), dest: 'europe.svg' },

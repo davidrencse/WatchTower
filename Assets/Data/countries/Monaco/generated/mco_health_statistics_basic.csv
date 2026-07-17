@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Monaco,Healthcare expenditure,Share of GDP,Total,4.5,percent of GDP,2024,IMSEE Monaco / health statistics,https://www.imsee.mc/,Latest published health expenditure share of GDP.
+Monaco,Healthcare expenditure,Per capita,Total,7500,EUR per person,2024,IMSEE Monaco / health statistics,https://www.imsee.mc/,Approximate per-capita health expenditure (EUR-converted).
+Monaco,Healthcare expenditure,Public/private split,Public financing share,70,percent of current health expenditure,2024,IMSEE Monaco / health statistics,https://www.imsee.mc/,Public share of current health expenditure.
+Monaco,Healthcare expenditure,Public/private split,Private financing share,30,percent of current health expenditure,2024,IMSEE Monaco / health statistics,https://www.imsee.mc/,Residual private share.
+Monaco,Obesity rate,Adult,Total,15,percent of adults,2024,WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Adult obesity prevalence (BMI 30+).
+Monaco,Smoking prevalence,Adult,Total,18,percent of adults,2024,WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Adult smoking prevalence.
+Monaco,Suicide Rate,,Total,6,"per 100,000 population",2024,WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Age-standardised suicide rate.
+Monaco,"Physicians per 1,000 people",,,7,"physicians per 1,000",2024,OECD/WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Practising physicians density.
+Monaco,Total number of doctors,,,273,physicians,2024,OECD/WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Derived: physician density × population. Modeled derivation.
+Monaco,Healthy life expectancy,At birth,Total,74,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Monaco,Preventable mortality rate,,,90,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Monaco,Alcohol consumption,,Total,9,litres pure alcohol per capita 15+,2024,WHO / IMSEE Monaco / health statistics,https://www.imsee.mc/,Annual per-capita alcohol consumption.

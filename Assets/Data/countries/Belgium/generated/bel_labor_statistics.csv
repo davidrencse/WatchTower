@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Belgium,Youth unemployment rate,,Ages 15–24,16.5,percent,2024,https://statbel.fgov.be/ / labour statistics,true,Latest published youth unemployment rate.
+Belgium,Long-term unemployment rate,,,2.3,percent of labour force,2024,https://statbel.fgov.be/ / labour statistics,true,Long-term (12m+) unemployment.
+Belgium,Labour force participation rate,,Total (15–64),65.4,percent,2024,https://statbel.fgov.be/ / labour statistics,true,Latest published participation rate.
+Belgium,Labour force participation rate,By migrant/native status,Native-born — total,66.9,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Labour force participation rate,By migrant/native status,Foreign-born — total,59.4,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Labour force participation rate,By migrant/native status,Native-born — men,70.4,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Labour force participation rate,By migrant/native status,Foreign-born — men,64.4,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Labour force participation rate,By migrant/native status,Native-born — women,63.4,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Labour force participation rate,By migrant/native status,Foreign-born — women,53.4,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Belgium,Minimum wage,,,€12.11/hour,statutory minimum,2024,https://statbel.fgov.be/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Belgium,Average annual working hours per worker,,,1527,hours per year,2024,https://statbel.fgov.be/ / labour statistics,true,OECD-style average annual hours actually worked.

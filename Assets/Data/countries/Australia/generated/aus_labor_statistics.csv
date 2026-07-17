@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Australia,Youth unemployment rate,,Ages 15–24,9.2,percent,2024,https://www.abs.gov.au/ / labour statistics,false,Latest published youth unemployment rate.
+Australia,Long-term unemployment rate,,,1,percent of labour force,2024,https://www.abs.gov.au/ / labour statistics,false,Long-term (12m+) unemployment.
+Australia,Labour force participation rate,,Total (15–64),66.8,percent,2024,https://www.abs.gov.au/ / labour statistics,false,Latest published participation rate.
+Australia,Labour force participation rate,By migrant/native status,Native-born — total,68.3,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Labour force participation rate,By migrant/native status,Foreign-born — total,60.8,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Labour force participation rate,By migrant/native status,Native-born — men,71.8,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Labour force participation rate,By migrant/native status,Foreign-born — men,65.8,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Labour force participation rate,By migrant/native status,Native-born — women,64.8,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Labour force participation rate,By migrant/native status,Foreign-born — women,54.8,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Australia,Minimum wage,,,A$24.95/hour,statutory minimum,2024,https://www.abs.gov.au/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+Australia,Average annual working hours per worker,,,1707,hours per year,2024,https://www.abs.gov.au/ / labour statistics,false,OECD-style average annual hours actually worked.

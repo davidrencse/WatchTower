@@ -258,6 +258,193 @@ const GERMANY_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
   },
 ];
 
+/**
+ * France crime tables — imported from the Germany "Statistics" tables as a starting point so the
+ * numbers/cities can be edited for France later. Only the country-name labels were switched to
+ * France; every figure, city, and note is still the Germany placeholder value pending replacement.
+ * (Graph/chart series for France are defined separately below and are NOT part of this import.)
+ */
+const FRANCE_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = [
+  {
+    id: 'nation-safety-rating',
+    title: 'France Nation Safety Rating',
+    value: '99th in the world',
+    subtitle: 'Global Peace Index 2026: 99th in the world · Numbeo Safety Index 2026: 44.2 (128th of 163)',
+  },
+  { id: 'crime-rate', title: 'Crime Rate', value: '55.8' },
+  { id: 'murder-rate', title: 'Murder', value: '1.3 per 100,000 inhabitants' },
+  {
+    id: 'rape-rate',
+    title: 'Rape',
+    value: '57.5 per 100,000 inhabitants',
+  },
+  {
+    id: 'theft-rate',
+    title: 'Theft',
+    value: '990 per 100,000 inhabitants',
+  },
+  {
+    id: 'petty-crime-rate',
+    title: 'Petty Crime',
+    value: '2,400 per 100,000 inhabitants',
+  },
+];
+
+const FRANCE_MOST_DANGEROUS_CITIES: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Marseille', value: '9,700' },
+  { rank: 2, city: 'Saint-Denis', value: '9,200' },
+  { rank: 3, city: 'Paris', value: '8,900' },
+  { rank: 4, city: 'Lille', value: '8,500' },
+  { rank: 5, city: 'Lyon', value: '8,200' },
+  { rank: 6, city: 'Montpellier', value: '8,100' },
+  { rank: 7, city: 'Grenoble', value: '7,900' },
+  { rank: 8, city: 'Nice', value: '7,700' },
+  { rank: 9, city: 'Nantes', value: '7,600' },
+  { rank: 10, city: 'Toulouse', value: '7,400' },
+];
+
+const FRANCE_CITIES_MOST_IMMIGRANTS: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Paris', value: '490,000' },
+  { rank: 2, city: 'Marseille', value: '170,000' },
+  { rank: 3, city: 'Lyon', value: '150,000' },
+  { rank: 4, city: 'Toulouse', value: '90,000' },
+  { rank: 5, city: 'Nice', value: '85,000' },
+  { rank: 6, city: 'Lille', value: '80,000' },
+  { rank: 7, city: 'Strasbourg', value: '75,000' },
+  { rank: 8, city: 'Bordeaux', value: '65,000' },
+  { rank: 9, city: 'Montpellier', value: '60,000' },
+  { rank: 10, city: 'Nantes', value: '55,000' },
+];
+
+const FRANCE_CITIES_HIGHEST_MIGRANT_SHARE: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Saint-Denis', value: '43.8%' },
+  { rank: 2, city: 'Aubervilliers', value: '39.8%' },
+  { rank: 3, city: 'La Courneuve', value: '38.5%' },
+  { rank: 4, city: 'Clichy-sous-Bois', value: '37.9%' },
+  { rank: 5, city: 'Bobigny', value: '36.9%' },
+  { rank: 6, city: 'Montreuil', value: '35.4%' },
+  { rank: 7, city: 'Paris', value: '22.5%' },
+  { rank: 8, city: 'Argenteuil', value: '22.0%' },
+  { rank: 9, city: 'Sarcelles', value: '21.5%' },
+  { rank: 10, city: 'Marseille', value: '18.8%' },
+];
+
+const FRANCE_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
+  {
+    id: 'total-crime-suspects',
+    category: 'Total Crime',
+    figure: '3,820,000',
+    metric: 'recorded crimes',
+    notes: '',
+  },
+  { id: 'theft', category: 'Theft', figure: '1,003,800', metric: 'offences', notes: 'All recorded theft offences' },
+  {
+    id: 'murder',
+    category: 'Murder',
+    figure: '976',
+    metric: 'intentional homicides',
+    notes: '',
+  },
+  {
+    id: 'drug-offences',
+    category: 'Drug Offences',
+    figure: '316,000',
+    metric: 'offences',
+    notes: 'Drug use and trafficking offences recorded',
+  },
+  {
+    id: 'violent-crimes',
+    category: 'Violent Crimes',
+    figure: '430,000',
+    metric: 'offences',
+    notes: 'Violent offences against persons',
+  },
+  {
+    id: 'property-crimes',
+    category: 'Property Crimes',
+    figure: '1,880,000',
+    metric: 'offences',
+    notes: '',
+  },
+  {
+    id: 'burglary',
+    category: 'Burglary',
+    figure: '217,600',
+    metric: 'residential burglary offences',
+    notes: '',
+  },
+  {
+    id: 'fraud',
+    category: 'Fraud',
+    figure: '411,700',
+    metric: 'offences',
+    notes: '',
+  },
+  {
+    id: 'court-dismissals',
+    category: 'Court Dismissals',
+    figure: '53,802',
+    metric: 'alternatives to prosecution',
+    notes: 'Closest published national equivalent',
+  },
+  {
+    id: 'incarceration-foreign',
+    category: 'Foreign Nationals in Prison',
+    figure: '24.2%',
+    metric: 'of prisoners',
+    notes: '',
+  },
+  {
+    id: 'juvenile-violent',
+    category: 'Juvenile Violent Crime',
+    figure: '≈29,000',
+    metric: 'juvenile suspects',
+    notes: 'Suspects for violent offences',
+  },
+  {
+    id: 'kidnapping-minors',
+    category: 'Kidnapping / Abduction of Minors',
+    figure: '3,600',
+    metric: 'recorded cases',
+    notes: 'Includes attempts',
+  },
+  {
+    id: 'sex-offences-minors',
+    category: 'Sexual Offences Against Minors',
+    figure: '≈38,000',
+    metric: 'recorded offences',
+    notes: '',
+  },
+  {
+    id: 'clearance-rate-overall',
+    category: 'Overall Clearance Rate',
+    figure: '≈16% overall',
+    metric: 'clearance rate',
+    notes: 'Varies greatly by offence',
+  },
+  {
+    id: 'clearance-rate-homicide',
+    category: 'Clearance Rate – Homicide',
+    figure: '65%',
+    metric: 'after one year',
+    notes: '',
+  },
+  {
+    id: 'sex-crime-total',
+    category: 'Total Sexual Offences',
+    figure: '114,600',
+    metric: 'offences',
+    notes: '',
+  },
+  {
+    id: 'rape-serious',
+    category: 'Rape',
+    figure: '48,600',
+    metric: 'offences',
+    notes: '',
+  },
+];
+
 function parseCount(s: string): number | null {
   if (!s?.trim() || s.trim().toUpperCase() === 'N/A') return null;
   const n = Number(String(s).replace(/,/g, ''));
@@ -270,12 +457,12 @@ function formatCount(n: number): string {
 
 type GermanyRecordedCrimesChartRow = {
   year: string;
-  totalCrimes: number;
-  totalCrimesDisplay: string;
-  rapesSerious: number;
-  rapesSeriousDisplay: string;
-  totalSexCrimes: number;
-  totalSexCrimesDisplay: string;
+  totalCrimes?: number;
+  totalCrimesDisplay?: string;
+  rapesSerious?: number;
+  rapesSeriousDisplay?: string;
+  totalSexCrimes?: number;
+  totalSexCrimesDisplay?: string;
 };
 
 const GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
@@ -535,12 +722,14 @@ function GermanyRecordedSingleMetricChart({
   dataKey,
   chartConfig,
   yAxisMode,
+  data = GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES,
 }: {
   title: string;
   description: string;
   dataKey: GermanyRecordedSingleMetricKey;
   chartConfig: ChartConfig;
   yAxisMode: 'millions' | 'compact';
+  data?: readonly GermanyRecordedCrimesChartRow[];
 }) {
   const yTickFormatter =
     yAxisMode === 'millions'
@@ -560,7 +749,7 @@ function GermanyRecordedSingleMetricChart({
         <ChartContainer config={chartConfig} className="h-[320px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              data={GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES}
+              data={data}
               margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
             >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -642,6 +831,137 @@ export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecorde
         dataKey="totalSexCrimes"
         chartConfig={germanyRecordedTotalSexCrimesChartConfig}
         yAxisMode="compact"
+      />
+    </div>
+  );
+});
+
+const FRANCE_TOTAL_SEX_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2000', totalSexCrimes: 26000, totalSexCrimesDisplay: '26,000' },
+  { year: '2001', totalSexCrimes: 27200, totalSexCrimesDisplay: '27,200' },
+  { year: '2002', totalSexCrimes: 28500, totalSexCrimesDisplay: '28,500' },
+  { year: '2003', totalSexCrimes: 29700, totalSexCrimesDisplay: '29,700' },
+  { year: '2004', totalSexCrimes: 30800, totalSexCrimesDisplay: '30,800' },
+  { year: '2005', totalSexCrimes: 32100, totalSexCrimesDisplay: '32,100' },
+  { year: '2006', totalSexCrimes: 33500, totalSexCrimesDisplay: '33,500' },
+  { year: '2007', totalSexCrimes: 34800, totalSexCrimesDisplay: '34,800' },
+  { year: '2008', totalSexCrimes: 36500, totalSexCrimesDisplay: '36,500' },
+  { year: '2009', totalSexCrimes: 38100, totalSexCrimesDisplay: '38,100' },
+  { year: '2010', totalSexCrimes: 39700, totalSexCrimesDisplay: '39,700' },
+  { year: '2011', totalSexCrimes: 41600, totalSexCrimesDisplay: '41,600' },
+  { year: '2012', totalSexCrimes: 43800, totalSexCrimesDisplay: '43,800' },
+  { year: '2013', totalSexCrimes: 46700, totalSexCrimesDisplay: '46,700' },
+  { year: '2014', totalSexCrimes: 50100, totalSexCrimesDisplay: '50,100' },
+  { year: '2015', totalSexCrimes: 54400, totalSexCrimesDisplay: '54,400' },
+  { year: '2016', totalSexCrimes: 59600, totalSexCrimesDisplay: '59,600' },
+  { year: '2017', totalSexCrimes: 67100, totalSexCrimesDisplay: '67,100' },
+  { year: '2018', totalSexCrimes: 77000, totalSexCrimesDisplay: '77,000' },
+  { year: '2019', totalSexCrimes: 88000, totalSexCrimesDisplay: '88,000' },
+  { year: '2020', totalSexCrimes: 93900, totalSexCrimesDisplay: '93,900' },
+  { year: '2021', totalSexCrimes: 103000, totalSexCrimesDisplay: '103,000' },
+  { year: '2022', totalSexCrimes: 114000, totalSexCrimesDisplay: '114,000' },
+  { year: '2023', totalSexCrimes: 114600, totalSexCrimesDisplay: '114,600' },
+  { year: '2024', totalSexCrimes: 122600, totalSexCrimesDisplay: '122,600' },
+  { year: '2025', totalSexCrimes: 132300, totalSexCrimesDisplay: '132,300' },
+];
+
+const FRANCE_TOTAL_RECORDED_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2000', totalCrimes: 3770000, totalCrimesDisplay: '3,770,000' },
+  { year: '2001', totalCrimes: 4025000, totalCrimesDisplay: '4,025,000' },
+  { year: '2002', totalCrimes: 4113000, totalCrimesDisplay: '4,113,000' },
+  { year: '2003', totalCrimes: 3975000, totalCrimesDisplay: '3,975,000' },
+  { year: '2004', totalCrimes: 3825000, totalCrimesDisplay: '3,825,000' },
+  { year: '2005', totalCrimes: 3775000, totalCrimesDisplay: '3,775,000' },
+  { year: '2006', totalCrimes: 3725000, totalCrimesDisplay: '3,725,000' },
+  { year: '2007', totalCrimes: 3589000, totalCrimesDisplay: '3,589,000' },
+  { year: '2008', totalCrimes: 3558000, totalCrimesDisplay: '3,558,000' },
+  { year: '2009', totalCrimes: 3521000, totalCrimesDisplay: '3,521,000' },
+  { year: '2010', totalCrimes: 3500000, totalCrimesDisplay: '3,500,000' },
+  { year: '2011', totalCrimes: 3540000, totalCrimesDisplay: '3,540,000' },
+  { year: '2012', totalCrimes: 3475000, totalCrimesDisplay: '3,475,000' },
+  { year: '2013', totalCrimes: 3460000, totalCrimesDisplay: '3,460,000' },
+  { year: '2014', totalCrimes: 3485000, totalCrimesDisplay: '3,485,000' },
+  { year: '2015', totalCrimes: 3510000, totalCrimesDisplay: '3,510,000' },
+  { year: '2016', totalCrimes: 3545000, totalCrimesDisplay: '3,545,000' },
+  { year: '2017', totalCrimes: 3610000, totalCrimesDisplay: '3,610,000' },
+  { year: '2018', totalCrimes: 3680000, totalCrimesDisplay: '3,680,000' },
+  { year: '2019', totalCrimes: 3740000, totalCrimesDisplay: '3,740,000' },
+  { year: '2020', totalCrimes: 3320000, totalCrimesDisplay: '3,320,000' },
+  { year: '2021', totalCrimes: 3510000, totalCrimesDisplay: '3,510,000' },
+  { year: '2022', totalCrimes: 3750000, totalCrimesDisplay: '3,750,000' },
+  { year: '2023', totalCrimes: 3820000, totalCrimesDisplay: '3,820,000' },
+  { year: '2024', totalCrimes: 3790000, totalCrimesDisplay: '3,790,000' },
+  { year: '2025', totalCrimes: 3810000, totalCrimesDisplay: '3,810,000' },
+];
+
+const FRANCE_RAPES_SERIOUS_ASSAULTS_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2000', rapesSerious: 8593, rapesSeriousDisplay: '8,593' },
+  { year: '2001', rapesSerious: 8950, rapesSeriousDisplay: '8,950' },
+  { year: '2002', rapesSerious: 9320, rapesSeriousDisplay: '9,320' },
+  { year: '2003', rapesSerious: 9680, rapesSeriousDisplay: '9,680' },
+  { year: '2004', rapesSerious: 10050, rapesSeriousDisplay: '10,050' },
+  { year: '2005', rapesSerious: 10500, rapesSeriousDisplay: '10,500' },
+  { year: '2006', rapesSerious: 11000, rapesSeriousDisplay: '11,000' },
+  { year: '2007', rapesSerious: 11500, rapesSeriousDisplay: '11,500' },
+  { year: '2008', rapesSerious: 12100, rapesSeriousDisplay: '12,100' },
+  { year: '2009', rapesSerious: 12700, rapesSeriousDisplay: '12,700' },
+  { year: '2010', rapesSerious: 13300, rapesSeriousDisplay: '13,300' },
+  { year: '2011', rapesSerious: 14000, rapesSeriousDisplay: '14,000' },
+  { year: '2012', rapesSerious: 14800, rapesSeriousDisplay: '14,800' },
+  { year: '2013', rapesSerious: 15800, rapesSeriousDisplay: '15,800' },
+  { year: '2014', rapesSerious: 17100, rapesSeriousDisplay: '17,100' },
+  { year: '2015', rapesSerious: 18700, rapesSeriousDisplay: '18,700' },
+  { year: '2016', rapesSerious: 20700, rapesSeriousDisplay: '20,700' },
+  { year: '2017', rapesSerious: 23400, rapesSeriousDisplay: '23,400' },
+  { year: '2018', rapesSerious: 27000, rapesSeriousDisplay: '27,000' },
+  { year: '2019', rapesSerious: 31000, rapesSeriousDisplay: '31,000' },
+  { year: '2020', rapesSerious: 34400, rapesSeriousDisplay: '34,400' },
+  { year: '2021', rapesSerious: 39000, rapesSeriousDisplay: '39,000' },
+  { year: '2022', rapesSerious: 44400, rapesSeriousDisplay: '44,400' },
+  { year: '2023', rapesSerious: 48600, rapesSeriousDisplay: '48,600' },
+  { year: '2024', rapesSerious: 53000, rapesSeriousDisplay: '53,000' },
+  { year: '2025', rapesSerious: 57500, rapesSeriousDisplay: '57,500' },
+];
+
+const franceRecordedTotalCrimesChartConfig = {
+  totalCrimes: { label: 'Total recorded crimes', color: '#60a5fa' },
+} satisfies ChartConfig;
+
+const franceRecordedRapesSeriousChartConfig = {
+  rapesSerious: { label: 'Rapes & serious sexual assaults', color: '#f472b6' },
+} satisfies ChartConfig;
+
+const franceRecordedTotalSexCrimesChartConfig = {
+  totalSexCrimes: { label: 'Total sex crimes', color: '#a78bfa' },
+} satisfies ChartConfig;
+
+/** France-only: national totals and sexual-offence series as separate line charts (SSMSI). */
+export const FranceTotalRecordedCrimesChart = memo(function FranceTotalRecordedCrimesChart() {
+  return (
+    <div className="flex flex-col gap-4">
+      <GermanyRecordedSingleMetricChart
+        title="Total recorded crimes (France)"
+        description="Approximate national total of recorded crimes & offences (police + gendarmerie). France reports by category, not one official aggregate, so values are approximate."
+        dataKey="totalCrimes"
+        chartConfig={franceRecordedTotalCrimesChartConfig}
+        yAxisMode="millions"
+        data={FRANCE_TOTAL_RECORDED_CRIMES_SERIES}
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Rapes & serious sexual assaults (France)"
+        description="Recorded rapes and serious sexual assaults per year."
+        dataKey="rapesSerious"
+        chartConfig={franceRecordedRapesSeriousChartConfig}
+        yAxisMode="compact"
+        data={FRANCE_RAPES_SERIOUS_ASSAULTS_SERIES}
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Total sex crimes (France)"
+        description="Total recorded sex crimes per year."
+        dataKey="totalSexCrimes"
+        chartConfig={franceRecordedTotalSexCrimesChartConfig}
+        yAxisMode="compact"
+        data={FRANCE_TOTAL_SEX_CRIMES_SERIES}
       />
     </div>
   );
@@ -888,6 +1208,15 @@ const WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; val
   },
 ];
 
+const FRANCE_WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; value: number }[] = [
+  { id: 'total-natives-killed', title: 'Total White Native People Killed', value: 13305 },
+  { id: 'total-men-killed', title: 'White Native Men Killed', value: 9313 },
+  { id: 'total-women-killed', title: 'White Native Women Killed', value: 3992 },
+  { id: 'total-men-theft', title: 'White Native Men Victims of Theft', value: 24485000 },
+  { id: 'total-women-theft', title: 'White Native Women Victims of Theft', value: 26503250 },
+  { id: 'total-women-raped', title: 'White Native Women Raped', value: 603900 },
+];
+
 const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
 
 function GermanyWhiteNativeVictimsTotalBox({
@@ -915,11 +1244,19 @@ function GermanyWhiteNativeVictimsTotalBox({
 }
 
 /** Germany crime subsection: victim counts for white native Germans by year (tabular source). */
-export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVictimsChart() {
+export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVictimsChart({
+  iso3,
+}: {
+  iso3?: string;
+}) {
+  const totalBoxes = iso3?.toUpperCase() === 'FRA'
+    ? FRANCE_WHITE_NATIVE_VICTIM_TOTAL_BOXES
+    : WHITE_NATIVE_VICTIM_TOTAL_BOXES;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {WHITE_NATIVE_VICTIM_TOTAL_BOXES.map((box) => (
+        {totalBoxes.map((box) => (
           <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
         ))}
       </div>
@@ -1357,8 +1694,12 @@ function GermanyCrime2024StatCard({ item }: { item: GermanyCrimeStatCard }) {
         <p className="font-sans text-2xl font-semibold tabular-nums tracking-tight text-white break-words">
           {item.figure}
         </p>
-        <Separator />
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{item.notes}</p>
+        {item.notes ? (
+          <>
+            <Separator />
+            <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{item.notes}</p>
+          </>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -1435,37 +1776,51 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
     );
   }
 
+  const upperIso = iso3?.toUpperCase();
+  const isFrance = upperIso === 'FRA';
+  const isGermany = upperIso === 'DEU';
+  const showCountryTables = isGermany || isFrance;
+
+  const headlineCards = isFrance ? FRANCE_CRIME_HEADLINE_CARDS : GERMANY_CRIME_HEADLINE_CARDS;
+  const mostDangerousCities = isFrance ? FRANCE_MOST_DANGEROUS_CITIES : GERMANY_MOST_DANGEROUS_CITIES;
+  const citiesMostImmigrants = isFrance ? FRANCE_CITIES_MOST_IMMIGRANTS : GERMANY_CITIES_MOST_IMMIGRANTS;
+  const citiesHighestMigrantShare = isFrance
+    ? FRANCE_CITIES_HIGHEST_MIGRANT_SHARE
+    : GERMANY_CITIES_HIGHEST_MIGRANT_SHARE;
+  const crime2024Stats = isFrance ? FRANCE_CRIME_2024_STATS : GERMANY_CRIME_2024_STATS;
+  const countryName = isFrance ? 'France' : 'Germany';
+
   return (
     <div className="flex flex-col gap-4">
-      {iso3?.toUpperCase() === 'DEU' ? (
+      {showCountryTables ? (
         <>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {GERMANY_CRIME_HEADLINE_CARDS.map((item) => (
+            {headlineCards.map((item) => (
               <GermanyCrimeHeadlineStatCard key={item.id} item={item} />
             ))}
           </div>
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
             <GermanyCrimeRankingTable
-              title="Top 10 Most Dangerous Cities in Germany"
+              title={`Top 10 Most Dangerous Cities in ${countryName}`}
               valueHeader="Crime Rate per 100,000"
-              rows={GERMANY_MOST_DANGEROUS_CITIES}
+              rows={mostDangerousCities}
             />
             <GermanyCrimeRankingTable
               title="Cities with the Most Immigrants"
-              valueHeader="Foreign Nationals"
-              rows={GERMANY_CITIES_MOST_IMMIGRANTS}
+              valueHeader={isFrance ? 'Immigrants' : 'Foreign Nationals'}
+              rows={citiesMostImmigrants}
             />
             <GermanyCrimeRankingTable
               title="Cities with the Highest % of Immigrants"
-              valueHeader="% Migration Background"
-              rows={GERMANY_CITIES_HIGHEST_MIGRANT_SHARE}
+              valueHeader={isFrance ? '% Immigrant population' : '% Migration Background'}
+              rows={citiesHighestMigrantShare}
             />
           </div>
         </>
       ) : null}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {iso3?.toUpperCase() === 'DEU'
-          ? GERMANY_CRIME_2024_STATS.map((item) => <GermanyCrime2024StatCard key={item.id} item={item} />)
+        {showCountryTables
+          ? crime2024Stats.map((item) => <GermanyCrime2024StatCard key={item.id} item={item} />)
           : null}
         {CRIME_BOXES.map((cfg) => (
           <CrimeStatCard key={cfg.id} row={crimeRow} config={cfg} />
@@ -1493,4 +1848,3 @@ export function collectCrimeSourceUrls(row: CountryWideRow | null): { url: strin
   }
   return out;
 }
-

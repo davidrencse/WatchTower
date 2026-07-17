@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import germanyPopulationByAgeCsvRaw from '../../Assets/Data/countries/Germany/germany_2025_population_by_age_and_gender.csv?raw';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from './ui/chart';
@@ -37,8 +37,54 @@ const chartConfig: ChartConfig = {
   female: { label: 'Female', color: '#ec4899' },
 };
 
-export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid() {
-  const rows = useMemo(() => parseGermanyPopulationCsv(germanyPopulationByAgeCsvRaw), []);
+type GermanyPopulationPyramidProps = {
+  /** Per-country pyramid CSV (same columns); omitted for Germany (bundled data). */
+  csvUrl?: string;
+  countryLabel?: string;
+};
+
+export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
+  csvUrl,
+  countryLabel = 'Germany',
+}: GermanyPopulationPyramidProps) {
+  const isGermany = !csvUrl;
+  const [raw, setRaw] = useState(isGermany ? germanyPopulationByAgeCsvRaw : '');
+
+  useEffect(() => {
+    if (!csvUrl) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(csvUrl);
+        const text = res.ok ? await res.text() : '';
+        if (!cancelled && text.trim()) setRaw(text);
+      } catch {
+        /* leave empty; renders nothing meaningful */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [csvUrl]);
+
+  const rows = useMemo(() => parseGermanyPopulationCsv(raw), [raw]);
+
+  const totals = useMemo(() => {
+    let male = 0;
+    let female = 0;
+    for (const r of rows) {
+      male += r.male;
+      female += r.female;
+    }
+    const total = male + female;
+    return {
+      male,
+      female,
+      total,
+      malePct: total ? ((male / total) * 100).toFixed(1) : '0.0',
+      femalePct: total ? ((female / total) * 100).toFixed(1) : '0.0',
+    };
+  }, [rows]);
 
   const data = useMemo(
     () =>
@@ -59,7 +105,7 @@ export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid()
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Germany population pyramid (2025)</CardTitle>
+        <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{countryLabel} population pyramid (2025)</CardTitle>
         <CardDescription>Hover any age bar to view male and female population counts.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -124,30 +170,34 @@ export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid()
           <div className="rounded-md border border-line bg-surface-metric/80 px-3 py-2 shadow-inset">
             <div className="font-sans text-[10px] uppercase tracking-[0.18em] text-neutral-500">Total</div>
             <div className="mt-1 font-sans text-sm font-semibold tabular-nums text-neutral-100">
-              83,491,249
+              {isGermany ? '83,491,249' : totals.total.toLocaleString('en-US')}
             </div>
-            <div className="mt-0.5 font-sans text-[10px] text-neutral-500">As of 30 June 2025</div>
+            <div className="mt-0.5 font-sans text-[10px] text-neutral-500">
+              {isGermany ? 'As of 30 June 2025' : '2025 estimate'}
+            </div>
           </div>
 
           <div className="rounded-md border border-line bg-surface-metric/80 px-3 py-2 shadow-inset">
             <div className="font-sans text-[10px] uppercase tracking-[0.18em] text-neutral-500">Male</div>
             <div className="mt-1 flex items-baseline gap-2 font-sans tabular-nums text-sm font-semibold text-neutral-100">
-              <span>41,202,173</span>
-              <span className="text-neutral-500">49.4%</span>
+              <span>{isGermany ? '41,202,173' : totals.male.toLocaleString('en-US')}</span>
+              <span className="text-neutral-500">{isGermany ? '49.4%' : `${totals.malePct}%`}</span>
             </div>
           </div>
 
           <div className="rounded-md border border-line bg-surface-metric/80 px-3 py-2 shadow-inset">
             <div className="font-sans text-[10px] uppercase tracking-[0.18em] text-neutral-500">Female</div>
             <div className="mt-1 flex items-baseline gap-2 font-sans tabular-nums text-sm font-semibold text-neutral-100">
-              <span>42,289,076</span>
-              <span className="text-neutral-500">50.6%</span>
+              <span>{isGermany ? '42,289,076' : totals.female.toLocaleString('en-US')}</span>
+              <span className="text-neutral-500">{isGermany ? '50.6%' : `${totals.femalePct}%`}</span>
             </div>
           </div>
         </div>
 
         <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
-          Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).
+          {isGermany
+            ? 'Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).'
+            : `Source data: ${csvUrl?.split('/').pop()} (${countryLabel}, modeled 2025 age-group population by sex).`}
         </p>
       </CardContent>
     </Card>

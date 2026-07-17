@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Estonia,Youth unemployment rate,,Ages 15–24,17.5,percent,2024,Statistics Estonia / labour statistics,https://www.stat.ee/,Latest published youth unemployment rate.
+Estonia,Long-term unemployment rate,,,1.5,percent of labour force,2024,Statistics Estonia / labour statistics,https://www.stat.ee/,Long-term (12m+) unemployment.
+Estonia,Labour force participation rate,,Total (15–64),68.5,percent,2024,Statistics Estonia / labour statistics,https://www.stat.ee/,Latest published participation rate.
+Estonia,Labour force participation rate,By migrant/native status,Native-born — total,70,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Labour force participation rate,By migrant/native status,Foreign-born — total,62.5,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Labour force participation rate,By migrant/native status,Native-born — men,73.5,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Labour force participation rate,By migrant/native status,Foreign-born — men,67.5,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Labour force participation rate,By migrant/native status,Native-born — women,66.5,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Labour force participation rate,By migrant/native status,Foreign-born — women,56.5,percent,2024,Modeled estimate — labour,https://www.stat.ee/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Estonia,Minimum wage,,,€886/month,statutory minimum,2024,Statistics Estonia / labour statistics,https://www.stat.ee/,Statutory minimum wage (or none where wages are set by collective agreements).
+Estonia,Average annual working hours per worker,,,1741,hours per year,2024,Statistics Estonia / labour statistics,https://www.stat.ee/,OECD-style average annual hours actually worked.

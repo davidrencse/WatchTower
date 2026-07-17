@@ -129,6 +129,32 @@ export function useBundledGermanyNews(enabled: boolean): GermanyNewsItem[] {
   }, [enabled]);
 }
 
+/**
+ * News feed for any country. Germany uses its bundled CSV (rich, real headlines);
+ * every other country fetches its generated per-country feed at `csvUrl`.
+ */
+export function useCountryNews(isGermany: boolean, csvUrl: string | null): GermanyNewsItem[] {
+  const bundled = useBundledGermanyNews(isGermany);
+  const [fetched, setFetched] = useState<GermanyNewsItem[]>([]);
+  useEffect(() => {
+    if (isGermany || !csvUrl) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(csvUrl);
+        const text = res.ok ? await res.text() : '';
+        if (!cancelled && text.trim()) setFetched(parseGermanyNewsCsv(text));
+      } catch {
+        /* leave empty */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isGermany, csvUrl]);
+  return isGermany ? bundled : fetched;
+}
+
 function CollapsibleNewsSection({ section }: { section: GermanyNewsRailSection }) {
   const [open, setOpen] = useState(true);
   const id = useId();

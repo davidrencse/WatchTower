@@ -15,8 +15,6 @@ import {
   formatIncomeCount,
   formatIncomeEuro,
   GERMANY_INCOME_DISTRIBUTION_GROUPS,
-  GERMANY_INCOME_QUINTILES,
-  germanyIncomeGroupById,
   type GermanyIncomeGroupRow,
 } from '../lib/germanyIncomeDistribution';
 import { Badge } from './ui/badge';
@@ -25,7 +23,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 
 const UC = 'font-sans text-[10px] font-semibold uppercase tracking-[0.18em]';
 
-const INCOME_SHARE_CHART_CONFIG = GERMANY_INCOME_QUINTILES.reduce(
+/** Groups sharing ids/colors/labels across countries → one config keyed by id works for all. */
+const INCOME_SHARE_CHART_CONFIG = GERMANY_INCOME_DISTRIBUTION_GROUPS.filter((g) => g.tier === 'quintile').reduce(
   (acc, g) => {
     acc[g.id] = { label: g.label, color: g.color };
     return acc;
@@ -41,16 +40,23 @@ const AVG_INCOME_CHART_CONFIG = GERMANY_INCOME_DISTRIBUTION_GROUPS.reduce(
   { income: { label: 'Avg. net income', color: '#22d3ee' } } as ChartConfig,
 );
 
+/** Resolve a group by id within a dataset, falling back to the last row. */
+function groupById(groups: readonly GermanyIncomeGroupRow[], id: string): GermanyIncomeGroupRow {
+  return groups.find((g) => g.id === id) ?? groups[groups.length - 1]!;
+}
+
 function GroupSelector({
+  groups,
   selectedId,
   onSelect,
 }: {
+  groups: readonly GermanyIncomeGroupRow[];
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {GERMANY_INCOME_DISTRIBUTION_GROUPS.map((g) => {
+      {groups.map((g) => {
         const active = g.id === selectedId;
         return (
           <button
@@ -144,24 +150,28 @@ function StatPill({
 }
 
 function IncomeSharePie({
+  groups,
+  quintiles,
   selectedId,
   onSelect,
 }: {
+  groups: readonly GermanyIncomeGroupRow[];
+  quintiles: readonly GermanyIncomeGroupRow[];
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
   const chartData = useMemo(
     () =>
-      GERMANY_INCOME_QUINTILES.map((g) => ({
+      quintiles.map((g) => ({
         id: g.id,
         name: g.shortLabel,
         share: g.incomeSharePct,
         fill: g.color,
       })),
-    [],
+    [quintiles],
   );
 
-  const quintileSelected = GERMANY_INCOME_QUINTILES.some((q) => q.id === selectedId);
+  const quintileSelected = quintiles.some((q) => q.id === selectedId);
 
   return (
     <Card className="flex h-full flex-col border-line bg-surface-metric shadow-card">
@@ -214,7 +224,7 @@ function IncomeSharePie({
           </ResponsiveContainer>
         </ChartContainer>
         <ul className="min-w-0 flex-1 space-y-2">
-          {GERMANY_INCOME_QUINTILES.map((g) => (
+          {quintiles.map((g) => (
             <li key={g.id}>
               <button
                 type="button"
@@ -231,8 +241,8 @@ function IncomeSharePie({
           ))}
           <li className="border-t border-white/[0.06] pt-2">
             <p className="font-sans text-[9px] leading-relaxed text-neutral-600">
-              Top 10% holds {GERMANY_INCOME_DISTRIBUTION_GROUPS.find((g) => g.id === 'top-10')!.incomeSharePct}% · Top 1%
-              holds {GERMANY_INCOME_DISTRIBUTION_GROUPS.find((g) => g.id === 'top-1')!.incomeSharePct}% (overlapping
+              Top 10% holds {groupById(groups, 'top-10').incomeSharePct}% · Top 1%
+              holds {groupById(groups, 'top-1').incomeSharePct}% (overlapping
               subsets)
             </p>
           </li>
@@ -242,16 +252,24 @@ function IncomeSharePie({
   );
 }
 
-function AvgIncomeBarChart({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+function AvgIncomeBarChart({
+  groups,
+  selectedId,
+  onSelect,
+}: {
+  groups: readonly GermanyIncomeGroupRow[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
   const chartData = useMemo(
     () =>
-      [...GERMANY_INCOME_DISTRIBUTION_GROUPS].map((g) => ({
+      [...groups].map((g) => ({
         id: g.id,
         label: g.shortLabel,
         income: g.avgNetIncomeEur,
         fill: g.color,
       })),
-    [],
+    [groups],
   );
 
   return (
@@ -317,17 +335,25 @@ function AvgIncomeBarChart({ selectedId, onSelect }: { selectedId: string; onSel
   );
 }
 
-function MigrationPoliticsChart({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+function MigrationPoliticsChart({
+  groups,
+  selectedId,
+  onSelect,
+}: {
+  groups: readonly GermanyIncomeGroupRow[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
   const chartData = useMemo(
     () =>
-      GERMANY_INCOME_DISTRIBUTION_GROUPS.map((g) => ({
+      groups.map((g) => ({
         id: g.id,
         label: g.shortLabel,
         migration: g.migrationBackgroundPct,
         left: g.leftWingPct,
         right: g.rightWingPct,
       })),
-    [],
+    [groups],
   );
 
   const config = {
@@ -385,26 +411,34 @@ function MigrationPoliticsChart({ selectedId, onSelect }: { selectedId: string; 
           </ResponsiveContainer>
         </ChartContainer>
         <p className="mt-2 font-sans text-[9px] text-neutral-600">
-          Selected: <span className="text-neutral-400">{germanyIncomeGroupById(selectedId).label}</span> — migration{' '}
-          {germanyIncomeGroupById(selectedId).migrationBackgroundPct}%, left{' '}
-          {germanyIncomeGroupById(selectedId).leftWingPct}%, right{' '}
-          {germanyIncomeGroupById(selectedId).rightWingPct}%
+          Selected: <span className="text-neutral-400">{groupById(groups, selectedId).label}</span> — migration{' '}
+          {groupById(groups, selectedId).migrationBackgroundPct}%, left{' '}
+          {groupById(groups, selectedId).leftWingPct}%, right{' '}
+          {groupById(groups, selectedId).rightWingPct}%
         </p>
       </CardContent>
     </Card>
   );
 }
 
-function GenderBalanceChart({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+function GenderBalanceChart({
+  groups,
+  selectedId,
+  onSelect,
+}: {
+  groups: readonly GermanyIncomeGroupRow[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
   const chartData = useMemo(
     () =>
-      GERMANY_INCOME_DISTRIBUTION_GROUPS.map((g) => ({
+      groups.map((g) => ({
         id: g.id,
         label: g.shortLabel,
         men: g.menPct,
         women: g.womenPct,
       })),
-    [],
+    [groups],
   );
 
   const config = {
@@ -473,11 +507,11 @@ function GenderBalanceChart({ selectedId, onSelect }: { selectedId: string; onSe
   );
 }
 
-function IncomeConcentrationCard() {
-  const top20 = germanyIncomeGroupById('top-20');
-  const top10 = germanyIncomeGroupById('top-10');
-  const top1 = germanyIncomeGroupById('top-1');
-  const bottom = germanyIncomeGroupById('bottom-20');
+function IncomeConcentrationCard({ groups }: { groups: readonly GermanyIncomeGroupRow[] }) {
+  const top20 = groupById(groups, 'top-20');
+  const top10 = groupById(groups, 'top-10');
+  const top1 = groupById(groups, 'top-1');
+  const bottom = groupById(groups, 'bottom-20');
 
   return (
     <Card className="border-line bg-surface-metric shadow-card">
@@ -536,15 +570,17 @@ function IncomeConcentrationCard() {
 }
 
 function GroupComparisonCards({
+  groups,
   selectedId,
   onSelect,
 }: {
+  groups: readonly GermanyIncomeGroupRow[];
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-      {GERMANY_INCOME_DISTRIBUTION_GROUPS.map((g) => {
+      {groups.map((g) => {
         const active = g.id === selectedId;
         return (
           <button
@@ -579,9 +615,23 @@ function GroupComparisonCards({
   );
 }
 
-export const GermanyIncomeDistributionSection = memo(function GermanyIncomeDistributionSection() {
+const GERMANY_CAPTION =
+  'Seven income groups · ~84M people in quintiles (16.8M each) · income share, net income, migration background, gender, and reported political lean.';
+
+type IncomeDistributionSectionProps = {
+  /** Income-group dataset; defaults to Germany. Pass another country's groups (same shape) to re-skin. */
+  groups?: readonly GermanyIncomeGroupRow[];
+  /** Sub-heading caption; defaults to Germany's population wording. */
+  caption?: string;
+};
+
+export const GermanyIncomeDistributionSection = memo(function GermanyIncomeDistributionSection({
+  groups = GERMANY_INCOME_DISTRIBUTION_GROUPS,
+  caption = GERMANY_CAPTION,
+}: IncomeDistributionSectionProps) {
+  const quintiles = useMemo(() => groups.filter((g) => g.tier === 'quintile'), [groups]);
   const [selectedId, setSelectedId] = useState('middle-20');
-  const selected = useMemo(() => germanyIncomeGroupById(selectedId), [selectedId]);
+  const selected = useMemo(() => groupById(groups, selectedId), [groups, selectedId]);
   const onSelect = useCallback((id: string) => setSelectedId(id), []);
 
   return (
@@ -590,27 +640,24 @@ export const GermanyIncomeDistributionSection = memo(function GermanyIncomeDistr
         <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
           Income distribution &amp; inequality
         </h3>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">
-          Seven income groups · ~84M people in quintiles (16.8M each) · income share, net income, migration background,
-          gender, and reported political lean.
-        </p>
+        <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{caption}</p>
       </div>
 
-      <GroupSelector selectedId={selectedId} onSelect={onSelect} />
+      <GroupSelector groups={groups} selectedId={selectedId} onSelect={onSelect} />
       <SelectedGroupHero group={selected} />
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <IncomeSharePie selectedId={selectedId} onSelect={onSelect} />
-        <AvgIncomeBarChart selectedId={selectedId} onSelect={onSelect} />
+        <IncomeSharePie groups={groups} quintiles={quintiles} selectedId={selectedId} onSelect={onSelect} />
+        <AvgIncomeBarChart groups={groups} selectedId={selectedId} onSelect={onSelect} />
       </div>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <MigrationPoliticsChart selectedId={selectedId} onSelect={onSelect} />
-        <GenderBalanceChart selectedId={selectedId} onSelect={onSelect} />
+        <MigrationPoliticsChart groups={groups} selectedId={selectedId} onSelect={onSelect} />
+        <GenderBalanceChart groups={groups} selectedId={selectedId} onSelect={onSelect} />
       </div>
 
-      <IncomeConcentrationCard />
-      <GroupComparisonCards selectedId={selectedId} onSelect={onSelect} />
+      <IncomeConcentrationCard groups={groups} />
+      <GroupComparisonCards groups={groups} selectedId={selectedId} onSelect={onSelect} />
     </div>
   );
 });

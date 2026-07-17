@@ -13,6 +13,9 @@ export type RibbonMainItem = {
   subsections: RibbonSubItem[];
 };
 
+/** Gallery countries that are not included in Global Firepower's 2026 review. */
+const GFP_UNRANKED_ISO3 = new Set(['CYP', 'LIE', 'MLT', 'MCO']);
+
 /** Stable subsection anchors aligned with CountryStatsDashboard + GermanyGovernmentSection. */
 export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
   const germanyLike = treatAsGermany(iso3);
@@ -56,6 +59,28 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
     ],
   };
 
+  const military: RibbonMainItem = {
+    id: 'military',
+    label: 'Military',
+    anchorId: 'country-section-military',
+    subsections: GFP_UNRANKED_ISO3.has(iso3.toUpperCase())
+      ? []
+      : [
+          { id: 'army', label: 'Army', anchorId: 'country-sub-military-army' },
+          { id: 'navy', label: 'Navy', anchorId: 'country-sub-military-navy' },
+          { id: 'airforce', label: 'Air Force', anchorId: 'country-sub-military-airforce' },
+          ...(germanyLike
+            ? [
+                {
+                  id: 'cyberspace',
+                  label: 'Cyberspace',
+                  anchorId: 'country-sub-military-cyberspace',
+                } satisfies RibbonSubItem,
+              ]
+            : []),
+        ],
+  };
+
   if (germanyLike) {
     const government: RibbonMainItem = {
       id: 'government',
@@ -67,8 +92,8 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
         { id: 'citizenship', label: 'Citizenship', anchorId: 'country-sub-government-citizenship' },
       ],
     };
-    return [...fromStats, crime, government];
+    return [...fromStats, crime, government, military];
   }
 
-  return [...fromStats, crime];
+  return [...fromStats, crime, military];
 }

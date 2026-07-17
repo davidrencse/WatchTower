@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Hungary,Youth unemployment rate,,Ages 15–24,13.5,percent,2024,https://www.ksh.hu/ / labour statistics,true,Latest published youth unemployment rate.
+Hungary,Long-term unemployment rate,,,1.4,percent of labour force,2024,https://www.ksh.hu/ / labour statistics,true,Long-term (12m+) unemployment.
+Hungary,Labour force participation rate,,Total (15–64),65,percent,2024,https://www.ksh.hu/ / labour statistics,true,Latest published participation rate.
+Hungary,Labour force participation rate,By migrant/native status,Native-born — total,66.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Labour force participation rate,By migrant/native status,Foreign-born — total,59,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Labour force participation rate,By migrant/native status,Native-born — men,70,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Labour force participation rate,By migrant/native status,Foreign-born — men,64,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Labour force participation rate,By migrant/native status,Native-born — women,63,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Labour force participation rate,By migrant/native status,Foreign-born — women,53,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Hungary,Minimum wage,,,"HUF 290,800/month",statutory minimum,2024,https://www.ksh.hu/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Hungary,Average annual working hours per worker,,,1697,hours per year,2024,https://www.ksh.hu/ / labour statistics,true,OECD-style average annual hours actually worked.

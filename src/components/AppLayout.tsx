@@ -26,7 +26,7 @@ export function AppLayout({
       {showHeader ? (
         <header
           className={[
-            'relative z-50 border-b border-[var(--line)] bg-[var(--bg)] shadow-header',
+            'sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]',
             headerClassName,
           ]
             .filter(Boolean)

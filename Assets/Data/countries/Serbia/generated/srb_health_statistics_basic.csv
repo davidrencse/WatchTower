@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Serbia,Healthcare expenditure,Share of GDP,Total,9.1,percent of GDP,2024,RZS Serbia / health statistics,https://www.stat.gov.rs/,Latest published health expenditure share of GDP.
+Serbia,Healthcare expenditure,Per capita,Total,1100,EUR per person,2024,RZS Serbia / health statistics,https://www.stat.gov.rs/,Approximate per-capita health expenditure (EUR-converted).
+Serbia,Healthcare expenditure,Public/private split,Public financing share,62,percent of current health expenditure,2024,RZS Serbia / health statistics,https://www.stat.gov.rs/,Public share of current health expenditure.
+Serbia,Healthcare expenditure,Public/private split,Private financing share,38,percent of current health expenditure,2024,RZS Serbia / health statistics,https://www.stat.gov.rs/,Residual private share.
+Serbia,Obesity rate,Adult,Total,23,percent of adults,2024,WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Adult obesity prevalence (BMI 30+).
+Serbia,Smoking prevalence,Adult,Total,32,percent of adults,2024,WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Adult smoking prevalence.
+Serbia,Suicide Rate,,Total,10,"per 100,000 population",2024,WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Age-standardised suicide rate.
+Serbia,"Physicians per 1,000 people",,,3.1,"physicians per 1,000",2024,OECD/WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Practising physicians density.
+Serbia,Total number of doctors,,,20460,physicians,2024,OECD/WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Derived: physician density × population. Modeled derivation.
+Serbia,Healthy life expectancy,At birth,Total,65.8,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Serbia,Preventable mortality rate,,,300,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Serbia,Alcohol consumption,,Total,10.9,litres pure alcohol per capita 15+,2024,WHO / RZS Serbia / health statistics,https://www.stat.gov.rs/,Annual per-capita alcohol consumption.

@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Estonia,Healthcare expenditure,Share of GDP,Total,7.6,percent of GDP,2024,Statistics Estonia / health statistics,https://www.stat.ee/,Latest published health expenditure share of GDP.
+Estonia,Healthcare expenditure,Per capita,Total,2400,EUR per person,2024,Statistics Estonia / health statistics,https://www.stat.ee/,Approximate per-capita health expenditure (EUR-converted).
+Estonia,Healthcare expenditure,Public/private split,Public financing share,74,percent of current health expenditure,2024,Statistics Estonia / health statistics,https://www.stat.ee/,Public share of current health expenditure.
+Estonia,Healthcare expenditure,Public/private split,Private financing share,26,percent of current health expenditure,2024,Statistics Estonia / health statistics,https://www.stat.ee/,Residual private share.
+Estonia,Obesity rate,Adult,Total,21.3,percent of adults,2024,WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Adult obesity prevalence (BMI 30+).
+Estonia,Smoking prevalence,Adult,Total,26.8,percent of adults,2024,WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Adult smoking prevalence.
+Estonia,Suicide Rate,,Total,13.6,"per 100,000 population",2024,WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Age-standardised suicide rate.
+Estonia,"Physicians per 1,000 people",,,3.5,"physicians per 1,000",2024,OECD/WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Practising physicians density.
+Estonia,Total number of doctors,,,4795,physicians,2024,OECD/WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Derived: physician density × population. Modeled derivation.
+Estonia,Healthy life expectancy,At birth,Total,67.6,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Estonia,Preventable mortality rate,,,240,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Estonia,Alcohol consumption,,Total,11.1,litres pure alcohol per capita 15+,2024,WHO / Statistics Estonia / health statistics,https://www.stat.ee/,Annual per-capita alcohol consumption.

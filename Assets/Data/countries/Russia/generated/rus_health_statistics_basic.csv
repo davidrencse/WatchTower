@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Russia,Healthcare expenditure,Share of GDP,Total,7.4,percent of GDP,2024,Rosstat / health statistics,https://rosstat.gov.ru/,Latest published health expenditure share of GDP.
+Russia,Healthcare expenditure,Per capita,Total,900,EUR per person,2024,Rosstat / health statistics,https://rosstat.gov.ru/,Approximate per-capita health expenditure (EUR-converted).
+Russia,Healthcare expenditure,Public/private split,Public financing share,60,percent of current health expenditure,2024,Rosstat / health statistics,https://rosstat.gov.ru/,Public share of current health expenditure.
+Russia,Healthcare expenditure,Public/private split,Private financing share,40,percent of current health expenditure,2024,Rosstat / health statistics,https://rosstat.gov.ru/,Residual private share.
+Russia,Obesity rate,Adult,Total,23.1,percent of adults,2024,WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Adult obesity prevalence (BMI 30+).
+Russia,Smoking prevalence,Adult,Total,26.8,percent of adults,2024,WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Adult smoking prevalence.
+Russia,Suicide Rate,,Total,21.6,"per 100,000 population",2024,WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Age-standardised suicide rate.
+Russia,"Physicians per 1,000 people",,,3.8,"physicians per 1,000",2024,OECD/WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Practising physicians density.
+Russia,Total number of doctors,,,554800,physicians,2024,OECD/WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Derived: physician density × population. Modeled derivation.
+Russia,Healthy life expectancy,At birth,Total,64.2,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Russia,Preventable mortality rate,,,420,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Russia,Alcohol consumption,,Total,10.5,litres pure alcohol per capita 15+,2024,WHO / Rosstat / health statistics,https://rosstat.gov.ru/,Annual per-capita alcohol consumption.

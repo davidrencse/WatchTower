@@ -28,6 +28,25 @@ export default {
           DEFAULT: 'var(--card)',
           hover: 'var(--card-hover)',
         },
+        // Theme-aware core palette. These resolve to channel CSS variables (defined in
+        // index.css) so `text-white`, `bg-white/10`, `text-neutral-400`, etc. flip between
+        // light and dark automatically — the light theme inverts the neutral ramp so a
+        // shade used as bright foreground in dark becomes dark foreground in light.
+        white: 'rgb(var(--c-white) / <alpha-value>)',
+        black: 'rgb(var(--c-black) / <alpha-value>)',
+        neutral: {
+          50: 'rgb(var(--n-50) / <alpha-value>)',
+          100: 'rgb(var(--n-100) / <alpha-value>)',
+          200: 'rgb(var(--n-200) / <alpha-value>)',
+          300: 'rgb(var(--n-300) / <alpha-value>)',
+          400: 'rgb(var(--n-400) / <alpha-value>)',
+          500: 'rgb(var(--n-500) / <alpha-value>)',
+          600: 'rgb(var(--n-600) / <alpha-value>)',
+          700: 'rgb(var(--n-700) / <alpha-value>)',
+          800: 'rgb(var(--n-800) / <alpha-value>)',
+          900: 'rgb(var(--n-900) / <alpha-value>)',
+          950: 'rgb(var(--n-950) / <alpha-value>)',
+        },
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

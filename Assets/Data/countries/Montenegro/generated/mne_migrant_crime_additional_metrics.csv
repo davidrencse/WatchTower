@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Montenegro,violent_crimes_by_migrants,2100,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,property_crimes_by_migrants,10000,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,burglary_by_migrants,190,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,fraud_rate_by_migrants,780,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,court_dismissals_by_migrants,440,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,incarceration_percentage_by_migrants,0.21,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,juvenile_crimes_by_migrants,850,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,kidnapping_abduction_of_minors_by_migrants,34,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.
+Montenegro,sexual_offenses_against_minors_by_migrants,68,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.monstat.org/,Modeled estimate: scaled by relative foreign-born population.

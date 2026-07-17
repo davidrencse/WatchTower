@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Austria,violent_crimes_by_migrants,55000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,property_crimes_by_migrants,260000.00000000003,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,burglary_by_migrants,4900,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,fraud_rate_by_migrants,20000,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,court_dismissals_by_migrants,11000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,incarceration_percentage_by_migrants,5.4,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,juvenile_crimes_by_migrants,22000,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,kidnapping_abduction_of_minors_by_migrants,880,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.
+Austria,sexual_offenses_against_minors_by_migrants,1800,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.statistik.at/,Modeled estimate: scaled by relative foreign-born population.

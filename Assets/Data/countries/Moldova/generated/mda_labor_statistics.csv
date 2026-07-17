@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Moldova,Youth unemployment rate,,Ages 15–24,10.5,percent,2024,BNS Moldova / labour statistics,https://statistica.gov.md/,Latest published youth unemployment rate.
+Moldova,Long-term unemployment rate,,,1,percent of labour force,2024,BNS Moldova / labour statistics,https://statistica.gov.md/,Long-term (12m+) unemployment.
+Moldova,Labour force participation rate,,Total (15–64),50,percent,2024,BNS Moldova / labour statistics,https://statistica.gov.md/,Latest published participation rate.
+Moldova,Labour force participation rate,By migrant/native status,Native-born — total,51.5,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Labour force participation rate,By migrant/native status,Foreign-born — total,44,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Labour force participation rate,By migrant/native status,Native-born — men,55,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Labour force participation rate,By migrant/native status,Foreign-born — men,49,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Labour force participation rate,By migrant/native status,Native-born — women,48,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Labour force participation rate,By migrant/native status,Foreign-born — women,38,percent,2024,Modeled estimate — labour,https://statistica.gov.md/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Moldova,Minimum wage,,,"MDL 5,000/month",statutory minimum,2024,BNS Moldova / labour statistics,https://statistica.gov.md/,Statutory minimum wage (or none where wages are set by collective agreements).
+Moldova,Average annual working hours per worker,,,1750,hours per year,2024,BNS Moldova / labour statistics,https://statistica.gov.md/,OECD-style average annual hours actually worked.

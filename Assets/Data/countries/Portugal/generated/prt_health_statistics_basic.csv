@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Portugal,Healthcare expenditure,Share of GDP,Total,10.6,percent of GDP,2024,INE Portugal / health statistics,https://www.ine.pt/,Latest published health expenditure share of GDP.
+Portugal,Healthcare expenditure,Per capita,Total,2500,EUR per person,2024,INE Portugal / health statistics,https://www.ine.pt/,Approximate per-capita health expenditure (EUR-converted).
+Portugal,Healthcare expenditure,Public/private split,Public financing share,64,percent of current health expenditure,2024,INE Portugal / health statistics,https://www.ine.pt/,Public share of current health expenditure.
+Portugal,Healthcare expenditure,Public/private split,Private financing share,36,percent of current health expenditure,2024,INE Portugal / health statistics,https://www.ine.pt/,Residual private share.
+Portugal,Obesity rate,Adult,Total,20.8,percent of adults,2024,WHO / INE Portugal / health statistics,https://www.ine.pt/,Adult obesity prevalence (BMI 30+).
+Portugal,Smoking prevalence,Adult,Total,14.2,percent of adults,2024,WHO / INE Portugal / health statistics,https://www.ine.pt/,Adult smoking prevalence.
+Portugal,Suicide Rate,,Total,11.7,"per 100,000 population",2024,WHO / INE Portugal / health statistics,https://www.ine.pt/,Age-standardised suicide rate.
+Portugal,"Physicians per 1,000 people",,,5.6,"physicians per 1,000",2024,OECD/WHO / INE Portugal / health statistics,https://www.ine.pt/,Practising physicians density.
+Portugal,Total number of doctors,,,59360,physicians,2024,OECD/WHO / INE Portugal / health statistics,https://www.ine.pt/,Derived: physician density × population. Modeled derivation.
+Portugal,Healthy life expectancy,At birth,Total,69.8,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Portugal,Preventable mortality rate,,,170,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Portugal,Alcohol consumption,,Total,10.4,litres pure alcohol per capita 15+,2024,WHO / INE Portugal / health statistics,https://www.ine.pt/,Annual per-capita alcohol consumption.

@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Romania,violent_crimes_by_migrants,21000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,property_crimes_by_migrants,99000,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,burglary_by_migrants,1800,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,fraud_rate_by_migrants,7600,percent,2024,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,court_dismissals_by_migrants,4200,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,incarceration_percentage_by_migrants,2,percent,2024,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,juvenile_crimes_by_migrants,8200,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,kidnapping_abduction_of_minors_by_migrants,330,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.
+Romania,sexual_offenses_against_minors_by_migrants,660,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://insse.ro/,Modeled estimate: scaled by relative foreign-born population.

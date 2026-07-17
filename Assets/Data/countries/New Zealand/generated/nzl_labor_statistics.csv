@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+New Zealand,Youth unemployment rate,,Ages 15–24,12.5,percent,2024,https://www.stats.govt.nz/ / labour statistics,false,Latest published youth unemployment rate.
+New Zealand,Long-term unemployment rate,,,0.9,percent of labour force,2024,https://www.stats.govt.nz/ / labour statistics,false,Long-term (12m+) unemployment.
+New Zealand,Labour force participation rate,,Total (15–64),71,percent,2024,https://www.stats.govt.nz/ / labour statistics,false,Latest published participation rate.
+New Zealand,Labour force participation rate,By migrant/native status,Native-born — total,72.5,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Labour force participation rate,By migrant/native status,Foreign-born — total,65,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Labour force participation rate,By migrant/native status,Native-born — men,76,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Labour force participation rate,By migrant/native status,Foreign-born — men,70,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Labour force participation rate,By migrant/native status,Native-born — women,69,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Labour force participation rate,By migrant/native status,Foreign-born — women,59,percent,2024,Modeled estimate — labour,false,Modeled estimate (population-scaled from published patterns); not an official published figure.
+New Zealand,Minimum wage,,,NZ$23.50/hour,statutory minimum,2024,https://www.stats.govt.nz/ / labour statistics,false,Statutory minimum wage (or none where wages are set by collective agreements).
+New Zealand,Average annual working hours per worker,,,1748,hours per year,2024,https://www.stats.govt.nz/ / labour statistics,false,OECD-style average annual hours actually worked.

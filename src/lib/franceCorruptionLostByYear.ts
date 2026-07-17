@@ -1,8 +1,4 @@
-import {
-  FRANCE_GOV_SPENDING_SERIES,
-  franceCorruptionPctOfGdp,
-  franceGovSpendRowForYear,
-} from './franceGovernmentSpendingByYear';
+import { FRANCE_FISCAL_SUPPORT_BY_YEAR, franceFiscalSupportRowForYear } from './franceFiscalSupportByYear';
 
 export type FranceCorruptionLostYearRow = {
   year: number;
@@ -11,17 +7,17 @@ export type FranceCorruptionLostYearRow = {
 };
 
 export const FRANCE_CORRUPTION_LOST_BY_YEAR: readonly FranceCorruptionLostYearRow[] =
-  FRANCE_GOV_SPENDING_SERIES.map((r) => ({
-    year: Number(r.year),
+  FRANCE_FISCAL_SUPPORT_BY_YEAR.map((r) => ({
+    year: r.year,
     lostBnEur: r.lostToCorruptionBn,
-    pctGdp: franceCorruptionPctOfGdp(r.lostToCorruptionBn, r.gdpPerCapitaUsd),
+    pctGdp: r.corruptionPctGdp,
   }));
 
 export function franceCorruptionLostRowForYear(year: number): FranceCorruptionLostYearRow {
-  const row = franceGovSpendRowForYear(year);
+  const row = franceFiscalSupportRowForYear(year);
   return {
     year,
     lostBnEur: row.lostToCorruptionBn,
-    pctGdp: franceCorruptionPctOfGdp(row.lostToCorruptionBn, row.gdpPerCapitaUsd),
+    pctGdp: row.corruptionPctGdp,
   };
 }

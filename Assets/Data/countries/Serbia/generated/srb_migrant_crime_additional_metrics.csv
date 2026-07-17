@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Serbia,violent_crimes_by_migrants,25000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,property_crimes_by_migrants,120000.00000000001,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,burglary_by_migrants,2200,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,fraud_rate_by_migrants,9100,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,court_dismissals_by_migrants,5100,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,incarceration_percentage_by_migrants,2.4,percent,2024,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,juvenile_crimes_by_migrants,9800,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,kidnapping_abduction_of_minors_by_migrants,390,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.
+Serbia,sexual_offenses_against_minors_by_migrants,780,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,https://www.stat.gov.rs/,Modeled estimate: scaled by relative foreign-born population.

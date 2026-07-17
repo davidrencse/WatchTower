@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Ireland,Healthcare expenditure,Share of GDP,Total,6.7,percent of GDP,2024,CSO Ireland / health statistics,https://www.cso.ie/,Latest published health expenditure share of GDP.
+Ireland,Healthcare expenditure,Per capita,Total,5300,EUR per person,2024,CSO Ireland / health statistics,https://www.cso.ie/,Approximate per-capita health expenditure (EUR-converted).
+Ireland,Healthcare expenditure,Public/private split,Public financing share,76,percent of current health expenditure,2024,CSO Ireland / health statistics,https://www.cso.ie/,Public share of current health expenditure.
+Ireland,Healthcare expenditure,Public/private split,Private financing share,24,percent of current health expenditure,2024,CSO Ireland / health statistics,https://www.cso.ie/,Residual private share.
+Ireland,Obesity rate,Adult,Total,25.3,percent of adults,2024,WHO / CSO Ireland / health statistics,https://www.cso.ie/,Adult obesity prevalence (BMI 30+).
+Ireland,Smoking prevalence,Adult,Total,17.5,percent of adults,2024,WHO / CSO Ireland / health statistics,https://www.cso.ie/,Adult smoking prevalence.
+Ireland,Suicide Rate,,Total,10.9,"per 100,000 population",2024,WHO / CSO Ireland / health statistics,https://www.cso.ie/,Age-standardised suicide rate.
+Ireland,"Physicians per 1,000 people",,,3.5,"physicians per 1,000",2024,OECD/WHO / CSO Ireland / health statistics,https://www.cso.ie/,Practising physicians density.
+Ireland,Total number of doctors,,,18550,physicians,2024,OECD/WHO / CSO Ireland / health statistics,https://www.cso.ie/,Derived: physician density × population. Modeled derivation.
+Ireland,Healthy life expectancy,At birth,Total,71.3,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Ireland,Preventable mortality rate,,,130,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Ireland,Alcohol consumption,,Total,9.7,litres pure alcohol per capita 15+,2024,WHO / CSO Ireland / health statistics,https://www.cso.ie/,Annual per-capita alcohol consumption.

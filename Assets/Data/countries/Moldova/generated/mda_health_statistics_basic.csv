@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Moldova,Healthcare expenditure,Share of GDP,Total,6.5,percent of GDP,2024,BNS Moldova / health statistics,https://statistica.gov.md/,Latest published health expenditure share of GDP.
+Moldova,Healthcare expenditure,Per capita,Total,500,EUR per person,2024,BNS Moldova / health statistics,https://statistica.gov.md/,Approximate per-capita health expenditure (EUR-converted).
+Moldova,Healthcare expenditure,Public/private split,Public financing share,60,percent of current health expenditure,2024,BNS Moldova / health statistics,https://statistica.gov.md/,Public share of current health expenditure.
+Moldova,Healthcare expenditure,Public/private split,Private financing share,40,percent of current health expenditure,2024,BNS Moldova / health statistics,https://statistica.gov.md/,Residual private share.
+Moldova,Obesity rate,Adult,Total,18.9,percent of adults,2024,WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Adult obesity prevalence (BMI 30+).
+Moldova,Smoking prevalence,Adult,Total,25,percent of adults,2024,WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Adult smoking prevalence.
+Moldova,Suicide Rate,,Total,13.5,"per 100,000 population",2024,WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Age-standardised suicide rate.
+Moldova,"Physicians per 1,000 people",,,3.2,"physicians per 1,000",2024,OECD/WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Practising physicians density.
+Moldova,Total number of doctors,,,8000,physicians,2024,OECD/WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Derived: physician density × population. Modeled derivation.
+Moldova,Healthy life expectancy,At birth,Total,64,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Moldova,Preventable mortality rate,,,340,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Moldova,Alcohol consumption,,Total,15.2,litres pure alcohol per capita 15+,2024,WHO / BNS Moldova / health statistics,https://statistica.gov.md/,Annual per-capita alcohol consumption.

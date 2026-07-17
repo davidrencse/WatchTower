@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Ukraine,Healthcare expenditure,Share of GDP,Total,7.6,percent of GDP,2024,https://www.ukrstat.gov.ua/ / health statistics,false,Latest published health expenditure share of GDP.
+Ukraine,Healthcare expenditure,Per capita,Total,300,EUR per person,2024,https://www.ukrstat.gov.ua/ / health statistics,false,Approximate per-capita health expenditure (EUR-converted).
+Ukraine,Healthcare expenditure,Public/private split,Public financing share,70,percent of current health expenditure,2024,https://www.ukrstat.gov.ua/ / health statistics,false,Public share of current health expenditure.
+Ukraine,Healthcare expenditure,Public/private split,Private financing share,30,percent of current health expenditure,2024,https://www.ukrstat.gov.ua/ / health statistics,false,Residual private share.
+Ukraine,Obesity rate,Adult,Total,24.1,percent of adults,2024,WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Adult obesity prevalence (BMI 30+).
+Ukraine,Smoking prevalence,Adult,Total,25,percent of adults,2024,WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Adult smoking prevalence.
+Ukraine,Suicide Rate,,Total,17.7,"per 100,000 population",2024,WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Age-standardised suicide rate.
+Ukraine,"Physicians per 1,000 people",,,3,"physicians per 1,000",2024,OECD/WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Practising physicians density.
+Ukraine,Total number of doctors,,,99000,physicians,2024,OECD/WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Derived: physician density × population. Modeled derivation.
+Ukraine,Healthy life expectancy,At birth,Total,63.5,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Ukraine,Preventable mortality rate,,,400,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Ukraine,Alcohol consumption,,Total,8.9,litres pure alcohol per capita 15+,2024,WHO / https://www.ukrstat.gov.ua/ / health statistics,false,Annual per-capita alcohol consumption.

@@ -6,8 +6,6 @@ import { EconomicStructuralSection } from './EconomicStructuralSection';
 
 const UC = 'uppercase tracking-[0.05em]';
 
-export const GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT = 9;
-
 type OilSupplierRow = {
   rank: number;
   country: string;

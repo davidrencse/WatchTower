@@ -6,16 +6,22 @@ import {
   clusterRowsByMetric,
   laborIncomeDistributionRows,
   parseGermanyGovernmentPoliticsCsv,
+  type GermanyGovernmentPoliticsRow,
 } from '../lib/germanyGovernmentPolitics';
 import {
   laborStatisticsClusteredGroups,
   parseGermanyLaborStatisticsCsv,
+  type GermanyLaborCsvRow,
 } from '../lib/germanyLaborStatistics';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { GOV_POLITICS_CARD_GRID, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
-import { GermanyImmigrantBenefitsSection } from './GermanyImmigrantBenefitsSection';
+import {
+  GermanyImmigrantBenefitsSection,
+  type ImmigrantBenefitsData,
+} from './GermanyImmigrantBenefitsSection';
 import { GermanyIncomeDistributionSection } from './GermanyIncomeDistributionSection';
+import type { GermanyIncomeGroupRow } from '../lib/germanyIncomeDistribution';
 
 const GOV_CSV_URL = '/data/germany_government_politics.csv';
 const LABOR_STATS_CSV_URL = '/data/germany_labor_statistics.csv';
@@ -40,6 +46,30 @@ type NationalityIncomePoint = {
   afghan: number;
   moroccan: number;
   indian: number;
+};
+
+type IncomeNationalitySeriesItem = {
+  key: string;
+  label: string;
+  color: string;
+};
+
+type IncomeNationalityChartOverride = {
+  title: string;
+  data: readonly Record<string, number>[];
+  series: readonly IncomeNationalitySeriesItem[];
+};
+
+type FiscalNationalityChartOverride = {
+  title: string;
+  data: readonly Record<string, number>[];
+  series: readonly IncomeNationalitySeriesItem[];
+};
+
+type RemittancesChartOverride = {
+  title: string;
+  data: readonly { originGroup: string; remittances: number }[];
+  note?: string;
 };
 
 const MEDIAN_MONTHLY_NET_INCOME_BY_NATIONALITY: NationalityIncomePoint[] = [
@@ -72,7 +102,7 @@ const MEDIAN_MONTHLY_NET_INCOME_BY_NATIONALITY: NationalityIncomePoint[] = [
 ];
 
 const INCOME_NATIONALITY_SERIES = [
-  { key: 'germanNative', label: 'German Native', color: '#f8fafc' },
+  { key: 'germanNative', label: 'German Native', color: '#64748b' },
   { key: 'turkish', label: 'Turkish', color: '#f59e0b' },
   { key: 'polish', label: 'Polish', color: '#22d3ee' },
   { key: 'italian', label: 'Italian', color: '#34d399' },
@@ -84,14 +114,6 @@ const INCOME_NATIONALITY_SERIES = [
   { key: 'moroccan', label: 'Moroccan', color: '#f97316' },
   { key: 'indian', label: 'Indian', color: '#2dd4bf' },
 ] as const;
-
-const INCOME_NATIONALITY_CHART_CONFIG: ChartConfig = INCOME_NATIONALITY_SERIES.reduce(
-  (acc, series) => {
-    acc[series.key] = { label: series.label, color: series.color };
-    return acc;
-  },
-  {} as ChartConfig,
-);
 
 type FiscalContributionPoint = {
   year: number;
@@ -126,7 +148,7 @@ const NET_FISCAL_CONTRIBUTION_BY_NATIONALITY: FiscalContributionPoint[] = [
 ];
 
 const FISCAL_NATIONALITY_SERIES = [
-  { key: 'germanNative', label: 'German Native', color: '#f8fafc' },
+  { key: 'germanNative', label: 'German Native', color: '#64748b' },
   { key: 'turkish', label: 'Turkish', color: '#f59e0b' },
   { key: 'polish', label: 'Polish', color: '#22d3ee' },
   { key: 'italian', label: 'Italian', color: '#34d399' },
@@ -138,14 +160,6 @@ const FISCAL_NATIONALITY_SERIES = [
   { key: 'chinese', label: 'Chinese', color: '#818cf8' },
   { key: 'moroccan', label: 'Moroccan', color: '#f97316' },
 ] as const;
-
-const FISCAL_NATIONALITY_CHART_CONFIG: ChartConfig = FISCAL_NATIONALITY_SERIES.reduce(
-  (acc, series) => {
-    acc[series.key] = { label: series.label, color: series.color };
-    return acc;
-  },
-  {} as ChartConfig,
-);
 
 const REMITTANCES_OUTFLOW_BY_ORIGIN_2025 = [
   { originGroup: 'Turkish', remittances: 3.8 },
@@ -160,16 +174,49 @@ const REMITTANCES_CHART_CONFIG: ChartConfig = {
   remittances: { label: 'Annual remittances sent abroad (B€)', color: '#f59e0b' },
 };
 
-export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection() {
-  const [govRaw, setGovRaw] = useState(germanyGovernmentCsvRaw);
-  const [laborRaw, setLaborRaw] = useState(germanyLaborStatsCsvRaw);
+type GermanyLaborIncomeSectionProps = {
+  /** Per-country CSVs (same schemas); default to Germany's. */
+  govCsvUrl?: string;
+  laborCsvUrl?: string;
+  /** Germany also renders income-distribution, benefits, and nationality-split charts (bundled data). */
+  isGermany?: boolean;
+  /** Override the income-distribution dataset (same shape) — e.g. France's real figures. Defaults to Germany's. */
+  incomeDistribution?: { groups: readonly GermanyIncomeGroupRow[]; caption: string };
+  /** Override government labor/enforcement rows while retaining this section's card structure. */
+  govRowsOverride?: readonly GermanyGovernmentPoliticsRow[];
+  /** Replace matching labor-statistic metrics while retaining the remaining cards. */
+  laborRowsOverride?: readonly GermanyLaborCsvRow[];
+  /** Override the median monthly net income chart while keeping the same chart layout. */
+  incomeNationalityChart?: IncomeNationalityChartOverride;
+  /** Override the net fiscal contribution chart while keeping the same chart layout. */
+  fiscalNationalityChart?: FiscalNationalityChartOverride;
+  /** Override the remittances bar chart while keeping the same chart layout. */
+  remittancesChart?: RemittancesChartOverride;
+  /** Override the immigrant-benefits dataset (same shape) — e.g. France's residence classes. Defaults to Germany's. */
+  immigrantBenefits?: ImmigrantBenefitsData;
+};
+
+export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection({
+  govCsvUrl = GOV_CSV_URL,
+  laborCsvUrl = LABOR_STATS_CSV_URL,
+  isGermany = true,
+  incomeDistribution,
+  govRowsOverride,
+  laborRowsOverride,
+  incomeNationalityChart,
+  fiscalNationalityChart,
+  remittancesChart,
+  immigrantBenefits,
+}: GermanyLaborIncomeSectionProps) {
+  const [govRaw, setGovRaw] = useState(isGermany ? germanyGovernmentCsvRaw : '');
+  const [laborRaw, setLaborRaw] = useState(isGermany ? germanyLaborStatsCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [govRes, laborRes] = await Promise.all([fetch(GOV_CSV_URL), fetch(LABOR_STATS_CSV_URL)]);
+        const [govRes, laborRes] = await Promise.all([fetch(govCsvUrl), fetch(laborCsvUrl)]);
         const govText = govRes.ok ? await govRes.text() : '';
         const laborText = laborRes.ok ? await laborRes.text() : '';
         if (!cancelled) {
@@ -184,18 +231,25 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [govCsvUrl, laborCsvUrl]);
 
   const govGroups = useMemo(() => {
-    const all = parseGermanyGovernmentPoliticsCsv(govRaw);
+    const all = govRowsOverride ? [...govRowsOverride] : parseGermanyGovernmentPoliticsCsv(govRaw);
     const sorted = laborIncomeDistributionRows(all);
     return clusterRowsByMetric(sorted);
-  }, [govRaw]);
+  }, [govRaw, govRowsOverride]);
 
   const laborFileGroups = useMemo(() => {
     const parsed = parseGermanyLaborStatisticsCsv(laborRaw);
-    return laborStatisticsClusteredGroups(parsed);
-  }, [laborRaw]);
+    if (!laborRowsOverride?.length) return laborStatisticsClusteredGroups(parsed);
+
+    const overriddenMetrics = new Set(laborRowsOverride.map((row) => row.metric.trim()));
+    const merged = [
+      ...parsed.filter((row) => !overriddenMetrics.has(row.metric.trim())),
+      ...laborRowsOverride,
+    ];
+    return laborStatisticsClusteredGroups(merged);
+  }, [laborRaw, laborRowsOverride]);
 
   const { laborYouthGroups, laborLfprGroups, laborTripleRowGroups } = useMemo(() => {
     const byMetric = new Map(laborFileGroups.map((g) => [g[0]!.metric.trim(), g] as const));
@@ -211,12 +265,43 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
     return { laborYouthGroups: youth, laborLfprGroups: lfpr, laborTripleRowGroups: triple };
   }, [laborFileGroups]);
 
+  const incomeNationalityChartConfig = useMemo(() => {
+    const series = incomeNationalityChart?.series ?? INCOME_NATIONALITY_SERIES;
+    return series.reduce((acc, item) => {
+      acc[item.key] = { label: item.label, color: item.color };
+      return acc;
+    }, {} as ChartConfig);
+  }, [incomeNationalityChart]);
+
+  const incomeNationalityChartTitle = incomeNationalityChart?.title ?? 'Median Monthly Net Income by Nationality';
+  const incomeNationalityChartData = incomeNationalityChart?.data ?? MEDIAN_MONTHLY_NET_INCOME_BY_NATIONALITY;
+  const incomeNationalityChartSeries = incomeNationalityChart?.series ?? INCOME_NATIONALITY_SERIES;
+
+  const fiscalNationalityChartConfig = useMemo(() => {
+    const series = fiscalNationalityChart?.series ?? FISCAL_NATIONALITY_SERIES;
+    return series.reduce((acc, item) => {
+      acc[item.key] = { label: item.label, color: item.color };
+      return acc;
+    }, {} as ChartConfig);
+  }, [fiscalNationalityChart]);
+
+  const fiscalNationalityChartTitle = fiscalNationalityChart?.title ?? 'Net Fiscal Contribution by Nationality';
+  const fiscalNationalityChartData = fiscalNationalityChart?.data ?? NET_FISCAL_CONTRIBUTION_BY_NATIONALITY;
+  const fiscalNationalityChartSeries = fiscalNationalityChart?.series ?? FISCAL_NATIONALITY_SERIES;
+
+  const remittancesChartTitle = remittancesChart?.title ?? 'Remittances Outflow by Immigrant Origin (2025)';
+  const remittancesChartData = remittancesChart?.data ?? REMITTANCES_OUTFLOW_BY_ORIGIN_2025;
+  const remittancesChartHeightClass =
+    remittancesChartData.length > 10 ? 'h-[520px] sm:h-[620px]' : 'h-[320px] sm:h-[360px]';
+
   if (loadError) {
     return (
       <div className="flex flex-col gap-6">
-        <GermanyIncomeDistributionSection />
+        {isGermany ? (
+          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+        ) : null}
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
-        <GermanyImmigrantBenefitsSection />
+        {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
       </div>
     );
   }
@@ -227,20 +312,24 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   if (!hasGov && !hasLaborFile) {
     return (
       <div className="flex flex-col gap-6">
-        <GermanyIncomeDistributionSection />
+        {isGermany ? (
+          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+        ) : null}
         <p className="font-sans text-xs text-neutral-500">
-          No labor / income rows in <code className="text-neutral-400">germany_government_politics.csv</code> (Government /
+          No labor / income rows in <code className="text-neutral-400">{govCsvUrl.split('/').pop()}</code> (Government /
           Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
-          <code className="text-neutral-400">germany_labor_statistics.csv</code>.
+          <code className="text-neutral-400">{laborCsvUrl.split('/').pop()}</code>.
         </p>
-        <GermanyImmigrantBenefitsSection />
+        {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <GermanyIncomeDistributionSection />
+      {isGermany ? (
+          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+        ) : null}
 
       {hasGov ? (
         <div className="flex flex-col gap-3">
@@ -253,7 +342,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
             ))}
           </div>
           <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-            Source: <code className="text-neutral-500">germany_government_politics.csv</code> — Government / Labor law or
+            Source: <code className="text-neutral-500">{govCsvUrl.split('/').pop()}</code> — Government / Labor law or
             Economic / Labor &amp; Income Distribution.
           </p>
         </div>
@@ -285,16 +374,18 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
               ))}
             </div>
           ) : null}
+          {isGermany ? (
+          <>
           <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
-                Median Monthly Net Income by Nationality
+                {incomeNationalityChartTitle}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 p-4 pt-0">
-              <ChartContainer config={INCOME_NATIONALITY_CHART_CONFIG} className="h-[360px] w-full sm:h-[420px]">
+              <ChartContainer config={incomeNationalityChartConfig} className="h-[360px] w-full sm:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={MEDIAN_MONTHLY_NET_INCOME_BY_NATIONALITY} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                  <LineChart data={incomeNationalityChartData} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -322,7 +413,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                         />
                       }
                     />
-                    {INCOME_NATIONALITY_SERIES.map((series) => (
+                    {incomeNationalityChartSeries.map((series) => (
                       <Line
                         key={series.key}
                         type="monotone"
@@ -343,13 +434,13 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
-                Net Fiscal Contribution by Nationality
+                {fiscalNationalityChartTitle}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 p-4 pt-0">
-              <ChartContainer config={FISCAL_NATIONALITY_CHART_CONFIG} className="h-[360px] w-full sm:h-[420px]">
+              <ChartContainer config={fiscalNationalityChartConfig} className="h-[360px] w-full sm:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={NET_FISCAL_CONTRIBUTION_BY_NATIONALITY} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                  <LineChart data={fiscalNationalityChartData} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -377,7 +468,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                         />
                       }
                     />
-                    {FISCAL_NATIONALITY_SERIES.map((series) => (
+                    {fiscalNationalityChartSeries.map((series) => (
                       <Line
                         key={series.key}
                         type="monotone"
@@ -398,20 +489,25 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
             <CardHeader className="p-4 pb-2">
               <CardTitle className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
-                Remittances Outflow by Immigrant Origin (2025)
+                {remittancesChartTitle}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 p-4 pt-0">
-              <ChartContainer config={REMITTANCES_CHART_CONFIG} className="h-[320px] w-full sm:h-[360px]">
+              {remittancesChart?.note ? (
+                <p className="font-sans text-[10px] leading-relaxed text-neutral-500 uppercase tracking-[0.03em]">
+                  {remittancesChart.note}
+                </p>
+              ) : null}
+              <ChartContainer config={REMITTANCES_CHART_CONFIG} className={`${remittancesChartHeightClass} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={REMITTANCES_OUTFLOW_BY_ORIGIN_2025} layout="vertical" margin={{ top: 8, right: 10, left: 24, bottom: 8 }}>
+                  <BarChart data={remittancesChartData} layout="vertical" margin={{ top: 8, right: 10, left: 24, bottom: 8 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
                     <XAxis
                       type="number"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                      tickFormatter={(v) => `${Number(v).toFixed(1)}B€`}
+                      tickFormatter={(v) => `€${Number(v).toFixed(1)}bn`}
                     />
                     <YAxis
                       type="category"
@@ -423,7 +519,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                     />
                     <ChartTooltip
                       cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                      content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)} B€`} />}
+                      content={<ChartTooltipContent formatter={(value) => `€${Number(value).toFixed(2)}bn`} />}
                     />
                     <Bar dataKey="remittances" name={REMITTANCES_CHART_CONFIG.remittances.label} fill={REMITTANCES_CHART_CONFIG.remittances.color} radius={[0, 6, 6, 0]} isAnimationActive={false} />
                   </BarChart>
@@ -431,13 +527,15 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
               </ChartContainer>
             </CardContent>
           </Card>
+          </>
+          ) : null}
           <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-            Source: <code className="text-neutral-500">germany_labor_statistics.csv</code>
+            Source: <code className="text-neutral-500">{laborCsvUrl.split('/').pop()}</code>
           </p>
         </div>
       ) : null}
 
-      <GermanyImmigrantBenefitsSection />
+      {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
     </div>
   );
 });

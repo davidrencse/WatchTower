@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Spain,Youth unemployment rate,,Ages 15–24,26.5,percent,2024,https://www.ine.es/ / labour statistics,true,Latest published youth unemployment rate.
+Spain,Long-term unemployment rate,,,4.5,percent of labour force,2024,https://www.ine.es/ / labour statistics,true,Long-term (12m+) unemployment.
+Spain,Labour force participation rate,,Total (15–64),59,percent,2024,https://www.ine.es/ / labour statistics,true,Latest published participation rate.
+Spain,Labour force participation rate,By migrant/native status,Native-born — total,60.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Labour force participation rate,By migrant/native status,Foreign-born — total,53,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Labour force participation rate,By migrant/native status,Native-born — men,64,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Labour force participation rate,By migrant/native status,Foreign-born — men,58,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Labour force participation rate,By migrant/native status,Native-born — women,57,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Labour force participation rate,By migrant/native status,Foreign-born — women,47,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Spain,Minimum wage,,,"€8.87/hour (€1,184/month)",statutory minimum,2024,https://www.ine.es/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Spain,Average annual working hours per worker,,,1632,hours per year,2024,https://www.ine.es/ / labour statistics,true,OECD-style average annual hours actually worked.

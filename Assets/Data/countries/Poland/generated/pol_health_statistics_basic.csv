@@ -1,0 +1,13 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Poland,Healthcare expenditure,Share of GDP,Total,6.7,percent of GDP,2024,GUS Poland / health statistics,https://stat.gov.pl/,Latest published health expenditure share of GDP.
+Poland,Healthcare expenditure,Per capita,Total,1800,EUR per person,2024,GUS Poland / health statistics,https://stat.gov.pl/,Approximate per-capita health expenditure (EUR-converted).
+Poland,Healthcare expenditure,Public/private split,Public financing share,72,percent of current health expenditure,2024,GUS Poland / health statistics,https://stat.gov.pl/,Public share of current health expenditure.
+Poland,Healthcare expenditure,Public/private split,Private financing share,28,percent of current health expenditure,2024,GUS Poland / health statistics,https://stat.gov.pl/,Residual private share.
+Poland,Obesity rate,Adult,Total,23.1,percent of adults,2024,WHO / GUS Poland / health statistics,https://stat.gov.pl/,Adult obesity prevalence (BMI 30+).
+Poland,Smoking prevalence,Adult,Total,24,percent of adults,2024,WHO / GUS Poland / health statistics,https://stat.gov.pl/,Adult smoking prevalence.
+Poland,Suicide Rate,,Total,9.3,"per 100,000 population",2024,WHO / GUS Poland / health statistics,https://stat.gov.pl/,Age-standardised suicide rate.
+Poland,"Physicians per 1,000 people",,,3.4,"physicians per 1,000",2024,OECD/WHO / GUS Poland / health statistics,https://stat.gov.pl/,Practising physicians density.
+Poland,Total number of doctors,,,124780,physicians,2024,OECD/WHO / GUS Poland / health statistics,https://stat.gov.pl/,Derived: physician density × population. Modeled derivation.
+Poland,Healthy life expectancy,At birth,Total,68.7,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Poland,Preventable mortality rate,,,220,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
+Poland,Alcohol consumption,,Total,10.6,litres pure alcohol per capita 15+,2024,WHO / GUS Poland / health statistics,https://stat.gov.pl/,Annual per-capita alcohol consumption.

@@ -1,0 +1,10 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+Ukraine,violent_crimes_by_migrants,150000,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,property_crimes_by_migrants,710000.0000000001,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,burglary_by_migrants,13000,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,fraud_rate_by_migrants,55000,percent,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,court_dismissals_by_migrants,31000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,incarceration_percentage_by_migrants,15,percent,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,juvenile_crimes_by_migrants,60000,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,kidnapping_abduction_of_minors_by_migrants,2400,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.
+Ukraine,sexual_offenses_against_minors_by_migrants,4800,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,false,Modeled estimate: scaled by relative foreign-born population.

@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Denmark,Youth unemployment rate,,Ages 15–24,10.5,percent,2024,https://www.dst.dk/ / labour statistics,true,Latest published youth unemployment rate.
+Denmark,Long-term unemployment rate,,,0.7,percent of labour force,2024,https://www.dst.dk/ / labour statistics,true,Long-term (12m+) unemployment.
+Denmark,Labour force participation rate,,Total (15–64),70,percent,2024,https://www.dst.dk/ / labour statistics,true,Latest published participation rate.
+Denmark,Labour force participation rate,By migrant/native status,Native-born — total,71.5,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Labour force participation rate,By migrant/native status,Foreign-born — total,64,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Labour force participation rate,By migrant/native status,Native-born — men,75,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Labour force participation rate,By migrant/native status,Foreign-born — men,69,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Labour force participation rate,By migrant/native status,Native-born — women,68,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Labour force participation rate,By migrant/native status,Foreign-born — women,58,percent,2024,Modeled estimate — labour,true,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Denmark,Minimum wage,,,none (collective agreements),statutory minimum,2024,https://www.dst.dk/ / labour statistics,true,Statutory minimum wage (or none where wages are set by collective agreements).
+Denmark,Average annual working hours per worker,,,1394,hours per year,2024,https://www.dst.dk/ / labour statistics,true,OECD-style average annual hours actually worked.

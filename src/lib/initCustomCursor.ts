@@ -7,7 +7,7 @@ const ROOT_ID = 'wt-custom-cursor-root';
 
 type CursorMode = 'default' | 'down' | 'up';
 
-const CHEVRON_STROKE = 'stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+const CHEVRON_STROKE = 'stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
 
 let teardown: (() => void) | null = null;
 
@@ -47,8 +47,8 @@ export function initCustomCursor(): () => void {
   root.innerHTML = `
     <div class="wt-cursor-default" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
       <svg width="${SIZE}" height="${SIZE}" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <circle cx="16" cy="16" r="9" stroke="rgba(255,255,255,0.32)" stroke-width="1"/>
-        <circle cx="16" cy="16" r="2.75" fill="#fff"/>
+        <circle cx="16" cy="16" r="9" stroke="currentColor" stroke-opacity="0.32" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2.75" fill="currentColor"/>
       </svg>
     </div>
     <div class="wt-cursor-scroll" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">

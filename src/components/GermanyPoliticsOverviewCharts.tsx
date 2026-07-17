@@ -3,8 +3,6 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 
-export const GERMANY_POLITICS_OVERVIEW_CHART_COUNT = 6;
-
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 

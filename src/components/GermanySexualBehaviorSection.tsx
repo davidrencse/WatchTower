@@ -766,9 +766,6 @@ function SexualFrequencyByMigrationCard() {
   );
 }
 
-/** Ribbon / expand-all tile count for Demographics → Sexual behavior (DEU). */
-export const GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT = 9;
-
 export const GermanySexualBehaviorSection = memo(function GermanySexualBehaviorSection() {
   return (
     <div className="flex flex-col gap-3">

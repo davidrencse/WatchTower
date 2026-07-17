@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+Russia,Youth unemployment rate,,Ages 15–24,8.5,percent,2024,Rosstat / labour statistics,https://rosstat.gov.ru/,Latest published youth unemployment rate.
+Russia,Long-term unemployment rate,,,0.6,percent of labour force,2024,Rosstat / labour statistics,https://rosstat.gov.ru/,Long-term (12m+) unemployment.
+Russia,Labour force participation rate,,Total (15–64),62.5,percent,2024,Rosstat / labour statistics,https://rosstat.gov.ru/,Latest published participation rate.
+Russia,Labour force participation rate,By migrant/native status,Native-born — total,64,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Labour force participation rate,By migrant/native status,Foreign-born — total,56.5,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Labour force participation rate,By migrant/native status,Native-born — men,67.5,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Labour force participation rate,By migrant/native status,Foreign-born — men,61.5,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Labour force participation rate,By migrant/native status,Native-born — women,60.5,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Labour force participation rate,By migrant/native status,Foreign-born — women,50.5,percent,2024,Modeled estimate — labour,https://rosstat.gov.ru/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+Russia,Minimum wage,,,"RUB 22,440/month",statutory minimum,2024,Rosstat / labour statistics,https://rosstat.gov.ru/,Statutory minimum wage (or none where wages are set by collective agreements).
+Russia,Average annual working hours per worker,,,1874,hours per year,2024,Rosstat / labour statistics,https://rosstat.gov.ru/,OECD-style average annual hours actually worked.

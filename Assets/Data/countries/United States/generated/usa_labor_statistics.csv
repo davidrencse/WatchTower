@@ -1,0 +1,12 @@
+Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
+United States,Youth unemployment rate,,Ages 15–24,9.5,percent,2024,US Census Bureau / BLS / labour statistics,https://www.bls.gov/,Latest published youth unemployment rate.
+United States,Long-term unemployment rate,,,0.5,percent of labour force,2024,US Census Bureau / BLS / labour statistics,https://www.bls.gov/,Long-term (12m+) unemployment.
+United States,Labour force participation rate,,Total (15–64),62.6,percent,2024,US Census Bureau / BLS / labour statistics,https://www.bls.gov/,Latest published participation rate.
+United States,Labour force participation rate,By migrant/native status,Native-born — total,64.1,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Labour force participation rate,By migrant/native status,Foreign-born — total,56.6,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Labour force participation rate,By migrant/native status,Native-born — men,67.6,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Labour force participation rate,By migrant/native status,Foreign-born — men,61.6,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Labour force participation rate,By migrant/native status,Native-born — women,60.6,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Labour force participation rate,By migrant/native status,Foreign-born — women,50.6,percent,2024,Modeled estimate — labour,https://www.bls.gov/,Modeled estimate (population-scaled from published patterns); not an official published figure.
+United States,Minimum wage,,,$7.25/hour (federal; most states higher),statutory minimum,2024,US Census Bureau / BLS / labour statistics,https://www.bls.gov/,Statutory minimum wage (or none where wages are set by collective agreements).
+United States,Average annual working hours per worker,,,1799,hours per year,2024,US Census Bureau / BLS / labour statistics,https://www.bls.gov/,OECD-style average annual hours actually worked.
