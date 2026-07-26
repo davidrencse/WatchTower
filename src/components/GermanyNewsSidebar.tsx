@@ -194,9 +194,10 @@ function CollapsibleNewsSection({ section }: { section: GermanyNewsRailSection }
 type GermanyNewsRailProps = {
   side: 'left' | 'right';
   sections: GermanyNewsRailSection[];
+  countryLabel?: string;
 };
 
-export function GermanyNewsRail({ side, sections }: GermanyNewsRailProps) {
+export function GermanyNewsRail({ side, sections, countryLabel = 'Germany' }: GermanyNewsRailProps) {
   const border = side === 'left' ? 'border-r border-line' : 'border-l border-line';
   const edge = side === 'left' ? 'left-0' : 'right-0';
   const nonEmpty = sections.filter((s) => s.items.length > 0);
@@ -204,11 +205,17 @@ export function GermanyNewsRail({ side, sections }: GermanyNewsRailProps) {
   return (
     <aside
       className={`fixed ${edge} top-16 bottom-0 z-40 flex w-[13rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft ${border}`}
-      aria-label={side === 'left' ? 'Germany news, economy and immigration' : 'Germany news, crime and health'}
+      aria-label={
+        side === 'left'
+          ? `${countryLabel} news, economy and immigration`
+          : `${countryLabel} news, crime and health`
+      }
     >
       <div className="shrink-0 border-b border-line bg-black/20 px-2 py-2 shadow-inset">
         <h2 className="text-[12px] font-bold leading-tight tracking-tight text-white">Related articles</h2>
-        <p className="mt-0.5 font-sans text-[8px] uppercase tracking-[0.12em] text-neutral-600">Germany</p>
+        <p className="mt-0.5 font-sans text-[8px] uppercase tracking-[0.12em] text-neutral-600">
+          {countryLabel}
+        </p>
       </div>
 
       <nav className="scrollbar-none min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">

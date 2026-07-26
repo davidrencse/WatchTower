@@ -33,7 +33,10 @@ function cell(row: string[], idx: Map<string, number>, ...names: string[]): stri
   return '';
 }
 
-export function parseGermanyMetricTableCsv(raw: string): GermanyMetricTableRow[] {
+export function parseGermanyMetricTableCsv(
+  raw: string,
+  expectedCountry = 'Germany',
+): GermanyMetricTableRow[] {
   const rows = parseCsvRows(raw.replace(/^\uFEFF/, '').trim());
   if (rows.length < 2) return [];
   const idx = headerIndexMap(rows[0]!);
@@ -41,11 +44,11 @@ export function parseGermanyMetricTableCsv(raw: string): GermanyMetricTableRow[]
   for (let r = 1; r < rows.length; r++) {
     const cells = rows[r]!;
     const country = cell(cells, idx, 'country');
-    if (country && country.toLowerCase() !== 'germany') continue;
+    if (country && country.toLowerCase() !== expectedCountry.toLowerCase()) continue;
     const metric = cell(cells, idx, 'metric');
     if (!metric) continue;
     out.push({
-      country: country || 'Germany',
+      country: country || expectedCountry,
       metric,
       submetric: cell(cells, idx, 'submetric'),
       breakdown: cell(cells, idx, 'breakdown'),
@@ -73,13 +76,17 @@ export const GERMANY_HEALTH_BASIC_METRIC_ORDER = [
   'Healthy life expectancy',
   'Preventable mortality rate',
   'Alcohol consumption',
+  'Life expectancy',
+  'Self-reported poor health',
+  'Insufficient physical activity',
+  'Healthy life expectancy (OECD country note)',
 ] as const;
 
 /** Extra OECD country-note cards rendered in Overview (not from CSV). */
 export const GERMANY_HEALTH_BASIC_STATIC_OECD_BOX_COUNT = 4;
 
 export const GERMANY_HEALTH_BASIC_GROUP_COUNT =
-  GERMANY_HEALTH_BASIC_METRIC_ORDER.length + GERMANY_HEALTH_BASIC_STATIC_OECD_BOX_COUNT;
+  8 + GERMANY_HEALTH_BASIC_STATIC_OECD_BOX_COUNT;
 
 /** Display order for germany_gender_care_statistics.csv (adult/general LGBT metrics). */
 export const GERMANY_LGBT_METRIC_ORDER = [

@@ -58,6 +58,21 @@ export const BIRTH_RATES_SUBSECTION_METRICS_DEU = [
   'Childhood overweight and obesity (Germany)',
 ] as const;
 
+export const BIRTH_RATES_SUBSECTION_METRICS_FRA = [
+  'Total birth rate',
+  'France-born birth rate',
+  'Immigrant birth rate',
+  'Migrant background M:F ratio',
+  'Births to foreign-born mothers',
+  'Infant mortality rate',
+  'Child mortality rate',
+  'Contraceptive use',
+  'Abortion rate',
+  'Teen birth rate',
+  'Mean age of mothers at childbirth',
+  'Childhood overweight and obesity (France)',
+] as const;
+
 export const BIRTH_RATES_SUBSECTION_METRICS_DEFAULT = [
   'Total birth rate',
   'White (native) birth rate',
@@ -94,6 +109,7 @@ export type StatSectionDef = {
 
 export function getStatSections(iso3: string): StatSectionDef[] {
   const isDeu = treatAsGermany(iso3);
+  const upper = iso3.toUpperCase();
   return [
     {
       id: 'economic',
@@ -152,7 +168,10 @@ export function getStatSections(iso3: string): StatSectionDef[] {
             {
               id: 'birth_rates',
               title: 'Birth rates',
-              metrics: [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
+              metrics:
+                upper === 'FRA'
+                  ? [...BIRTH_RATES_SUBSECTION_METRICS_FRA]
+                  : [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
             },
             { id: 'sexual_behavior', title: 'Sexual Behavior', kind: 'germany_sexual_behavior' as const },
           ]

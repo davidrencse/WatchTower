@@ -1,4 +1,5 @@
 import { getStatSections, treatAsGermany } from './countryDashboardSections';
+import { militaryProfileFor } from '../data/military';
 
 export type RibbonSubItem = {
   id: string;
@@ -16,8 +17,14 @@ export type RibbonMainItem = {
 /** Gallery countries that are not included in Global Firepower's 2026 review. */
 const GFP_UNRANKED_ISO3 = new Set(['CYP', 'LIE', 'MLT', 'MCO']);
 
-/** Stable subsection anchors aligned with CountryStatsDashboard + GermanyGovernmentSection. */
-export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
+/**
+ * Stable subsection anchors aligned with CountryStatsDashboard + GermanyGovernmentSection.
+ *
+ * `militaryIso3` defaults to `iso3` but can point at the *actual* country when a scaffold renders
+ * another country's data (Italy borrows France's `iso3`), so the ribbon's Military subsections
+ * mirror the military profile that is actually on screen.
+ */
+export function buildCountryRibbonNav(iso3: string, militaryIso3: string = iso3): RibbonMainItem[] {
   const germanyLike = treatAsGermany(iso3);
   const statSections = getStatSections(iso3);
 
@@ -59,26 +66,35 @@ export function buildCountryRibbonNav(iso3: string): RibbonMainItem[] {
     ],
   };
 
-  const military: RibbonMainItem = {
-    id: 'military',
-    label: 'Military',
-    anchorId: 'country-section-military',
-    subsections: GFP_UNRANKED_ISO3.has(iso3.toUpperCase())
+  // Curated profiles (Germany, France…) name their own branches and panels, so
+  // the ribbon mirrors the profile rather than assuming Army/Navy/Air Force.
+  const militaryProfile = militaryProfileFor(militaryIso3);
+  const militarySubsections: RibbonSubItem[] = militaryProfile
+    ? [
+        ...militaryProfile.branches.map((b) => ({
+          id: b.id,
+          label: b.title,
+          anchorId: `country-sub-military-${b.id}`,
+        })),
+        ...militaryProfile.panels.map((p) => ({
+          id: p.id,
+          label: p.title,
+          anchorId: `country-sub-military-${p.id}`,
+        })),
+      ]
+    : GFP_UNRANKED_ISO3.has(militaryIso3.toUpperCase())
       ? []
       : [
           { id: 'army', label: 'Army', anchorId: 'country-sub-military-army' },
           { id: 'navy', label: 'Navy', anchorId: 'country-sub-military-navy' },
           { id: 'airforce', label: 'Air Force', anchorId: 'country-sub-military-airforce' },
-          ...(germanyLike
-            ? [
-                {
-                  id: 'cyberspace',
-                  label: 'Cyberspace',
-                  anchorId: 'country-sub-military-cyberspace',
-                } satisfies RibbonSubItem,
-              ]
-            : []),
-        ],
+        ];
+
+  const military: RibbonMainItem = {
+    id: 'military',
+    label: 'Military',
+    anchorId: 'country-section-military',
+    subsections: militarySubsections,
   };
 
   if (germanyLike) {

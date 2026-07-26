@@ -1,16 +1,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
+import { PoliticsGroupLeaderboard } from './PoliticsGroupLeaderboard';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-type RightWingGroup = {
+export type RightMetric = { title: string; value: string; notes: string };
+export type RightWingGroup = {
   rank: number;
   group: string;
   type: string;
   memberPopulation: string;
   notes: string;
+};
+
+/** Full per-country payload for this section (defaults to Germany's when omitted). */
+export type PoliticsRightWingData = {
+  metrics: readonly RightMetric[];
+  groupsTitle: string;
+  groupsDescription: string;
+  groups: readonly RightWingGroup[];
 };
 
 const RIGHT_WING_GROUPS: readonly RightWingGroup[] = [
@@ -100,26 +110,6 @@ const RIGHT_WING_GROUPS: readonly RightWingGroup[] = [
   },
 ];
 
-function RightWingGroupWidget({ item }: { item: RightWingGroup }) {
-  return (
-    <div className="relative overflow-hidden rounded-[1.8rem] border border-white/[0.1] bg-black px-4 pb-4 pt-6 shadow-[0_10px_28px_rgba(0,0,0,0.6)]">
-      <div className="absolute left-4 top-0 h-3 w-20 -translate-y-1/2 rounded-full border border-white/[0.14] bg-neutral-900/95" />
-      <div className="absolute right-4 top-3 flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80" />
-      </div>
-      <div className="mb-3 rounded-xl border border-white/[0.1] bg-neutral-900 px-3 py-1.5">
-        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-200">Rank #{item.rank}</p>
-      </div>
-      <p className="pr-16 font-sans text-sm font-semibold leading-tight text-neutral-100">{item.group}</p>
-      <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.1em] text-neutral-400">{item.type}</p>
-      <p className="mt-3 font-sans text-2xl font-semibold tabular-nums tracking-tight text-white">{item.memberPopulation}</p>
-      <p className="mt-2 font-sans text-[11px] leading-relaxed text-neutral-400">{item.notes}</p>
-    </div>
-  );
-}
-
 function RightMetricCard({ title, value, notes }: { title: string; value: string; notes: string }) {
   return (
     <Card className="border-white/[0.1] bg-black/80">
@@ -134,54 +124,66 @@ function RightMetricCard({ title, value, notes }: { title: string; value: string
   );
 }
 
-export const GermanyPoliticsRightWingSection = memo(function GermanyPoliticsRightWingSection() {
+const GERMANY_METRICS: readonly RightMetric[] = [
+  {
+    title: 'SELF-IDENTIFIED RIGHT-WING / CONSERVATIVE IDEOLOGY SHARE',
+    value: '32%',
+    notes:
+      'Identifying as right-wing/conservative or strongly supporting AfD and strict immigration control (18-29: ~21-25% for AfD alone in 2025).',
+  },
+  {
+    title: 'PROFESSORS / SELF-IDENTIFIED RIGHT-LEANING',
+    value: '8-12%',
+    notes: 'Very low in German academia; conservatives remain a small minority.',
+  },
+  {
+    title: 'SUPPORTING TRADITIONAL GENDER ROLES / OPPOSITION TO GENDER-NEUTRAL MANDATES',
+    value: '45-55%',
+    notes:
+      'Significant opposition to mandatory gender-neutral language and support for biological sex distinctions.',
+  },
+  {
+    title: 'OPPOSITION TO DIVERSITY QUOTAS IN MEDIA/CORPORATIONS',
+    value: '55-65%',
+    notes: 'Majority opposition to enforced DEI and board quotas, especially among conservatives and AfD voters.',
+  },
+  {
+    title: 'BELIEF IN BIOLOGICAL SEX / OPPOSITION TO TRANSGENDER IDEOLOGY',
+    value: '~60-70% nationally',
+    notes: 'Strong majority support for binary biological sex in sports, spaces, and policy.',
+  },
+  {
+    title: 'BELIEF IN CONTROLLED BORDERS / OPPOSITION TO OPEN BORDERS',
+    value: '>70% (often 75-80%)',
+    notes: 'Overwhelming support for reduced asylum immigration, stronger border controls, and deportations.',
+  },
+];
+
+export const GermanyPoliticsRightWingSection = memo(function GermanyPoliticsRightWingSection({
+  metrics = GERMANY_METRICS,
+  groupsTitle = 'RIGHT-WING GROUPS',
+  groupsDescription = 'Ranked right-wing groups and organizations (sleek black theme)',
+  groups = RIGHT_WING_GROUPS,
+}: Partial<PoliticsRightWingData> = {}) {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
-        <RightMetricCard
-          title="SELF-IDENTIFIED RIGHT-WING / CONSERVATIVE IDEOLOGY SHARE"
-          value="32%"
-          notes="Identifying as right-wing/conservative or strongly supporting AfD and strict immigration control (18-29: ~21-25% for AfD alone in 2025)."
-        />
-        <RightMetricCard
-          title="PROFESSORS / SELF-IDENTIFIED RIGHT-LEANING"
-          value="8-12%"
-          notes="Very low in German academia; conservatives remain a small minority."
-        />
-        <RightMetricCard
-          title="SUPPORTING TRADITIONAL GENDER ROLES / OPPOSITION TO GENDER-NEUTRAL MANDATES"
-          value="45-55%"
-          notes="Significant opposition to mandatory gender-neutral language and support for biological sex distinctions."
-        />
-        <RightMetricCard
-          title="OPPOSITION TO DIVERSITY QUOTAS IN MEDIA/CORPORATIONS"
-          value="55-65%"
-          notes="Majority opposition to enforced DEI and board quotas, especially among conservatives and AfD voters."
-        />
-        <RightMetricCard
-          title="BELIEF IN BIOLOGICAL SEX / OPPOSITION TO TRANSGENDER IDEOLOGY"
-          value="~60-70% nationally"
-          notes="Strong majority support for binary biological sex in sports, spaces, and policy."
-        />
-        <RightMetricCard
-          title="BELIEF IN CONTROLLED BORDERS / OPPOSITION TO OPEN BORDERS"
-          value=">70% (often 75-80%)"
-          notes="Overwhelming support for reduced asylum immigration, stronger border controls, and deportations."
-        />
+        {metrics.map((m) => (
+          <RightMetricCard key={m.title} title={m.title} value={m.value} notes={m.notes} />
+        ))}
 
         <Card className="sm:col-span-2 lg:col-span-3 border-white/[0.1] bg-black/80">
           <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>RIGHT-WING GROUPS</CardTitle>
+            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>{groupsTitle}</CardTitle>
             <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              Ranked right-wing groups and organizations (sleek black theme)
+              {groupsDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {RIGHT_WING_GROUPS.map((item) => (
-                <RightWingGroupWidget key={item.rank} item={item} />
-              ))}
-            </div>
+            <PoliticsGroupLeaderboard
+              accent="neutral"
+              items={groups.map((g) => ({ rank: g.rank, group: g.group, type: g.type, value: g.memberPopulation, notes: g.notes }))}
+            />
           </CardContent>
         </Card>
       </div>

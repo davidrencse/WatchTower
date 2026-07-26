@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { cn } from '../lib/utils';
 
-type AdvocateCard = {
+export type AdvocateCard = {
   id: string;
   title: string;
   tagline: string;
@@ -217,7 +217,25 @@ const AdvocateCardView = memo(function AdvocateCardView({ entry }: { entry: Advo
   );
 });
 
-export const GermanyImmigrationAdvocatesSubsection = memo(function GermanyImmigrationAdvocatesSubsection() {
+type AdvocatesSubsectionProps = {
+  advocates?: readonly AdvocateCard[];
+  heading?: string;
+  intro?: string;
+  coalitionNote?: string;
+};
+
+const GERMANY_ADVOCATES_HEADING = 'Major leftist groups pushing for immigration and open borders in Germany';
+const GERMANY_ADVOCATES_INTRO =
+  'Germany’s immigration debate is heavily influenced by left-leaning organizations, many of which press for broad asylum access, multicultural accommodation, and reduced border enforcement. They usually describe the work as humanitarian solidarity, while critics argue the same agenda weakens national control over who enters and settles. The five tiles below highlight leading players — NGOs, church welfare giants, rights brands, a communal umbrella, and no-border networks — with expandable source links. Snapshot draws on public advocacy records and news cycles through roughly 2023–2024 unless noted.';
+const GERMANY_ADVOCATES_COALITION =
+  'Coalition pattern: overlapping staff rotations, joint statements, EU-level campaigns, and mixed financing — EU grants, German ministry contracts, church-taxed revenue streams, and private foundations (OSF-related funding is a recurring theme in Bundestag and press scrutiny). Quantitative context sits beside polarized arguments over integration costs and policing data.';
+
+export const GermanyImmigrationAdvocatesSubsection = memo(function GermanyImmigrationAdvocatesSubsection({
+  advocates = ADVOCATES,
+  heading = GERMANY_ADVOCATES_HEADING,
+  intro = GERMANY_ADVOCATES_INTRO,
+  coalitionNote = GERMANY_ADVOCATES_COALITION,
+}: AdvocatesSubsectionProps = {}) {
   return (
     <section className="flex flex-col gap-5" aria-labelledby="germany-immigration-advocates-heading">
       <div className="space-y-3">
@@ -227,44 +245,13 @@ export const GermanyImmigrationAdvocatesSubsection = memo(function GermanyImmigr
         >
           Advocates
         </h2>
-        <p className="font-sans text-sm font-semibold leading-snug text-neutral-100 sm:text-base">
-          Major leftist groups pushing for immigration and open borders in Germany
-        </p>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-300 sm:text-xs">
-          Germany&apos;s immigration debate is heavily influenced by left-leaning organizations, many of which press for
-          broad asylum access, multicultural accommodation, and reduced border enforcement. They usually describe the work
-          as humanitarian solidarity, while critics argue the same agenda weakens national control over who enters and
-          settles. The five tiles below highlight leading players — NGOs, church welfare giants, rights brands, a communal
-          umbrella, and no-border networks — with expandable source links. Snapshot draws on public advocacy records and
-          news cycles through roughly 2023–2024 unless noted.
-        </p>
-        <p className="font-sans text-[11px] leading-relaxed text-neutral-500 sm:text-xs">
-          Coalition pattern: overlapping staff rotations, joint statements, EU-level campaigns, and mixed financing — EU
-          grants, German ministry contracts, church-taxed revenue streams, and private foundations (OSF-related funding is a
-          recurring theme in Bundestag and press scrutiny). Quantitative context (e.g.{' '}
-          <a
-            className="underline underline-offset-2 hover:text-neutral-300"
-            href="https://www.destatis.de/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Destatis migration releases
-          </a>
-          ) sits beside polarized arguments over integration costs and policing data (including{' '}
-          <a
-            className="underline underline-offset-2 hover:text-neutral-300"
-            href="https://www.bka.de/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            BKA statistics
-          </a>
-          on suspects and residence categories).
-        </p>
+        <p className="font-sans text-sm font-semibold leading-snug text-neutral-100 sm:text-base">{heading}</p>
+        <p className="font-sans text-[11px] leading-relaxed text-neutral-300 sm:text-xs">{intro}</p>
+        <p className="font-sans text-[11px] leading-relaxed text-neutral-500 sm:text-xs">{coalitionNote}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {ADVOCATES.map((entry) => (
+        {advocates.map((entry) => (
           <AdvocateCardView key={entry.id} entry={entry} />
         ))}
       </div>

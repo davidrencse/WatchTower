@@ -88,6 +88,14 @@ function syncDataCsvToPublic() {
           }
         }
       }
+
+      // Hand-curated country news feeds override the generic generated reference links.
+      const newsOverrides: ReadonlyArray<readonly [string, string]> = [
+        [path.join(countriesDir, 'France', 'news.csv'), 'fra_news.csv'],
+      ];
+      for (const [src, destName] of newsOverrides) {
+        if (fs.existsSync(src)) fs.copyFileSync(src, path.join(destDir, destName));
+      }
     },
   };
 }

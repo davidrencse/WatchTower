@@ -285,7 +285,8 @@ type SuppressionBlockProps = {
   defaultExpanded?: boolean;
 };
 
-function SuppressionBlock({
+/** Exported so France's tap-water section renders through the identical UI. */
+export function SuppressionBlock({
   subheading,
   note,
   chartConfig,
@@ -457,7 +458,8 @@ type HeavyMetalsSuppressionBlockProps = {
   defaultExpanded?: boolean;
 };
 
-function HeavyMetalsSuppressionBlock({
+/** Exported so France's tap-water section renders through the identical UI. */
+export function HeavyMetalsSuppressionBlock({
   subheading,
   note,
   chartConfig,

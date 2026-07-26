@@ -1,11 +1,7 @@
-export type GermanyImmigrationPolicyArea = {
-  id: string;
-  title: string;
-  current: string;
-  details: string;
-  impact: string;
-  source: string;
-};
+import type { ImmigrationPolicyArea } from './government/immigrationPolicies';
+
+/** Retained alias so existing Germany call sites keep working. */
+export type GermanyImmigrationPolicyArea = ImmigrationPolicyArea;
 
 export const GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT = 11;
 

@@ -337,7 +337,7 @@ async function main() {
   }
   records.sort((a, b) => a.name.localeCompare(b.name));
 
-  const outputPath = path.resolve(scriptDir, '../src/data/countryMilitaryData.ts');
+  const outputPath = path.resolve(scriptDir, '../src/data/military/globalFirepower.ts');
   await writeFile(outputPath, renderModule(records), 'utf8');
   process.stdout.write(`Wrote ${records.length} country records to ${outputPath}\n`);
 }

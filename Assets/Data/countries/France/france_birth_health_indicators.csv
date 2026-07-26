@@ -1,0 +1,9 @@
+country,metric,value,unit,reference_year,source,source_url,method_note
+France,births_to_foreign_born_mothers,169748,live_births_and_percent,2025,INSEE civil-registration statistics,https://www.insee.fr/fr/statistiques/2381382,26.4% of 643905 live births; derived from the official parent-birthplace table.
+France,infant_mortality_rate,4.0,deaths_per_1000_live_births,2025,INSEE Bilan demographique 2025,https://www.insee.fr/fr/statistiques/8719824,Deaths before age one; provisional estimate.
+France,child_mortality_rate_under_5,4.3,deaths_per_1000_live_births,2024,UN IGME via UNICEF,https://data.unicef.org/country/fra/,Modeled probability of dying before age five.
+France,contraceptive_use,91.0,percent,2023,Inserm ANRS CSF-2023,https://csf.inserm.fr/resultats/sante-reproductive/,Women aged 18-49 exposed to unintended-pregnancy risk and using contraception.
+France,abortion_rate,17.3,abortions_per_1000_women_15_49,2024,DREES,https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse/etudes-et-resultats/250925-ER-ivg-en-france-en-2024,Official use rate; 251270 induced abortions were recorded.
+France,teen_birth_rate,3.302,births_per_1000_women_15_19,2024,World Bank WDI via FRED,https://fred.stlouisfed.org/data/SPADOTFRTFRA,Adolescent fertility rate for women aged 15-19.
+France,mean_age_of_mothers_at_childbirth,31.2,years,2025,INSEE Bilan demographique 2025,https://www.insee.fr/fr/statistiques/8719824,Period mean age across all birth orders; provisional value.
+France,childhood_overweight_and_obesity,—,display_card,2016 and 2017,Sante publique France and DREES,https://www.santepubliquefrance.fr/docs/rapportsynthese/corpulence-des-enfants-de-7-a-9-ans-scolarises-en-ce1-ce2-en-france-en-2016 ; https://drees.solidarites-sante.gouv.fr/publications/etudes-et-resultats/en-2017-des-adolescents-plutot-en-meilleure-sante-physique-mais,National measured school surveys; age groups and years appear in the card.

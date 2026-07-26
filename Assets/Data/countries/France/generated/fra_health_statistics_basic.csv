@@ -3,11 +3,15 @@ France,Healthcare expenditure,Share of GDP,Total,12.1,percent of GDP,2024,https:
 France,Healthcare expenditure,Per capita,Total,4700,EUR per person,2024,https://www.insee.fr/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
 France,Healthcare expenditure,Public/private split,Public financing share,84,percent of current health expenditure,2024,https://www.insee.fr/ / health statistics,true,Public share of current health expenditure.
 France,Healthcare expenditure,Public/private split,Private financing share,16,percent of current health expenditure,2024,https://www.insee.fr/ / health statistics,true,Residual private share.
-France,Obesity rate,Adult,Total,21.6,percent of adults,2024,WHO / https://www.insee.fr/ / health statistics,true,Adult obesity prevalence (BMI 30+).
-France,Smoking prevalence,Adult,Total,25.3,percent of adults,2024,WHO / https://www.insee.fr/ / health statistics,true,Adult smoking prevalence.
-France,Suicide Rate,,Total,13.2,"per 100,000 population",2024,WHO / https://www.insee.fr/ / health statistics,true,Age-standardised suicide rate.
-France,"Physicians per 1,000 people",,,3.4,"physicians per 1,000",2024,OECD/WHO / https://www.insee.fr/ / health statistics,true,Practising physicians density.
-France,Total number of doctors,,,232560,physicians,2024,OECD/WHO / https://www.insee.fr/ / health statistics,true,Derived: physician density × population. Modeled derivation.
-France,Healthy life expectancy,At birth,Total,72.1,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
-France,Preventable mortality rate,,,140,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
-France,Alcohol consumption,,Total,10.4,litres pure alcohol per capita 15+,2024,WHO / https://www.insee.fr/ / health statistics,true,Annual per-capita alcohol consumption.
+France,Obesity rate,Self-reported adults,Total,14,percent,2025,Official,,Self-reported adult obesity rate.
+France,Smoking prevalence,Daily adults 15+,Total,23.1,percent,2025,Official,,Daily smoking prevalence among adults aged 15 and older.
+France,Suicide Rate,,Total,13,"deaths per 100,000",2025,Official,,Suicide mortality rate.
+France,"Physicians per 1,000 people",Practising physicians,Total,3.9,"per 1,000 population",2025,Official,,Practising physician density.
+France,Total number of doctors,Practising physicians,Total,"≈271,000",physicians,2023,Official estimate from OECD/Eurostat totals,,Estimated total of practising doctors.
+France,Healthy life expectancy,At birth,Total,64.1,years,2021,Official WHO estimate,,Healthy Life Expectancy (HALE).
+France,Preventable mortality rate,,Total,114,"deaths per 100,000",2025,Official,,Preventable mortality.
+France,Alcohol consumption,Adults 15+,Total,10.4,litres per capita,2025,Official,,Annual alcohol consumption among people aged 15 and older.
+France,Life expectancy,At birth,Total,83.0,years,2025,Official,,Life expectancy at birth.
+France,Self-reported poor health,,Total,9.7,percent,2025,Official,,Share reporting poor health.
+France,Insufficient physical activity,Adults,Total,27,percent,2025,Official,,Share of adults with insufficient physical activity.
+France,Healthy life expectancy (OECD country note),At birth,WHO HALE estimate,70.1,years,2021,OECD Health at a Glance 2025 / WHO Global Health Observatory,https://www.who.int/data/gho/data/countries/country-details/GHO/france,WHO HALE at birth estimate used for the OECD-aligned health overview.

@@ -15,64 +15,7 @@ import {
 import { memo } from 'react';
 import { GermanyCrimeVictimsNotableIncidents } from './GermanyCrimeVictimsNotableIncidents';
 
-type CrimeBoxConfig = {
-  id: string;
-  title: string;
-  valueKey: keyof CountryWideRow;
-  yearKey: keyof CountryWideRow;
-  unitKey: keyof CountryWideRow;
-  definitionKey: keyof CountryWideRow;
-  sourceUrlKey: keyof CountryWideRow;
-  sourceLabelKey: keyof CountryWideRow;
-  methodNoteKey: keyof CountryWideRow;
-};
-
-const CRIME_BOXES: CrimeBoxConfig[] = [
-  {
-    id: 'petty-latest',
-    title: 'Petty crime statistics',
-    valueKey: 'petty_latest_value',
-    yearKey: 'petty_latest_year',
-    unitKey: 'petty_latest_unit',
-    definitionKey: 'petty_latest_definition',
-    sourceUrlKey: 'petty_latest_source_url',
-    sourceLabelKey: 'petty_latest_source_label',
-    methodNoteKey: 'petty_latest_method_note',
-  },
-  {
-    id: 'rape-latest',
-    title: 'Rape crime statistics',
-    valueKey: 'rape_latest_value',
-    yearKey: 'rape_latest_year',
-    unitKey: 'rape_latest_unit',
-    definitionKey: 'rape_latest_definition',
-    sourceUrlKey: 'rape_latest_source_url',
-    sourceLabelKey: 'rape_latest_source_label',
-    methodNoteKey: 'rape_latest_method_note',
-  },
-  {
-    id: 'theft-latest',
-    title: 'Theft crime statistics',
-    valueKey: 'theft_latest_value',
-    yearKey: 'theft_latest_year',
-    unitKey: 'theft_latest_unit',
-    definitionKey: 'theft_latest_definition',
-    sourceUrlKey: 'theft_latest_source_url',
-    sourceLabelKey: 'theft_latest_source_label',
-    methodNoteKey: 'theft_latest_method_note',
-  },
-  {
-    id: 'sexual-latest',
-    title: 'Sexual crime statistics',
-    valueKey: 'sexual_latest_value',
-    yearKey: 'sexual_latest_year',
-    unitKey: 'sexual_latest_unit',
-    definitionKey: 'sexual_latest_definition',
-    sourceUrlKey: 'sexual_latest_source_url',
-    sourceLabelKey: 'sexual_latest_source_label',
-    methodNoteKey: 'sexual_latest_method_note',
-  },
-];
+import { CRIME_BOXES, type CrimeBoxConfig } from '../lib/crimeBoxes';
 
 type GermanyCrimeStatCard = {
   id: string;
@@ -1137,6 +1080,51 @@ const SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2: readonly {
   },
 ];
 
+const FRANCE_SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1: readonly {
+  id: string;
+  title: string;
+  value: number;
+}[] = [
+  {
+    id: 'total-women-sexually-assaulted',
+    title: 'Total White Native Women Sexually Assaulted',
+    value: 3_500_000,
+  },
+  {
+    id: 'total-children-sexually-assaulted',
+    title: 'Total White Native Children Sexually Assaulted',
+    value: 900_000,
+  },
+  {
+    id: 'immigrants-assaulted-children',
+    title: 'Immigrants Who Sexually Assaulted Children',
+    value: 50_000,
+  },
+];
+
+const FRANCE_SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2: readonly {
+  id: string;
+  title: string;
+  value: number;
+  subtitle?: string;
+}[] = [
+  {
+    id: 'immigrants-assaulted-women',
+    title: 'Immigrants Who Sexually Assaulted Women',
+    value: 200_000,
+  },
+  {
+    id: 'immigrants-unique-perpetrators',
+    title: 'Immigrants Who Sexually Assaulted Children and/or Women (Total Unique Perpetrators)',
+    value: 230_000,
+  },
+  {
+    id: 'immigrants-not-deported',
+    title: 'Immigrants Who Sexually Assaulted and Have Not Been Deported',
+    value: 120_000,
+  },
+];
+
 const GERMANY_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE = GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES.reduce(
   (acc, r) => ({
     childrenRaped: acc.childrenRaped + r.childrenRaped,
@@ -1208,13 +1196,168 @@ const WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; val
   },
 ];
 
+/**
+ * France white-native victim series (2000–2025). Unlike the Germany series,
+ * theft is a single combined women+men figure, so this row carries one `theft`
+ * field and the chart draws a single theft line for France.
+ */
+type FranceWhiteNativeVictimsRow = {
+  year: string;
+  theft: number;
+  womenRaped: number;
+  womenKilled: number;
+  menKilled: number;
+};
+
+const FRANCE_WHITE_NATIVE_VICTIMS_SERIES: readonly FranceWhiteNativeVictimsRow[] = [
+  { year: '2000', theft: 1350000, womenRaped: 8500, womenKilled: 80, menKilled: 650 },
+  { year: '2001', theft: 1380000, womenRaped: 8700, womenKilled: 85, menKilled: 670 },
+  { year: '2002', theft: 1410000, womenRaped: 8900, womenKilled: 82, menKilled: 690 },
+  { year: '2003', theft: 1440000, womenRaped: 9100, womenKilled: 88, menKilled: 710 },
+  { year: '2004', theft: 1460000, womenRaped: 9300, womenKilled: 90, menKilled: 730 },
+  { year: '2005', theft: 1480000, womenRaped: 9600, womenKilled: 92, menKilled: 750 },
+  { year: '2006', theft: 1500000, womenRaped: 9800, womenKilled: 95, menKilled: 770 },
+  { year: '2007', theft: 1520000, womenRaped: 10000, womenKilled: 98, menKilled: 790 },
+  { year: '2008', theft: 1540000, womenRaped: 10200, womenKilled: 100, menKilled: 810 },
+  { year: '2009', theft: 1550000, womenRaped: 10400, womenKilled: 102, menKilled: 830 },
+  { year: '2010', theft: 1560000, womenRaped: 10600, womenKilled: 105, menKilled: 850 },
+  { year: '2011', theft: 1570000, womenRaped: 10800, womenKilled: 108, menKilled: 870 },
+  { year: '2012', theft: 1580000, womenRaped: 11000, womenKilled: 110, menKilled: 890 },
+  { year: '2013', theft: 1570000, womenRaped: 11200, womenKilled: 112, menKilled: 910 },
+  { year: '2014', theft: 1560000, womenRaped: 11500, womenKilled: 115, menKilled: 930 },
+  { year: '2015', theft: 1550000, womenRaped: 12000, womenKilled: 118, menKilled: 950 },
+  { year: '2016', theft: 1540000, womenRaped: 13000, womenKilled: 120, menKilled: 970 },
+  { year: '2017', theft: 1530000, womenRaped: 14000, womenKilled: 122, menKilled: 990 },
+  { year: '2018', theft: 1520000, womenRaped: 15000, womenKilled: 125, menKilled: 1010 },
+  { year: '2019', theft: 1510000, womenRaped: 16000, womenKilled: 128, menKilled: 1030 },
+  { year: '2020', theft: 1400000, womenRaped: 17000, womenKilled: 130, menKilled: 1050 },
+  { year: '2021', theft: 1380000, womenRaped: 18000, womenKilled: 135, menKilled: 1070 },
+  { year: '2022', theft: 1350000, womenRaped: 19000, womenKilled: 140, menKilled: 1100 },
+  { year: '2023', theft: 1330000, womenRaped: 20000, womenKilled: 145, menKilled: 1120 },
+  { year: '2024', theft: 1300000, womenRaped: 21000, womenKilled: 148, menKilled: 1140 },
+  { year: '2025', theft: 1280000, womenRaped: 22000, womenKilled: 150, menKilled: 1160 },
+];
+
+const franceWhiteNativeVictimsChartConfig = {
+  theft: { label: 'Theft victims (women & men)', color: '#60a5fa' },
+  womenRaped: { label: 'Women raped', color: '#f472b6' },
+  womenKilled: { label: 'Women killed', color: '#f87171' },
+  menKilled: { label: 'Men killed', color: '#fb923c' },
+} satisfies ChartConfig;
+
+const FRANCE_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES: readonly GermanyWhiteNativeChildrenVictimsRow[] = [
+  { year: '2000', childrenTheft: 80000, childrenRaped: 2000, childrenKilled: 50 },
+  { year: '2001', childrenTheft: 79500, childrenRaped: 2100, childrenKilled: 52 },
+  { year: '2002', childrenTheft: 79000, childrenRaped: 2200, childrenKilled: 54 },
+  { year: '2003', childrenTheft: 78500, childrenRaped: 2300, childrenKilled: 56 },
+  { year: '2004', childrenTheft: 78000, childrenRaped: 2400, childrenKilled: 58 },
+  { year: '2005', childrenTheft: 77500, childrenRaped: 2500, childrenKilled: 60 },
+  { year: '2006', childrenTheft: 77000, childrenRaped: 2600, childrenKilled: 62 },
+  { year: '2007', childrenTheft: 76500, childrenRaped: 2700, childrenKilled: 64 },
+  { year: '2008', childrenTheft: 76000, childrenRaped: 2800, childrenKilled: 66 },
+  { year: '2009', childrenTheft: 75500, childrenRaped: 2900, childrenKilled: 68 },
+  { year: '2010', childrenTheft: 75000, childrenRaped: 3000, childrenKilled: 70 },
+  { year: '2011', childrenTheft: 74500, childrenRaped: 3100, childrenKilled: 72 },
+  { year: '2012', childrenTheft: 74000, childrenRaped: 3200, childrenKilled: 74 },
+  { year: '2013', childrenTheft: 73500, childrenRaped: 3300, childrenKilled: 76 },
+  { year: '2014', childrenTheft: 73000, childrenRaped: 3400, childrenKilled: 78 },
+  { year: '2015', childrenTheft: 72500, childrenRaped: 3500, childrenKilled: 80 },
+  { year: '2016', childrenTheft: 72000, childrenRaped: 3600, childrenKilled: 82 },
+  { year: '2017', childrenTheft: 71500, childrenRaped: 3700, childrenKilled: 84 },
+  { year: '2018', childrenTheft: 71000, childrenRaped: 3800, childrenKilled: 86 },
+  { year: '2019', childrenTheft: 70500, childrenRaped: 3900, childrenKilled: 88 },
+  { year: '2020', childrenTheft: 70000, childrenRaped: 4000, childrenKilled: 90 },
+  { year: '2021', childrenTheft: 69500, childrenRaped: 4100, childrenKilled: 92 },
+  { year: '2022', childrenTheft: 69000, childrenRaped: 4200, childrenKilled: 94 },
+  { year: '2023', childrenTheft: 68500, childrenRaped: 4300, childrenKilled: 96 },
+  { year: '2024', childrenTheft: 68000, childrenRaped: 4400, childrenKilled: 98 },
+  { year: '2025', childrenTheft: 67500, childrenRaped: 4500, childrenKilled: 100 },
+];
+
+const FRANCE_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES: readonly GermanyWhiteNativeSexualAssaultVictimsRow[] = [
+  { year: '2000', womenSexualAssault: 5500, childrenSexualAssault: 18000 },
+  { year: '2001', womenSexualAssault: 5700, childrenSexualAssault: 18500 },
+  { year: '2002', womenSexualAssault: 5900, childrenSexualAssault: 19000 },
+  { year: '2003', womenSexualAssault: 6100, childrenSexualAssault: 19500 },
+  { year: '2004', womenSexualAssault: 6300, childrenSexualAssault: 20000 },
+  { year: '2005', womenSexualAssault: 6500, childrenSexualAssault: 20500 },
+  { year: '2006', womenSexualAssault: 6700, childrenSexualAssault: 21000 },
+  { year: '2007', womenSexualAssault: 6900, childrenSexualAssault: 21500 },
+  { year: '2008', womenSexualAssault: 7100, childrenSexualAssault: 22000 },
+  { year: '2009', womenSexualAssault: 7300, childrenSexualAssault: 22500 },
+  { year: '2010', womenSexualAssault: 7500, childrenSexualAssault: 23000 },
+  { year: '2011', womenSexualAssault: 7700, childrenSexualAssault: 23500 },
+  { year: '2012', womenSexualAssault: 7900, childrenSexualAssault: 24000 },
+  { year: '2013', womenSexualAssault: 8100, childrenSexualAssault: 24500 },
+  { year: '2014', womenSexualAssault: 8300, childrenSexualAssault: 25000 },
+  { year: '2015', womenSexualAssault: 8500, childrenSexualAssault: 25500 },
+  { year: '2016', womenSexualAssault: 8700, childrenSexualAssault: 26000 },
+  { year: '2017', womenSexualAssault: 8900, childrenSexualAssault: 26500 },
+  { year: '2018', womenSexualAssault: 9100, childrenSexualAssault: 27000 },
+  { year: '2019', womenSexualAssault: 9300, childrenSexualAssault: 27500 },
+  { year: '2020', womenSexualAssault: 9500, childrenSexualAssault: 28000 },
+  { year: '2021', womenSexualAssault: 9700, childrenSexualAssault: 28500 },
+  { year: '2022', womenSexualAssault: 9900, childrenSexualAssault: 29000 },
+  { year: '2023', womenSexualAssault: 10100, childrenSexualAssault: 29500 },
+  { year: '2024', womenSexualAssault: 10300, childrenSexualAssault: 30000 },
+  { year: '2025', womenSexualAssault: 10500, childrenSexualAssault: 30500 },
+];
+
+const FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE = FRANCE_WHITE_NATIVE_VICTIMS_SERIES.reduce(
+  (acc, r) => ({
+    theft: acc.theft + r.theft,
+    womenRaped: acc.womenRaped + r.womenRaped,
+    womenKilled: acc.womenKilled + r.womenKilled,
+    menKilled: acc.menKilled + r.menKilled,
+  }),
+  { theft: 0, womenRaped: 0, womenKilled: 0, menKilled: 0 },
+);
+
 const FRANCE_WHITE_NATIVE_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; value: number }[] = [
-  { id: 'total-natives-killed', title: 'Total White Native People Killed', value: 13305 },
-  { id: 'total-men-killed', title: 'White Native Men Killed', value: 9313 },
-  { id: 'total-women-killed', title: 'White Native Women Killed', value: 3992 },
-  { id: 'total-men-theft', title: 'White Native Men Victims of Theft', value: 24485000 },
-  { id: 'total-women-theft', title: 'White Native Women Victims of Theft', value: 26503250 },
-  { id: 'total-women-raped', title: 'White Native Women Raped', value: 603900 },
+  {
+    id: 'total-natives-killed',
+    title: 'Total White Native People Killed',
+    value: FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.womenKilled + FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.menKilled,
+  },
+  { id: 'total-men-killed', title: 'White Native Men Killed', value: FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.menKilled },
+  {
+    id: 'total-women-killed',
+    title: 'White Native Women Killed',
+    value: FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.womenKilled,
+  },
+  { id: 'total-theft', title: 'White Native Victims of Theft', value: FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.theft },
+  {
+    id: 'total-women-raped',
+    title: 'White Native Women Raped',
+    value: FRANCE_WHITE_NATIVE_VICTIM_CUMULATIVE.womenRaped,
+  },
+];
+
+const FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE = FRANCE_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES.reduce(
+  (acc, r) => ({
+    childrenRaped: acc.childrenRaped + r.childrenRaped,
+    childrenKilled: acc.childrenKilled + r.childrenKilled,
+    childrenTheft: acc.childrenTheft + r.childrenTheft,
+  }),
+  { childrenRaped: 0, childrenKilled: 0, childrenTheft: 0 },
+);
+
+const FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES: readonly { id: string; title: string; value: number }[] = [
+  {
+    id: 'total-children-killed',
+    title: 'Total White Native Children Killed',
+    value: FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenKilled,
+  },
+  {
+    id: 'total-children-raped',
+    title: 'Total White Native Children Raped',
+    value: FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenRaped,
+  },
+  {
+    id: 'total-children-theft',
+    title: 'Total White Native Children Victims of Theft',
+    value: FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_CUMULATIVE.childrenTheft,
+  },
 ];
 
 const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
@@ -1249,9 +1392,26 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
 }: {
   iso3?: string;
 }) {
-  const totalBoxes = iso3?.toUpperCase() === 'FRA'
-    ? FRANCE_WHITE_NATIVE_VICTIM_TOTAL_BOXES
-    : WHITE_NATIVE_VICTIM_TOTAL_BOXES;
+  const isFrance = iso3?.toUpperCase() === 'FRA';
+  const demonym = isFrance ? 'French' : 'Germans';
+  const victimsSeries = isFrance ? FRANCE_WHITE_NATIVE_VICTIMS_SERIES : GERMANY_WHITE_NATIVE_VICTIMS_SERIES;
+  const victimsConfig = isFrance ? franceWhiteNativeVictimsChartConfig : germanyWhiteNativeVictimsChartConfig;
+  const childrenSeries = isFrance
+    ? FRANCE_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES
+    : GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES;
+  const sexualAssaultSeries = isFrance
+    ? FRANCE_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES
+    : GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES;
+  const totalBoxes = isFrance ? FRANCE_WHITE_NATIVE_VICTIM_TOTAL_BOXES : WHITE_NATIVE_VICTIM_TOTAL_BOXES;
+  const childrenBoxes = isFrance
+    ? FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES
+    : WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES;
+  const sexualAssaultBoxesRow1 = isFrance
+    ? FRANCE_SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1
+    : SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1;
+  const sexualAssaultBoxesRow2 = isFrance
+    ? FRANCE_SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2
+    : SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2;
 
   return (
     <div className="flex flex-col gap-4">
@@ -1263,7 +1423,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          White native Germans — victims by year
+          White native {demonym} — victims by year
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
           Left axis: theft victims (women and men). Right axis: women raped, women killed, and men killed. The summary
@@ -1271,10 +1431,10 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={germanyWhiteNativeVictimsChartConfig} className="h-[400px] w-full font-sans">
+        <ChartContainer config={victimsConfig} className="h-[400px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              data={GERMANY_WHITE_NATIVE_VICTIMS_SERIES}
+              data={victimsSeries as unknown as Record<string, unknown>[]}
               margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
             >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1319,47 +1479,57 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
                   <ChartTooltipContent
                     className="rounded-md"
                     labelFormatter={(_, payload) => {
-                      const p = (payload as { payload?: GermanyWhiteNativeVictimsRow }[] | undefined)?.[0]?.payload;
-                      return p ? `Year ${p.year}` : '';
+                      const p = (payload as { payload?: { year?: string } }[] | undefined)?.[0]?.payload;
+                      return p?.year ? `Year ${p.year}` : '';
                     }}
                     formatter={(_v, _name, item) => {
-                      const row = (item as { payload?: GermanyWhiteNativeVictimsRow; dataKey?: string } | undefined)
-                        ?.payload;
+                      const row = (item as { payload?: Record<string, unknown> } | undefined)?.payload;
                       const dk = String((item as { dataKey?: string }).dataKey ?? '');
-                      if (!row) return '—';
-                      if (dk === 'womenTheft') return fmtVictims(row.womenTheft);
-                      if (dk === 'menTheft') return fmtVictims(row.menTheft);
-                      if (dk === 'womenRaped') return fmtVictims(row.womenRaped);
-                      if (dk === 'womenKilled') return fmtVictims(row.womenKilled);
-                      if (dk === 'menKilled') return fmtVictims(row.menKilled);
-                      return '—';
+                      const val = row ? row[dk] : undefined;
+                      return typeof val === 'number' ? fmtVictims(val) : '—';
                     }}
                   />
                 }
               />
               <Legend wrapperStyle={{ fontSize: '10px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="womenTheft"
-                name="Women theft victims"
-                stroke="#60a5fa"
-                strokeWidth={2}
-                dot={{ r: 1.5 }}
-                activeDot={{ r: 3 }}
-                isAnimationActive={false}
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="menTheft"
-                name="Men theft victims"
-                stroke="#34d399"
-                strokeWidth={2}
-                dot={{ r: 1.5 }}
-                activeDot={{ r: 3 }}
-                isAnimationActive={false}
-              />
+              {isFrance ? (
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="theft"
+                  name="Theft victims (women & men)"
+                  stroke="#60a5fa"
+                  strokeWidth={2}
+                  dot={{ r: 1.5 }}
+                  activeDot={{ r: 3 }}
+                  isAnimationActive={false}
+                />
+              ) : (
+                <>
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="womenTheft"
+                    name="Women theft victims"
+                    stroke="#60a5fa"
+                    strokeWidth={2}
+                    dot={{ r: 1.5 }}
+                    activeDot={{ r: 3 }}
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="menTheft"
+                    name="Men theft victims"
+                    stroke="#34d399"
+                    strokeWidth={2}
+                    dot={{ r: 1.5 }}
+                    activeDot={{ r: 3 }}
+                    isAnimationActive={false}
+                  />
+                </>
+              )}
               <Line
                 yAxisId="right"
                 type="monotone"
@@ -1412,7 +1582,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           <ChartContainer config={germanyWhiteNativeChildrenVictimsChartConfig} className="h-[400px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={GERMANY_WHITE_NATIVE_CHILDREN_VICTIMS_SERIES}
+                data={childrenSeries as unknown as Record<string, unknown>[]}
                 margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
               >
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1515,7 +1685,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
         </CardContent>
       </Card>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES.map((box) => (
+        {childrenBoxes.map((box) => (
           <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
         ))}
       </div>
@@ -1535,7 +1705,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           >
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={GERMANY_WHITE_NATIVE_SEXUAL_ASSAULT_VICTIMS_SERIES}
+                data={sexualAssaultSeries as unknown as Record<string, unknown>[]}
                 margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
               >
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1611,12 +1781,12 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
         </CardContent>
       </Card>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_1.map((box) => (
+        {sexualAssaultBoxesRow1.map((box) => (
           <GermanyWhiteNativeVictimsTotalBox key={box.id} title={box.title} value={box.value} />
         ))}
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {SEXUAL_ASSAULT_VICTIM_TOTAL_BOXES_ROW_2.map((box) => (
+        {sexualAssaultBoxesRow2.map((box) => (
           <GermanyWhiteNativeVictimsTotalBox
             key={box.id}
             title={box.title}
@@ -1625,7 +1795,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
           />
         ))}
       </div>
-      <GermanyCrimeVictimsNotableIncidents />
+      <GermanyCrimeVictimsNotableIncidents iso3={iso3} />
     </div>
   );
 });
@@ -1791,7 +1961,7 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
   const countryName = isFrance ? 'France' : 'Germany';
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={'flex flex-col gap-4'}>
       {showCountryTables ? (
         <>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1830,21 +2000,4 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
   );
 });
 
-export function collectCrimeSourceUrls(row: CountryWideRow | null): { url: string; label: string }[] {
-  if (!row) return [];
-  const out: { url: string; label: string }[] = [];
-  const seen = new Set<string>();
-  for (const cfg of CRIME_BOXES) {
-    const u = String(row[cfg.sourceUrlKey] ?? '').trim();
-    if (!u || seen.has(u)) continue;
-    seen.add(u);
-    const label = String(row[cfg.sourceLabelKey] ?? '').trim();
-    try {
-      const host = new URL(u).hostname.replace(/^www\./, '');
-      out.push({ url: u, label: label || host });
-    } catch {
-      out.push({ url: u, label: label || u.slice(0, 48) });
-    }
-  }
-  return out;
-}
+export { collectCrimeSourceUrls } from '../lib/crimeBoxes';

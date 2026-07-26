@@ -40,15 +40,18 @@ const chartConfig: ChartConfig = {
 type GermanyPopulationPyramidProps = {
   /** Per-country pyramid CSV (same columns); omitted for Germany (bundled data). */
   csvUrl?: string;
+  /** Bundled CSV text (same columns) for a non-Germany country — avoids a network fetch. */
+  rawCsv?: string;
   countryLabel?: string;
 };
 
 export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
   csvUrl,
+  rawCsv,
   countryLabel = 'Germany',
 }: GermanyPopulationPyramidProps) {
-  const isGermany = !csvUrl;
-  const [raw, setRaw] = useState(isGermany ? germanyPopulationByAgeCsvRaw : '');
+  const isGermany = !csvUrl && !rawCsv;
+  const [raw, setRaw] = useState(isGermany ? germanyPopulationByAgeCsvRaw : rawCsv ?? '');
 
   useEffect(() => {
     if (!csvUrl) return;
@@ -197,7 +200,7 @@ export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
         <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
           {isGermany
             ? 'Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).'
-            : `Source data: ${csvUrl?.split('/').pop()} (${countryLabel}, modeled 2025 age-group population by sex).`}
+            : `Source data: ${csvUrl?.split('/').pop() ?? `${countryLabel.toLowerCase()}_2025_population_by_age_and_gender.csv`} (${countryLabel}, modeled 2025 age-group population by sex, INSEE-based).`}
         </p>
       </CardContent>
     </Card>

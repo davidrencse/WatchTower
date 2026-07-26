@@ -73,7 +73,7 @@ const StockSparkline = memo(function StockSparkline({
   );
 });
 
-const StockCard = memo(function StockCard({ item }: { item: GermanyStockStripRow }) {
+export const StockCard = memo(function StockCard({ item }: { item: GermanyStockStripRow }) {
   const up = item.changePercent >= 0;
   const pctClass = up ? 'text-emerald-400' : 'text-red-400';
   const sparkPath = useMemo(
@@ -115,9 +115,11 @@ const StockCard = memo(function StockCard({ item }: { item: GermanyStockStripRow
   );
 });
 
-export const GermanyDaxCarousel = memo(function GermanyDaxCarousel() {
-  const items = GERMANY_STATIC_MARKET_STRIP;
-
+export const GermanyDaxCarousel = memo(function GermanyDaxCarousel({
+  items = GERMANY_STATIC_MARKET_STRIP,
+}: {
+  items?: readonly GermanyStockStripRow[];
+} = {}) {
   return (
     <section
       className="wt-dax-carousel group relative font-sans"

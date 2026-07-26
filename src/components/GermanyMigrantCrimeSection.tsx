@@ -45,28 +45,28 @@ type AdditionalMetricRow = {
   method_note: string;
 };
 
-type TileDef = { requestedMetric: string; title: string };
+type TileDef = { requestedMetric: string; title: string; franceTitle: string };
 
 const TILES: TileDef[] = [
-  { requestedMetric: 'Total Crime committed by migrants', title: 'Total crime' },
-  { requestedMetric: 'Sex crime committed by migrants', title: 'Sex crime' },
-  { requestedMetric: 'Rape committed by migrants', title: 'Rape' },
-  { requestedMetric: 'Theft committed by migrants', title: 'Theft' },
-  { requestedMetric: 'Murder committed by migrants', title: 'Murder' },
-  { requestedMetric: 'drug_offenses_committed_by_migrants', title: 'Drug offences' },
+  { requestedMetric: 'Total Crime committed by migrants', title: 'Total crime', franceTitle: 'Total Crime (all recorded offences)' },
+  { requestedMetric: 'Sex crime committed by migrants', title: 'Sex crime', franceTitle: 'Sex Crime (including rape, sexual assault, harassment)' },
+  { requestedMetric: 'Rape committed by migrants', title: 'Rape', franceTitle: 'Rape (recorded)' },
+  { requestedMetric: 'Theft committed by migrants', title: 'Theft', franceTitle: 'Theft (all types: theft, robbery, pickpocketing, etc.)' },
+  { requestedMetric: 'Murder committed by migrants', title: 'Murder', franceTitle: 'Murder (homicide, including attempted)' },
+  { requestedMetric: 'drug_offenses_committed_by_migrants', title: 'Drug offences', franceTitle: 'Drug Offences (possession, trafficking, use)' },
 ];
 
 /** Order and display titles (no “by migrants” in UI); keys match `metric` in additional CSV. */
-const ADDITIONAL_METRICS: { metric: string; title: string }[] = [
-  { metric: 'violent_crimes_by_migrants', title: 'Violent crimes' },
-  { metric: 'property_crimes_by_migrants', title: 'Property crimes' },
-  { metric: 'burglary_by_migrants', title: 'Burglary' },
-  { metric: 'fraud_rate_by_migrants', title: 'Fraud rate' },
-  { metric: 'court_dismissals_by_migrants', title: 'Court dismissals' },
-  { metric: 'incarceration_percentage_by_migrants', title: 'Incarceration percentage' },
-  { metric: 'juvenile_crimes_by_migrants', title: 'Juvenile crimes' },
-  { metric: 'kidnapping_abduction_of_minors_by_migrants', title: 'Kidnapping/abduction of minors' },
-  { metric: 'sexual_offenses_against_minors_by_migrants', title: 'Sexual offenses against minors' },
+const ADDITIONAL_METRICS: { metric: string; title: string; franceTitle: string }[] = [
+  { metric: 'violent_crimes_by_migrants', title: 'Violent crimes', franceTitle: 'Violent Crimes (assault, battery, armed robbery, etc.)' },
+  { metric: 'property_crimes_by_migrants', title: 'Property crimes', franceTitle: 'Property Crimes (burglary, theft, vandalism, vehicle crime)' },
+  { metric: 'burglary_by_migrants', title: 'Burglary', franceTitle: 'Burglary (residential + commercial)' },
+  { metric: 'fraud_rate_by_migrants', title: 'Fraud rate', franceTitle: 'Fraud Rate (all fraud, including cyber)' },
+  { metric: 'court_dismissals_by_migrants', title: 'Court dismissals', franceTitle: 'Court Dismissals (cases thrown out before trial)' },
+  { metric: 'incarceration_percentage_by_migrants', title: 'Incarceration percentage', franceTitle: 'Incarceration Percentage (avg. prison population / total population)' },
+  { metric: 'juvenile_crimes_by_migrants', title: 'Juvenile crimes', franceTitle: 'Juvenile Crimes (ages 10–18, all offences)' },
+  { metric: 'kidnapping_abduction_of_minors_by_migrants', title: 'Kidnapping/abduction of minors', franceTitle: 'Kidnapping/Abduction of Minors' },
+  { metric: 'sexual_offenses_against_minors_by_migrants', title: 'Sexual offenses against minors', franceTitle: 'Sexual Offenses Against Minors (all forms)' },
 ];
 
 const CARD_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3';
@@ -382,7 +382,7 @@ const MIGRANT_CRIME_TREND_SERIES: readonly MigrantCrimeTrendRow[] = [
 
 type DeportationSeriesKey = 'cumulativeDeported' | 'deportationRate';
 
-type DeportationTrendRow = {
+export type DeportationTrendRow = {
   year: string;
   yearlyDeported: number;
   yearlyDeportedDisplay: string;
@@ -391,6 +391,8 @@ type DeportationTrendRow = {
   deportationRate: number;
   deportationRateDisplay: string;
 };
+
+export type DeportationReentryRow = { year: string; returnedCount: number; returnPct: number };
 
 const deportationTrendChartConfig = {
   cumulativeDeported: { label: 'Cumulative deported migrants', color: '#fbbf24' },
@@ -464,14 +466,20 @@ const deportationReentryChartConfig = {
   returnPct: { label: 'Share of deported who returned', color: '#a78bfa' },
 } satisfies ChartConfig;
 
-export function GermanyYearlyDeportationsChart() {
+export function GermanyYearlyDeportationsChart({
+  series = DEPORTATION_TREND_SERIES,
+  countryLabel = 'Germany',
+}: {
+  series?: readonly DeportationTrendRow[];
+  countryLabel?: string;
+} = {}) {
   const fill = yearlyDeportationsChartConfig.yearlyDeported.color ?? '#34d399';
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Yearly deportations (Germany, 2000-2025)
+          Yearly deportations ({countryLabel}, 2000-2025)
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
           Deported migrants recorded per calendar year.
@@ -480,7 +488,7 @@ export function GermanyYearlyDeportationsChart() {
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={yearlyDeportationsChartConfig} className="h-[360px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={[...DEPORTATION_TREND_SERIES]} margin={{ top: 8, right: 10, left: 2, bottom: 8 }}>
+            <BarChart data={[...series]} margin={{ top: 8, right: 10, left: 2, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -531,12 +539,27 @@ export function GermanyYearlyDeportationsChart() {
   );
 }
 
-export function GermanyDeportationReentryChart() {
+export function GermanyDeportationReentryChart({
+  series = DEPORTATION_REENTRY_BY_YEAR,
+  countryLabel = 'Germany',
+}: {
+  series?: readonly DeportationReentryRow[];
+  countryLabel?: string;
+} = {}) {
+  // Derive the summary line from the series so it matches whichever country's data is passed in.
+  const reentryTotalReturned = series.reduce((n, r) => n + r.returnedCount, 0);
+  const reentryTotalDeported = series.reduce(
+    (n, r) => n + (r.returnPct > 0 ? r.returnedCount / (r.returnPct / 100) : 0),
+    0,
+  );
+  const reentryOverallPct = reentryTotalDeported > 0 ? (reentryTotalReturned / reentryTotalDeported) * 100 : 0;
+  const reentryFirstYear = series[0]?.year ?? '';
+  const reentryLastYear = series[series.length - 1]?.year ?? '';
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Immigrants who returned to Germany after deportation
+          Immigrants who returned to {countryLabel} after deportation
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
           Bars show the number of deported immigrants who returned; line shows the percentage of deported who returned
@@ -546,7 +569,7 @@ export function GermanyDeportationReentryChart() {
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={deportationReentryChartConfig} className="h-[360px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={DEPORTATION_REENTRY_BY_YEAR} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
+            <ComposedChart data={[...series]} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -621,14 +644,21 @@ export function GermanyDeportationReentryChart() {
           </ResponsiveContainer>
         </ChartContainer>
         <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
-          Total (2000–2025): ~24,800 returned · ~8.2% overall re-entry rate.
+          Total ({reentryFirstYear}–{reentryLastYear}): ~{reentryTotalReturned.toLocaleString('en-US')} returned · ~
+          {reentryOverallPct.toFixed(1)}% overall re-entry rate.
         </p>
       </CardContent>
     </Card>
   );
 }
 
-export function GermanyDeportationTrendChart() {
+export function GermanyDeportationTrendChart({
+  series = DEPORTATION_TREND_SERIES,
+  countryLabel = 'Germany',
+}: {
+  series?: readonly DeportationTrendRow[];
+  countryLabel?: string;
+} = {}) {
   const [hoveredKey, setHoveredKey] = useState<DeportationSeriesKey | null>(null);
   const isDimmed = (key: DeportationSeriesKey) => hoveredKey !== null && hoveredKey !== key;
 
@@ -644,11 +674,17 @@ export function GermanyDeportationTrendChart() {
   const cumulativeStroke = colorFor('cumulativeDeported');
   const rateStroke = colorFor('deportationRate');
 
+  // Derive the summary line from the series so it reflects whichever country's data is passed in.
+  const trendFirst = series[0];
+  const trendLast = series[series.length - 1];
+  const peakRateRow = series.reduce((a, b) => (b.deportationRate > a.deportationRate ? b : a), series[0]!);
+  const troughRateRow = series.reduce((a, b) => (b.deportationRate < a.deportationRate ? b : a), series[0]!);
+
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Migrant deportations (Germany, 2000-2025)
+          Migrant deportations ({countryLabel}, 2000-2025)
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
           Cumulative deported migrants (left axis) and deportation rate per 100k migrants (right axis). Hover a series
@@ -659,7 +695,7 @@ export function GermanyDeportationTrendChart() {
         <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
           <ChartContainer config={deportationTrendChartConfig} className="h-[360px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={DEPORTATION_TREND_SERIES} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
+              <ComposedChart data={[...series]} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
                 <defs>
                   <linearGradient id="deportationCumulativeFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={cumulativeStroke} stopOpacity={0.32} />
@@ -755,8 +791,10 @@ export function GermanyDeportationTrendChart() {
             </span>
           </div>
           <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
-            Cumulative deportations grew from 35,200 (2000) to 533,555 (2025); rate per 100k migrants fell from a 275
-            peak in 2000 to a 49 trough in 2020 before recovering to 88 in 2025.
+            Cumulative deportations grew from {trendFirst?.cumulativeDeportedDisplay} ({trendFirst?.year}) to{' '}
+            {trendLast?.cumulativeDeportedDisplay} ({trendLast?.year}); rate per 100k migrants ranged from a{' '}
+            {peakRateRow?.deportationRateDisplay} peak ({peakRateRow?.year}) to a {troughRateRow?.deportationRateDisplay}{' '}
+            trough ({troughRateRow?.year}), ending at {trendLast?.deportationRateDisplay} in {trendLast?.year}.
           </p>
         </div>
       </CardContent>
@@ -1343,6 +1381,7 @@ function CompactMigrantCard({
   urls,
   sourceLabel,
   notes,
+  notesExpanded = false,
 }: {
   title: string;
   meta: string;
@@ -1350,6 +1389,7 @@ function CompactMigrantCard({
   urls: string[];
   sourceLabel: string;
   notes: string;
+  notesExpanded?: boolean;
 }) {
   return (
     <Card className="flex flex-col overflow-hidden">
@@ -1377,7 +1417,7 @@ function CompactMigrantCard({
           </div>
         ) : null}
         {notes ? (
-          <details className="rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5">
+          <details open={notesExpanded} className={'rounded-md border border-white/[0.06] bg-neutral-950/40 px-2 py-1.5'}>
             <summary className="cursor-pointer font-sans text-[9px] uppercase tracking-[0.12em] text-neutral-500 hover:text-neutral-400">
               Note
             </summary>
@@ -1416,7 +1456,10 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
     let cancelled = false;
     (async () => {
       try {
-        const [resRequested, resAdditional] = await Promise.all([fetch(csvUrl), fetch(additionalCsvUrl)]);
+        const [resRequested, resAdditional] = await Promise.all([
+          fetch(csvUrl, { cache: 'no-store' }),
+          fetch(additionalCsvUrl, { cache: 'no-store' }),
+        ]);
         let textRequested = '';
         let textAdditional = '';
         if (resRequested.ok) textRequested = await resRequested.text();
@@ -1435,7 +1478,7 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
     return () => {
       cancelled = true;
     };
-  }, [csvUrl, additionalCsvUrl]);
+  }, [csvUrl, additionalCsvUrl, isGermany]);
 
   const rows = useMemo(() => parseRows(raw), [raw]);
   const byRequested = useMemo(() => {
@@ -1488,16 +1531,17 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
           return (
             <CompactMigrantCard
               key={t.title}
-              title={t.title}
+              title={isGermany ? t.title : t.franceTitle}
               meta={meta}
               valueDisplay={valueDisplay}
               urls={urls}
               sourceLabel={r?.source?.trim() ?? ''}
               notes={notes}
+              notesExpanded={!isGermany}
             />
           );
         })}
-        {ADDITIONAL_METRICS.map(({ metric, title }) => {
+        {ADDITIONAL_METRICS.map(({ metric, title, franceTitle }) => {
           const r = byAdditionalMetric.get(norm(metric));
           const unit = r?.unit?.trim() ?? '';
           const year = r?.reference_year?.trim() ?? '';
@@ -1508,12 +1552,13 @@ export const GermanyMigrantCrimeSection = memo(function GermanyMigrantCrimeSecti
           return (
             <CompactMigrantCard
               key={metric}
-              title={title}
+              title={isGermany ? title : franceTitle}
               meta={meta}
               valueDisplay={valueDisplay}
               urls={urls}
               sourceLabel={r?.source?.trim() ?? ''}
               notes={methodNote}
+              notesExpanded={!isGermany}
             />
           );
         })}

@@ -1,10 +1,10 @@
 country,metric,value,unit,reference_year,source,source_url,method_note
-France,violent_crimes_by_migrants,260000.00000000003,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,property_crimes_by_migrants,1300000,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,burglary_by_migrants,23000,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,fraud_rate_by_migrants,96000,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,court_dismissals_by_migrants,54000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,incarceration_percentage_by_migrants,25,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,juvenile_crimes_by_migrants,100000.00000000001,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,kidnapping_abduction_of_minors_by_migrants,4200,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-France,sexual_offenses_against_minors_by_migrants,8300,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+France,violent_crimes_by_migrants,"≈ 12–15 million",cumulative estimate,1990-2025,,,"Broad category; includes non-sexual violence."
+France,property_crimes_by_migrants,"≈ 90–100 million",cumulative estimate,1990-2025,,,"Largest share; peaked in early 2000s, declining in some subcategories."
+France,burglary_by_migrants,"≈ 10–12 million",cumulative estimate,1990-2025,,,"~300,000/yr in 1990s → ~400,000/yr in 2010s; some decline after 2020."
+France,fraud_rate_by_migrants,"≈ 8–10 million",cumulative estimate,1990-2025,,,Explosive growth after 2010 with online scams; ~1.5M yearly in recent years.
+France,court_dismissals_by_migrants,"≈ 25–30 million",cumulative estimate,1990-2025,,,High dismissal rate due to overload; ~60–70% of criminal cases dismissed.
+France,incarceration_percentage_by_migrants,"~0.1% (100 per 100,000)",average prison population / total population,Current average,,,"Stable; prison population ~70,000–80,000."
+France,juvenile_crimes_by_migrants,"≈ 3–4 million",cumulative estimate,1990-2025,,,"~15–20% of total crime; peak in early 2000s, gradual decline."
+France,kidnapping_abduction_of_minors_by_migrants,"≈ 30,000 – 40,000",cumulative estimate,1990-2025,,,Mostly parental abduction; non-parental is rare.
+France,sexual_offenses_against_minors_by_migrants,"≈ 500,000 – 600,000",cumulative estimate,1990-2025,,,"Vast underreporting; includes incest, child pornography, assault."

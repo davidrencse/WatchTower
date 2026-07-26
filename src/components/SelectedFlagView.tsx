@@ -1,17 +1,19 @@
 import { lazy, Suspense } from 'react';
-import { FLAGS } from '../data/flags';
-import { getIso3ForFlagId, flagIdHasCountryStats } from '../lib/flagIsoMapping';
+import { slugForFlag } from '../lib/countryRoute';
+import { getIso3ForFlagId } from '../lib/flagIsoMapping';
 import type { FlagEntry } from '../types/flag';
-import { CountryFocusCarousel } from './CountryFocusCarousel';
 import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
+import { CountryToBeCompletedPage } from './CountryToBeCompletedPage';
 
 const CountryStatsDashboard = lazy(() =>
   import('./CountryStatsDashboard').then((m) => ({ default: m.CountryStatsDashboard })),
 );
 
+const COMPLETED_COUNTRY_SLUGS = new Set(['germany', 'france', 'italy']);
+
 /**
  * Warm the dashboard chunk (and its recharts dependency) ahead of selection so opening a
- * country dossier is instant. Safe to call repeatedly — the module cache dedupes it.
+ * completed country dossier is instant. Safe to call repeatedly; the module cache dedupes it.
  */
 export function prefetchCountryDashboard(): void {
   void import('./CountryStatsDashboard');
@@ -20,19 +22,29 @@ export function prefetchCountryDashboard(): void {
 type SelectedFlagViewProps = {
   flag: FlagEntry;
   onBack: () => void;
-  onSelectFlag?: (flag: FlagEntry) => void;
 };
 
-export function SelectedFlagView({ flag, onBack, onSelectFlag }: SelectedFlagViewProps) {
-  if (flagIdHasCountryStats(flag.id)) {
+/**
+ * Countries scaffolded from France's page: they render France's dossier content verbatim under
+ * their own flag/title shell, as clay to be sculpted into their own data section by section.
+ * Identity (flag image, hero title, document title) comes from `flag`, so only the data `iso3`
+ * is aliased here.
+ */
+const FRANCE_SCAFFOLD_SLUGS = new Set(['italy']);
+
+export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
+  const slug = slugForFlag(flag);
+  if (COMPLETED_COUNTRY_SLUGS.has(slug)) {
     const iso3 = getIso3ForFlagId(flag.id);
     if (iso3) {
+      const dataIso3 = FRANCE_SCAFFOLD_SLUGS.has(slug) ? 'FRA' : iso3;
       return (
         <Suspense fallback={<CountryPageIndustrialLoader countryLabel={flag.label} />}>
           <CountryStatsDashboard
             flag={flag}
-            iso3={iso3}
-            crimeIso3={iso3}
+            iso3={dataIso3}
+            actualIso3={iso3}
+            crimeIso3={dataIso3}
             onBack={onBack}
           />
         </Suspense>
@@ -40,31 +52,6 @@ export function SelectedFlagView({ flag, onBack, onSelectFlag }: SelectedFlagVie
     }
   }
 
-  return (
-    <div className="wt-dark-stage min-h-screen">
-      <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between px-6 pt-6 sm:px-10">
-        <button
-          type="button"
-          onClick={onBack}
-          className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-neutral-500 transition-colors hover:text-neutral-200"
-        >
-          ← Back
-        </button>
-        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.32em] text-neutral-600">
-          No dossier · browse other countries
-        </p>
-      </div>
-      <CountryFocusCarousel
-        flags={FLAGS}
-        activeFlagId={flag.id}
-        onActiveChange={(f) => {
-          if (f.id !== flag.id) onSelectFlag?.(f);
-        }}
-        onSelect={(f) => {
-          if (flagIdHasCountryStats(f.id)) onSelectFlag?.(f);
-        }}
-        showOpenAction
-      />
-    </div>
-  );
+  return <CountryToBeCompletedPage flag={flag} onBack={onBack} />;
 }
+

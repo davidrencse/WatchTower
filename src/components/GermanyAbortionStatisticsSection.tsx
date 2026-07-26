@@ -262,11 +262,30 @@ type GermanyAbortionStatisticsSectionProps = {
   csvUrl?: string;
   /** Germany also renders manually-entered cards and its national time-series charts. */
   isGermany?: boolean;
+  /** Country value expected in the CSV; Germany remains the default. */
+  countryLabel?: string;
+  priorLiveBirthCards?: {
+    atLeastOneValue: string;
+    atLeastOneBody: string;
+    zeroValue: string;
+    zeroBody: string;
+  };
+  relationshipStatus?: {
+    year: string;
+    rows: readonly {
+      label: string;
+      value: string;
+      share: string;
+    }[];
+  };
 };
 
 export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionStatisticsSection({
   csvUrl = CSV_URL,
   isGermany = true,
+  countryLabel = 'Germany',
+  priorLiveBirthCards,
+  relationshipStatus,
 }: GermanyAbortionStatisticsSectionProps) {
   const [raw, setRaw] = useState(isGermany ? abortionCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -291,9 +310,9 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
   }, [csvUrl]);
 
   const groups = useMemo(() => {
-    const parsed = parseGermanyMetricTableCsv(raw);
+    const parsed = parseGermanyMetricTableCsv(raw, countryLabel);
     return clusterMetricTable(parsed, 'Abortions', GERMANY_ABORTION_METRIC_ORDER);
-  }, [raw]);
+  }, [raw, countryLabel]);
 
   const splitTotal = groups[0]?.[0]?.metric === TOTAL_ABORTIONS_METRIC;
   const totalGroup = splitTotal ? groups[0]! : null;
@@ -323,17 +342,23 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
         <>
           <div className={GOV_POLITICS_CARD_GRID}>
             <AbortionCleanMetricCard rows={totalGroup} />
-            {isGermany ? (
+            {isGermany || priorLiveBirthCards ? (
               <>
                 <ManualAbortionStatCard
-                  title="Prior live births (≥1)"
-                  valueDisplay="60,679"
-                  body="Abortions were performed on women who already had at least 1 previous live birth."
+                  title={'Prior live births (≥1)'}
+                  valueDisplay={priorLiveBirthCards?.atLeastOneValue ?? '60,679'}
+                  body={
+                    priorLiveBirthCards?.atLeastOneBody ??
+                    'Abortions were performed on women who already had at least 1 previous live birth.'
+                  }
                 />
                 <ManualAbortionStatCard
-                  title="Prior live births (0)"
-                  valueDisplay="45,776"
-                  body="Abortions were performed on women with 0 previous live births."
+                  title={'Prior live births (0)'}
+                  valueDisplay={priorLiveBirthCards?.zeroValue ?? '45,776'}
+                  body={
+                    priorLiveBirthCards?.zeroBody ??
+                    'Abortions were performed on women with 0 previous live births.'
+                  }
                 />
               </>
             ) : null}
@@ -439,36 +464,50 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
         </>
       ) : null}
 
-      {isGermany ? (
+      {isGermany || relationshipStatus ? (
       <Card className="overflow-hidden border-line bg-surface-metric">
         <CardHeader className="space-y-1 p-3 pb-2">
           <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
-            Abortions by marital / relationship status [2021]
+            Abortions by marital / relationship status [{relationshipStatus?.year ?? '2021'}]
           </CardTitle>
           <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
             Entered manually (not from abortion CSV).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-3 pt-0 font-sans text-[11px] leading-relaxed text-neutral-300">
-          <p>
-            <span className="tabular-nums text-base font-semibold text-white">55,075</span> abortions among single
-            (unmarried) women.
-          </p>
-          <p>
-            <span className="tabular-nums text-base font-semibold text-white">35,946</span> abortions among married
-            women.
-          </p>
-          <p>
-            <span className="tabular-nums text-base font-semibold text-white">3,575</span> abortions among widowed or
-            divorced women.
-          </p>
+          {relationshipStatus ? (
+            relationshipStatus.rows.map((row) => (
+              <p key={row.label} className={'flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5'}>
+                <span>
+                  <span className={'tabular-nums text-base font-semibold text-white'}>{row.value}</span>{' '}
+                  {row.label}
+                </span>
+                <span className={'tabular-nums text-neutral-400'}>{row.share}</span>
+              </p>
+            ))
+          ) : (
+            <>
+              <p>
+                <span className={'tabular-nums text-base font-semibold text-white'}>55,075</span> abortions among single
+                (unmarried) women.
+              </p>
+              <p>
+                <span className={'tabular-nums text-base font-semibold text-white'}>35,946</span> abortions among married
+                women.
+              </p>
+              <p>
+                <span className={'tabular-nums text-base font-semibold text-white'}>3,575</span> abortions among widowed or
+                divorced women.
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
       ) : null}
 
       <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
         Source: <code className="text-neutral-500">{csvUrl.split('/').pop()}</code>
-        {isGermany ? ' (other figures noted on-card).' : ' (modeled values labeled on-card).'}
+        {isGermany ? ' (other figures noted on-card).' : ' (country-specific figures noted on-card).'}
       </p>
     </div>
   );

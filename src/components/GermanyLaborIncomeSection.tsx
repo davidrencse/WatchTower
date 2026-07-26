@@ -20,7 +20,10 @@ import {
   GermanyImmigrantBenefitsSection,
   type ImmigrantBenefitsData,
 } from './GermanyImmigrantBenefitsSection';
-import { GermanyIncomeDistributionSection } from './GermanyIncomeDistributionSection';
+import {
+  GermanyIncomeDistributionSection,
+  type IncomeConcentrationIndicators,
+} from './GermanyIncomeDistributionSection';
 import type { GermanyIncomeGroupRow } from '../lib/germanyIncomeDistribution';
 
 const GOV_CSV_URL = '/data/germany_government_politics.csv';
@@ -181,7 +184,11 @@ type GermanyLaborIncomeSectionProps = {
   /** Germany also renders income-distribution, benefits, and nationality-split charts (bundled data). */
   isGermany?: boolean;
   /** Override the income-distribution dataset (same shape) — e.g. France's real figures. Defaults to Germany's. */
-  incomeDistribution?: { groups: readonly GermanyIncomeGroupRow[]; caption: string };
+  incomeDistribution?: {
+    groups: readonly GermanyIncomeGroupRow[];
+    caption: string;
+    concentrationIndicators?: IncomeConcentrationIndicators;
+  };
   /** Override government labor/enforcement rows while retaining this section's card structure. */
   govRowsOverride?: readonly GermanyGovernmentPoliticsRow[];
   /** Replace matching labor-statistic metrics while retaining the remaining cards. */
@@ -298,7 +305,11 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
     return (
       <div className="flex flex-col gap-6">
         {isGermany ? (
-          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+          <GermanyIncomeDistributionSection
+            groups={incomeDistribution?.groups}
+            caption={incomeDistribution?.caption}
+            concentrationIndicators={incomeDistribution?.concentrationIndicators}
+          />
         ) : null}
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
         {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
@@ -313,13 +324,21 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
     return (
       <div className="flex flex-col gap-6">
         {isGermany ? (
-          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+          <GermanyIncomeDistributionSection
+            groups={incomeDistribution?.groups}
+            caption={incomeDistribution?.caption}
+            concentrationIndicators={incomeDistribution?.concentrationIndicators}
+          />
         ) : null}
-        <p className="font-sans text-xs text-neutral-500">
-          No labor / income rows in <code className="text-neutral-400">{govCsvUrl.split('/').pop()}</code> (Government /
-          Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
-          <code className="text-neutral-400">{laborCsvUrl.split('/').pop()}</code>.
-        </p>
+        {govRowsOverride || laborRowsOverride?.length ? (
+          <p className="font-sans text-xs text-neutral-500">No labor / income rows available.</p>
+        ) : (
+          <p className="font-sans text-xs text-neutral-500">
+            No labor / income rows in <code className="text-neutral-400">{govCsvUrl.split('/').pop()}</code> (Government /
+            Labor law or Economic / Labor &amp; Income Distribution) and no rows in{' '}
+            <code className="text-neutral-400">{laborCsvUrl.split('/').pop()}</code>.
+          </p>
+        )}
         {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
       </div>
     );
@@ -328,7 +347,11 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   return (
     <div className="flex flex-col gap-6">
       {isGermany ? (
-          <GermanyIncomeDistributionSection groups={incomeDistribution?.groups} caption={incomeDistribution?.caption} />
+          <GermanyIncomeDistributionSection
+            groups={incomeDistribution?.groups}
+            caption={incomeDistribution?.caption}
+            concentrationIndicators={incomeDistribution?.concentrationIndicators}
+          />
         ) : null}
 
       {hasGov ? (
@@ -341,10 +364,12 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
               <Fragment key={`gov-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
             ))}
           </div>
-          <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-            Source: <code className="text-neutral-500">{govCsvUrl.split('/').pop()}</code> — Government / Labor law or
-            Economic / Labor &amp; Income Distribution.
-          </p>
+          {govRowsOverride ? null : (
+            <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+              Source: <code className="text-neutral-500">{govCsvUrl.split('/').pop()}</code> — Government / Labor law or
+              Economic / Labor &amp; Income Distribution.
+            </p>
+          )}
         </div>
       ) : null}
 
@@ -529,9 +554,11 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           </Card>
           </>
           ) : null}
-          <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
-            Source: <code className="text-neutral-500">{laborCsvUrl.split('/').pop()}</code>
-          </p>
+          {laborRowsOverride?.length ? null : (
+            <p className="font-sans text-[10px] leading-relaxed text-neutral-600 uppercase tracking-[0.03em]">
+              Source: <code className="text-neutral-500">{laborCsvUrl.split('/').pop()}</code>
+            </p>
+          )}
         </div>
       ) : null}
 

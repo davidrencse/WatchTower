@@ -20,6 +20,10 @@ const HEALTH_OVERVIEW_BOX_METRICS = new Set([
   'Healthy life expectancy',
   'Preventable mortality rate',
   'Alcohol consumption',
+  'Life expectancy',
+  'Self-reported poor health',
+  'Insufficient physical activity',
+  'Healthy life expectancy (OECD country note)',
 ]);
 
 const OECD_HAAG_GERMANY_HTML =
@@ -86,12 +90,15 @@ const HEALTH_OVERVIEW_OECD_EXTRA_ROWS: GermanyGovernmentPoliticsRow[] = [
 type GermanyHealthBasicSectionProps = {
   /** Per-country CSV (same schema); defaults to Germany's. */
   csvUrl?: string;
+  /** Country label used to select rows from a per-country CSV. */
+  countryName?: string;
   /** Germany renders bundled fallback data + OECD extra cards; other countries skip both. */
   isGermany?: boolean;
 };
 
 export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection({
   csvUrl = CSV_URL,
+  countryName = 'Germany',
   isGermany = true,
 }: GermanyHealthBasicSectionProps) {
   const [raw, setRaw] = useState(isGermany ? healthBasicCsvRaw : '');
@@ -117,11 +124,11 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
   }, [csvUrl]);
 
   const groups = useMemo(() => {
-    const parsed = parseGermanyMetricTableCsv(raw);
+    const parsed = parseGermanyMetricTableCsv(raw, countryName);
     return clusterMetricTable(parsed, 'Health overview', GERMANY_HEALTH_BASIC_METRIC_ORDER).filter(
       (g) => g[0]!.metric !== 'Healthcare expenditure',
     );
-  }, [raw]);
+  }, [countryName, raw]);
 
   if (loadError) {
     return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;

@@ -67,6 +67,12 @@ export type TradeSectionData = {
   agreements: readonly AgreementInsight[];
   ftaImpacts: readonly FtaImpactRow[];
   ftaTitle: string;
+  /** Optional country-specific explanation for the agreement comparison chart. */
+  ftaDescription?: string;
+  /** Optional formatting for countries that chart observed balances instead of modelled GDP impact. */
+  ftaValueFormatter?: (value: number) => string;
+  /** Optional secondary formatting (defaults to jobs supported). */
+  ftaSecondaryFormatter?: (value: number) => string;
   notes: ReactNode;
 };
 
@@ -678,6 +684,9 @@ export const GermanyTradeSection = memo(function GermanyTradeSection({
   agreements = TRADE_AGREEMENT_INSIGHTS,
   ftaImpacts = FTA_NET_GDP_IMPACT_2025,
   ftaTitle = 'Quantified net GDP impact of major non-EU FTAs (annual, 2025)',
+  ftaDescription = 'Bars show net annual GDP impact in billions of euros. Positive and negative values are shown around the zero line; hover for jobs supported.',
+  ftaValueFormatter = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)} B€`,
+  ftaSecondaryFormatter = (value) => `${value >= 0 ? '+' : ''}${value.toLocaleString('en-US')} jobs`,
   notes = GERMANY_NOTES,
 }: Partial<TradeSectionData> = {}) {
   return (
@@ -996,7 +1005,7 @@ export const GermanyTradeSection = memo(function GermanyTradeSection({
           <CardHeader className="space-y-1 p-3 pb-2">
             <CardTitle className={`font-sans text-sm font-semibold text-neutral-100 ${UC}`}>{ftaTitle}</CardTitle>
             <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              Bars show net annual GDP impact in billions of euros. Positive and negative values are shown around the zero line; hover for jobs supported.
+              {ftaDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
@@ -1029,12 +1038,10 @@ export const GermanyTradeSection = memo(function GermanyTradeSection({
                         className="rounded-md"
                         formatter={(value, _name, item) => {
                           const payload = (item as { payload?: { jobsSupported?: number } } | undefined)?.payload;
-                          const jobs = payload?.jobsSupported;
-                          const jobsLabel =
-                            typeof jobs === 'number'
-                              ? `${jobs >= 0 ? '+' : ''}${jobs.toLocaleString('en-US')} jobs`
-                              : '—';
-                          return `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(1)} B€ · ${jobsLabel}`;
+                          const secondaryValue = payload?.jobsSupported;
+                          const secondaryLabel =
+                            typeof secondaryValue === 'number' ? ftaSecondaryFormatter(secondaryValue) : '—';
+                          return `${ftaValueFormatter(Number(value))} · ${secondaryLabel}`;
                         }}
                       />
                     }

@@ -18,7 +18,7 @@ import {
 } from 'recharts';
 import { memo } from 'react';
 
-type MarriageTrendRow = {
+export type MarriageTrendRow = {
   year: string;
   totalMarriages: number;
   nonGermanCount: number;
@@ -45,7 +45,7 @@ type MarriageAggregate = {
   asianIndianTotal: number;
 };
 
-type LgbtUnionRow = {
+export type LgbtUnionRow = {
   year: string;
   total: number;
   gay: number;
@@ -140,7 +140,7 @@ const LGBT_SERIES: readonly LgbtUnionRow[] = [
   { year: '2025', total: 8600, gay: 4000, lesbian: 4600, type: 'Marriage (estimated)' },
 ];
 
-type MarriageRatesRow = {
+export type MarriageRatesRow = {
   year: string;
   totalMarriages: number;
   crudeMarriageRate: number;
@@ -190,24 +190,6 @@ const MARRIAGE_RATES_AGE_CONFIG = {
 
 const OVERVIEW_PIE_COLORS = ['#22c55e', '#f59e0b', '#60a5fa', '#c084fc', '#f43f5e', '#38bdf8'];
 
-const FEMALE_LINE_CONFIG = {
-  nonGermanPct: { label: 'German F + Non-German M', color: '#f59e0b' },
-  europeanPct: { label: 'German F + European (non-German) M', color: '#22c55e' },
-  nonEuropeanPct: { label: 'German F + Non-European M', color: '#60a5fa' },
-  africanPct: { label: 'German F + African M', color: '#c084fc' },
-  arabPct: { label: 'German F + Arab M', color: '#f43f5e' },
-  asianIndianPct: { label: 'German F + Asian/Indian M', color: '#38bdf8' },
-} satisfies ChartConfig;
-
-const MALE_LINE_CONFIG = {
-  nonGermanPct: { label: 'German M + Non-German F', color: '#f59e0b' },
-  europeanPct: { label: 'German M + European (non-German) F', color: '#22c55e' },
-  nonEuropeanPct: { label: 'German M + Non-European F', color: '#60a5fa' },
-  africanPct: { label: 'German M + African F', color: '#c084fc' },
-  arabPct: { label: 'German M + Arab F', color: '#f43f5e' },
-  asianIndianPct: { label: 'German M + Asian/Indian F', color: '#38bdf8' },
-} satisfies ChartConfig;
-
 const LGBT_LINE_CONFIG = {
   total: { label: 'Total same-sex unions', color: '#f59e0b' },
   gay: { label: 'Gay (male-male)', color: '#22c55e' },
@@ -247,6 +229,7 @@ function MarriagePieCard({
   title,
   labels,
   aggregate,
+  nativeAdj = 'German',
 }: {
   title: string;
   labels: {
@@ -256,6 +239,7 @@ function MarriagePieCard({
     asianIndian: string;
   };
   aggregate: MarriageAggregate;
+  nativeAdj?: string;
 }) {
   const totalMarriages = aggregate.totalMarriages;
   const nonGermanPct = pctOfTotal(aggregate.nonGermanTotal, totalMarriages);
@@ -267,7 +251,7 @@ function MarriagePieCard({
   const otherNonEuropeanPct = Math.max(0, nonEuropeanPct - africanPct - arabPct - asianIndianPct);
 
   const pieData = [
-    { name: 'German + German', value: Math.max(0, 100 - nonGermanPct) },
+    { name: `${nativeAdj} + ${nativeAdj}`, value: Math.max(0, 100 - nonGermanPct) },
     { name: labels.european, value: europeanPct },
     { name: labels.african, value: africanPct },
     { name: labels.arab, value: arabPct },
@@ -319,7 +303,7 @@ function MarriageSummaryCard({ title, value }: { title: string; value: string })
   );
 }
 
-function MarriageLineCard({ title, data, chartConfig }: { title: string; data: readonly MarriageTrendRow[]; chartConfig: ChartConfig }) {
+function MarriageLineCard({ title, data, chartConfig, nativeAdj = 'German' }: { title: string; data: readonly MarriageTrendRow[]; chartConfig: ChartConfig; nativeAdj?: string }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -337,8 +321,8 @@ function MarriageLineCard({ title, data, chartConfig }: { title: string; data: r
               <YAxis tickFormatter={(value) => `${Number(value).toFixed(0)}%`} tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} width={48} />
               <ChartTooltip cursor={{ stroke: 'rgba(255,255,255,0.12)' }} content={<ChartTooltipContent className="rounded-md" formatter={(value) => `${Number(value).toFixed(2)}%`} labelFormatter={(label) => `Year ${String(label)}`} />} />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
-              <Line type="monotone" dataKey="nonGermanPct" name="Non-German spouse" stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="europeanPct" name="European (non-German) spouse" stroke="#22c55e" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="nonGermanPct" name={`Non-${nativeAdj} spouse`} stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="europeanPct" name={`European (non-${nativeAdj}) spouse`} stroke="#22c55e" strokeWidth={2} dot={false} isAnimationActive={false} />
               <Line type="monotone" dataKey="nonEuropeanPct" name="Non-European spouse" stroke="#60a5fa" strokeWidth={2} dot={false} isAnimationActive={false} />
               <Line type="monotone" dataKey="africanPct" name="African spouse" stroke="#c084fc" strokeWidth={2} dot={false} isAnimationActive={false} />
               <Line type="monotone" dataKey="arabPct" name="Arab spouse" stroke="#f43f5e" strokeWidth={2} dot={false} isAnimationActive={false} />
@@ -360,6 +344,7 @@ function MarriageDataTableCard({
   africanLabel,
   arabLabel,
   asianIndianLabel,
+  nativeAdj = 'German',
 }: {
   title: string;
   data: readonly MarriageTrendRow[];
@@ -369,6 +354,7 @@ function MarriageDataTableCard({
   africanLabel: string;
   arabLabel: string;
   asianIndianLabel: string;
+  nativeAdj?: string;
 }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
@@ -384,7 +370,7 @@ function MarriageDataTableCard({
             <TableRow>
               <TableHead>Year</TableHead>
               <TableHead className="text-right">Total Marriages</TableHead>
-              <TableHead className="text-right">German {prefix} + Non-German</TableHead>
+              <TableHead className="text-right">{nativeAdj} {prefix} + Non-{nativeAdj}</TableHead>
               <TableHead className="text-right">%</TableHead>
               <TableHead className="text-right">{europeanLabel}</TableHead>
               <TableHead className="text-right">%</TableHead>
@@ -424,8 +410,8 @@ function MarriageDataTableCard({
   );
 }
 
-function LgbtSummaryRow() {
-  const totals = LGBT_SERIES.reduce(
+function LgbtSummaryRow({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
+  const totals = series.reduce(
     (acc, row) => {
       if (row.year === '2000') return acc;
       acc.total += row.total;
@@ -445,8 +431,8 @@ function LgbtSummaryRow() {
   );
 }
 
-function LgbtPieCard() {
-  const totals = LGBT_SERIES.reduce(
+function LgbtPieCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
+  const totals = series.reduce(
     (acc, row) => {
       if (row.year === '2000') return acc;
       acc.gay += row.gay;
@@ -487,7 +473,7 @@ function LgbtPieCard() {
   );
 }
 
-function LgbtLineCard() {
+function LgbtLineCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -497,7 +483,7 @@ function LgbtLineCard() {
       <CardContent className="p-3 pt-0">
         <ChartContainer config={LGBT_LINE_CONFIG} className="h-[320px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={LGBT_SERIES} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart data={[...series]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="year" tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} width={52} />
@@ -517,7 +503,7 @@ function LgbtLineCard() {
   );
 }
 
-function MarriageRatesVolumeCrudeCard() {
+function MarriageRatesVolumeCrudeCard({ series = MARRIAGE_RATES_SERIES }: { series?: readonly MarriageRatesRow[] }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -529,7 +515,7 @@ function MarriageRatesVolumeCrudeCard() {
       <CardContent className="p-3 pt-0">
         <ChartContainer config={MARRIAGE_RATES_COMPOSED_CONFIG} className="h-[320px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={[...MARRIAGE_RATES_SERIES]} margin={{ top: 8, right: 14, left: 4, bottom: 8 }}>
+            <ComposedChart data={[...series]} margin={{ top: 8, right: 14, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="year" tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} interval={2} />
               <YAxis
@@ -585,7 +571,7 @@ function MarriageRatesVolumeCrudeCard() {
   );
 }
 
-function MarriageRatesAgeLineCard() {
+function MarriageRatesAgeLineCard({ series = MARRIAGE_RATES_SERIES }: { series?: readonly MarriageRatesRow[] }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -595,7 +581,7 @@ function MarriageRatesAgeLineCard() {
       <CardContent className="p-3 pt-0">
         <ChartContainer config={MARRIAGE_RATES_AGE_CONFIG} className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...MARRIAGE_RATES_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart data={[...series]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="year" tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }} axisLine={false} tickLine={false} interval={2} />
               <YAxis
@@ -630,17 +616,50 @@ function MarriageRatesAgeLineCard() {
   );
 }
 
-export const GermanyMarriagesSection = memo(function GermanyMarriagesSection() {
-  const femaleAggregate = aggregateMarriageSeries(FEMALE_SERIES);
-  const maleAggregate = aggregateMarriageSeries(MALE_SERIES);
+/** Line config for the mixed-marriage category chart, built from the native adjective. */
+function buildMarriageLineConfig(nativeAdj: string, self: 'F' | 'M', spouse: 'F' | 'M'): ChartConfig {
+  return {
+    nonGermanPct: { label: `${nativeAdj} ${self} + Non-${nativeAdj} ${spouse}`, color: '#f59e0b' },
+    europeanPct: { label: `${nativeAdj} ${self} + European (non-${nativeAdj}) ${spouse}`, color: '#22c55e' },
+    nonEuropeanPct: { label: `${nativeAdj} ${self} + Non-European ${spouse}`, color: '#60a5fa' },
+    africanPct: { label: `${nativeAdj} ${self} + African ${spouse}`, color: '#c084fc' },
+    arabPct: { label: `${nativeAdj} ${self} + Arab ${spouse}`, color: '#f43f5e' },
+    asianIndianPct: { label: `${nativeAdj} ${self} + Asian/Indian ${spouse}`, color: '#38bdf8' },
+  };
+}
+
+type GermanyMarriagesSectionProps = {
+  /** "Marriage rates" charts (total marriages, crude rate, mean age) — defaults to Germany. */
+  marriageRatesSeries?: readonly MarriageRatesRow[];
+  /** Mixed-marriage series (native woman + foreign man) — defaults to Germany. */
+  femaleSeries?: readonly MarriageTrendRow[];
+  /** Mixed-marriage series (native man + foreign woman) — defaults to Germany. */
+  maleSeries?: readonly MarriageTrendRow[];
+  /** Same-sex union series — defaults to Germany. */
+  lgbtSeries?: readonly LgbtUnionRow[];
+  /** Native-population adjective woven into interracial labels (e.g. "French"). */
+  nativeAdj?: string;
+};
+
+export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
+  marriageRatesSeries = MARRIAGE_RATES_SERIES,
+  femaleSeries = FEMALE_SERIES,
+  maleSeries = MALE_SERIES,
+  lgbtSeries = LGBT_SERIES,
+  nativeAdj = 'German',
+}: GermanyMarriagesSectionProps = {}) {
+  const femaleAggregate = aggregateMarriageSeries(femaleSeries);
+  const maleAggregate = aggregateMarriageSeries(maleSeries);
   const totalMarriagesAggregate = femaleAggregate.totalMarriages;
+  const femaleLineConfig = buildMarriageLineConfig(nativeAdj, 'F', 'M');
+  const maleLineConfig = buildMarriageLineConfig(nativeAdj, 'M', 'F');
 
   return (
     <div className="flex flex-col gap-3">
       <CollapsibleFlagSection title="Marriage rates" count={2} defaultOpen>
         <div className="flex flex-col gap-3">
-          <MarriageRatesVolumeCrudeCard />
-          <MarriageRatesAgeLineCard />
+          <MarriageRatesVolumeCrudeCard series={marriageRatesSeries} />
+          <MarriageRatesAgeLineCard series={marriageRatesSeries} />
         </div>
       </CollapsibleFlagSection>
 
@@ -648,64 +667,68 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection() {
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <MarriageSummaryCard title="Total marraiges" value={totalMarriagesAggregate.toLocaleString('en-US')} />
-            <MarriageSummaryCard title="Total interracial marriages (German Female)" value={femaleAggregate.nonGermanTotal.toLocaleString('en-US')} />
-            <MarriageSummaryCard title="Total interracial marriages (German Male)" value={maleAggregate.nonGermanTotal.toLocaleString('en-US')} />
+            <MarriageSummaryCard title={`Total interracial marriages (${nativeAdj} Female)`} value={femaleAggregate.nonGermanTotal.toLocaleString('en-US')} />
+            <MarriageSummaryCard title={`Total interracial marriages (${nativeAdj} Male)`} value={maleAggregate.nonGermanTotal.toLocaleString('en-US')} />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <MarriagePieCard
-              title="German female marriages (pie)"
+              title={`${nativeAdj} female marriages (pie)`}
               aggregate={femaleAggregate}
+              nativeAdj={nativeAdj}
               labels={{
-                european: 'German F + European (non-German) M',
-                african: 'German F + African M',
-                arab: 'German F + Arab M',
-                asianIndian: 'German F + Asian/Indian M',
+                european: `${nativeAdj} F + European (non-${nativeAdj}) M`,
+                african: `${nativeAdj} F + African M`,
+                arab: `${nativeAdj} F + Arab M`,
+                asianIndian: `${nativeAdj} F + Asian/Indian M`,
               }}
             />
             <MarriagePieCard
-              title="German male marriages (pie)"
+              title={`${nativeAdj} male marriages (pie)`}
               aggregate={maleAggregate}
+              nativeAdj={nativeAdj}
               labels={{
-                european: 'German M + European (non-German) F',
-                african: 'German M + African F',
-                arab: 'German M + Arab F',
-                asianIndian: 'German M + Asian/Indian F',
+                european: `${nativeAdj} M + European (non-${nativeAdj}) F`,
+                african: `${nativeAdj} M + African F`,
+                arab: `${nativeAdj} M + Arab F`,
+                asianIndian: `${nativeAdj} M + Asian/Indian F`,
               }}
             />
           </div>
 
-          <MarriageLineCard title="German female marriages by category (line)" data={FEMALE_SERIES} chartConfig={FEMALE_LINE_CONFIG} />
-          <MarriageLineCard title="German male marriages by category (line)" data={MALE_SERIES} chartConfig={MALE_LINE_CONFIG} />
+          <MarriageLineCard title={`${nativeAdj} female marriages by category (line)`} data={femaleSeries} chartConfig={femaleLineConfig} nativeAdj={nativeAdj} />
+          <MarriageLineCard title={`${nativeAdj} male marriages by category (line)`} data={maleSeries} chartConfig={maleLineConfig} nativeAdj={nativeAdj} />
 
           <MarriageDataTableCard
-            title="German female marriages table"
-            data={FEMALE_SERIES}
+            title={`${nativeAdj} female marriages table`}
+            data={femaleSeries}
             prefix="F"
-            europeanLabel="German F + European (non-German) M"
-            nonEuropeanLabel="German F + Non-European M"
-            africanLabel="German F + African M"
-            arabLabel="German F + Arab M"
-            asianIndianLabel="German F + Asian/Indian M"
+            nativeAdj={nativeAdj}
+            europeanLabel={`${nativeAdj} F + European (non-${nativeAdj}) M`}
+            nonEuropeanLabel={`${nativeAdj} F + Non-European M`}
+            africanLabel={`${nativeAdj} F + African M`}
+            arabLabel={`${nativeAdj} F + Arab M`}
+            asianIndianLabel={`${nativeAdj} F + Asian/Indian M`}
           />
           <MarriageDataTableCard
-            title="German male marriages table"
-            data={MALE_SERIES}
+            title={`${nativeAdj} male marriages table`}
+            data={maleSeries}
             prefix="M"
-            europeanLabel="German M + European (non-German) F"
-            nonEuropeanLabel="German M + Non-European F"
-            africanLabel="German M + African F"
-            arabLabel="German M + Arab F"
-            asianIndianLabel="German M + Asian/Indian F"
+            nativeAdj={nativeAdj}
+            europeanLabel={`${nativeAdj} M + European (non-${nativeAdj}) F`}
+            nonEuropeanLabel={`${nativeAdj} M + Non-European F`}
+            africanLabel={`${nativeAdj} M + African F`}
+            arabLabel={`${nativeAdj} M + Arab F`}
+            asianIndianLabel={`${nativeAdj} M + Asian/Indian F`}
           />
         </div>
       </CollapsibleFlagSection>
 
       <CollapsibleFlagSection title="LGBT marriages" count={5} defaultOpen>
         <div className="flex flex-col gap-3">
-          <LgbtSummaryRow />
-          <LgbtPieCard />
-          <LgbtLineCard />
+          <LgbtSummaryRow series={lgbtSeries} />
+          <LgbtPieCard series={lgbtSeries} />
+          <LgbtLineCard series={lgbtSeries} />
         </div>
       </CollapsibleFlagSection>
     </div>

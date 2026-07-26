@@ -507,7 +507,21 @@ function GenderBalanceChart({
   );
 }
 
-function IncomeConcentrationCard({ groups }: { groups: readonly GermanyIncomeGroupRow[] }) {
+export type IncomeConcentrationIndicators = {
+  gini: string;
+  s80S20: string;
+  period: string;
+  sourceLabel: string;
+  sourceUrl: string;
+};
+
+function IncomeConcentrationCard({
+  groups,
+  indicators,
+}: {
+  groups: readonly GermanyIncomeGroupRow[];
+  indicators?: IncomeConcentrationIndicators;
+}) {
   const top20 = groupById(groups, 'top-20');
   const top10 = groupById(groups, 'top-10');
   const top1 = groupById(groups, 'top-1');
@@ -522,6 +536,20 @@ function IncomeConcentrationCard({ groups }: { groups: readonly GermanyIncomeGro
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0">
+        {indicators ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-md border border-amber-500/20 bg-amber-500/5 p-3">
+              <p className="font-sans text-[9px] uppercase tracking-wider text-amber-400/90">Gini coefficient</p>
+              <p className="mt-1 font-sans text-xl font-semibold tabular-nums text-neutral-100">{indicators.gini}</p>
+              <p className="mt-0.5 font-sans text-[10px] text-neutral-500">{indicators.period}</p>
+            </div>
+            <div className="rounded-md border border-cyan-500/20 bg-cyan-500/5 p-3">
+              <p className="font-sans text-[9px] uppercase tracking-wider text-cyan-400/90">S80 / S20 ratio</p>
+              <p className="mt-1 font-sans text-xl font-semibold tabular-nums text-neutral-100">{indicators.s80S20}×</p>
+              <p className="mt-0.5 font-sans text-[10px] text-neutral-500">Top vs bottom quintile</p>
+            </div>
+          </div>
+        ) : null}
         <div className="space-y-2">
           <div className="flex items-center justify-between font-sans text-[10px] text-neutral-500">
             <span>Bottom 20% income share</span>
@@ -564,6 +592,16 @@ function IncomeConcentrationCard({ groups }: { groups: readonly GermanyIncomeGro
           Top 10% and Top 1% are overlapping subsets of the top earners; their income shares are not additive with
           quintiles.
         </p>
+        {indicators ? (
+          <a
+            href={indicators.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center font-sans text-[10px] text-[var(--uk-accent)] transition-colors hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--uk-accent)]"
+          >
+            Source: {indicators.sourceLabel} ↗
+          </a>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -623,11 +661,14 @@ type IncomeDistributionSectionProps = {
   groups?: readonly GermanyIncomeGroupRow[];
   /** Sub-heading caption; defaults to Germany's population wording. */
   caption?: string;
+  /** Optional official inequality indicators shown above the concentration bars. */
+  concentrationIndicators?: IncomeConcentrationIndicators;
 };
 
 export const GermanyIncomeDistributionSection = memo(function GermanyIncomeDistributionSection({
   groups = GERMANY_INCOME_DISTRIBUTION_GROUPS,
   caption = GERMANY_CAPTION,
+  concentrationIndicators,
 }: IncomeDistributionSectionProps) {
   const quintiles = useMemo(() => groups.filter((g) => g.tier === 'quintile'), [groups]);
   const [selectedId, setSelectedId] = useState('middle-20');
@@ -656,7 +697,7 @@ export const GermanyIncomeDistributionSection = memo(function GermanyIncomeDistr
         <GenderBalanceChart groups={groups} selectedId={selectedId} onSelect={onSelect} />
       </div>
 
-      <IncomeConcentrationCard groups={groups} />
+      <IncomeConcentrationCard groups={groups} indicators={concentrationIndicators} />
       <GroupComparisonCards groups={groups} selectedId={selectedId} onSelect={onSelect} />
     </div>
   );

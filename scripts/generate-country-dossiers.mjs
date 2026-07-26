@@ -360,6 +360,10 @@ for (const a of A) {
 
   // ---- news rail (per-country topic feed; real resolvable URLs, thumbnails auto-derived) ----
   {
+    const curatedNews = path.join(OUT_BASE, name, 'news.csv');
+    if (fs.existsSync(curatedNews)) {
+      fs.copyFileSync(curatedNews, path.join(outDir, `${iso}_news.csv`));
+    } else {
     const wiki = name.replace(/ /g, '_');
     const teSlug = name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
     const items = [
@@ -375,6 +379,7 @@ for (const a of A) {
     const out = [['Topic', 'Published Date', 'Title', 'URL', 'Image']];
     for (const [topic, title, url] of items) out.push([topic, '2026-01-01', title, url, '']);
     writeCsv(path.join(outDir, `${iso}_news.csv`), out);
+    }
   }
 
   // ---- immigration treemap (from real top-origin stocks in the central CSV) ----

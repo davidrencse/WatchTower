@@ -2,10 +2,11 @@ import { memo, useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { cn } from '../lib/utils';
+import { FRANCE_NOTABLE_INCIDENTS } from '../lib/franceNotableIncidents';
 
-type SourceLink = { label: string; url: string };
+export type SourceLink = { label: string; url: string };
 
-type NotableIncident = {
+export type NotableIncident = {
   id: string;
   rank: number;
   year: string;
@@ -226,13 +227,21 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
-export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVictimsNotableIncidents() {
+export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVictimsNotableIncidents({
+  iso3,
+}: {
+  iso3?: string;
+}) {
+  const isFrance = iso3?.toUpperCase() === 'FRA';
+  const incidents = isFrance ? FRANCE_NOTABLE_INCIDENTS : NOTABLE_INCIDENTS;
+  const countryName = isFrance ? 'France' : 'Germany';
+
   const [sortKey, setSortKey] = useState<SortKey>('rank');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const sorted = useMemo(() => {
-    const rows = [...NOTABLE_INCIDENTS];
+    const rows = [...incidents];
     const dir = sortDir === 'asc' ? 1 : -1;
     rows.sort((x, y) => {
       let cmp = 0;
@@ -258,7 +267,7 @@ export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVic
       return cmp * dir;
     });
     return rows;
-  }, [sortKey, sortDir]);
+  }, [incidents, sortKey, sortDir]);
 
   const toggleSort = useCallback((key: SortKey) => {
     setSortKey((prev) => {
@@ -271,10 +280,13 @@ export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVic
     });
   }, []);
 
-  const researchHref = useCallback((row: NotableIncident) => {
-    const q = `${row.location} ${row.year} Germany`;
-    return `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
-  }, []);
+  const researchHref = useCallback(
+    (row: NotableIncident) => {
+      const q = `${row.location} ${row.year} ${countryName}`;
+      return `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
+    },
+    [countryName],
+  );
 
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">

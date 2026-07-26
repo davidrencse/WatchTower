@@ -8,9 +8,9 @@ import {
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDir, '..');
-const militaryDataPath = path.join(projectRoot, 'src/data/countryMilitaryData.ts');
+const militaryDataPath = path.join(projectRoot, 'src/data/military/globalFirepower.ts');
 const catalogPath = path.join(projectRoot, 'Assets/Data/shared/country_military_equipment_visuals.json');
-const outputPath = path.join(projectRoot, 'src/data/countryMilitaryEquipment.ts');
+const outputPath = path.join(projectRoot, 'src/data/military/equipmentVisuals.ts');
 const imageRoot = path.join(projectRoot, 'public/military/equipment');
 const WIKIPEDIA_API = 'https://en.wikipedia.org/w/api.php';
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';

@@ -3,6 +3,9 @@ import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 import { GermanyJewishGovernmentCarousel } from './GermanyJewishGovernmentCarousel';
 import { GermanyPoliticsSecretSocietiesSection } from './GermanyPoliticsSecretSocietiesSection';
+import { PoliticsGroupLeaderboard } from './PoliticsGroupLeaderboard';
+import { FRANCE_ZIONISM_GROUPS, FRANCE_ZIONISM_METRICS } from '../lib/francePoliticsZionism';
+import { FRANCE_JEWISH_GOVERNMENT_PEOPLE } from '../data/franceJewishGovernmentPeople';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
@@ -102,26 +105,6 @@ const ZION_GROUPS: readonly ZionGroup[] = [
   },
 ];
 
-function ZionGroupWidget({ item }: { item: ZionGroup }) {
-  return (
-    <div className="relative overflow-hidden rounded-[1.8rem] border border-blue-500/25 bg-neutral-950 px-4 pb-4 pt-6 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
-      <div className="absolute left-4 top-0 h-3 w-20 -translate-y-1/2 rounded-full border border-blue-500/30 bg-neutral-900/95" />
-      <div className="absolute right-4 top-3 flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-blue-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-blue-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-blue-400/80" />
-      </div>
-      <div className="mb-3 rounded-xl bg-blue-500/95 px-3 py-1.5 shadow-[0_0_14px_rgba(59,130,246,0.45)]">
-        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-white">Rank #{item.rank}</p>
-      </div>
-      <p className="pr-16 font-sans text-sm font-semibold leading-tight text-neutral-100">{item.group}</p>
-      <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.1em] text-neutral-400">{item.type}</p>
-      <p className="mt-3 font-sans text-xl font-semibold tabular-nums tracking-tight text-blue-300">{item.size}</p>
-      <p className="mt-2 font-sans text-[11px] leading-relaxed text-neutral-400">{item.notes}</p>
-    </div>
-  );
-}
-
 function ZionMetricCard({ title, value, notes, source }: { title: string; value: string; notes: string; source?: string }) {
   return (
     <Card className="border-blue-500/20 bg-neutral-950/60">
@@ -137,7 +120,85 @@ function ZionMetricCard({ title, value, notes, source }: { title: string; value:
   );
 }
 
-export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionismSection() {
+export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionismSection({ iso3 = 'DEU' }: { iso3?: string }) {
+  const isFrance = iso3.toUpperCase() === 'FRA';
+
+  if (isFrance) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className={GOV_POLITICS_CARD_GRID}>
+          <GermanyJewishGovernmentCarousel
+            entriesOverride={FRANCE_JEWISH_GOVERNMENT_PEOPLE}
+            sourceCaption="Curated dataset: src/data/franceJewishGovernmentPeople.ts - Source: attached pasted-text.txt"
+          />
+
+          {FRANCE_ZIONISM_METRICS.map((metric) => (
+            <ZionMetricCard
+              key={metric.title}
+              title={metric.title}
+              value={metric.value}
+              notes={metric.notes}
+              source={metric.source}
+            />
+          ))}
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>ZIONIST GROUPS / ORGANIZATIONS</CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Jewish academic clubs and student organizations in France
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <PoliticsGroupLeaderboard
+                accent="blue"
+                items={FRANCE_ZIONISM_GROUPS.map((g) => ({
+                  rank: g.rank,
+                  group: g.group,
+                  type: g.type,
+                  value: g.size,
+                  notes: g.notes,
+                }))}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>MAJOR CORPORATE TIES</CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                French corporations with R&amp;D or investment links in Israel
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 pt-0">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  'Thales Group - R&D center in Haifa (cyber, radar)',
+                  'Dassault Systemes - development lab in Tel Aviv',
+                  'Sanofi - joint biotech research with Teva',
+                  'TotalEnergies - stake in NewMed Energy',
+                  'Airbus Defence & Space - collaboration with IAI',
+                  'Veolia - water tech joint venture with Mekorot',
+                  "L'Oreal - innovation labs in Netanya",
+                  'Orange - indirect network services contract',
+                  'Capgemini - R&D outsourcing in Herzliya',
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2 font-sans text-[10px] leading-relaxed text-neutral-300"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
@@ -254,11 +315,10 @@ export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionis
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {ZION_GROUPS.map((item) => (
-                <ZionGroupWidget key={item.rank} item={item} />
-              ))}
-            </div>
+            <PoliticsGroupLeaderboard
+              accent="blue"
+              items={ZION_GROUPS.map((g) => ({ rank: g.rank, group: g.group, type: g.type, value: g.size, notes: g.notes }))}
+            />
           </CardContent>
         </Card>
       </div>

@@ -1,16 +1,8 @@
-export type GermanyPolicyItem = {
-  name: string;
-  whatChanged: string;
-  details: string;
-  status: string;
-  source: string;
-};
+import type { PolicyCardItem, PolicyInfographic } from './government/policyCards';
 
-export type GermanyPolicyInfographic = {
-  sectorTitle: string;
-  description: string;
-  policies: GermanyPolicyItem[];
-};
+/** Retained aliases so existing Germany call sites keep working. */
+export type GermanyPolicyItem = PolicyCardItem;
+export type GermanyPolicyInfographic = PolicyInfographic;
 
 export const GERMANY_POLICY_INFOGRAPHICS: GermanyPolicyInfographic[] = [
   {

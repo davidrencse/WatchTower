@@ -1,0 +1,1 @@
+import{a as t,j as e}from"./vendor-react-DqFDm2ni.js";import{c as p}from"./CountryStatsDashboard--1Kxvuot.js";const i=t.forwardRef(({className:r,orientation:a="horizontal",...o},s)=>e.jsx("div",{ref:s,role:"separator","aria-orientation":a,className:p("shrink-0 bg-line",a==="horizontal"?"h-px w-full":"h-full w-px",r),...o}));i.displayName="Separator";export{i as S};

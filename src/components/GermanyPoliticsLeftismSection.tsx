@@ -1,16 +1,37 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { memo } from 'react';
 import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
+import { PoliticsGroupLeaderboard } from './PoliticsGroupLeaderboard';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-type LeftistGroup = {
+export type LeftSource = { label: string; href?: string };
+export type LeftStatCard = {
+  title: string;
+  value: string;
+  subtitle?: string;
+  sources?: readonly LeftSource[];
+  colSpanFull?: boolean;
+};
+export type CancelCultureRow = { category: string; value: string };
+export type LeftistGroup = {
   rank: number;
   group: string;
   type: string;
   memberPopulation: string;
   notes: string;
+};
+
+/** Full per-country payload for this section (defaults to Germany's when omitted). */
+export type PoliticsLeftismData = {
+  statCards: readonly LeftStatCard[];
+  cancelCultureTitle: string;
+  cancelCultureRows: readonly CancelCultureRow[];
+  cancelCultureSource: LeftSource;
+  groupsTitle: string;
+  groupsDescription: string;
+  groups: readonly LeftistGroup[];
 };
 
 const LEFTIST_GROUPS: readonly LeftistGroup[] = [
@@ -100,151 +121,110 @@ const LEFTIST_GROUPS: readonly LeftistGroup[] = [
   },
 ];
 
-function LeftistGroupWidget({ item }: { item: LeftistGroup }) {
+const GERMANY_STAT_CARDS: readonly LeftStatCard[] = [
+  {
+    title: 'Self-identified left-wing/progressive ideology share',
+    value: '25%',
+    subtitle: '18-29 year olds',
+    sources: [
+      { label: 'Source: 2025 German federal election results ↗', href: 'https://www.bundeswahlleiterin.de/en/bundestagswahlen/2025.html' },
+    ],
+  },
+  {
+    title: 'Professors / self-identified left-leaning',
+    value: '90%',
+    sources: [{ label: 'Source: Oxford-led analysis (Reuters Institute / academic studies summary)' }],
+  },
+  {
+    title: 'Supporting gender-neutral language mandates, diversity',
+    value: '25%',
+    sources: [{ label: 'Source: Statista / YouGov polls' }],
+  },
+  {
+    title: 'Diversity quotas in media/corporations',
+    value: '39%',
+    subtitle: 'Reserved for DEI',
+    sources: [{ label: 'Source: Corporate board quota enforcement data (German government reports 2024-2025)' }],
+  },
+  {
+    title: 'Belief in Transgenderism',
+    value: '90% (46% nationally)',
+    sources: [
+      { label: 'Source: ILCUK analysis ↗', href: 'https://ilcuk.org.uk/german-election-results-2025/' },
+      { label: 'Source: BR24 DeutschlandTrend article ↗', href: 'https://www.br.de/nachrichten/deutschland-welt/mehrheit-findet-deutschland-soll-weniger-fluechtlinge-aufnehmen,UbN1Ubk' },
+    ],
+  },
+  {
+    title: 'Belief in Open borders',
+    value: '>27% (3% nationally)',
+    sources: [
+      { label: 'Source: ILCUK analysis ↗', href: 'https://ilcuk.org.uk/german-election-results-2025/' },
+      { label: 'Source: BR24 DeutschlandTrend article ↗', href: 'https://www.br.de/nachrichten/deutschland-welt/mehrheit-findet-deutschland-soll-weniger-fluechtlinge-aufnehmen,UbN1Ubk' },
+    ],
+  },
+];
+
+const GERMANY_CANCEL_ROWS: readonly CancelCultureRow[] = [
+  { category: 'Annual reported deplatforming/firing/public-shaming incidents', value: '200 incidents' },
+  { category: 'People banned over social media posts', value: '3,500 cases' },
+];
+
+function StatCardView({ card }: { card: LeftStatCard }) {
   return (
-    <div className="relative overflow-hidden rounded-[1.8rem] border border-red-500/25 bg-neutral-950 px-4 pb-4 pt-6 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
-      <div className="absolute left-4 top-0 h-3 w-20 -translate-y-1/2 rounded-full border border-red-500/30 bg-neutral-900/95" />
-      <div className="absolute right-4 top-3 flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-red-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-red-400/80" />
-        <span className="h-1.5 w-1.5 rounded-full bg-red-400/80" />
-      </div>
-      <div className="mb-3 rounded-xl bg-red-500/95 px-3 py-1.5 shadow-[0_0_14px_rgba(239,68,68,0.45)]">
-        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-white">Rank #{item.rank}</p>
-      </div>
-      <p className="pr-16 font-sans text-sm font-semibold leading-tight text-neutral-100">{item.group}</p>
-      <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.1em] text-neutral-400">{item.type}</p>
-      <p className="mt-3 font-sans text-2xl font-semibold tabular-nums tracking-tight text-white">{item.memberPopulation}</p>
-      <p className="mt-2 font-sans text-[11px] leading-relaxed text-neutral-400">{item.notes}</p>
-    </div>
+    <Card className={`border-red-500/20 bg-neutral-950/60 ${card.colSpanFull ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>{card.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-3 pt-0">
+        <p className="font-sans text-2xl font-semibold text-red-300">{card.value}</p>
+        {card.subtitle ? (
+          <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>{card.subtitle}</p>
+        ) : null}
+        {card.sources && card.sources.length > 0 ? (
+          <div className="mt-2 space-y-0.5">
+            {card.sources.map((s) =>
+              s.href ? (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+                >
+                  {s.label}
+                </a>
+              ) : (
+                <p key={s.label} className={`font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+                  {s.label}
+                </p>
+              ),
+            )}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
 
-export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftismSection() {
+export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftismSection({
+  statCards = GERMANY_STAT_CARDS,
+  cancelCultureTitle = 'Cancel culture incidents',
+  cancelCultureRows = GERMANY_CANCEL_ROWS,
+  cancelCultureSource = { label: 'Source: archiveofsilence.org ↗', href: 'https://archiveofsilence.org/' },
+  groupsTitle = 'LEFTIST GROUPS',
+  groupsDescription = 'Ranked leftist groups and organizations (2000-2025 cumulative framing)',
+  groups = LEFTIST_GROUPS,
+}: Partial<PoliticsLeftismData> = {}) {
   return (
     <div className="flex flex-col gap-3">
       <div className={GOV_POLITICS_CARD_GRID}>
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>
-              Self-identified left-wing/progressive ideology share
-            </CardTitle>
-            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              % identifying as left/very-left or supporting socialist policies
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">25%</p>
-            <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>18-29 year olds</p>
-            <a
-              href="https://www.bundeswahlleiterin.de/en/bundestagswahlen/2025.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`mt-2 block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-            >
-              Source: 2025 German federal election results ↗
-            </a>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Professors / self-identified left-leaning</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">90%</p>
-            <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              Source: Oxford-led analysis (Reuters Institute / academic studies summary)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>
-              Supporting gender-neutral language mandates, diversity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">25%</p>
-            <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              Source: Statista / YouGov polls
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Diversity quotas in media/corporations</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">39%</p>
-            <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              Reserved for DEI
-            </p>
-            <p className={`mt-1 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
-              Source: Corporate board quota enforcement data (German government reports 2024-2025)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Belief in Transgenderism</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">90% (46% nationally)</p>
-            <div className="mt-2 space-y-0.5">
-              <a
-                href="https://ilcuk.org.uk/german-election-results-2025/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-              >
-                Source: ILCUK analysis ↗
-              </a>
-              <a
-                href="https://www.br.de/nachrichten/deutschland-welt/mehrheit-findet-deutschland-soll-weniger-fluechtlinge-aufnehmen,UbN1Ubk"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-              >
-                Source: BR24 DeutschlandTrend article ↗
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 bg-neutral-950/60">
-          <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Belief in Open borders</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="font-sans text-2xl font-semibold text-red-300">&gt;27% (3% nationally)</p>
-            <div className="mt-2 space-y-0.5">
-              <a
-                href="https://ilcuk.org.uk/german-election-results-2025/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-              >
-                Source: ILCUK analysis ↗
-              </a>
-              <a
-                href="https://www.br.de/nachrichten/deutschland-welt/mehrheit-findet-deutschland-soll-weniger-fluechtlinge-aufnehmen,UbN1Ubk"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-              >
-                Source: BR24 DeutschlandTrend article ↗
-              </a>
-            </div>
-          </CardContent>
-        </Card>
+        {statCards.map((card) => (
+          <StatCardView key={card.title} card={card} />
+        ))}
 
         <Card className="sm:col-span-2 lg:col-span-3 border-red-500/20 bg-neutral-950/60">
           <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Cancel culture incidents</CardTitle>
+            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>{cancelCultureTitle}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
             <div className="overflow-x-auto rounded border border-line">
@@ -256,43 +236,40 @@ export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftis
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-white/[0.06]">
-                    <td className="px-3 py-2 text-neutral-200">Annual reported deplatforming/firing/public-shaming incidents</td>
-                    <td className="px-3 py-2 text-right tabular-nums text-white">200 incidents</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 text-neutral-200">People banned over social media posts</td>
-                    <td className="px-3 py-2 text-right tabular-nums text-white">3,500 cases</td>
-                  </tr>
+                  {cancelCultureRows.map((row, i) => (
+                    <tr key={row.category} className={i < cancelCultureRows.length - 1 ? 'border-b border-white/[0.06]' : ''}>
+                      <td className="px-3 py-2 text-neutral-200">{row.category}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-white">{row.value}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-            <a
-              href="https://archiveofsilence.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
-            >
-              Source: archiveofsilence.org ↗
-            </a>
+            {cancelCultureSource.href ? (
+              <a
+                href={cancelCultureSource.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+              >
+                {cancelCultureSource.label}
+              </a>
+            ) : (
+              <p className={`font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>{cancelCultureSource.label}</p>
+            )}
           </CardContent>
         </Card>
 
         <Card className="sm:col-span-2 lg:col-span-3 border-red-500/20 bg-neutral-950/60">
           <CardHeader className="space-y-1 p-3 pb-2">
-            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>
-              LEFTIST GROUPS
-            </CardTitle>
-            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              Ranked leftist groups and organizations (2000-2025 cumulative framing)
-            </CardDescription>
+            <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>{groupsTitle}</CardTitle>
+            <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>{groupsDescription}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {LEFTIST_GROUPS.map((item) => (
-                <LeftistGroupWidget key={item.rank} item={item} />
-              ))}
-            </div>
+            <PoliticsGroupLeaderboard
+              accent="red"
+              items={groups.map((g) => ({ rank: g.rank, group: g.group, type: g.type, value: g.memberPopulation, notes: g.notes }))}
+            />
           </CardContent>
         </Card>
       </div>

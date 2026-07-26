@@ -148,9 +148,11 @@ function rowMetaLine(
 function LgbtHighlightsPanel({
   rows,
   density = 'default',
+  countryLabel = 'Germany',
 }: {
   rows: GermanyGovernmentPoliticsRow[];
   density?: 'default' | 'compact';
+  countryLabel?: string;
 }) {
   const compact = density === 'compact';
   const first = rows[0]!;
@@ -200,7 +202,7 @@ function LgbtHighlightsPanel({
             </p>
           ) : (
             <span className={cn('font-sans text-white/50', compact ? 'text-[9px]' : 'text-[11px]')}>
-              Germany · Health · LGBT
+              {countryLabel} · Health · LGBT
             </span>
           )}
         </div>
@@ -344,7 +346,10 @@ const TRIPLE_ROW_WRAP = 'grid grid-cols-1 gap-1 sm:grid-cols-3 sm:gap-1';
 const CHILD_ROW_A_SKIP = new Set<string>(CHILDREN_COMPACT_ROW_A.slice(1));
 const CHILD_ROW_B_SKIP = new Set<string>(CHILDREN_COMPACT_ROW_B.slice(1));
 
-function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPoliticsRow[]>): ReactNode[] {
+function buildChildrenPanelNodes(
+  byMetric: Map<string, GermanyGovernmentPoliticsRow[]>,
+  countryLabel: string,
+): ReactNode[] {
   const nodes: ReactNode[] = [];
   const rowAKey = CHILDREN_COMPACT_ROW_A[0]!;
   const rowBKey = CHILDREN_COMPACT_ROW_B[0]!;
@@ -355,7 +360,7 @@ function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPolitics
         <div key="lgbt-children-compact-row-a" className={TRIPLE_ROW_WRAP}>
           {CHILDREN_COMPACT_ROW_A.map((m) => {
             const g = byMetric.get(m);
-            return g ? <LgbtHighlightsPanel key={m} rows={g} density="compact" /> : null;
+            return g ? <LgbtHighlightsPanel key={m} rows={g} density={'compact'} countryLabel={countryLabel} /> : null;
           })}
         </div>,
       );
@@ -368,7 +373,7 @@ function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPolitics
         <div key="lgbt-children-compact-row-b" className={TRIPLE_ROW_WRAP}>
           {CHILDREN_COMPACT_ROW_B.map((m) => {
             const g = byMetric.get(m);
-            return g ? <LgbtHighlightsPanel key={m} rows={g} density="compact" /> : null;
+            return g ? <LgbtHighlightsPanel key={m} rows={g} density={'compact'} countryLabel={countryLabel} /> : null;
           })}
         </div>,
       );
@@ -377,7 +382,7 @@ function buildChildrenPanelNodes(byMetric: Map<string, GermanyGovernmentPolitics
     if (CHILD_ROW_B_SKIP.has(metric)) continue;
 
     const g = byMetric.get(metric);
-    if (g) nodes.push(<LgbtHighlightsPanel key={metric} rows={g} />);
+    if (g) nodes.push(<LgbtHighlightsPanel key={metric} rows={g} countryLabel={countryLabel} />);
   }
 
   return nodes;
@@ -387,11 +392,13 @@ type GermanyLgbtSectionProps = {
   /** Per-country CSV (same schema); defaults to Germany's. */
   csvUrl?: string;
   isGermany?: boolean;
+  countryLabel?: string;
 };
 
 export const GermanyLgbtSection = memo(function GermanyLgbtSection({
   csvUrl = CSV_URL,
   isGermany = true,
+  countryLabel = 'Germany',
 }: GermanyLgbtSectionProps) {
   const [raw, setRaw] = useState(isGermany ? lgbtCsvRaw : '');
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -416,20 +423,20 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection({
   }, [csvUrl]);
 
   const { adultGroups, childrenGroups } = useMemo(() => {
-    const parsed = parseGermanyMetricTableCsv(raw);
+    const parsed = parseGermanyMetricTableCsv(raw, countryLabel);
     return {
       adultGroups: clusterMetricTable(parsed, 'LGBT', GERMANY_LGBT_METRIC_ORDER),
       childrenGroups: clusterMetricTable(parsed, 'LGBT children', GERMANY_LGBT_CHILDREN_METRIC_ORDER),
     };
-  }, [raw]);
+  }, [raw, countryLabel]);
 
   const childrenPanelNodes = useMemo(() => {
     const byMetric = new Map<string, GermanyGovernmentPoliticsRow[]>();
     for (const g of childrenGroups) {
       byMetric.set(g[0]!.metric, g);
     }
-    return buildChildrenPanelNodes(byMetric);
-  }, [childrenGroups]);
+    return buildChildrenPanelNodes(byMetric, countryLabel);
+  }, [childrenGroups, countryLabel]);
 
   if (loadError) {
     return <p className="font-sans text-xs text-amber-500/90">{loadError}</p>;
@@ -449,7 +456,7 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection({
         <div className={LGBT_STACK}>
           {adultGroups.map((g) => (
             <Fragment key={g[0]!.metric}>
-              <LgbtHighlightsPanel rows={g} />
+              <LgbtHighlightsPanel rows={g} countryLabel={countryLabel} />
             </Fragment>
           ))}
         </div>

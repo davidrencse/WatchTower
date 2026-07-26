@@ -128,7 +128,7 @@ function App() {
           </div>
         ) : null}
         {selected ? (
-          <SelectedFlagView flag={selected} onBack={() => setSelected(null)} onSelectFlag={selectFlag} />
+          <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
         ) : null}
       </AppLayout>
       {showHeroOverlay ? (

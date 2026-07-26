@@ -1,13 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { useCountryRibbonExpandOptional } from '../context/CountryRibbonExpandContext';
 import { cn } from '../lib/utils';
-
-/**
- * Distance (px) ahead of the viewport at which a section's contents are mounted.
- * Large enough that charts finish mounting before the user scrolls them into view.
- */
-const MOUNT_AHEAD_MARGIN = '900px';
 
 type CollapsibleFlagSectionProps = {
   /** Plain string (truncated) or custom node (e.g. icon + label). */
@@ -44,41 +38,23 @@ export function CollapsibleFlagSection({
   expandNonce,
   ribbonExpandKey,
 }: CollapsibleFlagSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
-  // Defer mounting the (chart-heavy) children until the section is both near the viewport
-  // and open. Collapsed sections stay unmounted even when scrolled past. Once mounted it stays
-  // mounted (one-way latch) so internal state, scroll position, and chart animations persist.
-  const detailsRef = useRef<HTMLDetailsElement | null>(null);
-  const ioUnsupported = typeof IntersectionObserver === 'undefined';
-  const [near, setNear] = useState(ioUnsupported);
-  const [mounted, setMounted] = useState(ioUnsupported);
+  // Start collapsed when a collapse signal is already active (matches the dossier's
+  // "all collapsed on open" default) so heavy content isn't mounted for every section at once.
+  const initialOpen = defaultOpen && !(collapseSignal !== undefined && collapseSignal > 0);
+  const [open, setOpen] = useState(initialOpen);
+  // Mount the (chart-heavy) children the first time the section is opened, then keep them
+  // mounted (one-way latch) so state, scroll position, and chart animations persist. No
+  // scroll/visibility gating — an opened section renders its content immediately and in full.
+  const [hasOpened, setHasOpened] = useState(initialOpen);
   const ribbonExpand = useCountryRibbonExpandOptional();
 
   useEffect(() => {
-    if (near) return;
-    const el = detailsRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setNear(true);
-          obs.disconnect();
-        }
-      },
-      { rootMargin: `${MOUNT_AHEAD_MARGIN} 0px` },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [near]);
-  // Latch: mount the contents the first time the section is both open and near the viewport.
-  useEffect(() => {
-    if (open && near) setMounted(true);
-  }, [open, near]);
+    if (open) setHasOpened(true);
+  }, [open]);
   useLayoutEffect(() => {
     if (!ribbonExpandKey || !ribbonExpand) return;
     return ribbonExpand.register(ribbonExpandKey, () => {
       flushSync(() => {
-        setNear(true);
         setOpen(true);
       });
     });
@@ -90,25 +66,20 @@ export function CollapsibleFlagSection({
   }, [collapseSignal]);
   useEffect(() => {
     if (expandSignal !== undefined && expandSignal > 0) {
-      setNear(true);
       setOpen(true);
     }
   }, [expandSignal]);
   useEffect(() => {
     if (expandNonce !== undefined && expandNonce > 0) {
-      setNear(true);
       setOpen(true);
     }
   }, [expandNonce]);
 
   const details = (
     <details
-      ref={detailsRef}
       open={open}
       onToggle={(e) => {
-        const isOpen = e.currentTarget.open;
-        if (isOpen) setNear(true);
-        setOpen(isOpen);
+        setOpen(e.currentTarget.open);
       }}
       className="group overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card"
     >
@@ -141,7 +112,7 @@ export function CollapsibleFlagSection({
         </span>
       </summary>
       <div className="border-t border-[var(--line)] p-4">
-        {mounted ? children : <div aria-hidden style={{ minHeight: 240 }} />}
+        {hasOpened ? children : <div aria-hidden style={{ minHeight: 240 }} />}
       </div>
     </details>
   );

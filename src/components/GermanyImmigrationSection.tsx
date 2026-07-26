@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import germanyTreemapCsvRaw from '../../Assets/Data/countries/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
 import { cn } from '../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -23,11 +23,16 @@ import {
   parseGermanyTreemapCsv,
 } from '../lib/germanyImmigrationTreemapData';
 import { GermanyImmigrationTreemap } from './GermanyImmigrationTreemap';
-import { GermanyImmigrationAdvocatesSubsection } from './GermanyImmigrationAdvocatesSubsection';
+import {
+  GermanyImmigrationAdvocatesSubsection,
+  type AdvocateCard,
+} from './GermanyImmigrationAdvocatesSubsection';
 import {
   GermanyDeportationReentryChart,
   GermanyDeportationTrendChart,
   GermanyYearlyDeportationsChart,
+  type DeportationTrendRow,
+  type DeportationReentryRow,
 } from './GermanyMigrantCrimeSection';
 
 const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
@@ -141,10 +146,6 @@ const ASYLUM_APPLICATIONS_2025_PIE = ASYLUM_APPLICATIONS_2025.map((row, index) =
   fill: ASYLUM_PIE_COLORS[index % ASYLUM_PIE_COLORS.length],
 }));
 
-const ASYLUM_SHARE_BY_COUNTRY: Record<string, number> = Object.fromEntries(
-  ASYLUM_APPLICATIONS_2025_PIE.map((row) => [row.country, row.sharePct]),
-);
-
 const refugeesChartConfig: ChartConfig = {
   count: {
     label: 'Refugees',
@@ -163,8 +164,6 @@ const asylumChartConfig: ChartConfig = {
 const ASYLUM_SEEKERS_TOTAL = 3_248_500;
 const ASYLUM_SEEKERS_MEN = 2_156_000;
 const ASYLUM_SEEKERS_WOMEN = 1_092_500;
-const ASYLUM_SEEKERS_MEN_PCT = (ASYLUM_SEEKERS_MEN / ASYLUM_SEEKERS_TOTAL) * 100;
-const ASYLUM_SEEKERS_WOMEN_PCT = (ASYLUM_SEEKERS_WOMEN / ASYLUM_SEEKERS_TOTAL) * 100;
 
 type IllegalAsylumSeekersRow = {
   year: string;
@@ -316,7 +315,9 @@ const publicOpinionChartConfig = {
 
 type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
 
-type MigrantArrivalsRow = {
+export type MigrationBackgroundRow = { year: string; migrants: number };
+
+export type MigrantArrivalsRow = {
   year: string;
   total: number;
   totalDisplay: string;
@@ -631,7 +632,11 @@ const SERIES_ORDER: readonly { key: MigrantArrivalsSeriesKey; label: string }[] 
   { key: 'africa', label: 'Africa' },
 ];
 
-function GermanyMigrantArrivalsInteractiveChart() {
+function GermanyMigrantArrivalsInteractiveChart({
+  data = MIGRANT_ARRIVALS_SERIES,
+}: {
+  data?: readonly MigrantArrivalsRow[];
+}) {
   const [hoveredKey, setHoveredKey] = useState<MigrantArrivalsSeriesKey | null>(null);
 
   const dim = (key: MigrantArrivalsSeriesKey) =>
@@ -657,7 +662,7 @@ function GermanyMigrantArrivalsInteractiveChart() {
     <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
       <ChartContainer config={migrantArrivalsChartConfig} className="h-[380px] w-full font-sans">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={MIGRANT_ARRIVALS_SERIES} margin={{ top: 8, right: 8, left: 4, bottom: 8 }}>
+          <ComposedChart data={[...data]} margin={{ top: 8, right: 8, left: 4, bottom: 8 }}>
             <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis
               dataKey="year"
@@ -791,11 +796,15 @@ function GermanyMigrantArrivalsInteractiveChart() {
 
 const TOTAL_MIGRANTS_LINE = '#a78bfa';
 
-function GermanyTotalMigrantsMigrationBackgroundChart() {
+function GermanyTotalMigrantsMigrationBackgroundChart({
+  data = TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR,
+}: {
+  data?: readonly MigrationBackgroundRow[];
+}) {
   return (
     <ChartContainer config={totalMigrantsMigrationBackgroundChartConfig} className="h-[340px] w-full font-sans">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={[...TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR]} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
+        <LineChart data={[...data]} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
           <XAxis
             dataKey="year"
@@ -845,12 +854,185 @@ function GermanyTotalMigrantsMigrationBackgroundChart() {
   );
 }
 
-export const GermanyImmigrationSection = memo(function GermanyImmigrationSection() {
-  const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>([]);
+type ContributionRow = { group: string; paid: string; received: string; net: string };
+type WelfareRow = { nationality: string; recipients: string; share: string; notes: string };
+type OriginCountRow = { country: string; count: number };
+type RegionAsylumRow = {
+  year: string;
+  middleEast: number;
+  african: number;
+  asianExclIndian: number;
+  indian: number;
+  other: number;
+  totalAsylumApplications: number;
+};
+type AsylumApplicationRow = { country: string; applications: number };
+
+const GERMANY_CONTRIBUTION_ROWS: readonly ContributionRow[] = [
+  { group: 'Natives', paid: 'EUR 819', received: 'EUR 74', net: '+EUR 745' },
+  { group: '1st-generation migrants', paid: 'EUR 692', received: 'EUR 211', net: '+EUR 481' },
+  { group: '2nd-generation migrants', paid: 'EUR 504', received: 'EUR 94', net: '+EUR 410' },
+];
+const GERMANY_CONTRIBUTION_NOTES = {
+  welfareUsage:
+    'Foreigners (~14.8% of population) received 46.6% of all Burgergeld (main welfare benefit) spending, approximately EUR 21.7 billion.',
+  ageControlled:
+    'When controlling for age and demographics, 1st-generation migrants become less positive or net negative, while natives and 2nd-generation migrants perform similarly.',
+  rawView:
+    'Without controlling for age, migrants (especially 1st generation) appear as net contributors mainly because they are younger on average and receive far less in pensions.',
+  sourceLabel: 'econstor.eu GLO-DP-1530',
+  sourceHref: 'https://www.econstor.eu/bitstream/10419/306683/1/GLO-DP-1530.pdf',
+};
+const GERMANY_WELFARE_TITLE = '2025 Burgergeld (Main Welfare Benefit) - How Much They Take';
+const GERMANY_WELFARE_DESC = 'Total Burgergeld paid: approximately EUR 47 billion.';
+const GERMANY_WELFARE_ROWS: readonly WelfareRow[] = [
+  { nationality: 'All Foreigners', recipients: '~2.57 - 2.81 million', share: '100%', notes: '46.6% of total Burgergeld budget' },
+  { nationality: 'Ukrainians', recipients: '678,539 - 705,932', share: '~26-27%', notes: 'EUR 6.0 - 6.5 billion (published)' },
+  { nationality: 'Syrians', recipients: '485,240 - 512,161', share: '~19%', notes: 'EUR 3.9 - 4.2 billion (published)' },
+  { nationality: 'Afghans', recipients: '200,779', share: '~7.8%', notes: 'Not published individually' },
+  { nationality: 'Turks', recipients: '189,595 - 192,077', share: '~7.4%', notes: 'Not published individually' },
+  { nationality: 'Iraqis', recipients: '93,516 - 101,000', share: '~3.6-3.9%', notes: 'Not published individually' },
+  { nationality: 'Others (Bulgarians, Romanians, Poles, etc.)', recipients: 'Remaining ~800,000+', share: '-', notes: 'Combined in foreign total' },
+];
+const GERMANY_WELFARE_NOTE = (
+  <div className="space-y-2 font-sans text-[10px] leading-relaxed text-neutral-500">
+    <p>
+      Source (Statista / Bundesagentur fur Arbeit, June 2025):{' '}
+      <a
+        className="underline underline-offset-2 hover:text-neutral-300"
+        href="https://de.statista.com/statistik/daten/studie/1622726/umfrage/empfaenger-von-buergergeld-in-deutschland-nach-staatsangehoerigkeiten/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        de.statista.com recipient statistics
+      </a>
+    </p>
+    <p>Source: Tagesschau / Federal Ministry reports confirming the EUR 21.7-22 billion total for foreigners.</p>
+  </div>
+);
+
+type GermanyImmigrationSectionProps = {
+  /** Refugee / protection-holder stock tile (defaults to Germany). */
+  refugeesValue?: number;
+  refugeesNote?: string;
+  /** Work / economic visa tile (defaults to Germany). */
+  workVisasValue?: number;
+  workVisasNote?: string;
+  /** Migration-background population tile (defaults to Germany). */
+  migrantBackgroundValue?: number;
+  migrantBackgroundNote?: string;
+  /** Country label woven into chart titles/descriptions (e.g. "France"). */
+  countryLabel?: string;
+  /** "Total amount of migrants (migration background)" line series. */
+  migrationBackgroundByYear?: readonly MigrationBackgroundRow[];
+  /** "Migrant arrivals by origin" interactive series. */
+  migrantArrivalsSeries?: readonly MigrantArrivalsRow[];
+  /** Deportation trend + yearly bar series (2000–2025). */
+  deportationTrendSeries?: readonly DeportationTrendRow[];
+  /** Deportation re-entry series (2000–2025). */
+  deportationReentrySeries?: readonly DeportationReentryRow[];
+  /** Immigrant-origin treemap items (default: Germany's bundled CSV). */
+  treemapItems?: readonly GermanyImmigrationTreemapItem[];
+  /** Footnote under the treemap (default: Germany's source text). */
+  treemapNote?: string;
+  /** Healthcare & social-housing usage share series (2000–2025). */
+  healthcareHousingSeries?: readonly { year: string; socialHousingShare: number; healthcareShare: number }[];
+  /** Public-opinion-on-immigration series (2000–2025) + its description. */
+  publicOpinionSeries?: readonly {
+    year: string;
+    tooManyImmigrants: number;
+    fasterDeportations: number;
+    strongerBorderControl: number;
+  }[];
+  publicOpinionDesc?: string;
+  /** Language-proficiency-by-origin bar series + its description. */
+  languageIntegrationSeries?: readonly { origin: string; b1PlusRate: number }[];
+  languageIntegrationDesc?: string;
+  /** Net-fiscal-contribution table + supporting notes. */
+  contributionRows?: readonly ContributionRow[];
+  contributionNotes?: { welfareUsage: string; ageControlled: string; rawView: string; sourceLabel: string; sourceHref: string };
+  /** Welfare-by-nationality table (Bürgergeld → RSA for France). */
+  welfareTitle?: string;
+  welfareDesc?: string;
+  welfareRows?: readonly WelfareRow[];
+  welfareNote?: ReactNode;
+  /** Refugee-origins bar chart. */
+  refugeeOriginsTitle?: string;
+  refugeeBreakdown?: readonly OriginCountRow[];
+  /** Asylum-by-region series + summary tiles. */
+  asylumByRegion?: readonly RegionAsylumRow[];
+  asylumSeekersTotal?: number;
+  asylumSeekersMen?: number;
+  asylumSeekersWomen?: number;
+  /** Asylum-applications pie (by country of origin). */
+  asylumApplications?: readonly AsylumApplicationRow[];
+  /** Advocates subsection overrides (forwarded to GermanyImmigrationAdvocatesSubsection). */
+  advocates?: readonly AdvocateCard[];
+  advocatesHeading?: string;
+  advocatesIntro?: string;
+  advocatesCoalition?: string;
+};
+
+export const GermanyImmigrationSection = memo(function GermanyImmigrationSection({
+  refugeesValue = REFUGEE_TOTAL_2024,
+  refugeesNote = 'Germany, 2024.',
+  workVisasValue = WORK_VISAS_2021_2025,
+  workVisasNote = 'Issued from 2021 to 2025.',
+  migrantBackgroundValue = MIGRANT_BACKGROUND_2024_2025,
+  migrantBackgroundNote = 'Germany, 2024–2025.',
+  countryLabel = 'Germany',
+  migrationBackgroundByYear,
+  migrantArrivalsSeries,
+  deportationTrendSeries,
+  deportationReentrySeries,
+  treemapItems,
+  treemapNote = 'Immigrant counts by country of origin (2024 flow). Source metadata in CSV: PopulationPyramid.net Germany Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales to the panel width so the full treemap is visible without horizontal scrolling.',
+  healthcareHousingSeries = HEALTHCARE_SOCIAL_HOUSING_USAGE,
+  publicOpinionSeries = PUBLIC_OPINION_IMMIGRATION,
+  publicOpinionDesc = 'Share agreeing with key immigration statements in Germany, 2000-2025.',
+  languageIntegrationSeries = LANGUAGE_PROFICIENCY_INTEGRATION_2025,
+  languageIntegrationDesc = 'Share of each origin group reaching B1 German or higher after 5 years.',
+  contributionRows = GERMANY_CONTRIBUTION_ROWS,
+  contributionNotes = GERMANY_CONTRIBUTION_NOTES,
+  welfareTitle = GERMANY_WELFARE_TITLE,
+  welfareDesc = GERMANY_WELFARE_DESC,
+  welfareRows = GERMANY_WELFARE_ROWS,
+  welfareNote = GERMANY_WELFARE_NOTE,
+  refugeeOriginsTitle = 'Refugee origins in Germany (2024)',
+  refugeeBreakdown = REFUGEE_BREAKDOWN_2024,
+  asylumByRegion = ILLEGAL_ASYLUM_SEEKERS_BY_YEAR,
+  asylumSeekersTotal = ASYLUM_SEEKERS_TOTAL,
+  asylumSeekersMen = ASYLUM_SEEKERS_MEN,
+  asylumSeekersWomen = ASYLUM_SEEKERS_WOMEN,
+  asylumApplications,
+  advocates,
+  advocatesHeading,
+  advocatesIntro,
+  advocatesCoalition,
+}: GermanyImmigrationSectionProps = {}) {
+  const asylumPie = useMemo(() => {
+    if (!asylumApplications) return ASYLUM_APPLICATIONS_2025_PIE;
+    const total = asylumApplications.reduce((s, r) => s + r.applications, 0);
+    return asylumApplications.map((row, index) => ({
+      ...row,
+      sharePct: total > 0 ? (row.applications / total) * 100 : 0,
+      fill: ASYLUM_PIE_COLORS[index % ASYLUM_PIE_COLORS.length],
+    }));
+  }, [asylumApplications]);
+  const asylumMenPct = asylumSeekersTotal > 0 ? (asylumSeekersMen / asylumSeekersTotal) * 100 : 0;
+  const asylumWomenPct = asylumSeekersTotal > 0 ? (asylumSeekersWomen / asylumSeekersTotal) * 100 : 0;
+  const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>(() =>
+    treemapItems ? [...treemapItems] : [],
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isRefugeeSectionOpen, setIsRefugeeSectionOpen] = useState(false);
 
   useEffect(() => {
+    if (treemapItems) {
+      setItems([...treemapItems]);
+      setLoadError(null);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -884,7 +1066,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [treemapItems]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -892,9 +1074,9 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Refugees</p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
-            {REFUGEE_TOTAL_2024.toLocaleString('en-US')}
+            {refugeesValue.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{refugeesNote}</p>
         </article>
 
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
@@ -902,9 +1084,9 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Work Visas
           </p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
-            {WORK_VISAS_2021_2025.toLocaleString('en-US')}
+            {workVisasValue.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Issued from 2021 to 2025.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{workVisasNote}</p>
         </article>
 
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
@@ -912,9 +1094,9 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Migrant Background
           </p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
-            {MIGRANT_BACKGROUND_2024_2025.toLocaleString('en-US')}
+            {migrantBackgroundValue.toLocaleString('en-US')}
           </p>
-          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">Germany, 2024–2025.</p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{migrantBackgroundNote}</p>
         </article>
       </div>
 
@@ -924,18 +1106,18 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Total amount of migrants (migration background)
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Persons with migration background in Germany (2000–2025). Hover points for exact counts.
+            Persons with migration background in {countryLabel} (2000–2025). Hover points for exact counts.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <GermanyTotalMigrantsMigrationBackgroundChart />
+          <GermanyTotalMigrantsMigrationBackgroundChart data={migrationBackgroundByYear} />
         </CardContent>
       </Card>
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Migrant arrivals by origin (Germany)
+            Migrant arrivals by origin ({countryLabel})
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
             Four series on a single arrivals axis (compact ticks). Approximate labels keep ~ / + in tooltips; lines use
@@ -943,13 +1125,13 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <GermanyMigrantArrivalsInteractiveChart />
+          <GermanyMigrantArrivalsInteractiveChart data={migrantArrivalsSeries} />
         </CardContent>
       </Card>
 
-      <GermanyDeportationTrendChart />
-      <GermanyYearlyDeportationsChart />
-      <GermanyDeportationReentryChart />
+      <GermanyDeportationTrendChart series={deportationTrendSeries} countryLabel={countryLabel} />
+      <GermanyYearlyDeportationsChart series={deportationTrendSeries} countryLabel={countryLabel} />
+      <GermanyDeportationReentryChart series={deportationReentrySeries} countryLabel={countryLabel} />
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
@@ -957,14 +1139,14 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Language proficiency and integration rates by origin (2025)
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Share of each origin group reaching B1 German or higher after 5 years.
+            {languageIntegrationDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
           <ChartContainer config={languageIntegrationChartConfig} className="h-[320px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={LANGUAGE_PROFICIENCY_INTEGRATION_2025}
+                data={[...languageIntegrationSeries]}
                 layout="vertical"
                 margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
               >
@@ -1016,11 +1198,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         <GermanyImmigrationTreemap items={items} />
       </div>
 
-      <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
-        Immigrant counts by country of origin (2024 flow). Source metadata in CSV: PopulationPyramid.net Germany
-        Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales
-        to the panel width so the full treemap is visible without horizontal scrolling.
-      </p>
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-500">{treemapNote}</p>
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
@@ -1034,7 +1212,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
           <ChartContainer config={healthcareHousingChartConfig} className="h-[340px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={HEALTHCARE_SOCIAL_HOUSING_USAGE} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+              <LineChart data={[...healthcareHousingSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
                   dataKey="year"
@@ -1075,13 +1253,13 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Public opinion on immigration
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Share agreeing with key immigration statements in Germany, 2000-2025.
+            {publicOpinionDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
           <ChartContainer config={publicOpinionChartConfig} className="h-[340px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={PUBLIC_OPINION_IMMIGRATION} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+              <LineChart data={[...publicOpinionSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
                   dataKey="year"
@@ -1117,7 +1295,12 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         </CardContent>
       </Card>
 
-      <GermanyImmigrationAdvocatesSubsection />
+      <GermanyImmigrationAdvocatesSubsection
+        advocates={advocates}
+        heading={advocatesHeading}
+        intro={advocatesIntro}
+        coalitionNote={advocatesCoalition}
+      />
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
@@ -1136,24 +1319,14 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Natives</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 819</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 74</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">+EUR 745</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">1st-generation migrants</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 692</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 211</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">+EUR 481</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">2nd-generation migrants</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 504</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">EUR 94</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">+EUR 410</td>
-                </tr>
+                {contributionRows.map((row) => (
+                  <tr key={row.group} className="border-t border-line">
+                    <td className="px-3 py-2 text-neutral-200">{row.group}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.paid}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.received}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.net}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -1161,24 +1334,15 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
           <div className="grid grid-cols-1 gap-3">
             <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Welfare Usage (2025)</p>
-              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
-                Foreigners (~14.8% of population) received 46.6% of all Burgergeld (main welfare benefit) spending,
-                approximately EUR 21.7 billion.
-              </p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.welfareUsage}</p>
             </article>
             <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Age-Controlled View</p>
-              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
-                When controlling for age and demographics, 1st-generation migrants become less positive or net
-                negative, while natives and 2nd-generation migrants perform similarly.
-              </p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.ageControlled}</p>
             </article>
             <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Raw View (No Age Control)</p>
-              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">
-                Without controlling for age, migrants (especially 1st generation) appear as net contributors mainly
-                because they are younger on average and receive far less in pensions.
-              </p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.rawView}</p>
             </article>
           </div>
 
@@ -1186,11 +1350,11 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             Source:{' '}
             <a
               className="underline underline-offset-2 hover:text-neutral-300"
-              href="https://www.econstor.eu/bitstream/10419/306683/1/GLO-DP-1530.pdf"
+              href={contributionNotes.sourceHref}
               target="_blank"
               rel="noreferrer"
             >
-              econstor.eu GLO-DP-1530
+              {contributionNotes.sourceLabel}
             </a>
           </p>
         </CardContent>
@@ -1198,10 +1362,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">
-            2025 Burgergeld (Main Welfare Benefit) - How Much They Take
-          </CardTitle>
-          <CardDescription>Total Burgergeld paid: approximately EUR 47 billion.</CardDescription>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{welfareTitle}</CardTitle>
+          <CardDescription>{welfareDesc}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="scrollbar-none overflow-x-auto border border-line">
@@ -1209,83 +1371,25 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
               <thead className="bg-neutral-900 text-neutral-300">
                 <tr>
                   <th className="px-3 py-2 font-medium">Nationality</th>
-                  <th className="px-3 py-2 text-right font-medium">Number of Burgergeld Recipients</th>
+                  <th className="px-3 py-2 text-right font-medium">Recipients</th>
                   <th className="px-3 py-2 text-right font-medium">% of All Foreign Recipients</th>
                   <th className="px-3 py-2 font-medium">Notes</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">All Foreigners</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~2.57 - 2.81 million</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">100%</td>
-                  <td className="px-3 py-2 text-neutral-100">46.6% of total Burgergeld budget</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Ukrainians</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">678,539 - 705,932</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~26-27%</td>
-                  <td className="px-3 py-2 text-neutral-100">EUR 6.0 - 6.5 billion (published)</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Syrians</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">485,240 - 512,161</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~19%</td>
-                  <td className="px-3 py-2 text-neutral-100">EUR 3.9 - 4.2 billion (published)</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Afghans</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">200,779</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~7.8%</td>
-                  <td className="px-3 py-2 text-neutral-100">Not published individually</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Turks</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">189,595 - 192,077</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~7.4%</td>
-                  <td className="px-3 py-2 text-neutral-100">Not published individually</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Iraqis</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">93,516 - 101,000</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">~3.6-3.9%</td>
-                  <td className="px-3 py-2 text-neutral-100">Not published individually</td>
-                </tr>
-                <tr className="border-t border-line">
-                  <td className="px-3 py-2 text-neutral-200">Others (Bulgarians, Romanians, Poles, etc.)</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">Remaining ~800,000+</td>
-                  <td className="px-3 py-2 text-right text-neutral-100">-</td>
-                  <td className="px-3 py-2 text-neutral-100">Combined in foreign total</td>
-                </tr>
+                {welfareRows.map((row) => (
+                  <tr key={row.nationality} className="border-t border-line">
+                    <td className="px-3 py-2 text-neutral-200">{row.nationality}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.recipients}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.share}</td>
+                    <td className="px-3 py-2 text-neutral-100">{row.notes}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          <div className="space-y-2 font-sans text-[10px] leading-relaxed text-neutral-500">
-            <p>
-              Source (Statista / Bundesagentur fur Arbeit, June 2025):{' '}
-              <a
-                className="underline underline-offset-2 hover:text-neutral-300"
-                href="https://de.statista.com/statistik/daten/studie/1622726/umfrage/empfaenger-von-buergergeld-in-deutschland-nach-staatsangehoerigkeiten/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                de.statista.com recipient statistics
-              </a>
-            </p>
-            <p>
-              Source (Fremdeninfo.de BA summary, July 2025):{' '}
-              <a
-                className="underline underline-offset-2 hover:text-neutral-300"
-                href="https://fremdeninfo.de/statistik-buergergeld-bezieher-nach-nationalitaeten-stand-anfang-2025/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                fremdeninfo.de BA summary
-              </a>
-            </p>
-            <p>Source: Tagesschau / Federal Ministry reports confirming the EUR 21.7-22 billion total for foreigners.</p>
-          </div>
+          {welfareNote}
         </CardContent>
       </Card>
 
@@ -1305,9 +1409,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">
-                Refugee origins in Germany (2024)
-              </CardTitle>
+              <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{refugeeOriginsTitle}</CardTitle>
               <CardDescription>Breakdown by country of origin.</CardDescription>
             </div>
             <span className="font-sans text-[11px] text-neutral-400" aria-hidden>
@@ -1319,7 +1421,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
           <CardContent className="space-y-4">
             <ChartContainer config={refugeesChartConfig} className="h-[780px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[...REFUGEE_BREAKDOWN_2024].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>
+                <BarChart data={[...refugeeBreakdown].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#2f2f2f" horizontal={false} />
                   <XAxis type="number" stroke="#8a8a8a" tick={{ fontSize: 11, fill: '#8a8a8a' }} tickFormatter={(v: number) => v.toLocaleString('en-US')} />
                   <YAxis
@@ -1356,32 +1458,32 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 Total Asylum Seekers
               </p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {ASYLUM_SEEKERS_TOTAL.toLocaleString('en-US')}
+                {asylumSeekersTotal.toLocaleString('en-US')}
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Men</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {ASYLUM_SEEKERS_MEN.toLocaleString('en-US')}
+                {asylumSeekersMen.toLocaleString('en-US')}
               </p>
               <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
-                ({ASYLUM_SEEKERS_MEN_PCT.toFixed(1)}%)
+                ({asylumMenPct.toFixed(1)}%)
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Women</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {ASYLUM_SEEKERS_WOMEN.toLocaleString('en-US')}
+                {asylumSeekersWomen.toLocaleString('en-US')}
               </p>
               <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
-                ({ASYLUM_SEEKERS_WOMEN_PCT.toFixed(1)}%)
+                ({asylumWomenPct.toFixed(1)}%)
               </p>
             </article>
           </div>
 
           <ChartContainer config={illegalAsylumSeekersChartConfig} className="h-[400px] w-full sm:h-[440px]">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={[...ILLEGAL_ASYLUM_SEEKERS_BY_YEAR]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
+              <ComposedChart data={[...asylumByRegion]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
                   dataKey="year"
@@ -1461,7 +1563,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             <ResponsiveContainer width="100%" height="100%">
               <PieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
                 <Pie
-                  data={ASYLUM_APPLICATIONS_2025_PIE}
+                  data={asylumPie}
                   dataKey="applications"
                   nameKey="country"
                   cx="50%"
@@ -1470,7 +1572,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   stroke="none"
                   labelLine={false}
                 >
-                  {ASYLUM_APPLICATIONS_2025_PIE.map((entry) => (
+                  {asylumPie.map((entry) => (
                     <Cell key={entry.country} fill={entry.fill} />
                   ))}
                 </Pie>
@@ -1489,7 +1591,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
                   formatter={(value) => {
                     const country = String(value);
-                    const pct = ASYLUM_SHARE_BY_COUNTRY[country] ?? 0;
+                    const pct = asylumPie.find((r) => r.country === country)?.sharePct ?? 0;
                     return `${country} (${pct.toFixed(2)}%)`;
                   }}
                 />

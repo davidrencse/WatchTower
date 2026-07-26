@@ -18,7 +18,7 @@ const PERSON_BLOCK_GRID = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
 
 const TIER_ORDER: GermanyJewishGovTier[] = ['federal', 'state', 'positions'];
 
-function groupByTier(entries: GermanyJewishGovernmentEntry[]): Map<GermanyJewishGovTier, GermanyJewishGovernmentEntry[]> {
+function groupByTier(entries: readonly GermanyJewishGovernmentEntry[]): Map<GermanyJewishGovTier, GermanyJewishGovernmentEntry[]> {
   const m = new Map<GermanyJewishGovTier, GermanyJewishGovernmentEntry[]>();
   for (const t of TIER_ORDER) m.set(t, []);
   for (const e of entries) {
@@ -34,7 +34,7 @@ function groupByTier(entries: GermanyJewishGovernmentEntry[]): Map<GermanyJewish
   return m;
 }
 
-function groupPositionsByRealm(entries: GermanyJewishGovernmentEntry[]): GermanyJewishGovernmentEntry[][] {
+function groupPositionsByRealm(entries: readonly GermanyJewishGovernmentEntry[]): GermanyJewishGovernmentEntry[][] {
   const order = ['judiciary', 'media', 'business', 'academic_ngo'] as const;
   const buckets = new Map<string, GermanyJewishGovernmentEntry[]>();
   for (const k of order) buckets.set(k, []);
@@ -93,11 +93,20 @@ function PersonBlock({ entry }: { entry: GermanyJewishGovernmentEntry }) {
   );
 }
 
-export function GermanyJewishGovernmentCarousel() {
+type GermanyJewishGovernmentCarouselProps = {
+  entriesOverride?: readonly GermanyJewishGovernmentEntry[];
+  sourceCaption?: string;
+};
+
+export function GermanyJewishGovernmentCarousel({
+  entriesOverride,
+  sourceCaption,
+}: GermanyJewishGovernmentCarouselProps) {
   const entries = useMemo(() => {
+    if (entriesOverride) return [...entriesOverride];
     const legacy = parseGermanyJewishGovernmentCsv(jewishGovernmentCsvRaw);
     return mergeCuratedAndLegacyJewishGovernment(GERMANY_JEWISH_GOVERNMENT_PEOPLE, legacy);
-  }, []);
+  }, [entriesOverride]);
 
   const byTier = useMemo(() => groupByTier(entries), [entries]);
 
@@ -179,8 +188,12 @@ export function GermanyJewishGovernmentCarousel() {
 
           <div className="shrink-0 border-t border-white/[0.08] px-1 pt-3">
               <p className={`font-sans text-[10px] text-neutral-600 ${UC_META}`}>
-                Curated dataset: <code className="text-neutral-500">src/data/germanyJewishGovernmentPeople.ts</code> ·
-                Legacy CSV: <code className="text-neutral-500">Assets/Data/countries/Germany/jewish.csv</code>
+                {sourceCaption ?? (
+                  <>
+                    Curated dataset: <code className="text-neutral-500">src/data/germanyJewishGovernmentPeople.ts</code> ·
+                    Legacy CSV: <code className="text-neutral-500">Assets/Data/countries/Germany/jewish.csv</code>
+                  </>
+                )}
               </p>
           </div>
         </div>
