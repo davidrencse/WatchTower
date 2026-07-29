@@ -43,12 +43,18 @@ type GermanyPopulationPyramidProps = {
   /** Bundled CSV text (same columns) for a non-Germany country — avoids a network fetch. */
   rawCsv?: string;
   countryLabel?: string;
+  asOfLabel?: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
 };
 
 export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
   csvUrl,
   rawCsv,
   countryLabel = 'Germany',
+  asOfLabel,
+  sourceLabel,
+  sourceUrl,
 }: GermanyPopulationPyramidProps) {
   const isGermany = !csvUrl && !rawCsv;
   const [raw, setRaw] = useState(isGermany ? germanyPopulationByAgeCsvRaw : rawCsv ?? '');
@@ -176,7 +182,7 @@ export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
               {isGermany ? '83,491,249' : totals.total.toLocaleString('en-US')}
             </div>
             <div className="mt-0.5 font-sans text-[10px] text-neutral-500">
-              {isGermany ? 'As of 30 June 2025' : '2025 estimate'}
+              {isGermany ? 'As of 30 June 2025' : asOfLabel ?? '2025 estimate'}
             </div>
           </div>
 
@@ -198,9 +204,18 @@ export const GermanyPopulationPyramid = memo(function GermanyPopulationPyramid({
         </div>
 
         <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
-          {isGermany
-            ? 'Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).'
-            : `Source data: ${csvUrl?.split('/').pop() ?? `${countryLabel.toLowerCase()}_2025_population_by_age_and_gender.csv`} (${countryLabel}, modeled 2025 age-group population by sex, INSEE-based).`}
+          {isGermany ? (
+            'Source data: germany_2025_population_by_age_and_gender.csv (Germany, 2025 age-group population by sex).'
+          ) : sourceUrl ? (
+            <>
+              Source:{' '}
+              <a className="underline decoration-white/20 underline-offset-2 hover:text-neutral-300" href={sourceUrl} target="_blank" rel="noreferrer">
+                {sourceLabel ?? 'Population by age and sex'}
+              </a>
+            </>
+          ) : (
+            `Source data: ${csvUrl?.split('/').pop() ?? `${countryLabel.toLowerCase()}_2025_population_by_age_and_gender.csv`} (${countryLabel}, modeled 2025 age-group population by sex).`
+          )}
         </p>
       </CardContent>
     </Card>

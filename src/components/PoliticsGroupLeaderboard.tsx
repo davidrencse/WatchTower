@@ -53,6 +53,7 @@ function parseCount(value: string): number | null {
 /** Short display: formatted count if numeric, else the raw label (e.g. "dissolved"). */
 function displayValue(value: string, count: number | null): string {
   if (count === null) return value;
+  if (value.includes('%')) return value;
   return count.toLocaleString('en-US');
 }
 

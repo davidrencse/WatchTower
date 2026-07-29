@@ -31,6 +31,7 @@ export type PoliticsLeftismData = {
   cancelCultureSource: LeftSource;
   groupsTitle: string;
   groupsDescription: string;
+  groupsSource?: LeftSource;
   groups: readonly LeftistGroup[];
 };
 
@@ -213,6 +214,7 @@ export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftis
   cancelCultureSource = { label: 'Source: archiveofsilence.org ↗', href: 'https://archiveofsilence.org/' },
   groupsTitle = 'LEFTIST GROUPS',
   groupsDescription = 'Ranked leftist groups and organizations (2000-2025 cumulative framing)',
+  groupsSource,
   groups = LEFTIST_GROUPS,
 }: Partial<PoliticsLeftismData> = {}) {
   return (
@@ -270,6 +272,20 @@ export const GermanyPoliticsLeftismSection = memo(function GermanyPoliticsLeftis
               accent="red"
               items={groups.map((g) => ({ rank: g.rank, group: g.group, type: g.type, value: g.memberPopulation, notes: g.notes }))}
             />
+            {groupsSource?.href ? (
+              <a
+                href={groupsSource.href}
+                target='_blank'
+                rel='noopener noreferrer'
+                className={`block font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 ${UC_META}`}
+              >
+                {groupsSource.label}
+              </a>
+            ) : groupsSource ? (
+              <p className={`font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+                {groupsSource.label}
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </div>

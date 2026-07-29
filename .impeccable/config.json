@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-07-29T05:29:30.054Z",
+        "reason": "User confirmed Inter is the intentional app-wide body font; globe surface uses JetBrains Mono"
+      }
+    ]
+  }
+}

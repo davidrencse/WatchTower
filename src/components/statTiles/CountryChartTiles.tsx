@@ -267,12 +267,14 @@ export function GermanyBirthsLineChartTile({
   series = GERMANY_TOTAL_BIRTHS_SERIES,
   title = 'Total births per year (Germany)',
   nativeLabel = 'German',
+  foreignLabel = 'foreign',
   note = 'German mothers are defined by citizenship at time of birth (includes naturalized immigrants and descendants). Share declines from about 82% in the early 2000s to 71.3% in 2024. 2025 values are estimated from the continuing trend.',
   sourceNote = 'Sources: Destatis (Federal Statistical Office), Statista, and Destatis statistical reports on births by citizenship.',
 }: {
   series?: readonly GermanyBirthsSeriesRow[];
   title?: string;
   nativeLabel?: string;
+  foreignLabel?: string;
   note?: string;
   sourceNote?: string;
 } = {}) {
@@ -280,7 +282,7 @@ export function GermanyBirthsLineChartTile({
   const chartConfig: ChartConfig = {
     totalLiveBirths: { label: 'Total live births', color: '#f59e0b' },
     birthsGermanMothers: { label: `Births to ${resolvedNativeLabel} mothers`, color: '#22c55e' },
-    birthsForeignMothers: { label: 'Births to foreign mothers', color: '#60a5fa' },
+    birthsForeignMothers: { label: `Births to ${foreignLabel} mothers`, color: '#60a5fa' },
   };
 
   return (
@@ -322,7 +324,7 @@ export function GermanyBirthsLineChartTile({
                         return [`${pretty}${row ? ` (${row.shareGermanMothersPct.toFixed(1)}%)` : ''}`, `${resolvedNativeLabel} mothers`];
                       }
                       if (label === 'birthsForeignMothers') {
-                        return [`${pretty}`, 'Foreign mothers'];
+                        return [`${pretty}`, `${foreignLabel} mothers`];
                       }
                       return [`${pretty}`, ' Total live births'];
                     }}
@@ -360,7 +362,7 @@ export function GermanyBirthsLineChartTile({
               <Line
                 type="monotone"
                 dataKey="birthsForeignMothers"
-                name="Births to foreign mothers"
+                name={`Births to ${foreignLabel} mothers`}
                 stroke="#60a5fa"
                 strokeWidth={2.5}
                 dot={{ r: 2 }}
@@ -390,10 +392,12 @@ const GERMANY_BIRTHS_BY_RACE_LABELS = {
 export function GermanyBirthsByRaceChartTile({
   series = GERMANY_BIRTHS_BY_RACE_SERIES,
   title = 'Births by race / regional origin (Germany)',
+  description = 'Live births by category, stacked (2000–2025)',
   labels = GERMANY_BIRTHS_BY_RACE_LABELS,
 }: {
   series?: readonly GermanyBirthsByRaceRow[];
   title?: string;
+  description?: string;
   labels?: typeof GERMANY_BIRTHS_BY_RACE_LABELS;
 } = {}) {
   // Tooltip series names come from the config, so rebuild it from `labels` (keeping the colors).
@@ -413,7 +417,7 @@ export function GermanyBirthsByRaceChartTile({
           {title}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] uppercase tracking-[0.03em] text-neutral-500">
-          Live births by category, stacked (2000–2025)
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -728,6 +732,59 @@ export function FranceBirthRatesEducationTile() {
   );
 }
 
+export function ItalyBirthRatesEducationTile() {
+  const rows = [
+    { education: 'Lower secondary certificate', fertility: '1.59', meanAge: '29.6 years' },
+    { education: 'Upper secondary diploma', fertility: '1.12', meanAge: '32.3 years' },
+    { education: 'University degree', fertility: '1.12', meanAge: '34.8 years' },
+  ] as const;
+
+  return (
+    <Card className="overflow-hidden border-line bg-surface-metric shadow-card lg:col-start-1 lg:col-span-3 lg:self-start">
+      <CardHeader className="p-4 pb-2 sm:p-5 sm:pb-2">
+        <CardTitle className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          Fertility and maternal age by education
+        </CardTitle>
+        <CardDescription className="font-sans text-[11px] leading-relaxed text-neutral-400">
+          Total fertility rate and mean age at childbirth by mothers&apos; highest qualification · Italy · 2024
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-4 pb-4 sm:px-5 sm:pb-5">
+        <div className="overflow-x-auto">
+          <div className="min-w-[520px]">
+            <div className="grid grid-cols-[minmax(220px,1.5fr)_repeat(2,minmax(120px,1fr))] gap-x-4 border-b border-white/[0.08] pb-2 font-sans text-[10px] leading-tight text-neutral-500">
+              <span>Education</span>
+              <span>Children per woman</span>
+              <span>Mean age</span>
+            </div>
+            <div className="divide-y divide-white/[0.06]">
+              {rows.map((item) => (
+                <div
+                  key={item.education}
+                  className="grid grid-cols-[minmax(220px,1.5fr)_repeat(2,minmax(120px,1fr))] items-center gap-x-4 py-2.5 font-sans"
+                >
+                  <span className="text-xs text-neutral-300">{item.education}</span>
+                  <span className="text-sm font-semibold text-neutral-50">{item.fertility}</span>
+                  <span className="text-sm font-semibold text-neutral-50">{item.meanAge}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 border-t border-white/[0.06] pt-2">
+          <SourceLinks
+            url="https://www.istat.it/wp-content/uploads/2026/05/Capitolo-2-9giugno2026.pdf"
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+          />
+          <p className="mt-1 font-sans text-[10px] leading-relaxed text-neutral-500">
+            Source: Istat, Annual Report 2026, chapter 2. Values are period fertility indicators for 2024.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function GermanyHoverSeriesTile({
   row,
   accent,
@@ -832,4 +889,3 @@ export function GermanyHoverSeriesTile({
     </div>
   );
 }
-

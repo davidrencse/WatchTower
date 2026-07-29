@@ -82,7 +82,9 @@ import {
 import { FRANCE_IMMIGRANT_BENEFITS } from '../lib/franceImmigrantBenefits';
 import { ITALY_IMMIGRANT_BENEFITS } from '../lib/italyImmigrantBenefits';
 import { FRANCE_TRADE } from '../lib/franceTrade';
+import { ITALY_GENERAL_TRADE } from '../lib/italyTrade';
 import { FRANCE_POLITICS_LEFTISM } from '../lib/francePoliticsLeftism';
+import { ITALY_POLITICS_LEFTISM } from '../lib/italyPoliticsLeftism';
 import { FRANCE_POLITICS_RIGHTWING } from '../lib/francePoliticsRightWing';
 import { FRANCE_MARRIAGE_RATES_SERIES } from '../lib/franceMarriageRates';
 import {
@@ -95,10 +97,39 @@ import {
   FRANCE_MIXED_BIRTHS_LABELS,
 } from '../lib/franceBirths';
 import {
+  ITALY_TOTAL_BIRTHS_SERIES,
+  ITALY_BIRTHS_NOTE,
+  ITALY_BIRTHS_SOURCE,
+  ITALY_BIRTHS_BY_ORIGIN_SERIES,
+  ITALY_BIRTHS_BY_ORIGIN_LABELS,
+  ITALY_MIXED_BIRTHS_SERIES,
+  ITALY_MIXED_BIRTHS_LABELS,
+} from '../lib/italyBirths';
+import {
   FRANCE_FEMALE_SERIES,
   FRANCE_MALE_SERIES,
   FRANCE_LGBT_SERIES,
 } from '../lib/franceMarriageDetail';
+import {
+  ITALY_MARRIAGE_EUROSTAT_URL,
+  ITALY_MARRIAGE_ISTAT_2025_URL,
+  ITALY_MARRIAGE_RATES_SERIES,
+} from '../lib/italyMarriageRates';
+import {
+  ITALY_FEMALE_MIXED_MARRIAGE_SERIES,
+  ITALY_FEMALE_MIXED_MARRIAGE_TABLE,
+  ITALY_MALE_MIXED_MARRIAGE_SERIES,
+  ITALY_MALE_MIXED_MARRIAGE_TABLE,
+  ITALY_MIXED_MARRIAGES_ISTAT_HISTORY_URL,
+  ITALY_MIXED_MARRIAGES_ISTAT_TABLES_URL,
+  ITALY_MIXED_MARRIAGES_ISTAT_URL,
+} from '../lib/italyMixedMarriages';
+import {
+  ITALY_LGBT_UNION_SERIES,
+  ITALY_LGBT_UNIONS_ISTAT_2024_URL,
+  ITALY_LGBT_UNIONS_ISTAT_EARLY_URL,
+  ITALY_LGBT_UNIONS_ISTAT_TABLES_URL,
+} from '../lib/italyLgbtUnions';
 import {
   FRANCE_MIGRATION_BACKGROUND_BY_YEAR,
   FRANCE_MIGRANT_ARRIVALS_SERIES,
@@ -156,15 +187,44 @@ import {
   FRANCE_MEDIAN_MONTHLY_NET_INCOME_TITLE,
 } from '../lib/franceMedianIncomeByEthnicGroup';
 import {
+  ITALY_AVERAGE_MONTHLY_NET_PAY_BY_CITIZENSHIP,
+  ITALY_AVERAGE_MONTHLY_NET_PAY_NOTE,
+  ITALY_AVERAGE_MONTHLY_NET_PAY_SERIES,
+  ITALY_AVERAGE_MONTHLY_NET_PAY_SOURCE_URL,
+  ITALY_AVERAGE_MONTHLY_NET_PAY_TITLE,
+} from '../lib/italyMonthlyNetIncomeByCitizenship';
+import {
   FRANCE_NET_FISCAL_CONTRIBUTION_BY_ETHNIC_GROUP,
   FRANCE_NET_FISCAL_CONTRIBUTION_SERIES,
   FRANCE_NET_FISCAL_CONTRIBUTION_TITLE,
 } from '../lib/franceNetFiscalContributionByEthnicGroup';
 import {
+  ITALY_NET_FISCAL_CONTRIBUTION_BY_MIGRATION_BACKGROUND,
+  ITALY_NET_FISCAL_CONTRIBUTION_NOTE,
+  ITALY_NET_FISCAL_CONTRIBUTION_SERIES,
+  ITALY_NET_FISCAL_CONTRIBUTION_SOURCE_LABEL,
+  ITALY_NET_FISCAL_CONTRIBUTION_SOURCE_URL,
+  ITALY_NET_FISCAL_CONTRIBUTION_TITLE,
+} from '../lib/italyNetFiscalContributionByMigrationBackground';
+import {
   FRANCE_REMITTANCES_OUTFLOW_2025,
   FRANCE_REMITTANCES_OUTFLOW_NOTE,
   FRANCE_REMITTANCES_OUTFLOW_TITLE,
 } from '../lib/franceRemittancesOutflow';
+import {
+  ITALY_REMITTANCES_OUTFLOW_2025,
+  ITALY_REMITTANCES_OUTFLOW_NOTE,
+  ITALY_REMITTANCES_OUTFLOW_TITLE,
+} from '../lib/italyRemittancesOutflow';
+import { ITALY_MEN_LEFT_RIGHT_CHART } from '../lib/italyMenPoliticalIdentification';
+import { ITALY_ISRAEL_SUPPORT_BY_GENDER_CHART } from '../lib/italyIsraelSupportByGender';
+import { ITALY_RUSSIA_UKRAINE_SUPPORT_CHART } from '../lib/italyRussiaUkraineSupport';
+import {
+  ITALY_RUSSIA_UKRAINE_LEFT_WING_CHART,
+  ITALY_RUSSIA_UKRAINE_RIGHT_WING_CHART,
+} from '../lib/italyRussiaUkraineSupportByIdeology';
+import { ITALY_POLITICS_RIGHT_WING } from '../lib/italyPoliticsRightWing';
+import { ITALY_WOMEN_LEFT_RIGHT_CHART } from '../lib/italyWomenPoliticalIdentification';
 import {
   GERMANY_ABORTION_SECTION_GROUP_COUNT,
   GERMANY_HEALTH_BASIC_GROUP_COUNT,
@@ -181,6 +241,8 @@ import {
   applyItalyEconomyMetricOverrides,
   ITALY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
 } from '../lib/italyEconomyStats';
+import { applyItalyDemographicsMetricOverrides } from '../lib/italyDemographicsStats';
+import { applyItalyBirthRateMetricOverrides } from '../lib/italyBirthHealthIndicators';
 import {
   GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
   GERMANY_ECONOMIC_TAXES_GROUP_COUNT,
@@ -203,6 +265,7 @@ import { CountryPageSectionRibbon } from './CountryPageSectionRibbon';
 import { ThemeToggle } from './ThemeToggle';
 import { buildCountryRibbonNav } from '../lib/countryRibbonNav';
 import { scrollToCountryAnchor } from '../lib/countryRibbonScroll';
+import { scheduleIdleTask, type CancelIdleTask } from '../lib/idleTask';
 import {
   CountryRibbonExpandProvider,
   useCountryRibbonExpandController,
@@ -219,17 +282,48 @@ import { militaryProfileFor } from '../data/military';
 
 /**
  * Section components are code-split so the initial dossier shell stays light. On open
- * the dashboard warms every section chunk in parallel (see `preloadCountrySections`),
+ * the dashboard warms section chunks progressively during idle time (see `preloadCountrySections`),
  * and `CollapsibleFlagSection` renders a section's content in full the moment it is
- * expanded â€” no scroll/visibility gating â€” so nothing streams in section-by-section.
+ * expanded — no scroll/visibility gating — so nothing streams in section-by-section.
  * A lightweight sized placeholder holds layout only until the (already-warming) chunk resolves.
  */
-/** Every section chunk's import loader, so the dashboard can warm them all in parallel on mount. */
+/** Every section chunk's import loader, used for progressive idle-time warming. */
 const SECTION_PRELOADERS: Array<() => Promise<unknown>> = [];
 
-/** Kick off every section chunk download at once (idempotent â€” ES module imports are cached). */
-export function preloadCountrySections(): void {
-  for (const load of SECTION_PRELOADERS) load().catch(() => undefined);
+/** Warm one cached section import per idle period without competing with active scrolling. */
+function preloadCountrySections(): () => void {
+  const connection = (navigator as Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  }).connection;
+  if (
+    connection?.saveData ||
+    connection?.effectiveType === 'slow-2g' ||
+    connection?.effectiveType === '2g'
+  ) {
+    return () => {};
+  }
+
+  let cancelled = false;
+  let index = 0;
+  let cancelIdle: CancelIdleTask | null = null;
+
+  const preloadNext = () => {
+    if (cancelled || index >= SECTION_PRELOADERS.length) return;
+    const load = SECTION_PRELOADERS[index++];
+    void load?.()
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled && index < SECTION_PRELOADERS.length) {
+          cancelIdle = scheduleIdleTask(preloadNext, 1200);
+        }
+      });
+  };
+
+  cancelIdle = scheduleIdleTask(preloadNext, 600);
+  return () => {
+    cancelled = true;
+    cancelIdle?.();
+  };
 }
 
 // React.lazy's current component constraint uses `any`; preserve prop inference at this code-splitting boundary.
@@ -253,6 +347,9 @@ function lazySection<T extends ComponentType<any>>(
 
 const GermanyImmigrationSection = lazySection(() =>
   import('./GermanyImmigrationSection').then((m) => ({ default: m.GermanyImmigrationSection })),
+);
+const ItalyImmigrationSection = lazySection(() =>
+  import('./ItalyImmigrationSection').then((m) => ({ default: m.ItalyImmigrationSection })),
 );
 const GermanyGovernmentSection = lazySection(() =>
   import('./GermanyGovernmentSection').then((m) => ({ default: m.GermanyGovernmentSection })),
@@ -345,6 +442,9 @@ const GermanySexualBehaviorSection = lazySection(() =>
 const FranceSexualBehaviorSection = lazySection(() =>
   import('./FranceSexualBehaviorSection').then((m) => ({ default: m.FranceSexualBehaviorSection })),
 );
+const ItalySexualBehaviorSection = lazySection(() =>
+  import('./ItalySexualBehaviorSection').then((m) => ({ default: m.ItalySexualBehaviorSection })),
+);
 
 const MERGED_CSV_URL = '/data/centralized_merged_country_stats.csv';
 const EXPENDITURES_CSV_URL = '/data/expenditures.csv';
@@ -382,6 +482,7 @@ const METRIC_ORDER = [
   'Total birth rate',
   'White (native) birth rate',
   'France-born birth rate',
+  'Italian-citizen birth rate',
   'Immigrant birth rate',
   'Migrant background M:F ratio',
   'Births to foreign-born mothers',
@@ -393,6 +494,7 @@ const METRIC_ORDER = [
   'Mean age of mothers at childbirth',
   'Childhood overweight and obesity (Germany)',
   'Childhood overweight and obesity (France)',
+  'Childhood overweight and obesity (Italy)',
 ] as const;
 
 function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
@@ -404,21 +506,21 @@ function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
       <div className="mt-3 divide-y divide-white/[0.06]">
         <div className="pb-3">
           <p className="font-sans text-[10px] leading-relaxed text-neutral-400">
-            Overweight (incl. obesity) among children aged 7â€“9
+            Overweight (incl. obesity) among children aged 7–9
           </p>
           <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             25.7% (boys 27.7%, girls 23.3%).
           </p>
         </div>
         <div className="py-3">
-          <p className="font-sans text-[10px] leading-relaxed text-neutral-400">Obesity among children aged 7â€“9</p>
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-400">Obesity among children aged 7–9</p>
           <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             ~11% overall (boys higher at ~13%, girls ~9%).
           </p>
         </div>
         <div className="pt-3">
           <p className="font-sans text-[10px] leading-relaxed text-neutral-400">
-            Overweight/obesity among children and adolescents (3â€“17 years)
+            Overweight/obesity among children and adolescents (3–17 years)
           </p>
           <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">
             ~15% overweight, ~6% obese (older national data; rising trend).
@@ -436,9 +538,9 @@ function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
 
 function FranceChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
   const items = [
-    ['Overweight (incl. obesity) among children aged 7â€“9 Â· 2016', '16.5% (boys 14.4%, girls 18.7%)'],
-    ['Obesity among children aged 7â€“9 Â· 2016', '4.4% overall (boys 3.2%, girls 5.5%)'],
-    ['Overweight (incl. obesity) among grade-9 adolescents Â· 2017', '18% overall; 5% obese'],
+    ['Overweight (incl. obesity) among children aged 7–9 · 2016', '16.5% (boys 14.4%, girls 18.7%)'],
+    ['Obesity among children aged 7–9 · 2016', '4.4% overall (boys 3.2%, girls 5.5%)'],
+    ['Overweight (incl. obesity) among grade-9 adolescents · 2017', '18% overall; 5% obese'],
   ] as const;
 
   return (
@@ -460,6 +562,40 @@ function FranceChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric 
           <SourceLinks
             url={row.source_url}
             className={'inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200'}
+          />
+        ) : null}
+        <NoteBlock text={row.notes} />
+      </div>
+    </article>
+  );
+}
+
+function ItalyChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
+  const items = [
+    ['Overweight among children aged 8–9 · 2023', '19.0%'],
+    ['Obesity among children aged 8–9 · 2023', '9.8% (boys 10.3%, girls 9.4%)'],
+    ['Severe obesity among children aged 8–9 · 2023', '2.6%'],
+  ] as const;
+
+  return (
+    <article className="flex min-h-[188px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
+      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+        Childhood overweight and obesity
+      </p>
+      <div className="mt-3 divide-y divide-white/[0.06]">
+        {items.map(([label, value], index) => (
+          <div key={label} className={index === 0 ? 'pb-3' : index === items.length - 1 ? 'pt-3' : 'py-3'}>
+            <p className="font-sans text-[10px] leading-relaxed text-neutral-400">{label}</p>
+            <p className="mt-1.5 font-sans text-sm leading-snug text-neutral-100 sm:text-base">{value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-auto border-t border-white/[0.06] pt-3">
+        <MetaLine row={row} />
+        {row.source_url ? (
+          <SourceLinks
+            url={row.source_url}
+            className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         ) : null}
         <NoteBlock text={row.notes} />
@@ -503,7 +639,7 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
                 <li key={o.country} className="break-words font-sans text-[10px] leading-snug text-neutral-300">
                   <span className="mr-1 inline-block h-2 w-2 shrink-0 rounded-sm align-middle" style={{ backgroundColor: palette[i % palette.length] }} />
                   <span className="font-medium">{o.country}</span>
-                  {' â€” '}
+                  {' — '}
                   <span>
                     {o.count != null ? o.count.toLocaleString('en-US') : 'N/A'}
                     {o.sharePct != null ? ` (${o.sharePct.toFixed(2)}%)` : ''}
@@ -532,7 +668,7 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
               <li key={o.country} className="font-sans text-xs text-neutral-300">
                 <span className="mr-2 inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: palette[i % palette.length] }} />
                 <span className="font-medium">{o.country}</span>
-                {' â€” '}
+                {' — '}
                 <span>
                   {o.count != null ? o.count.toLocaleString('en-US') : 'N/A'}
                   {o.sharePct != null ? ` (${o.sharePct.toFixed(2)}%)` : ''}
@@ -654,7 +790,7 @@ function ReligionPopulationTriTile({
               </p>
             </div>
             {rowMetaParts.length > 0 ? (
-              <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{rowMetaParts.join(' Â· ')}</p>
+              <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{rowMetaParts.join(' · ')}</p>
             ) : null}
             {row.source_url ? (
               <div className="mt-2">
@@ -929,7 +1065,7 @@ function FranceHealthExtrasGrid() {
       </div>
       <GermanySuicideRatesChartTile
         series={FRANCE_SUICIDE_RATE_SERIES}
-        description="Rate per 100,000 inhabitants (WHO for 2019; 2024â€“2025 estimated)"
+        description="Rate per 100,000 inhabitants (WHO for 2019; 2024–2025 estimated)"
       />
       <GermanyTestosteroneMenChartTile series={FRANCE_TESTOSTERONE_MEN_SERIES} />
       <GermanyLgbtPopulationIdentificationChartTile series={FRANCE_LGBT_IDENTIFICATION_SERIES} />
@@ -945,6 +1081,9 @@ function FranceHealthExtrasGrid() {
 const loadCrimeSection = () => import('./CrimeMetricsSection');
 const CrimeMetricsSection = lazySection(() =>
   loadCrimeSection().then((m) => ({ default: m.CrimeMetricsSection })), 320,
+);
+const ItalyTotalRecordedCrimesChart = lazySection(() =>
+  loadCrimeSection().then((m) => ({ default: m.ItalyTotalRecordedCrimesChart })), 320,
 );
 const FranceTotalRecordedCrimesChart = lazySection(() =>
   loadCrimeSection().then((m) => ({ default: m.FranceTotalRecordedCrimesChart })), 320,
@@ -990,6 +1129,9 @@ const GermanyBirthRatesEducationTile = lazySection(() =>
 const FranceBirthRatesEducationTile = lazySection(() =>
   loadChartTiles().then((m) => ({ default: m.FranceBirthRatesEducationTile })), 260,
 );
+const ItalyBirthRatesEducationTile = lazySection(() =>
+  loadChartTiles().then((m) => ({ default: m.ItalyBirthRatesEducationTile })), 260,
+);
 const GermanyHoverSeriesTile = lazySection(() =>
   loadChartTiles().then((m) => ({ default: m.GermanyHoverSeriesTile })), 320,
 );
@@ -1021,6 +1163,9 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
   if (row.metric === 'Childhood overweight and obesity (France)' && opts?.iso3?.toUpperCase() === 'FRA') {
     return <FranceChildhoodObesityBirthRatesTile row={row} />;
   }
+  if (row.metric === 'Childhood overweight and obesity (Italy)' && opts?.iso3?.toUpperCase() === 'ITA') {
+    return <ItalyChildhoodObesityBirthRatesTile row={row} />;
+  }
   if (row.metric === 'Foreign students by origin (pie)') {
     return <ForeignStudentsOriginTile row={row} compact={opts?.foreignStudentsPieCompact} />;
   }
@@ -1042,7 +1187,7 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
           data={GERMANY_GDP_SERIES}
           seriesKey="gdp"
           title="GDP (USD billions)"
-          yearRangeLabel="2015â€“2025"
+          yearRangeLabel="2015–2025"
           yDomain={[3200, 5250]}
           yTicks={[3500, 4000, 4500, 5000]}
           yTickFormatter={(n) => `${(n / 1000).toFixed(1)}T`}
@@ -1062,7 +1207,7 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
           data={GERMANY_GDP_SERIES}
           seriesKey="gdpPerCapita"
           title="GDP per capita (USD)"
-          yearRangeLabel="2015â€“2025"
+          yearRangeLabel="2015–2025"
           yDomain={[40000, 62000]}
           yTicks={[42000, 48000, 54000, 60000]}
           yTickFormatter={(n) => `${Math.round(n / 1000)}k`}
@@ -1082,7 +1227,7 @@ function renderStatTile(row: CountryStatMetric, opts?: RenderStatTileOpts): Reac
           data={GERMANY_INFLATION_SERIES}
           seriesKey="inflation"
           title="Inflation rate (%)"
-          yearRangeLabel="2000â€“2025"
+          yearRangeLabel="2000–2025"
           yTickFormatter={(n) => `${n.toFixed(1)}%`}
           tooltipFormatter={(v) => `${v.toFixed(2)}%`}
           minHeightClass="min-h-[240px]"
@@ -1126,7 +1271,7 @@ type CountryStatsDashboardProps = {
   actualIso3?: string;
   onBack: () => void;
   /**
-    * ISO3 whose data/components drive the Crime â†’ Statistics subsection. Defaults to `iso3`.
+    * ISO3 whose data/components drive the Crime → Statistics subsection. Defaults to `iso3`.
     * This can differ from the main dashboard ISO when a country-specific crime source is needed.
    */
   crimeIso3?: string;
@@ -1142,7 +1287,7 @@ function countryCsvUrl(iso3: string, name: string): string {
 export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso3 }: CountryStatsDashboardProps) {
   const effectiveCountryIso3 = (actualIso3 ?? iso3).toUpperCase();
   const isItalyScaffold = effectiveCountryIso3 === 'ITA';
-  // Country driving the Crime â†’ Statistics subsection. Identical to `iso3` by default.
+  // Country driving the Crime → Statistics subsection. Identical to `iso3` by default.
   const effectiveCrimeIso3 = crimeIso3 ?? iso3;
   // Hand-curated military profile (Germany, France, Italy…); null falls back to the generic GFP
   // section. Keyed on the *actual* country so a scaffold (Italy renders France's data `iso3`)
@@ -1188,7 +1333,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
         const row = byIso.get(upper);
         if (cancelled) return;
         if (!row) {
-          setError(`No statistics row for ISO3 â€œ${iso3}â€.`);
+          setError(`No statistics row for ISO3 “${iso3}”.`);
           setOrdered(null);
           setStatsRow(null);
           setCrimeRow(null);
@@ -1197,7 +1342,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
 
         const countryLabel = row.country || flag.label;
 
-        // Crime â†’ Statistics may use a separate country row when explicitly requested.
+        // Crime → Statistics may use a separate country row when explicitly requested.
         const crimeUpper = effectiveCrimeIso3.toUpperCase();
         const crimeSourceRow = crimeUpper === upper ? row : byIso.get(crimeUpper) ?? row;
 
@@ -1318,6 +1463,11 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
       const economyMetrics = isItalyScaffold
         ? applyItalyEconomyMetricOverrides(ordered)
         : applyFranceEconomyMetricOverrides(ordered);
+      if (isItalyScaffold) {
+        return applyItalyBirthRateMetricOverrides(
+          applyItalyDemographicsMetricOverrides(economyMetrics),
+        );
+      }
       return applyFranceImmigrationMetricOverrides(
         applyFranceDemographicsMetricOverrides(economyMetrics),
       );
@@ -1370,7 +1520,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
     return new Map(displayOrdered.map((r) => [r.metric, r]));
   }, [displayOrdered]);
 
-  const statSections = useMemo(() => getStatSections(iso3), [iso3]);
+  const statSections = useMemo(
+    () => getStatSections(iso3, effectiveCountryIso3),
+    [iso3, effectiveCountryIso3],
+  );
 
   // France shares Germany's rich dashboard structure, but country identity still controls
   // bundled news and genuinely Germany-only chrome such as the DAX carousel.
@@ -1386,10 +1539,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
   const [ribbonPressedSubAnchorByMain, setRibbonPressedSubAnchorByMain] = useState<Record<string, string>>({});
   const ribbonExpand = useCountryRibbonExpandController();
 
-  // Warm every section chunk in parallel as soon as a dossier opens, so no section
-  // streams in late â€” expanding any section renders its (already-downloaded) content at once.
+  // Warm section chunks progressively while the browser is idle. Opening a section still
+  // starts its lazy import immediately if background warming has not reached it yet.
   useEffect(() => {
-    preloadCountrySections();
+    return preloadCountrySections();
   }, []);
 
   // Key the news rails on the *actual* country so a scaffold (Italy renders France's data `iso3`)
@@ -1532,19 +1685,19 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
           type="button"
           onClick={() => moveSection(id, 'up')}
           disabled={disableUp}
-          className="rounded-md border border-white/[0.1] bg-card px-1.5 py-0.5 font-sans text-[10px] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-white/[0.1] bg-card font-sans text-xs text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={`Move ${id} section up`}
         >
-          â†‘
+          ↑
         </button>
         <button
           type="button"
           onClick={() => moveSection(id, 'down')}
           disabled={disableDown}
-          className="rounded-md border border-white/[0.1] bg-card px-1.5 py-0.5 font-sans text-[10px] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-white/[0.1] bg-card font-sans text-xs text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={`Move ${id} section down`}
         >
-          â†“
+          ↓
         </button>
       </span>
     );
@@ -1560,14 +1713,14 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
         } as CSSProperties
       }
     >
-      <header className="sticky top-0 z-50 border-b border-line bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]">
+      <header className="sticky top-0 z-50 border-b border-line bg-[var(--shell-header)] shadow-header">
         <div className="grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={onBack}
-            className="justify-self-start font-sans text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:text-white"
+            className="-ml-2 flex min-h-11 items-center justify-self-start rounded-md px-2 font-sans text-[11px] uppercase tracking-wider text-neutral-500 transition-colors hover:bg-white/[0.04] hover:text-white"
           >
-            â† Back
+            ← Back
           </button>
           <div className="justify-self-center text-center">
             <div className="flex items-center justify-center gap-3">
@@ -1612,8 +1765,8 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     ribbonNavOpen
                       ? 'w-full max-w-none pt-[6.25rem] pb-8 sm:pt-[7rem] sm:pb-10'
                       : 'w-full max-w-none py-8 sm:py-10',
-                    germanyLeftRailVisible ? 'pl-[13rem]' : 'pl-2 sm:pl-3',
-                    germanyRightRailVisible ? 'pr-[13rem]' : 'pr-2 sm:pr-3',
+                    germanyLeftRailVisible ? 'pl-2 sm:pl-3 2xl:pl-[13rem]' : 'pl-2 sm:pl-3',
+                    germanyRightRailVisible ? 'pr-2 sm:pr-3 2xl:pr-[13rem]' : 'pr-2 sm:pr-3',
                   ].join(' ')
                 : ribbonNavOpen
                   ? 'mx-auto w-full max-w-6xl px-4 pt-[6.25rem] pb-8 sm:px-6 sm:pt-[7rem] sm:pb-10'
@@ -1660,7 +1813,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     setAllExpanded(true);
                   }
                 }}
-                className="rounded-md border border-white/[0.1] bg-card px-3 py-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover"
+                className="min-h-11 rounded-md border border-white/[0.1] bg-card px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-200 shadow-sm transition hover:border-white/[0.16] hover:bg-card-hover"
               >
                 {allExpanded ? 'Collapse all' : 'Expand all'}
               </button>
@@ -1840,7 +1993,15 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     >
                     <div className="flex flex-col gap-4">
                       {section.id === 'population' ? (
-                        iso3.toUpperCase() === 'FRA' ? (
+                        isItalyScaffold ? (
+                          <GermanyPopulationPyramid
+                            csvUrl={countryCsvUrl(effectiveCountryIso3, 'population_pyramid')}
+                            countryLabel="Italy"
+                            asOfLabel="As of 1 January 2025"
+                            sourceLabel="Eurostat demo_pjan — population on 1 January by age and sex"
+                            sourceUrl="https://ec.europa.eu/eurostat/databrowser/view/demo_pjan/default/table?lang=en"
+                          />
+                        ) : iso3.toUpperCase() === 'FRA' ? (
                           <GermanyPopulationPyramid rawCsv={francePopulationByAgeCsvRaw} countryLabel="France" />
                         ) : treatAsGermany(iso3) ? (
                           <GermanyPopulationPyramid />
@@ -1854,7 +2015,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                       {leadingRows.length > 0 ? (
                         <div className={STAT_GRID}>
                           {section.id === 'population' && treatAsGermany(iso3)
-                            ? renderGermanyPopulationLeadingTiles(leadingRows, iso3)
+                            ? renderGermanyPopulationLeadingTiles(leadingRows, effectiveCountryIso3)
                             : leadingRows.map((row) => (
                                 <Fragment key={row.metric}>{renderStatTile(row, { iso3 })}</Fragment>
                               ))}
@@ -1895,7 +2056,22 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                         )
                       ) : null}
                       {section.id === 'politics' && treatAsGermany(iso3) ? (
-                        <GermanyPoliticsOverviewCharts />
+                        <GermanyPoliticsOverviewCharts
+                          menLeftRightChart={isItalyScaffold ? ITALY_MEN_LEFT_RIGHT_CHART : undefined}
+                          womenLeftRightChart={isItalyScaffold ? ITALY_WOMEN_LEFT_RIGHT_CHART : undefined}
+                          israelSupportByGenderChart={
+                            isItalyScaffold ? ITALY_ISRAEL_SUPPORT_BY_GENDER_CHART : undefined
+                          }
+                          russiaUkraineOverallChart={
+                            isItalyScaffold ? ITALY_RUSSIA_UKRAINE_SUPPORT_CHART : undefined
+                          }
+                          russiaUkraineLeftWingChart={
+                            isItalyScaffold ? ITALY_RUSSIA_UKRAINE_LEFT_WING_CHART : undefined
+                          }
+                          russiaUkraineRightWingChart={
+                            isItalyScaffold ? ITALY_RUSSIA_UKRAINE_RIGHT_WING_CHART : undefined
+                          }
+                        />
                       ) : null}
                       {nestedBlocks.map((block) =>
                         block.type === 'germany_immigration' ? (
@@ -1923,15 +2099,17 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   ) : null;
                                 })}
                               </div>
-                              {iso3.toUpperCase() === 'FRA' ? (
+                              {isItalyScaffold ? (
+                                <ItalyImmigrationSection />
+                              ) : iso3.toUpperCase() === 'FRA' ? (
                                 <GermanyImmigrationSection
                                   countryLabel="France"
                                   refugeesValue={639324}
-                                  refugeesNote="France, 31 Dec 2024 â€” valid humanitarian (protection) permits."
+                                  refugeesNote="France, 31 Dec 2024 — valid humanitarian (protection) permits."
                                   workVisasValue={260000}
-                                  workVisasNote="Economic residence permits issued 2021â€“2025 (~55.6k/yr, est.)."
+                                  workVisasNote="Economic residence permits issued 2021–2025 (~55.6k/yr, est.)."
                                   migrantBackgroundValue={15300000}
-                                  migrantBackgroundNote="France, 2024 â€” 7.3M immigrants + 8.0M descendants of immigrants (INSEE)."
+                                  migrantBackgroundNote="France, 2024 — 7.3M immigrants + 8.0M descendants of immigrants (INSEE)."
                                   migrationBackgroundByYear={FRANCE_MIGRATION_BACKGROUND_BY_YEAR}
                                   migrantArrivalsSeries={FRANCE_MIGRANT_ARRIVALS_SERIES}
                                   deportationTrendSeries={FRANCE_DEPORTATION_TREND_SERIES}
@@ -1977,7 +2155,134 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            {iso3.toUpperCase() === 'FRA' ? (
+                            {isItalyScaffold ? (
+                              <GermanyMarriagesSection
+                                marriageRatesSeries={ITALY_MARRIAGE_RATES_SERIES}
+                                femaleSeries={ITALY_FEMALE_MIXED_MARRIAGE_SERIES}
+                                maleSeries={ITALY_MALE_MIXED_MARRIAGE_SERIES}
+                                lgbtSeries={ITALY_LGBT_UNION_SERIES}
+                                nativeAdj="Italian"
+                                mixedMarriageRangeLabel="2018–2024"
+                                femaleDetailedTableRows={ITALY_FEMALE_MIXED_MARRIAGE_TABLE}
+                                femaleDetailedTableRangeLabel="2000–2025"
+                                maleDetailedTableRows={ITALY_MALE_MIXED_MARRIAGE_TABLE}
+                                maleDetailedTableRangeLabel="2000–2025"
+                                detailedTableNativeShortLabel="It."
+                                marriageRatesSourceNote={
+                                  <>
+                                    Source:{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MARRIAGE_EUROSTAT_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Eurostat demo_nind
+                                    </a>{' '}
+                                    (2000–2024);{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MARRIAGE_ISTAT_2025_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Istat
+                                    </a>{' '}
+                                    (2025 provisional).
+                                  </>
+                                }
+                                marriageAgeSourceNote={
+                                  <>
+                                    Mean age at first marriage. Source:{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MARRIAGE_EUROSTAT_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Eurostat demo_nind
+                                    </a>
+                                    . 2012 and 2015 are interpolated; 2025 is estimated.
+                                  </>
+                                }
+                                mixedMarriageSourceNote={
+                                  <>
+                                    Source:{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MIXED_MARRIAGES_ISTAT_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Istat 2024 marriage report
+                                    </a>
+                                    ,{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MIXED_MARRIAGES_ISTAT_TABLES_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      statistical tables
+                                    </a>
+                                    , and the{' '}
+                                    <a
+                                      className="text-[var(--uk-accent)] hover:text-neutral-200"
+                                      href={ITALY_MIXED_MARRIAGES_ISTAT_HISTORY_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      2011–2023 historical series
+                                    </a>
+                                    . The Italian female and male tables use the supplied spouse
+                                    citizenship series and origin breakdowns; ~ marks approximate
+                                    values and (est.) marks estimates. Annual 2018–2024
+                                    Italian/foreign spouse totals are official Istat counts.
+                                    The Germany UI’s broad origin buckets are Italy-weighted estimates
+                                    based on Istat’s published spouse-citizenship distribution; Istat
+                                    defines “mixed” by citizenship, not race.
+                                  </>
+                                }
+                                lgbtSourceNote={
+                                  <>
+                                    Source:{' '}
+                                    <a
+                                      href={ITALY_LGBT_UNIONS_ISTAT_TABLES_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 hover:text-white"
+                                    >
+                                      Istat annual civil-union tables
+                                    </a>
+                                    ,{' '}
+                                    <a
+                                      href={ITALY_LGBT_UNIONS_ISTAT_EARLY_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 hover:text-white"
+                                    >
+                                      Istat 2016–2017 release
+                                    </a>
+                                    , and{' '}
+                                    <a
+                                      href={ITALY_LGBT_UNIONS_ISTAT_2024_URL}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 hover:text-white"
+                                    >
+                                      Istat 2024 release
+                                    </a>
+                                    . Italy’s legal category is same-sex civil unions, introduced
+                                    in July 2016. “Gay” and “Lesbian” reproduce the Germany UI’s
+                                    wording and map to Istat’s male-couple and female-couple series.
+                                    The 2016–2017 sex split applies Istat’s combined two-year split
+                                    to each annual total. The 2025 estimate applies Istat’s
+                                    provisional first-nine-month decline of 3.1% to the 2024 total
+                                    and retains the 2024 sex split.
+                                  </>
+                                }
+                              />
+                            ) : iso3.toUpperCase() === 'FRA' ? (
                               <GermanyMarriagesSection
                                 marriageRatesSeries={FRANCE_MARRIAGE_RATES_SERIES}
                                 femaleSeries={FRANCE_FEMALE_SERIES}
@@ -2000,7 +2305,9 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            {iso3.toUpperCase() === 'FRA' ? (
+                            {isItalyScaffold ? (
+                              <ItalySexualBehaviorSection />
+                            ) : iso3.toUpperCase() === 'FRA' ? (
                               <FranceSexualBehaviorSection />
                             ) : (
                               <GermanySexualBehaviorSection />
@@ -2056,29 +2363,54 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                 }
                                 incomeNationalityChart={
                                   iso3.toUpperCase() === 'FRA'
-                                    ? {
-                                        title: FRANCE_MEDIAN_MONTHLY_NET_INCOME_TITLE,
-                                        data: FRANCE_MEDIAN_MONTHLY_NET_INCOME_BY_ETHNIC_GROUP,
-                                        series: FRANCE_MEDIAN_MONTHLY_NET_INCOME_SERIES,
-                                      }
+                                    ? isItalyScaffold
+                                      ? {
+                                          title: ITALY_AVERAGE_MONTHLY_NET_PAY_TITLE,
+                                          data: ITALY_AVERAGE_MONTHLY_NET_PAY_BY_CITIZENSHIP,
+                                          series: ITALY_AVERAGE_MONTHLY_NET_PAY_SERIES,
+                                          note: ITALY_AVERAGE_MONTHLY_NET_PAY_NOTE,
+                                          sourceUrl: ITALY_AVERAGE_MONTHLY_NET_PAY_SOURCE_URL,
+                                        }
+                                      : {
+                                          title: FRANCE_MEDIAN_MONTHLY_NET_INCOME_TITLE,
+                                          data: FRANCE_MEDIAN_MONTHLY_NET_INCOME_BY_ETHNIC_GROUP,
+                                          series: FRANCE_MEDIAN_MONTHLY_NET_INCOME_SERIES,
+                                        }
                                     : undefined
                                 }
                                 fiscalNationalityChart={
                                   iso3.toUpperCase() === 'FRA'
-                                    ? {
-                                        title: FRANCE_NET_FISCAL_CONTRIBUTION_TITLE,
-                                        data: FRANCE_NET_FISCAL_CONTRIBUTION_BY_ETHNIC_GROUP,
-                                        series: FRANCE_NET_FISCAL_CONTRIBUTION_SERIES,
-                                      }
+                                    ? isItalyScaffold
+                                      ? {
+                                          title: ITALY_NET_FISCAL_CONTRIBUTION_TITLE,
+                                          data: ITALY_NET_FISCAL_CONTRIBUTION_BY_MIGRATION_BACKGROUND,
+                                          series: ITALY_NET_FISCAL_CONTRIBUTION_SERIES,
+                                          note: ITALY_NET_FISCAL_CONTRIBUTION_NOTE,
+                                          sourceLabel: ITALY_NET_FISCAL_CONTRIBUTION_SOURCE_LABEL,
+                                          sourceUrl: ITALY_NET_FISCAL_CONTRIBUTION_SOURCE_URL,
+                                          showLegend: true,
+                                          showDataTable: true,
+                                        }
+                                      : {
+                                          title: FRANCE_NET_FISCAL_CONTRIBUTION_TITLE,
+                                          data: FRANCE_NET_FISCAL_CONTRIBUTION_BY_ETHNIC_GROUP,
+                                          series: FRANCE_NET_FISCAL_CONTRIBUTION_SERIES,
+                                        }
                                     : undefined
                                 }
                                 remittancesChart={
                                   iso3.toUpperCase() === 'FRA'
-                                    ? {
-                                        title: FRANCE_REMITTANCES_OUTFLOW_TITLE,
-                                        data: FRANCE_REMITTANCES_OUTFLOW_2025,
-                                        note: FRANCE_REMITTANCES_OUTFLOW_NOTE,
-                                      }
+                                    ? isItalyScaffold
+                                      ? {
+                                          title: ITALY_REMITTANCES_OUTFLOW_TITLE,
+                                          data: ITALY_REMITTANCES_OUTFLOW_2025,
+                                          note: ITALY_REMITTANCES_OUTFLOW_NOTE,
+                                        }
+                                      : {
+                                          title: FRANCE_REMITTANCES_OUTFLOW_TITLE,
+                                          data: FRANCE_REMITTANCES_OUTFLOW_2025,
+                                          note: FRANCE_REMITTANCES_OUTFLOW_NOTE,
+                                        }
                                     : undefined
                                 }
                                 immigrantBenefits={
@@ -2126,7 +2458,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                               <GermanyEconomicTaxesSection
                                 incomeBrackets={FRANCE_INCOME_BRACKETS}
                                 bracketsTitle="Income Tax Brackets 2026 (per part)"
-                                bracketsDescription="BarÃ¨me IR on 2025 income, applied to the quotient familial (â‚¬)."
+                                bracketsDescription="Barème IR on 2025 income, applied to the quotient familial (€)."
                                 socialSecurity={FRANCE_SOCIAL_SECURITY}
                                 socialTitle="Social Contributions 2026"
                                 socialDescription="Employee / employer shares (illustrative)."
@@ -2152,7 +2484,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             expandSignal={expandSignal}
                           >
                             {iso3.toUpperCase() === 'FRA' ? (
-                              <GermanyTradeSection {...FRANCE_TRADE} />
+                              <GermanyTradeSection
+                                {...FRANCE_TRADE}
+                                {...(isItalyScaffold ? ITALY_GENERAL_TRADE : {})}
+                              />
                             ) : (
                               <GermanyTradeSection />
                             )}
@@ -2202,7 +2537,9 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            {iso3.toUpperCase() === 'FRA' ? (
+                            {isItalyScaffold ? (
+                              <GermanyPoliticsLeftismSection {...ITALY_POLITICS_LEFTISM} />
+                            ) : iso3.toUpperCase() === 'FRA' ? (
                               <GermanyPoliticsLeftismSection {...FRANCE_POLITICS_LEFTISM} />
                             ) : (
                               <GermanyPoliticsLeftismSection />
@@ -2219,7 +2556,9 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            {iso3.toUpperCase() === 'FRA' ? (
+                            {isItalyScaffold ? (
+                              <GermanyPoliticsRightWingSection {...ITALY_POLITICS_RIGHT_WING} />
+                            ) : iso3.toUpperCase() === 'FRA' ? (
                               <GermanyPoliticsRightWingSection {...FRANCE_POLITICS_RIGHTWING} />
                             ) : (
                               <GermanyPoliticsRightWingSection />
@@ -2236,7 +2575,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            <GermanyPoliticsZionismSection iso3={iso3} />
+                            <GermanyPoliticsZionismSection iso3={iso3} actualIso3={effectiveCountryIso3} />
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_abortion_stats' ? (
                           <CollapsibleFlagSection
@@ -2259,10 +2598,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                 priorLiveBirthCards={
                                   iso3.toUpperCase() === 'FRA'
                                     ? {
-                                        atLeastOneValue: 'â‰ˆ119,000 (47.4%)',
+                                        atLeastOneValue: '≈119,000 (47.4%)',
                                         atLeastOneBody:
                                           'Estimated 2024 abortions among women with at least one prior live birth.',
-                                        zeroValue: 'â‰ˆ132,000 (52.6%)',
+                                        zeroValue: '≈132,000 (52.6%)',
                                         zeroBody:
                                           'Estimated 2024 abortions among women with no prior live births.',
                                       }
@@ -2310,7 +2649,16 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             >
                               {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
                                 <>
-                                  {iso3.toUpperCase() === 'FRA' ? (
+                                  {isItalyScaffold ? (
+                                    <GermanyBirthsLineChartTile
+                                      series={ITALY_TOTAL_BIRTHS_SERIES}
+                                      title="Total births per year (Italy)"
+                                      nativeLabel="Italian-citizen"
+                                      foreignLabel="foreign-citizen"
+                                      note={ITALY_BIRTHS_NOTE}
+                                      sourceNote={ITALY_BIRTHS_SOURCE}
+                                    />
+                                  ) : iso3.toUpperCase() === 'FRA' ? (
                                     <GermanyBirthsLineChartTile
                                       series={FRANCE_TOTAL_BIRTHS_SERIES}
                                       title="Total births per year (France)"
@@ -2321,7 +2669,23 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   ) : (
                                     <GermanyBirthsLineChartTile />
                                   )}
-                                  {iso3.toUpperCase() === 'FRA' ? (
+                                  {isItalyScaffold ? (
+                                    <>
+                                      <GermanyBirthsByRaceChartTile
+                                        series={ITALY_BIRTHS_BY_ORIGIN_SERIES}
+                                        title="Births by parents’ citizenship/origin (Italy)"
+                                        description="Official totals with modeled regional allocation (2000–2025)"
+                                        labels={ITALY_BIRTHS_BY_ORIGIN_LABELS}
+                                      />
+                                      <GermanyMixedRaceBirthsChartTile
+                                        series={ITALY_MIXED_BIRTHS_SERIES}
+                                        title="Mixed-citizenship births (Italy)"
+                                        description="One Italian-citizen and one foreign-citizen parent; 2023–2024 official, other years modeled"
+                                        femaleLabel={ITALY_MIXED_BIRTHS_LABELS.female}
+                                        maleLabel={ITALY_MIXED_BIRTHS_LABELS.male}
+                                      />
+                                    </>
+                                  ) : iso3.toUpperCase() === 'FRA' ? (
                                     <>
                                       <GermanyBirthsByRaceChartTile
                                         series={FRANCE_BIRTHS_BY_RACE_SERIES}
@@ -2331,7 +2695,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                       <GermanyMixedRaceBirthsChartTile
                                         series={FRANCE_MIXED_BIRTHS_SERIES}
                                         title="Mixed-origin births (France)"
-                                        description="Live births with one French and one foreign parent (2000â€“2025)"
+                                        description="Live births with one French and one foreign parent (2000–2025)"
                                         femaleLabel={FRANCE_MIXED_BIRTHS_LABELS.female}
                                         maleLabel={FRANCE_MIXED_BIRTHS_LABELS.male}
                                       />
@@ -2347,15 +2711,17 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                               {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
                                 <>
                                   {/* Masonry (CSS columns): tiles pack by height so a very tall tile
-                                      (childhood obesity) never strands short tiles beside it â€” no gaps. */}
+                                      (childhood obesity) never strands short tiles beside it — no gaps. */}
                                   <div className="gap-2 [column-gap:0.5rem] columns-1 sm:columns-2 lg:columns-3">
                                     {block.subRows.map((row) => (
                                       <div key={row.metric} className="mb-2 break-inside-avoid">
-                                        {renderStatTile(row, { iso3, compactBirthRates: true })}
+                                        {renderStatTile(row, { iso3: effectiveCountryIso3, compactBirthRates: true })}
                                       </div>
                                     ))}
                                   </div>
-                                  {iso3.toUpperCase() === 'FRA' ? (
+                                  {isItalyScaffold ? (
+                                    <ItalyBirthRatesEducationTile />
+                                  ) : iso3.toUpperCase() === 'FRA' ? (
                                     <FranceBirthRatesEducationTile />
                                   ) : iso3.toUpperCase() === 'DEU' ? (
                                     <GermanyBirthRatesEducationTile />
@@ -2408,7 +2774,9 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     expandSignal={expandSignal}
                   >
                     <div className="flex flex-col gap-4">
-                      {effectiveCrimeIso3.toUpperCase() === 'FRA' ? (
+                      {effectiveCrimeIso3.toUpperCase() === 'ITA' ? (
+                        <ItalyTotalRecordedCrimesChart />
+                      ) : effectiveCrimeIso3.toUpperCase() === 'FRA' ? (
                         <FranceTotalRecordedCrimesChart />
                       ) : treatAsGermany(effectiveCrimeIso3) ? (
                         <GermanyTotalRecordedCrimesChart />
@@ -2500,7 +2868,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
             </div>
             </div>
 
-            <section className="mt-10 rounded-md border border-line bg-surface-metric p-4 shadow-card ring-1 ring-white/[0.03] sm:p-6">
+            <section className="wt-deferred-section mt-10 rounded-md border border-line bg-surface-metric p-4 shadow-card ring-1 ring-white/[0.03] sm:p-6">
               <h2 className="font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
                 Sources
               </h2>
@@ -2537,4 +2905,3 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
     </CountryRibbonExpandProvider>
   );
 }
-

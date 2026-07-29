@@ -341,21 +341,27 @@ for (const a of A) {
     writeCsv(path.join(outDir, `${iso}_migrant_crime_additional_metrics.csv`), out2);
   }
 
-  // ---- population pyramid (modeled age structure tilted by median age) ----
+  // ---- population pyramid (curated national data when present; modeled fallback) ----
   {
-    const hdr = T.pyramid[0]; const out = [hdr];
-    const deRows = T.pyramid.slice(1);
-    const k = (45.2 - medAge) * 0.045; // younger country → boost young bands
-    let weights = deRows.map((r, i) => Math.max(0.05, Number(r[5]) * (1 + k * (10 - i) / 10)));
-    const wSum = weights.reduce((x, y) => x + y, 0);
-    const totalPop = popM * 1e6;
-    deRows.forEach((r, i) => {
-      const t = Math.round(totalPop * weights[i] / wSum);
-      const maleShare = Number(r[3]) / (Number(r[3]) + Number(r[4])); // Germany's male share curve per band
-      const male = Math.round(t * maleShare);
-      out.push([name, '2025', r[2], male, t - male, t]);
-    });
-    writeCsv(path.join(outDir, `${iso}_population_pyramid.csv`), out);
+    const curatedPyramid = path.join(OUT_BASE, name, 'population_pyramid.csv');
+    const outputPyramid = path.join(outDir, `${iso}_population_pyramid.csv`);
+    if (fs.existsSync(curatedPyramid)) {
+      fs.copyFileSync(curatedPyramid, outputPyramid);
+    } else {
+      const hdr = T.pyramid[0]; const out = [hdr];
+      const deRows = T.pyramid.slice(1);
+      const k = (45.2 - medAge) * 0.045; // younger country → boost young bands
+      let weights = deRows.map((r, i) => Math.max(0.05, Number(r[5]) * (1 + k * (10 - i) / 10)));
+      const wSum = weights.reduce((x, y) => x + y, 0);
+      const totalPop = popM * 1e6;
+      deRows.forEach((r, i) => {
+        const t = Math.round(totalPop * weights[i] / wSum);
+        const maleShare = Number(r[3]) / (Number(r[3]) + Number(r[4])); // Germany's male share curve per band
+        const male = Math.round(t * maleShare);
+        out.push([name, '2025', r[2], male, t - male, t]);
+      });
+      writeCsv(outputPyramid, out);
+    }
   }
 
   // ---- news rail (per-country topic feed; real resolvable URLs, thumbnails auto-derived) ----

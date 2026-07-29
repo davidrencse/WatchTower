@@ -779,6 +779,46 @@ export const GermanyTotalRecordedCrimesChart = memo(function GermanyTotalRecorde
   );
 });
 
+const ITALY_TOTAL_RECORDED_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2006', totalCrimes: 2771490, totalCrimesDisplay: '2,771,490' },
+  { year: '2007', totalCrimes: 2933146, totalCrimesDisplay: '2,933,146' },
+  { year: '2008', totalCrimes: 2709888, totalCrimesDisplay: '2,709,888' },
+  { year: '2009', totalCrimes: 2629831, totalCrimesDisplay: '2,629,831' },
+  { year: '2010', totalCrimes: 2621019, totalCrimesDisplay: '2,621,019' },
+  { year: '2011', totalCrimes: 2763012, totalCrimesDisplay: '2,763,012' },
+  { year: '2012', totalCrimes: 2818834, totalCrimesDisplay: '2,818,834' },
+  { year: '2013', totalCrimes: 2892155, totalCrimesDisplay: '2,892,155' },
+  { year: '2014', totalCrimes: 2812936, totalCrimesDisplay: '2,812,936' },
+  { year: '2015', totalCrimes: 2687249, totalCrimesDisplay: '2,687,249' },
+  { year: '2016', totalCrimes: 2487389, totalCrimesDisplay: '2,487,389' },
+  { year: '2017', totalCrimes: 2429795, totalCrimesDisplay: '2,429,795' },
+  { year: '2018', totalCrimes: 2371806, totalCrimesDisplay: '2,371,806' },
+  { year: '2019', totalCrimes: 2301912, totalCrimesDisplay: '2,301,912' },
+  { year: '2020', totalCrimes: 1900624, totalCrimesDisplay: '1,900,624' },
+  { year: '2021', totalCrimes: 2104114, totalCrimesDisplay: '2,104,114' },
+  { year: '2022', totalCrimes: 2255777, totalCrimesDisplay: '2,255,777' },
+  { year: '2023', totalCrimes: 2341574, totalCrimesDisplay: '2,341,574' },
+  { year: '2024', totalCrimes: 2399347, totalCrimesDisplay: '2,399,347' },
+];
+
+const italyRecordedTotalCrimesChartConfig = {
+  totalCrimes: { label: 'Total recorded crimes', color: '#60a5fa' },
+} satisfies ChartConfig;
+
+/** Italy-only: official national police-recorded offences reported to judicial authorities (ISTAT). */
+export const ItalyTotalRecordedCrimesChart = memo(function ItalyTotalRecordedCrimesChart() {
+  return (
+    <GermanyRecordedSingleMetricChart
+      title="Total recorded crimes (Italy)"
+      description="Offences reported by police to judicial authorities (ISTAT / Ministry of the Interior SDI). Includes citizen reports and offences detected by police; recorded offences are not an estimate of all crime."
+      dataKey="totalCrimes"
+      chartConfig={italyRecordedTotalCrimesChartConfig}
+      yAxisMode="millions"
+      data={ITALY_TOTAL_RECORDED_CRIMES_SERIES}
+    />
+  );
+});
+
 const FRANCE_TOTAL_SEX_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
   { year: '2000', totalSexCrimes: 26000, totalSexCrimesDisplay: '26,000' },
   { year: '2001', totalSexCrimes: 27200, totalSexCrimesDisplay: '27,200' },

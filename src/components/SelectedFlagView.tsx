@@ -44,7 +44,7 @@ export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
             flag={flag}
             iso3={dataIso3}
             actualIso3={iso3}
-            crimeIso3={dataIso3}
+            crimeIso3={iso3}
             onBack={onBack}
           />
         </Suspense>

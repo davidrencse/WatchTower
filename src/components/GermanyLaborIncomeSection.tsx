@@ -55,18 +55,26 @@ type IncomeNationalitySeriesItem = {
   key: string;
   label: string;
   color: string;
+  strokeDasharray?: string;
 };
 
 type IncomeNationalityChartOverride = {
   title: string;
   data: readonly Record<string, number>[];
   series: readonly IncomeNationalitySeriesItem[];
+  note?: string;
+  sourceUrl?: string;
 };
 
 type FiscalNationalityChartOverride = {
   title: string;
   data: readonly Record<string, number>[];
   series: readonly IncomeNationalitySeriesItem[];
+  note?: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
+  showLegend?: boolean;
+  showDataTable?: boolean;
 };
 
 type RemittancesChartOverride = {
@@ -176,6 +184,12 @@ const REMITTANCES_OUTFLOW_BY_ORIGIN_2025 = [
 const REMITTANCES_CHART_CONFIG: ChartConfig = {
   remittances: { label: 'Annual remittances sent abroad (B€)', color: '#f59e0b' },
 };
+
+function formatFiscalEuro(value: unknown, showPositiveSign = false): string {
+  const amount = Number(value);
+  const sign = amount < 0 ? '−' : showPositiveSign && amount > 0 ? '+' : '';
+  return `${sign}€${Math.abs(amount).toLocaleString('en-US')}`;
+}
 
 type GermanyLaborIncomeSectionProps = {
   /** Per-country CSVs (same schemas); default to Germany's. */
@@ -294,7 +308,8 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
 
   const fiscalNationalityChartTitle = fiscalNationalityChart?.title ?? 'Net Fiscal Contribution by Nationality';
   const fiscalNationalityChartData = fiscalNationalityChart?.data ?? NET_FISCAL_CONTRIBUTION_BY_NATIONALITY;
-  const fiscalNationalityChartSeries = fiscalNationalityChart?.series ?? FISCAL_NATIONALITY_SERIES;
+  const fiscalNationalityChartSeries: readonly IncomeNationalitySeriesItem[] =
+    fiscalNationalityChart?.series ?? FISCAL_NATIONALITY_SERIES;
 
   const remittancesChartTitle = remittancesChart?.title ?? 'Remittances Outflow by Immigrant Origin (2025)';
   const remittancesChartData = remittancesChart?.data ?? REMITTANCES_OUTFLOW_BY_ORIGIN_2025;
@@ -406,6 +421,21 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
               <CardTitle className="font-sans text-sm font-semibold uppercase tracking-[0.05em] text-neutral-100">
                 {incomeNationalityChartTitle}
               </CardTitle>
+              {incomeNationalityChart?.note ? (
+                <p className='mt-1 font-sans text-[10px] leading-relaxed text-neutral-500 uppercase tracking-[0.03em]'>
+                  {incomeNationalityChart.note}{' '}
+                  {incomeNationalityChart.sourceUrl ? (
+                    <a
+                      href={incomeNationalityChart.sourceUrl}
+                      target='_blank'
+                      rel='noreferrer'
+                      className='text-cyan-400/80 underline decoration-cyan-400/30 underline-offset-2 hover:text-cyan-300'
+                    >
+                      Source
+                    </a>
+                  ) : null}
+                </p>
+              ) : null}
             </CardHeader>
             <CardContent className="space-y-3 p-4 pt-0">
               <ChartContainer config={incomeNationalityChartConfig} className="h-[360px] w-full sm:h-[420px]">
@@ -462,6 +492,79 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                 {fiscalNationalityChartTitle}
               </CardTitle>
             </CardHeader>
+            {fiscalNationalityChart?.showLegend ? (
+              <div
+                className='mx-4 mb-3 flex flex-wrap gap-x-4 gap-y-2 font-sans text-xs text-neutral-300'
+                role='list'
+                aria-label='Fiscal contribution chart series'
+              >
+                {fiscalNationalityChartSeries.map((series) => (
+                  <span key={series.key} className='inline-flex items-center gap-1.5' role='listitem'>
+                    <svg aria-hidden='true' className='h-2 w-5 shrink-0' viewBox='0 0 20 8'>
+                      <line
+                        x1='0'
+                        x2='20'
+                        y1='4'
+                        y2='4'
+                        stroke={series.color}
+                        strokeDasharray={series.strokeDasharray}
+                        strokeLinecap='round'
+                        strokeWidth='2'
+                      />
+                    </svg>
+                    {series.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            {fiscalNationalityChart?.note ? (
+              <p className='mx-4 mb-3 font-sans text-xs leading-relaxed text-neutral-400'>
+                {fiscalNationalityChart.note}
+              </p>
+            ) : null}
+            {fiscalNationalityChart?.sourceLabel && fiscalNationalityChart.sourceUrl ? (
+              <a
+                href={fiscalNationalityChart.sourceUrl}
+                target='_blank'
+                rel='noreferrer'
+                className='mx-4 mb-3 inline-flex min-h-11 items-center font-sans text-xs font-medium text-cyan-400 underline decoration-cyan-400/40 underline-offset-4 transition-colors hover:text-cyan-300'
+              >
+                Source: {fiscalNationalityChart.sourceLabel}
+              </a>
+            ) : null}
+            {fiscalNationalityChart?.showDataTable ? (
+              <details className='mx-4 mb-3 rounded-md border border-white/[0.08] bg-black/10'>
+                <summary className='flex min-h-11 cursor-pointer items-center px-3 font-sans text-xs font-medium text-neutral-300'>
+                  View annual values
+                </summary>
+                <div className='overflow-x-auto border-t border-white/[0.08]'>
+                  <table className='w-full min-w-[520px] border-collapse font-sans text-xs'>
+                    <thead>
+                      <tr className='text-left text-neutral-400'>
+                        <th className='px-3 py-2 font-medium' scope='col'>Year</th>
+                        {fiscalNationalityChartSeries.map((series) => (
+                          <th key={series.key} className='px-3 py-2 text-right font-medium' scope='col'>
+                            {series.label}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className='divide-y divide-white/[0.06] text-neutral-200'>
+                      {fiscalNationalityChartData.map((row) => (
+                        <tr key={row.year}>
+                          <th className='px-3 py-2 text-left font-medium' scope='row'>{row.year}</th>
+                          {fiscalNationalityChartSeries.map((series) => (
+                            <td key={series.key} className='px-3 py-2 text-right tabular-nums'>
+                              {formatFiscalEuro((row as Record<string, number>)[series.key], true)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            ) : null}
             <CardContent className="space-y-3 p-4 pt-0">
               <ChartContainer config={fiscalNationalityChartConfig} className="h-[360px] w-full sm:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -501,6 +604,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
                         name={series.label}
                         stroke={series.color}
                         strokeWidth={2}
+                        strokeDasharray={series.strokeDasharray}
                         dot={false}
                         activeDot={{ r: 3 }}
                         isAnimationActive={false}

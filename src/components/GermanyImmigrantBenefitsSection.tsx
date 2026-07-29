@@ -17,7 +17,17 @@ const ORIGIN_COLORS = {
 
 export type OriginKey = keyof typeof ORIGIN_COLORS;
 
-export type OriginSlice = { key: OriginKey; label: string; value: number };
+export type OriginSlice = {
+  key: string;
+  label: string;
+  value: number;
+  color?: string;
+};
+
+export type ImmigrantBenefitsSource = {
+  label: string;
+  url: string;
+};
 
 export type ImmigrantStatusClass = {
   index: number;
@@ -25,10 +35,19 @@ export type ImmigrantStatusClass = {
   stockLabel: string;
   stockDetail: string;
   benefits: readonly string[];
-  origins: readonly OriginSlice[];
+  origins?: readonly OriginSlice[];
+  originHeading?: string;
+  originSummary?: string;
+  source?: ImmigrantBenefitsSource;
 };
 
-export type ImmigrantStockRow = { name: string; value: number; fill: string };
+export type ImmigrantStockRow = {
+  name: string;
+  value: number;
+  fill: string;
+  basis?: 'stock' | 'annual-flow';
+  valueLabel?: string;
+};
 
 /** Full per-country payload for this section (defaults to Germany's when omitted). */
 export type ImmigrantBenefitsData = {
@@ -36,6 +55,8 @@ export type ImmigrantBenefitsData = {
   stockOverview: readonly ImmigrantStockRow[];
   caption: string;
   notes: readonly string[];
+  overviewDescription?: string;
+  sources?: readonly ImmigrantBenefitsSource[];
 };
 
 const IMMIGRANT_STATUS_CLASSES: readonly ImmigrantStatusClass[] = [
@@ -201,12 +222,24 @@ const GERMANY_NOTES: readonly string[] = [
   'Recent policy shifts: Skilled Immigration Act (2024), AsylbLG cuts (2025), tighter integration funding. Humanitarian classes rely more on state support; labor and student routes require upfront self-sufficiency.',
 ];
 
+const ORIGIN_FALLBACK_COLORS = [
+  'hsl(199, 89%, 48%)',
+  'hsl(38, 92%, 50%)',
+  'hsl(142, 65%, 42%)',
+  'hsl(280, 55%, 58%)',
+  'hsl(0, 72%, 55%)',
+  'hsl(215, 14%, 42%)',
+] as const;
+
 function OriginMixChart({ slices, compact }: { slices: readonly OriginSlice[]; compact?: boolean }) {
   const { chartData, chartConfig } = useMemo(() => {
-    const data = slices.map((s) => ({
+    const data = slices.map((s, i) => ({
       ...s,
       name: s.label,
-      fill: ORIGIN_COLORS[s.key],
+      fill:
+        s.color ??
+        ORIGIN_COLORS[s.key as OriginKey] ??
+        ORIGIN_FALLBACK_COLORS[i % ORIGIN_FALLBACK_COLORS.length],
     }));
     const cfg = data.reduce<ChartConfig>((acc, row, i) => {
       acc[`o_${i}`] = { label: row.label, color: row.fill };
@@ -226,7 +259,7 @@ function OriginMixChart({ slices, compact }: { slices: readonly OriginSlice[]; c
               content={
                 <ChartTooltipContent
                   className="rounded-md"
-                  formatter={(value) => `${Number(value).toFixed(0)}%`}
+                  formatter={(value) => `${Number(value).toFixed(Number(value) % 1 === 0 ? 0 : 1)}%`}
                 />
               }
             />
@@ -251,7 +284,7 @@ function OriginMixChart({ slices, compact }: { slices: readonly OriginSlice[]; c
       </ChartContainer>
       <ul className="min-w-0 flex-1 space-y-0.5 font-sans text-[9px] leading-tight text-neutral-500">
         {chartData.map((row) => (
-          <li key={row.key} className="flex items-center gap-1.5">
+          <li key={`${row.key}-${row.label}`} className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 shrink-0 rounded-[2px]" style={{ backgroundColor: row.fill }} />
             <span className="truncate text-neutral-400">{row.label}</span>
             <span className="ml-auto tabular-nums text-neutral-500">{row.value}%</span>
@@ -263,6 +296,8 @@ function OriginMixChart({ slices, compact }: { slices: readonly OriginSlice[]; c
 }
 
 function StatusClassCard({ item }: { item: ImmigrantStatusClass }) {
+  const hasOrigins = Boolean(item.origins?.length);
+
   return (
     <Card className="flex h-full flex-col border-line bg-surface-metric">
       <CardHeader className="space-y-2 p-3 pb-2">
@@ -291,14 +326,76 @@ function StatusClassCard({ item }: { item: ImmigrantStatusClass }) {
             </li>
           ))}
         </ul>
-        <div className="mt-auto rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-          <p className="mb-1.5 font-sans text-[8px] font-medium uppercase tracking-[0.12em] text-neutral-600">
-            Origin mix (approx.)
-          </p>
-          <OriginMixChart slices={item.origins} compact />
+        <div className="mt-auto space-y-2">
+          {hasOrigins ? (
+            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
+              <p className="mb-1.5 font-sans text-[8px] font-medium uppercase tracking-[0.12em] text-neutral-600">
+                {item.originHeading ?? 'Origin mix (approx.)'}
+              </p>
+              <OriginMixChart slices={item.origins ?? []} compact />
+            </div>
+          ) : item.originSummary ? (
+            <div className="rounded-md border border-dashed border-white/[0.08] bg-white/[0.015] p-2.5">
+              <p className="font-sans text-[8px] font-medium uppercase tracking-[0.12em] text-neutral-600">
+                {item.originHeading ?? 'Origin evidence'}
+              </p>
+              <p className="mt-1 font-sans text-[9px] leading-relaxed text-neutral-500">{item.originSummary}</p>
+            </div>
+          ) : null}
+          {item.source ? (
+            <a
+              href={item.source.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 items-center rounded px-1 font-sans text-[9px] text-sky-400/80 underline decoration-sky-400/30 underline-offset-2 transition-colors hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+            >
+              Source: {item.source.label}
+            </a>
+          ) : null}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function formatOverviewValue(row: ImmigrantStockRow): string {
+  if (row.valueLabel) return row.valueLabel;
+  if (row.value >= 1) return `${row.value}M`;
+  if (row.value >= 0.1) return `${row.value}M`;
+  return `${(row.value * 1000).toFixed(0)}k`;
+}
+
+function OverviewBarList({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: readonly ImmigrantStockRow[];
+}) {
+  const maximum = Math.max(...rows.map((row) => row.value), 1);
+
+  return (
+    <section className="rounded-md border border-white/[0.06] bg-white/[0.015] p-3">
+      <h4 className="font-sans text-[9px] font-semibold uppercase tracking-[0.1em] text-neutral-500">{title}</h4>
+      <ul className="mt-3 space-y-2.5">
+        {rows.map((row) => (
+          <li key={row.name}>
+            <div className="flex items-baseline justify-between gap-3 font-sans text-[10px]">
+              <span className="min-w-0 text-neutral-400">{row.name}</span>
+              <span className="shrink-0 tabular-nums text-neutral-300">{formatOverviewValue(row)}</span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.max((row.value / maximum) * 100, 2)}%`, backgroundColor: row.fill }}
+                role="img"
+                aria-label={`${row.name}: ${formatOverviewValue(row)}`}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -307,7 +404,12 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
   stockOverview = STATUS_STOCK_OVERVIEW,
   caption = GERMANY_CAPTION,
   notes = GERMANY_NOTES,
+  overviewDescription,
+  sources = [],
 }: Partial<ImmigrantBenefitsData> = {}) {
+  const usesMixedBases = stockOverview.some((row) => row.basis != null);
+  const stockRows = stockOverview.filter((row) => row.basis !== 'annual-flow');
+  const annualFlowRows = stockOverview.filter((row) => row.basis === 'annual-flow');
   const overviewChartConfig = useMemo(
     () =>
       stockOverview.reduce<ChartConfig>((acc, row, i) => {
@@ -332,52 +434,58 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
             Stock &amp; flow overview
           </CardTitle>
           <CardDescription className="font-sans text-[10px] text-neutral-500">
-            Relative scale of major groups (millions where noted · annual flows shown smaller)
+            {overviewDescription ??
+              'Relative scale of major groups (millions where noted · annual flows shown smaller)'}
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 p-3 pt-0 lg:grid-cols-[minmax(0,140px)_1fr] lg:items-center">
-          <ChartContainer config={overviewChartConfig} className="mx-auto h-[140px] w-full max-w-[140px] font-sans">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      className="rounded-md"
-                      formatter={(value) => `${Number(value).toFixed(2)}M`}
-                    />
-                  }
-                />
-                <Pie
-                  data={[...stockOverview]}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius="46%"
-                  outerRadius="92%"
-                  paddingAngle={1}
-                  stroke="none"
-                  isAnimationActive={false}
-                >
-                  {stockOverview.map((entry) => (
-                    <Cell key={entry.name} fill={entry.fill} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-          <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-            {stockOverview.map((row) => (
-              <li key={row.name} className="flex items-center gap-2 font-sans text-[10px]">
-                <span className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: row.fill }} />
-                <span className="min-w-0 flex-1 truncate text-neutral-400">{row.name}</span>
-                <span className="shrink-0 tabular-nums text-neutral-500">
-                  {row.value >= 1 ? `${row.value}M` : row.value >= 0.1 ? `${row.value}M` : `${(row.value * 1000).toFixed(0)}k`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
+        {usesMixedBases ? (
+          <CardContent className="grid grid-cols-1 gap-3 p-3 pt-0 lg:grid-cols-2">
+            <OverviewBarList title="Resident / permit stocks" rows={stockRows} />
+            <OverviewBarList title="First permits issued in 2024" rows={annualFlowRows} />
+          </CardContent>
+        ) : (
+          <CardContent className="grid grid-cols-1 gap-3 p-3 pt-0 lg:grid-cols-[minmax(0,140px)_1fr] lg:items-center">
+            <ChartContainer config={overviewChartConfig} className="mx-auto h-[140px] w-full max-w-[140px] font-sans">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        className="rounded-md"
+                        formatter={(value) => `${Number(value).toFixed(2)}M`}
+                      />
+                    }
+                  />
+                  <Pie
+                    data={[...stockOverview]}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="46%"
+                    outerRadius="92%"
+                    paddingAngle={1}
+                    stroke="none"
+                    isAnimationActive={false}
+                  >
+                    {stockOverview.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+            <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+              {stockOverview.map((row) => (
+                <li key={row.name} className="flex items-center gap-2 font-sans text-[10px]">
+                  <span className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: row.fill }} />
+                  <span className="min-w-0 flex-1 truncate text-neutral-400">{row.name}</span>
+                  <span className="shrink-0 tabular-nums text-neutral-500">{formatOverviewValue(row)}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        )}
       </Card>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -396,6 +504,22 @@ export const GermanyImmigrantBenefitsSection = memo(function GermanyImmigrantBen
           {notes.map((note) => (
             <p key={note}>{note}</p>
           ))}
+          {sources.length ? (
+            <ul className="grid grid-cols-1 gap-1 pt-1 sm:grid-cols-2">
+              {sources.map((source) => (
+                <li key={source.url}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center rounded px-1 text-sky-400/80 underline decoration-sky-400/30 underline-offset-2 transition-colors hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+                  >
+                    {source.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </CardContent>
       </Card>
     </div>

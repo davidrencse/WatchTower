@@ -306,9 +306,9 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
             ref={pillTrackRef}
             data-country-ribbon-nav
             className={cn(
-              'relative flex w-full flex-wrap items-stretch justify-center gap-1 rounded-full border border-white/15',
-              'bg-[#d4d4d8]/95 p-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md',
-              'sm:flex-nowrap sm:gap-0 sm:p-1',
+              'scrollbar-none relative flex w-full flex-nowrap items-stretch justify-start gap-1 overflow-x-auto rounded-full border border-white/15 sm:justify-center',
+              'bg-[#d4d4d8]/95 p-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]',
+              'sm:gap-0 sm:p-1',
             )}
           >
             <div
@@ -324,7 +324,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                   ref={(el) => setTabEl(item.id, el)}
                   type="button"
                   className={cn(
-                    'relative z-10 flex min-h-[44px] min-w-0 flex-1 items-center justify-center rounded-full px-3 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:min-h-[46px] sm:px-5 sm:text-[11px]',
+                    'relative z-10 flex min-h-[44px] min-w-[5.5rem] shrink-0 flex-none items-center justify-center rounded-full px-3 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:min-h-[46px] sm:min-w-0 sm:flex-1 sm:px-5 sm:text-[11px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#d4d4d8]',
                     selected ? 'text-white' : 'bg-transparent text-neutral-900 hover:bg-black/[0.07]',
                   )}
@@ -338,7 +338,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
 
           {showPanel && bubbleEntry ? (
             <div
-              className="pointer-events-auto fixed z-[60] overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md"
+              className="pointer-events-auto fixed z-[60] overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
               role="dialog"
               aria-label={`${bubbleEntry.label} subsections`}
               style={{

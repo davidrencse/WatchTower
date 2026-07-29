@@ -204,7 +204,7 @@ export function GermanyNewsRail({ side, sections, countryLabel = 'Germany' }: Ge
 
   return (
     <aside
-      className={`fixed ${edge} top-16 bottom-0 z-40 flex w-[13rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft ${border}`}
+      className={`fixed ${edge} top-16 bottom-0 z-40 hidden w-[13rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft 2xl:flex ${border}`}
       aria-label={
         side === 'left'
           ? `${countryLabel} news, economy and immigration`

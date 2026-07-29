@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FLAGS } from '../data/flags';
+import { scheduleIdleTask, type CancelIdleTask } from '../lib/idleTask';
 
 /**
  * Warms the HTTP cache for every flag PNG so gallery / details load from disk cache.
@@ -22,7 +23,7 @@ export function usePrefetchFlagImages(enabled = true) {
     let cancelled = false;
     let i = 0;
     const chunk = 10;
-    let idleId = 0;
+    let cancelIdle: CancelIdleTask | null = null;
 
     const step = () => {
       if (cancelled) return;
@@ -32,16 +33,14 @@ export function usePrefetchFlagImages(enabled = true) {
         img.src = urls[i]!;
       }
       if (i < urls.length) {
-        idleId = requestIdleCallback(step, { timeout: 2000 });
+        cancelIdle = scheduleIdleTask(step, 2000);
       }
     };
 
-    idleId = requestIdleCallback(step, { timeout: 400 });
+    cancelIdle = scheduleIdleTask(step, 400);
     return () => {
       cancelled = true;
-      if (typeof cancelIdleCallback === 'function') {
-        cancelIdleCallback(idleId);
-      }
+      cancelIdle?.();
     };
   }, [enabled]);
 }

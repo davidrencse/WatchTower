@@ -81,7 +81,7 @@ export function CollapsibleFlagSection({
       onToggle={(e) => {
         setOpen(e.currentTarget.open);
       }}
-      className="group overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card"
+      className="group wt-collapsible-section overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card"
     >
       <summary className="flag-section-summary grid cursor-pointer grid-cols-[minmax(0,1fr)_4.75rem_5.5rem] items-center gap-x-3 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--card-hover)]">
         <span
@@ -111,7 +111,7 @@ export function CollapsibleFlagSection({
           </span>
         </span>
       </summary>
-      <div className="border-t border-[var(--line)] p-4">
+      <div className="wt-collapsible-content border-t border-[var(--line)] p-4">
         {hasOpened ? children : <div aria-hidden style={{ minHeight: 240 }} />}
       </div>
     </details>

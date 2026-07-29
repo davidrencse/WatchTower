@@ -6,6 +6,11 @@ import { GermanyPoliticsSecretSocietiesSection } from './GermanyPoliticsSecretSo
 import { PoliticsGroupLeaderboard } from './PoliticsGroupLeaderboard';
 import { FRANCE_ZIONISM_GROUPS, FRANCE_ZIONISM_METRICS } from '../lib/francePoliticsZionism';
 import { FRANCE_JEWISH_GOVERNMENT_PEOPLE } from '../data/franceJewishGovernmentPeople';
+import {
+  ITALY_ISRAEL_CORPORATE_TIES,
+  ITALY_ZIONISM_GROUPS,
+  ITALY_ZIONISM_METRICS,
+} from '../lib/italyPoliticsZionism';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
@@ -105,7 +110,19 @@ const ZION_GROUPS: readonly ZionGroup[] = [
   },
 ];
 
-function ZionMetricCard({ title, value, notes, source }: { title: string; value: string; notes: string; source?: string }) {
+function ZionMetricCard({
+  title,
+  value,
+  notes,
+  source,
+  sourceUrl,
+}: {
+  title: string;
+  value: string;
+  notes: string;
+  source?: string;
+  sourceUrl?: string;
+}) {
   return (
     <Card className="border-blue-500/20 bg-neutral-950/60">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -114,14 +131,117 @@ function ZionMetricCard({ title, value, notes, source }: { title: string; value:
       <CardContent className="p-3 pt-0">
         <p className="font-sans text-2xl font-semibold text-blue-300">{value}</p>
         <p className={`mt-2 font-sans text-[10px] leading-relaxed text-neutral-400 ${UC_META}`}>{notes}</p>
-        {source ? <p className={`mt-1 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>Source: {source}</p> : null}
+        {source ? (
+          <p className={`mt-1 font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+            Source:{' '}
+            {sourceUrl ? (
+              <a className="underline decoration-white/20 underline-offset-2 hover:text-blue-300" href={sourceUrl} target="_blank" rel="noreferrer">
+                {source}
+              </a>
+            ) : (
+              source
+            )}
+          </p>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionismSection({ iso3 = 'DEU' }: { iso3?: string }) {
-  const isFrance = iso3.toUpperCase() === 'FRA';
+export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionismSection({
+  iso3 = 'DEU',
+  actualIso3,
+}: {
+  iso3?: string;
+  actualIso3?: string;
+}) {
+  const effectiveIso3 = (actualIso3 ?? iso3).toUpperCase();
+  const isItaly = effectiveIso3 === 'ITA';
+  const isFrance = effectiveIso3 === 'FRA';
+
+  if (isItaly) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className={GOV_POLITICS_CARD_GRID}>
+          {ITALY_ZIONISM_METRICS.map((metric) => (
+            <ZionMetricCard
+              key={metric.title}
+              title={metric.title}
+              value={metric.value}
+              notes={metric.notes}
+              source={metric.source}
+              sourceUrl={metric.sourceUrl}
+            />
+          ))}
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>JEWISH STUDENT / COMMUNITY ORGANIZATIONS</CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Publicly documented national, university, and campus organizations in Italy
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <PoliticsGroupLeaderboard
+                accent="blue"
+                items={ITALY_ZIONISM_GROUPS.map((g) => ({
+                  rank: g.rank,
+                  group: g.group,
+                  type: g.type,
+                  value: g.size,
+                  notes: g.notes,
+                }))}
+              />
+              <p className={`font-sans text-[10px] leading-relaxed text-neutral-500 ${UC_META}`}>
+                Sources:{' '}
+                <a
+                  className="underline decoration-white/20 underline-offset-2 hover:text-blue-300"
+                  href="https://www.ugei.it/universita"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  UGEI
+                </a>
+                {' · '}
+                <a
+                  className="underline decoration-white/20 underline-offset-2 hover:text-blue-300"
+                  href="https://www.chabad.org/jewish-centers/1541294/Rome/Campus-Chabad-House/Chabad-on-Campus"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Chabad on Campus
+                </a>
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>MAJOR CORPORATE / INNOVATION TIES</CardTitle>
+              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+                Italian companies with directly documented Israel-based programs or partnerships
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 pt-0">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {ITALY_ISRAEL_CORPORATE_TIES.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2 font-sans text-[10px] leading-relaxed text-neutral-300"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isFrance) {
     return (

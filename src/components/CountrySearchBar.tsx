@@ -17,7 +17,8 @@ type CountrySearchBarProps = {
 };
 
 export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchBarProps) {
-  const listId = useId();
+  const inputId = useId();
+  const listId = `${inputId}-results`;
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
@@ -81,12 +82,13 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
       ref={rootRef}
       className="pointer-events-auto mx-auto w-full max-w-xl px-4 sm:px-0"
     >
-      <label htmlFor={listId} className="sr-only">
+      <label htmlFor={inputId} className="sr-only">
         Search countries
       </label>
       <div className="relative">
         {showDropdown ? (
           <ul
+            id={listId}
             role="listbox"
             aria-label="Search results"
             data-wt-scrollable="true"
@@ -96,7 +98,7 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
             ].join(' ')}
           >
             {results.length === 0 ? (
-              <li className="px-4 py-3 font-sans text-[12px] text-neutral-500">
+              <li role="status" className="px-4 py-3 font-sans text-[12px] text-neutral-500">
                 No countries match &ldquo;{query.trim()}&rdquo;
               </li>
             ) : (
@@ -104,13 +106,17 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
                 const isActive = flag.id === activeFlagId;
                 const isHighlighted = i === highlight;
                 return (
-                  <li key={flag.id} role="option" aria-selected={isHighlighted}>
+                  <li key={flag.id} role="presentation">
                     <button
+                      id={`${listId}-option-${i}`}
                       type="button"
+                      role="option"
+                      aria-selected={isHighlighted}
+                      tabIndex={-1}
                       onMouseEnter={() => setHighlight(i)}
                       onClick={() => pick(flag)}
                       className={[
-                        'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+                        'flex min-h-11 w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
                         isHighlighted
                           ? 'bg-white/[0.06] text-neutral-100'
                           : 'text-neutral-300 hover:bg-white/[0.04]',
@@ -145,8 +151,17 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
           <SearchIcon />
           <input
             ref={inputRef}
-            id={listId}
+            id={inputId}
             type="search"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showDropdown}
+            aria-controls={showDropdown ? listId : undefined}
+            aria-activedescendant={
+              showDropdown && results[highlight]
+                ? `${listId}-option-${highlight}`
+                : undefined
+            }
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -158,7 +173,7 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
             autoComplete="off"
             spellCheck={false}
             className={[
-              'min-w-0 flex-1 bg-transparent font-sans text-[14px] text-neutral-100',
+              'min-w-0 flex-1 bg-transparent font-sans text-base text-neutral-100',
               'placeholder:text-neutral-600',
               'outline-none',
               '[&::-webkit-search-cancel-button]:hidden',
@@ -172,7 +187,7 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
                 inputRef.current?.focus();
               }}
               aria-label="Clear search"
-              className="shrink-0 rounded-md px-2 py-1 font-sans text-[10px] uppercase tracking-wider text-neutral-500 transition hover:bg-white/[0.06] hover:text-neutral-300"
+              className="flex min-h-11 shrink-0 items-center rounded-md px-2 font-sans text-[10px] uppercase tracking-wider text-neutral-500 transition hover:bg-white/[0.06] hover:text-neutral-300"
             >
               Clear
             </button>

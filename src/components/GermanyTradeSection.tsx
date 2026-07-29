@@ -62,7 +62,16 @@ export type TradeSectionData = {
   geoImportSlices: readonly TradePieSlice[];
   importTitle: string;
   exportTitle: string;
+  /** Optional country-specific labels and methodology notes for the four composition charts. */
+  geoExportTitle?: string;
+  geoImportTitle?: string;
+  importFootnote?: string;
+  exportFootnote?: string;
+  geoExportFootnote?: string;
+  geoImportFootnote?: string;
   railNote: ReactNode;
+  railSourceUrl?: string;
+  railSourceLabel?: string;
   summary: ReactNode;
   agreements: readonly AgreementInsight[];
   ftaImpacts: readonly FtaImpactRow[];
@@ -679,7 +688,15 @@ export const GermanyTradeSection = memo(function GermanyTradeSection({
   geoImportSlices = GEOGRAPHIC_IMPORT_BREAKDOWN_SLICES,
   importTitle = 'Top 5 Germany imports',
   exportTitle = 'Top 5 Germany exports',
+  geoExportTitle = 'Geographic breakdown of exports',
+  geoImportTitle = 'Geographic breakdown of imports',
+  importFootnote = 'Midpoint ranges; remainder = other to reach 100%.',
+  exportFootnote = 'Shares as given; remainder = other in pie.',
+  geoExportFootnote = 'By export destination; Oceania as small slice under 1%.',
+  geoImportFootnote = 'By import sourcing region. Key notes in hover.',
   railNote = GERMANY_RAIL_NOTE,
+  railSourceUrl,
+  railSourceLabel = 'Source',
   summary = GERMANY_SUMMARY,
   agreements = TRADE_AGREEMENT_INSIGHTS,
   ftaImpacts = FTA_NET_GDP_IMPACT_2025,
@@ -964,33 +981,47 @@ export const GermanyTradeSection = memo(function GermanyTradeSection({
             <TradeCategoryPieCard
               variant="rail"
               title={importTitle}
-              footnote="Midpoint ranges; remainder = other to reach 100%."
+              footnote={importFootnote}
               slices={importSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
               title={exportTitle}
-              footnote="Shares as given; remainder = other in pie."
+              footnote={exportFootnote}
               slices={exportSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
-              title="Geographic breakdown of exports"
-              footnote="By export destination; Oceania as small slice under 1%."
+              title={geoExportTitle}
+              footnote={geoExportFootnote}
               slices={geoExportSlices}
             />
             <TradeCategoryPieCard
               variant="rail"
-              title="Geographic breakdown of imports"
-              footnote="By import sourcing region. Key notes in hover."
+              title={geoImportTitle}
+              footnote={geoImportFootnote}
               slices={geoImportSlices}
             />
           </div>
-          <p className="mt-auto shrink-0 font-sans text-[10px] leading-relaxed text-neutral-500">{railNote}</p>
+          <p className="mt-auto shrink-0 font-sans text-[10px] leading-relaxed text-neutral-500">
+            {railNote}
+            {railSourceUrl ? (
+              <>
+                {' '}
+                <SourceLink href={railSourceUrl}>{railSourceLabel}</SourceLink>.
+              </>
+            ) : null}
+          </p>
         </aside>
         </div>
         </div>
-        <div className="space-y-2 border-t border-white/[0.06] pt-4">{summary}</div>
+        <div className="space-y-2 border-t border-white/[0.06] pt-4">
+          {typeof summary === 'string' ? (
+            <p className="font-sans text-[11px] leading-relaxed text-neutral-400">{summary}</p>
+          ) : (
+            summary
+          )}
+        </div>
       </section>
 
       {/* Folder: Agreements */}

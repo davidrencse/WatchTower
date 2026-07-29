@@ -1,5 +1,14 @@
 import { memo } from 'react';
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  type DotItemDotProps,
+} from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 
@@ -14,10 +23,50 @@ type LeftRightByGenderRow = {
   menRightWingPct: number;
 };
 
-type IsraelSupportByGenderRow = {
+export type WomenLeftRightChartRow = Pick<
+  LeftRightByGenderRow,
+  'year' | 'womenLeftistPct' | 'womenRightWingPct'
+>;
+
+export type WomenLeftRightChartSource = {
+  label: string;
+  url: string;
+};
+
+export type WomenLeftRightChartOverride = {
+  data: readonly WomenLeftRightChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+};
+
+export type MenLeftRightChartRow = Pick<
+  LeftRightByGenderRow,
+  'year' | 'menLeftistPct' | 'menRightWingPct'
+> & {
+  status?: 'observed' | 'interpolated' | 'backcast' | 'projected';
+};
+
+export type MenLeftRightChartOverride = {
+  data: readonly MenLeftRightChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+  yDomain?: [number, number];
+};
+
+export type IsraelSupportByGenderChartRow = {
   year: string;
   menSupportIsraelPct: number;
   womenSupportIsraelPct: number;
+};
+
+export type IsraelSupportByGenderChartOverride = {
+  data: readonly IsraelSupportByGenderChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+  yDomain?: readonly [number, number];
 };
 
 type RussiaUkraineSupportRow = {
@@ -28,6 +77,53 @@ type RussiaUkraineSupportRow = {
   leftWingSupportUkrainePct: number;
   rightWingSupportRussiaPct: number;
   rightWingSupportUkrainePct: number;
+};
+
+export type RussiaUkraineOverallChartRow = Pick<
+  RussiaUkraineSupportRow,
+  'year' | 'overallSupportRussiaPct' | 'overallSupportUkrainePct'
+> & {
+  russiaAnchor?: boolean;
+  ukraineAnchor?: boolean;
+  basis?: string;
+};
+
+export type RussiaUkraineOverallChartOverride = {
+  data: readonly RussiaUkraineOverallChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+  yDomain?: [number, number];
+};
+
+export type RussiaUkraineLeftWingChartRow = Pick<
+  RussiaUkraineSupportRow,
+  'year' | 'leftWingSupportRussiaPct' | 'leftWingSupportUkrainePct'
+> & {
+  basis?: string;
+};
+
+export type RussiaUkraineLeftWingChartOverride = {
+  data: readonly RussiaUkraineLeftWingChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+  yDomain?: readonly [number, number];
+};
+
+export type RussiaUkraineRightWingChartRow = Pick<
+  RussiaUkraineSupportRow,
+  'year' | 'rightWingSupportRussiaPct' | 'rightWingSupportUkrainePct'
+> & {
+  basis?: string;
+};
+
+export type RussiaUkraineRightWingChartOverride = {
+  data: readonly RussiaUkraineRightWingChartRow[];
+  methodologyNote?: string;
+  sources?: readonly WomenLeftRightChartSource[];
+  showDataTable?: boolean;
+  yDomain?: readonly [number, number];
 };
 
 const LEFT_RIGHT_BY_GENDER_SERIES: readonly LeftRightByGenderRow[] = [
@@ -59,7 +155,7 @@ const LEFT_RIGHT_BY_GENDER_SERIES: readonly LeftRightByGenderRow[] = [
   { year: '2025', womenLeftistPct: 57, menLeftistPct: 38, womenRightWingPct: 33, menRightWingPct: 52 },
 ];
 
-const ISRAEL_SUPPORT_BY_GENDER_SERIES: readonly IsraelSupportByGenderRow[] = [
+const ISRAEL_SUPPORT_BY_GENDER_SERIES: readonly IsraelSupportByGenderChartRow[] = [
   { year: '2000', menSupportIsraelPct: 58, womenSupportIsraelPct: 55 },
   { year: '2001', menSupportIsraelPct: 57, womenSupportIsraelPct: 54 },
   { year: '2002', menSupportIsraelPct: 56, womenSupportIsraelPct: 53 },
@@ -156,21 +252,68 @@ const pctTooltipFormatter = (value: unknown) => {
 
 const LR_IDEOLOGY_Y = { domain: [30, 60] as [number, number], width: 44 };
 
-function MenLeftistVsRightWingChart() {
+function observedDot(color: string) {
+  return function ObservedDot({ cx, cy, payload }: DotItemDotProps) {
+    if (payload?.status !== 'observed' || typeof cx !== 'number' || typeof cy !== 'number') {
+      return null;
+    }
+
+    return <circle cx={cx} cy={cy} r={3.2} fill={color} stroke="#e5e5e5" strokeWidth={1.25} />;
+  };
+}
+
+const MenLeftistObservedDot = observedDot(MEN_LEFT_RIGHT_CONFIG.menLeftistPct.color);
+const MenRightWingObservedDot = observedDot(MEN_LEFT_RIGHT_CONFIG.menRightWingPct.color);
+
+function anchorDot(color: string, anchorKey: 'russiaAnchor' | 'ukraineAnchor') {
+  return function AnchorDot({ cx, cy, payload }: DotItemDotProps) {
+    if (!payload?.[anchorKey] || typeof cx !== 'number' || typeof cy !== 'number') {
+      return null;
+    }
+
+    return <circle cx={cx} cy={cy} r={3.2} fill={color} stroke="#e5e5e5" strokeWidth={1.25} />;
+  };
+}
+
+const RussiaSupportAnchorDot = anchorDot(
+  RUSSIA_UKRAINE_OVERALL_CONFIG.overallSupportRussiaPct.color,
+  'russiaAnchor',
+);
+const UkraineSupportAnchorDot = anchorDot(
+  RUSSIA_UKRAINE_OVERALL_CONFIG.overallSupportUkrainePct.color,
+  'ukraineAnchor',
+);
+
+function MenLeftistVsRightWingChart({
+  data = LEFT_RIGHT_BY_GENDER_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+  yDomain = LR_IDEOLOGY_Y.domain,
+}: Partial<MenLeftRightChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Men — leftist vs right-wing identification
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Share of men identifying as leftist or right-wing (%), 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Share of men identifying as leftist or right-wing (%), 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Survey observations + estimates
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={MEN_LEFT_RIGHT_CONFIG} className="h-[300px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...LEFT_RIGHT_BY_GENDER_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -180,7 +323,7 @@ function MenLeftistVsRightWingChart() {
                 interval={2}
               />
               <YAxis
-                domain={LR_IDEOLOGY_Y.domain}
+                domain={yDomain}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -201,43 +344,114 @@ function MenLeftistVsRightWingChart() {
               <Line
                 type="monotone"
                 dataKey="menLeftistPct"
+                name="Leftist"
                 stroke={MEN_LEFT_RIGHT_CONFIG.menLeftistPct.color}
                 strokeWidth={2.4}
-                dot={false}
+                dot={methodologyNote ? MenLeftistObservedDot : false}
                 isAnimationActive={false}
               />
               <Line
                 type="monotone"
                 dataKey="menRightWingPct"
+                name="Right-wing"
                 stroke={MEN_LEFT_RIGHT_CONFIG.menRightWingPct.color}
                 strokeWidth={2.4}
                 strokeDasharray="6 4"
-                dot={false}
+                dot={methodologyNote ? MenRightWingObservedDot : false}
                 isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Source: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual data and estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual share of Italian men identifying as leftist or right-wing, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Leftist</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Right-wing</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Basis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.menLeftistPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.menRightWingPct}%</td>
+                      <td className="px-2 py-1 text-right capitalize">{row.status ?? 'modeled'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function WomenLeftistVsRightWingChart() {
+function WomenLeftistVsRightWingChart({
+  data = LEFT_RIGHT_BY_GENDER_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+}: Partial<WomenLeftRightChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Women — leftist vs right-wing identification
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Share of women identifying as leftist or right-wing (%), 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Share of women identifying as leftist or right-wing (%), 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-400/40 bg-amber-400/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Modeled series
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={WOMEN_LEFT_RIGHT_CONFIG} className="h-[300px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...LEFT_RIGHT_BY_GENDER_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -268,6 +482,7 @@ function WomenLeftistVsRightWingChart() {
               <Line
                 type="monotone"
                 dataKey="womenLeftistPct"
+                name="Leftist"
                 stroke={WOMEN_LEFT_RIGHT_CONFIG.womenLeftistPct.color}
                 strokeWidth={2.4}
                 dot={false}
@@ -276,6 +491,7 @@ function WomenLeftistVsRightWingChart() {
               <Line
                 type="monotone"
                 dataKey="womenRightWingPct"
+                name="Right-wing"
                 stroke={WOMEN_LEFT_RIGHT_CONFIG.womenRightWingPct.color}
                 strokeWidth={2.4}
                 strokeDasharray="6 4"
@@ -285,26 +501,94 @@ function WomenLeftistVsRightWingChart() {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Research anchors: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual modeled share of Italian women identifying as leftist or right-wing, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Leftist</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Right-wing</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.womenLeftistPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.womenRightWingPct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function IsraelSupportByGenderChart() {
+function IsraelSupportByGenderChart({
+  data = ISRAEL_SUPPORT_BY_GENDER_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+  yDomain = [30, 62],
+}: Partial<IsraelSupportByGenderChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Support of Israel by Gender
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Share reporting support for Israel (%), by gender, 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Share reporting support for Israel (%), by gender, 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-400/40 bg-amber-400/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Modeled series
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={ISRAEL_SUPPORT_BY_GENDER_CONFIG} className="h-[300px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...ISRAEL_SUPPORT_BY_GENDER_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -314,7 +598,7 @@ function IsraelSupportByGenderChart() {
                 interval={2}
               />
               <YAxis
-                domain={[30, 62]}
+                domain={[yDomain[0], yDomain[1]]}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -335,6 +619,7 @@ function IsraelSupportByGenderChart() {
               <Line
                 type="monotone"
                 dataKey="menSupportIsraelPct"
+                name="Men"
                 stroke={ISRAEL_SUPPORT_BY_GENDER_CONFIG.menSupportIsraelPct.color}
                 strokeWidth={2.2}
                 dot={false}
@@ -343,14 +628,69 @@ function IsraelSupportByGenderChart() {
               <Line
                 type="monotone"
                 dataKey="womenSupportIsraelPct"
+                name="Women"
                 stroke={ISRAEL_SUPPORT_BY_GENDER_CONFIG.womenSupportIsraelPct.color}
                 strokeWidth={2.2}
+                strokeDasharray="6 4"
                 dot={false}
                 isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Research anchors: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual modeled share reporting support for Israel in Italy by gender, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Men</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Women</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.menSupportIsraelPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.womenSupportIsraelPct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -358,21 +698,36 @@ function IsraelSupportByGenderChart() {
 
 const RU_UA_Y_AXIS = { domain: [8, 76] as [number, number], width: 44 };
 
-function RussiaUkraineOverallChart() {
+function RussiaUkraineOverallChart({
+  data = RUSSIA_UKRAINE_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+  yDomain = RU_UA_Y_AXIS.domain,
+}: Partial<RussiaUkraineOverallChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Support for Russia vs Ukraine — overall
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Population reporting support (%), 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Population reporting support (%), 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Research anchors + modeled years
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={RUSSIA_UKRAINE_OVERALL_CONFIG} className="h-[280px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...RUSSIA_UKRAINE_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -382,7 +737,7 @@ function RussiaUkraineOverallChart() {
                 interval={2}
               />
               <YAxis
-                domain={RU_UA_Y_AXIS.domain}
+                domain={yDomain}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -401,44 +756,117 @@ function RussiaUkraineOverallChart() {
               />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="overallSupportRussiaPct"
+                name="Support Russia"
                 stroke={RUSSIA_UKRAINE_OVERALL_CONFIG.overallSupportRussiaPct.color}
                 strokeWidth={2.4}
-                dot={false}
+                dot={methodologyNote ? RussiaSupportAnchorDot : false}
                 isAnimationActive={false}
               />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="overallSupportUkrainePct"
+                name="Support Ukraine"
                 stroke={RUSSIA_UKRAINE_OVERALL_CONFIG.overallSupportUkrainePct.color}
                 strokeWidth={2.4}
-                dot={false}
+                strokeDasharray="6 4"
+                dot={methodologyNote ? UkraineSupportAnchorDot : false}
                 isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Research anchors: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual data and estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual modeled share of Italy supporting Russia or Ukraine, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Russia</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Ukraine</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Basis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.overallSupportRussiaPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.overallSupportUkrainePct}%</td>
+                      <td className="px-2 py-1 text-right capitalize">{row.basis ?? 'modeled'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function RussiaUkraineLeftWingChart() {
+function RussiaUkraineLeftWingChart({
+  data = RUSSIA_UKRAINE_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+  yDomain = RU_UA_Y_AXIS.domain,
+}: Partial<RussiaUkraineLeftWingChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Support for Russia vs Ukraine — left-wing
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Among respondents identifying as left-wing (%), 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Among respondents identifying as left-wing (%), 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Research anchors + modeled years
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={RUSSIA_UKRAINE_LEFT_CONFIG} className="h-[280px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...RUSSIA_UKRAINE_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -448,7 +876,7 @@ function RussiaUkraineLeftWingChart() {
                 interval={2}
               />
               <YAxis
-                domain={RU_UA_Y_AXIS.domain}
+                domain={[yDomain[0], yDomain[1]]}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -467,44 +895,117 @@ function RussiaUkraineLeftWingChart() {
               />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="leftWingSupportRussiaPct"
+                name="Support Russia"
                 stroke={RUSSIA_UKRAINE_LEFT_CONFIG.leftWingSupportRussiaPct.color}
                 strokeWidth={2.4}
                 dot={false}
                 isAnimationActive={false}
               />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="leftWingSupportUkrainePct"
+                name="Support Ukraine"
                 stroke={RUSSIA_UKRAINE_LEFT_CONFIG.leftWingSupportUkrainePct.color}
                 strokeWidth={2.4}
+                strokeDasharray="6 4"
                 dot={false}
                 isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Research anchors: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual data and estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual modeled left-wing support for Russia or Ukraine in Italy, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Russia</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Ukraine</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Basis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.leftWingSupportRussiaPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.leftWingSupportUkrainePct}%</td>
+                      <td className="px-2 py-1 text-right capitalize">{row.basis ?? 'modeled'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function RussiaUkraineRightWingChart() {
+function RussiaUkraineRightWingChart({
+  data = RUSSIA_UKRAINE_SERIES,
+  methodologyNote,
+  sources = [],
+  showDataTable = false,
+  yDomain = RU_UA_Y_AXIS.domain,
+}: Partial<RussiaUkraineRightWingChartOverride>) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
           Support for Russia vs Ukraine — right-wing
         </CardTitle>
-        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Among respondents identifying as right-wing (%), 2000–2025
+        <CardDescription className={`flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 ${UC_META}`}>
+          <span>Among respondents identifying as right-wing (%), 2000–2025</span>
+          {methodologyNote ? (
+            <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-semibold text-neutral-300">
+              Research anchors + modeled years
+            </span>
+          ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={RUSSIA_UKRAINE_RIGHT_CONFIG} className="h-[280px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={[...RUSSIA_UKRAINE_SERIES]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart
+              accessibilityLayer
+              data={[...data]}
+              margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
+            >
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -514,7 +1015,7 @@ function RussiaUkraineRightWingChart() {
                 interval={2}
               />
               <YAxis
-                domain={RU_UA_Y_AXIS.domain}
+                domain={[yDomain[0], yDomain[1]]}
                 tickFormatter={(v) => `${Number(v)}%`}
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -533,38 +1034,110 @@ function RussiaUkraineRightWingChart() {
               />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="rightWingSupportRussiaPct"
+                name="Support Russia"
                 stroke={RUSSIA_UKRAINE_RIGHT_CONFIG.rightWingSupportRussiaPct.color}
                 strokeWidth={2.4}
                 dot={false}
                 isAnimationActive={false}
               />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="rightWingSupportUkrainePct"
+                name="Support Ukraine"
                 stroke={RUSSIA_UKRAINE_RIGHT_CONFIG.rightWingSupportUkrainePct.color}
                 strokeWidth={2.4}
+                strokeDasharray="6 4"
                 dot={false}
                 isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {methodologyNote ? (
+          <div className="mt-2 border-t border-line pt-2 text-[10px] leading-relaxed text-neutral-500">
+            <p>{methodologyNote}</p>
+            {sources.length > 0 ? (
+              <p className="mt-1">
+                <span className="font-semibold text-neutral-400">Research anchors: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {showDataTable ? (
+          <details className="mt-2 border-t border-line text-[10px] text-neutral-400">
+            <summary className="cursor-pointer py-2 font-semibold uppercase tracking-[0.04em] text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+              View annual data and estimates
+            </summary>
+            <div className="max-h-64 overflow-auto">
+              <table className="w-full border-collapse font-sans tabular-nums">
+                <caption className="sr-only">
+                  Annual modeled right-wing support for Russia or Ukraine in Italy, 2000 to 2025
+                </caption>
+                <thead className="sticky top-0 bg-surface-metric text-left text-neutral-300">
+                  <tr>
+                    <th className="border-b border-line px-2 py-1.5 font-semibold" scope="col">Year</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Russia</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Ukraine</th>
+                    <th className="border-b border-line px-2 py-1.5 text-right font-semibold" scope="col">Basis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.year} className="border-b border-line/50 last:border-0">
+                      <th className="px-2 py-1 font-medium text-neutral-300" scope="row">{row.year}</th>
+                      <td className="px-2 py-1 text-right">{row.rightWingSupportRussiaPct}%</td>
+                      <td className="px-2 py-1 text-right">{row.rightWingSupportUkrainePct}%</td>
+                      <td className="px-2 py-1 text-right capitalize">{row.basis ?? 'modeled'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-export const GermanyPoliticsOverviewCharts = memo(function GermanyPoliticsOverviewCharts() {
+export const GermanyPoliticsOverviewCharts = memo(function GermanyPoliticsOverviewCharts({
+  menLeftRightChart,
+  womenLeftRightChart,
+  israelSupportByGenderChart,
+  russiaUkraineOverallChart,
+  russiaUkraineLeftWingChart,
+  russiaUkraineRightWingChart,
+}: {
+  menLeftRightChart?: MenLeftRightChartOverride;
+  womenLeftRightChart?: WomenLeftRightChartOverride;
+  israelSupportByGenderChart?: IsraelSupportByGenderChartOverride;
+  russiaUkraineOverallChart?: RussiaUkraineOverallChartOverride;
+  russiaUkraineLeftWingChart?: RussiaUkraineLeftWingChartOverride;
+  russiaUkraineRightWingChart?: RussiaUkraineRightWingChartOverride;
+}) {
   return (
     <div className="flex flex-col gap-4">
-      <MenLeftistVsRightWingChart />
-      <WomenLeftistVsRightWingChart />
-      <IsraelSupportByGenderChart />
-      <RussiaUkraineOverallChart />
-      <RussiaUkraineLeftWingChart />
-      <RussiaUkraineRightWingChart />
+      <MenLeftistVsRightWingChart {...menLeftRightChart} />
+      <WomenLeftistVsRightWingChart {...womenLeftRightChart} />
+      <IsraelSupportByGenderChart {...israelSupportByGenderChart} />
+      <RussiaUkraineOverallChart {...russiaUkraineOverallChart} />
+      <RussiaUkraineLeftWingChart {...russiaUkraineLeftWingChart} />
+      <RussiaUkraineRightWingChart {...russiaUkraineRightWingChart} />
     </div>
   );
 });

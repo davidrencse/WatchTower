@@ -15,12 +15,18 @@ export type RightWingGroup = {
   notes: string;
 };
 
+export type RightWingSource = {
+  label: string;
+  url: string;
+};
+
 /** Full per-country payload for this section (defaults to Germany's when omitted). */
 export type PoliticsRightWingData = {
   metrics: readonly RightMetric[];
   groupsTitle: string;
   groupsDescription: string;
   groups: readonly RightWingGroup[];
+  sources?: readonly RightWingSource[];
 };
 
 const RIGHT_WING_GROUPS: readonly RightWingGroup[] = [
@@ -164,6 +170,7 @@ export const GermanyPoliticsRightWingSection = memo(function GermanyPoliticsRigh
   groupsTitle = 'RIGHT-WING GROUPS',
   groupsDescription = 'Ranked right-wing groups and organizations (sleek black theme)',
   groups = RIGHT_WING_GROUPS,
+  sources = [],
 }: Partial<PoliticsRightWingData> = {}) {
   return (
     <div className="flex flex-col gap-3">
@@ -184,6 +191,24 @@ export const GermanyPoliticsRightWingSection = memo(function GermanyPoliticsRigh
               accent="neutral"
               items={groups.map((g) => ({ rank: g.rank, group: g.group, type: g.type, value: g.memberPopulation, notes: g.notes }))}
             />
+            {sources.length > 0 ? (
+              <p className="border-t border-white/[0.08] pt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
+                <span className="font-semibold text-neutral-400">Sources: </span>
+                {sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? ' · ' : null}
+                    <a
+                      className="text-neutral-300 underline decoration-neutral-600 underline-offset-2 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </div>

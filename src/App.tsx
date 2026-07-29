@@ -1,17 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppLayout } from './components/AppLayout';
+import { CountryGlobe } from './components/CountryGlobe';
 import { CustomCursor } from './components/CustomCursor';
 import { FlagGallery } from './components/FlagGallery';
+import { GalleryViewToggle, type GalleryView } from './components/GalleryViewToggle';
 import { HomeHero } from './components/HomeHero';
 import { SelectedFlagView, prefetchCountryDashboard } from './components/SelectedFlagView';
 import { WatchtowerSceneBackground } from './components/WatchtowerSceneBackground';
+import { useTheme } from './context/ThemeContext';
+import { FLAGS } from './data/flags';
+import { GLOBE_MARKERS } from './data/globeCountries';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
 import { flagIdHasCountryStats } from './lib/flagIsoMapping';
 import { flagForPath, pathForFlag } from './lib/countryRoute';
-import { useTheme } from './context/ThemeContext';
+import { scheduleIdleTask } from './lib/idleTask';
 import type { FlagEntry } from './types/flag';
 
-const HERO_EXIT_MS = 720;
+const HERO_EXIT_MS = 400;
 
 /** Ignore gallery flag taps briefly after leaving the hero — avoids the same touch/click hitting a tile underneath. */
 function gallerySelectGraceMs(): number {
@@ -26,6 +31,14 @@ function App() {
   const [stage, setStage] = useState<'home' | 'gallery'>(initialFlag ? 'gallery' : 'home');
   const [heroExiting, setHeroExiting] = useState(false);
   const [selected, setSelected] = useState<FlagEntry | null>(initialFlag);
+  const [galleryView, setGalleryView] = useState<GalleryView>('globe');
+  const [activeFlagId, setActiveFlagId] = useState(
+    () =>
+      initialFlag?.id ??
+      FLAGS.find((flag) => flagIdHasCountryStats(flag.id))?.id ??
+      FLAGS[0]?.id ??
+      '',
+  );
   const openingGalleryFromHero = useRef(false);
   const suppressGallerySelectUntil = useRef(0);
   const { theme } = useTheme();
@@ -36,7 +49,7 @@ function App() {
     openingGalleryFromHero.current = true;
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setStage('gallery');
-    setHeroExiting(true);
+    setHeroExiting(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
   useEffect(() => {
@@ -49,10 +62,7 @@ function App() {
   // idle so the first country opens instantly instead of waiting on a large download.
   useEffect(() => {
     if (stage !== 'gallery') return;
-    const idleId = requestIdleCallback(() => prefetchCountryDashboard(), { timeout: 2000 });
-    return () => {
-      if (typeof cancelIdleCallback === 'function') cancelIdleCallback(idleId);
-    };
+    return scheduleIdleTask(() => prefetchCountryDashboard(), 2000);
   }, [stage]);
 
   useEffect(() => {
@@ -62,7 +72,9 @@ function App() {
   }, [stage]);
 
   useEffect(() => {
-    if (stage === 'home' && !selected) {
+    // Home splash and the full-screen globe both own the viewport — no page scroll. Only a
+    // selected country dossier scrolls normally.
+    if (!selected) {
       document.documentElement.style.overflow = 'hidden';
     } else {
       document.documentElement.style.overflow = '';
@@ -92,7 +104,10 @@ function App() {
     const onPopState = () => {
       const flag = flagForPath(window.location.pathname);
       setSelected(flag);
-      if (flag) setStage('gallery');
+      if (flag) {
+        setActiveFlagId(flag.id);
+        setStage('gallery');
+      }
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -108,29 +123,54 @@ function App() {
     if (flagIdHasCountryStats(flag.id)) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
+    setActiveFlagId(flag.id);
     setSelected(flag);
   }, []);
 
   const showGallery = stage === 'gallery' && !selected;
   const showHeroOverlay = (stage === 'home' || heroExiting) && !selected;
-  // The dark cinematic scene backs the (always-dark) home splash in both themes. The gallery
-  // only keeps it in dark mode; in light mode the gallery sits on the light app background.
-  const showScene = !selected && (stage === 'home' || (theme === 'dark' && stage === 'gallery'));
 
   return (
     <>
       <CustomCursor />
-      {showScene ? <WatchtowerSceneBackground fixed /> : null}
-      <AppLayout showHeader={false} transparent={showScene}>
-        {showGallery ? (
-          <div className={heroExiting ? 'wt-gallery-enter' : undefined}>
-            <FlagGallery onSelectFlag={selectFlag} />
-          </div>
-        ) : null}
-        {selected ? (
+      {showGallery ? (
+        <div
+          className={[
+            heroExiting ? 'wt-gallery-enter' : '',
+            galleryView === 'flags' ? 'wt-gallery-flags' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {galleryView === 'globe' ? (
+            <CountryGlobe markers={GLOBE_MARKERS} onSelect={selectFlag} />
+          ) : (
+            <>
+              {theme === 'dark' ? <WatchtowerSceneBackground fixed /> : null}
+              <AppLayout showHeader={false} transparent={theme === 'dark'}>
+                <FlagGallery
+                  activeFlagId={activeFlagId}
+                  onActiveFlagChange={setActiveFlagId}
+                  onSelectFlag={selectFlag}
+                />
+              </AppLayout>
+            </>
+          )}
+          {!heroExiting ? (
+            <GalleryViewToggle
+              view={galleryView}
+              onToggle={() =>
+                setGalleryView((current) => (current === 'globe' ? 'flags' : 'globe'))
+              }
+            />
+          ) : null}
+        </div>
+      ) : null}
+      {selected ? (
+        <AppLayout showHeader={false}>
           <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
-        ) : null}
-      </AppLayout>
+        </AppLayout>
+      ) : null}
       {showHeroOverlay ? (
         <div data-theme="dark" className="fixed inset-0 z-50" aria-hidden={heroExiting}>
           <div className={heroExiting ? 'wt-hero-exit' : undefined}>

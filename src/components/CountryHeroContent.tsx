@@ -46,10 +46,10 @@ export function CountryHeroContent({ flag, onOpen, showOpenAction = false }: Cou
             onClick={() => onOpen?.(flag)}
             disabled={!brief.hasDossier}
             className={[
-              'inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2',
+              'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 py-2',
               'font-sans text-[10px] font-semibold uppercase tracking-[0.18em]',
               'border border-white/[0.2] bg-white/[0.06] text-neutral-100',
-              'shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-sm',
+              'shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]',
               'transition hover:enabled:border-white/30 hover:enabled:bg-white/[0.12]',
               'disabled:cursor-not-allowed disabled:opacity-30',
             ].join(' ')}

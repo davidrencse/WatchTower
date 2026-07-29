@@ -12,11 +12,19 @@
 export type YearShareRow = { year: string; socialHousingShare: number; healthcareShare: number };
 export type PublicOpinionRow = {
   year: string;
-  tooManyImmigrants: number;
-  fasterDeportations: number;
-  strongerBorderControl: number;
+  publicOpinion?: number;
+  tooManyImmigrants?: number;
+  fasterDeportations?: number;
+  strongerBorderControl?: number;
 };
-export type ContributionRow = { group: string; paid: string; received: string; net: string };
+export type ContributionRow = {
+  group: string;
+  paid: string;
+  payerShare?: string;
+  overallPaid?: string;
+  received: string;
+  net: string;
+};
 export type WelfareRow = { nationality: string; recipients: string; share: string; notes: string };
 export type RegionAsylumRow = {
   year: string;

@@ -5,7 +5,7 @@ const WHEEL_IDLE_MS = 360;
 const HTML_CLASS = 'wt-custom-cursor';
 const ROOT_ID = 'wt-custom-cursor-root';
 
-type CursorMode = 'default' | 'down' | 'up';
+type CursorMode = 'default' | 'down' | 'up' | 'globe';
 
 const CHEVRON_STROKE = 'stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
 
@@ -13,7 +13,11 @@ let teardown: (() => void) | null = null;
 
 function canUseCustomCursor(): boolean {
   if (typeof window === 'undefined') return false;
-  return window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(hover: none)').matches;
+  return (
+    window.matchMedia('(pointer: fine)').matches &&
+    !window.matchMedia('(hover: none)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 /** Vanilla cursor overlay — one paint per frame, no React on the hot path. */
@@ -40,7 +44,7 @@ export function initCustomCursor(): () => void {
     pointerEvents: 'none',
     zIndex: '2147483647',
     opacity: '0',
-    contain: 'strict',
+    contain: 'layout style',
     transform: 'translate3d(-9999px,-9999px,0)',
   });
 
@@ -59,6 +63,19 @@ export function initCustomCursor(): () => void {
         <path d="m18 15-6-6-6 6"/>
       </svg>
     </div>
+    <div class='wt-cursor-globe' style='position:absolute;left:50%;top:50%;width:64px;height:64px;transform:translate(-50%,-50%)'>
+      <span class='wt-cursor-globe-axis wt-cursor-globe-axis-x'></span>
+      <span class='wt-cursor-globe-axis wt-cursor-globe-axis-y'></span>
+      <svg width='64' height='64' viewBox='0 0 64 64' fill='none' aria-hidden='true'>
+        <g stroke='currentColor' stroke-width='1' shape-rendering='crispEdges'>
+          <path d='M20.5 20V44M26.5 20V44M38.5 20V44M44.5 20V44M20 20.5H44M20 26.5H44M20 38.5H44M20 44.5H44' opacity='.14'/>
+          <path d='M.5 32H27.5M36.5 32H63.5M32 .5V27.5M32 36.5V63.5' opacity='.72'/>
+          <path d='M8.5 29V35M16.5 29V35M47.5 29V35M55.5 29V35M29 8.5H35M29 16.5H35M29 47.5H35M29 55.5H35' opacity='.38'/>
+          <path d='M20.5 25V20.5H25M39 20.5H44.5V25M44.5 39V44.5H39M25 44.5H20.5V39' opacity='.5'/>
+        </g>
+        <rect x='30.5' y='30.5' width='3' height='3' fill='currentColor'/>
+      </svg>
+    </div>
   `;
 
   document.body.appendChild(root);
@@ -66,6 +83,7 @@ export function initCustomCursor(): () => void {
   let mx = -9999;
   let my = -9999;
   let mode: CursorMode = 'default';
+  let overGlobe = false;
   let rafId = 0;
   let wheelIdle: ReturnType<typeof setTimeout> | null = null;
 
@@ -94,10 +112,9 @@ export function initCustomCursor(): () => void {
 
   const onPointerMove = (e: PointerEvent) => {
     if (e.pointerType === 'touch') return;
-    onMove(e.clientX, e.clientY);
-  };
-
-  const onMouseMove = (e: MouseEvent) => {
+    overGlobe = e.target instanceof Element && Boolean(e.target.closest('[data-globe]'));
+    if (overGlobe) setMode('globe');
+    else if (mode === 'globe') setMode('default');
     onMove(e.clientX, e.clientY);
   };
 
@@ -106,6 +123,15 @@ export function initCustomCursor(): () => void {
   };
 
   const onWheel = (e: WheelEvent) => {
+    if (e.target instanceof Element && e.target.closest('[data-globe]')) {
+      overGlobe = true;
+      setMode('globe');
+      if (wheelIdle) {
+        clearTimeout(wheelIdle);
+        wheelIdle = null;
+      }
+      return;
+    }
     if (Math.abs(e.deltaY) < 0.5) return;
     setMode(e.deltaY > 0 ? 'down' : 'up');
     if (wheelIdle) clearTimeout(wheelIdle);
@@ -116,7 +142,7 @@ export function initCustomCursor(): () => void {
   };
 
   const onPointerDown = () => {
-    setMode('default');
+    setMode(overGlobe ? 'globe' : 'default');
     if (wheelIdle) {
       clearTimeout(wheelIdle);
       wheelIdle = null;
@@ -124,7 +150,6 @@ export function initCustomCursor(): () => void {
   };
 
   window.addEventListener('pointermove', onPointerMove, { passive: true });
-  window.addEventListener('mousemove', onMouseMove, { passive: true });
   document.documentElement.addEventListener('mouseleave', hide);
   window.addEventListener('blur', hide, { passive: true });
   window.addEventListener('wheel', onWheel, { passive: true });
@@ -132,7 +157,6 @@ export function initCustomCursor(): () => void {
 
   const cleanup = () => {
     window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('mousemove', onMouseMove);
     document.documentElement.removeEventListener('mouseleave', hide);
     window.removeEventListener('blur', hide);
     window.removeEventListener('wheel', onWheel);

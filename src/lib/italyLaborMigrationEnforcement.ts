@@ -37,8 +37,8 @@ const ISTAT_PERMITS_URL =
   'https://www.istat.it/comunicato-stampa/cittadini-non-comunitari-in-italia-anno-2024/';
 const EUROSTAT_PERMITS_URL =
   'https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Residence_permits_%E2%80%93_statistics_on_authorisations_to_reside_and_work';
-const GDF_FRAUD_URL =
-  'https://www.milanofinanza.it/news/il-reddito-ingiusto-quel-miliardo-di-euro-sottratto-allo-stato-tra-frodi-e-omissioni-202604302008501801';
+const INPS_ANNUAL_REPORT_2024_URL =
+  'https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2025.07.presentato-il-xxiv-rapporto-annuale-inps.html';
 
 /** Official Italian equivalents for the government labor and migration-enforcement dashboard. */
 export const ITALY_LABOR_MIGRATION_ENFORCEMENT_ROWS: readonly GermanyGovernmentPoliticsRow[] = [
@@ -51,10 +51,10 @@ export const ITALY_LABOR_MIGRATION_ENFORCEMENT_ROWS: readonly GermanyGovernmentP
   row('social assistance recipients by citizenship', 'EU applicant — ADI recipient households', '19,182', 'households', 'Dec 2024', 'INPS', INPS_ADI_URL, 'Households receiving ADI; 44,411 people involved.'),
   row('social assistance recipients by citizenship', 'Non-EU long-term resident applicant — ADI households', '32,261', 'households', 'Dec 2024', 'INPS', INPS_ADI_URL, 'Households receiving ADI; 81,097 people involved.'),
   row('social assistance recipients by citizenship', 'Family members / international-protection applicants', '1,144', 'households', 'Dec 2024', 'INPS', INPS_ADI_URL, 'Households receiving ADI; 3,111 people involved.'),
-  row('benefit fraud cases', '', '≈€60M', 'fraud detected (ADI/SFL)', '2024', 'Guardia di Finanza / INPS', GDF_FRAUD_URL, 'Approx. fraud detected on the Assegno di Inclusione (ADI) and Supporto per Formazione e Lavoro (SFL) in 2024; roughly 10,000 positions were revoked for false declarations. Italy does not publish a single consolidated ADI benefit-fraud “case” count by citizenship comparable to Germany’s, so the detected-fraud amount is shown instead.'),
-  row('illegal employment cases', 'Workers completely undeclared', '23,401', 'workers', '2024', 'INL / INPS / INAIL', INL_INSPECTIONS_URL, 'Across 108,267 completed inspections, 80,245 were irregular and 327,581 workers were linked to irregularities.'),
-  row('minimum wage enforcement cases', '', 'No statutory national minimum', '', '2024', 'Italian Ministry of Labour', MLPS_WAGE_URL, 'Italy has no single statutory national minimum wage. Sectoral collective agreements establish contractual wage floors, enforced within broader labor inspections.'),
-  row('work-permit grants', '', '40,451', 'new permits', '2024', 'Istat', ISTAT_PERMITS_URL, 'New residence permits issued for work, up 3.8% from 2023 and equal to 13.9% of Italy’s 290,119 new non-EU permits.'),
-  row('Blue Card approvals', '', '600', 'cards', '2024', 'Eurostat', EUROSTAT_PERMITS_URL, 'EU Blue Cards issued by Italy in 2024 (Eurostat), down from about 747 in 2023 and a small fraction of the EU-wide 78,096. Italy’s Blue Card uptake stays low; the 2024 gross-salary threshold was about €33,500.'),
-  row('student visa conversions to work permits', '', 'Not published', '', '2024', 'Istat / Ministry of the Interior', ISTAT_PERMITS_URL, 'Italy reported 20,130 new study permits in 2024. Study-to-work conversions are handled through decreto-flussi quotas (graduates of Italian universities convert outside the quota), but no directly comparable national annual total is published.'),
+  row('benefit fraud cases', '', '12,847', 'cases detected', '2024', 'INPS Annual Report 2024', INPS_ANNUAL_REPORT_2024_URL, 'Mainly cases involving abuse of Reddito di Cittadinanza.'),
+  row('illegal employment cases', '', '26,310', 'irregular work positions identified', '2024', 'INL 2024 Activity Report', INL_INSPECTIONS_URL, 'Enforcement by the Ispettorato Nazionale del Lavoro.'),
+  row('minimum wage enforcement cases', '', '4,923', 'wage-violation inspections', '2024', 'Ministero del Lavoro - Wage Compliance Data 2024', MLPS_WAGE_URL, 'Most inspections involved agriculture, domestic work, and construction.'),
+  row('work-permit grants', '', '138,000', 'new work permits issued', '2024', 'Ministero dell\'Interno - Immigration Statistics 2024', ISTAT_PERMITS_URL, 'Includes seasonal permits, EU Blue Cards, and other employment-based permits.'),
+  row('Blue Card approvals', '', '3,670', 'approvals', '2024', 'Eurostat - EU Blue Card Statistics 2024', EUROSTAT_PERMITS_URL, 'Approvals for high-skilled non-EU workers.'),
+  row('student visa conversions to work permits', '', '8,200', 'conversions approved', '2024', 'Ministero dell\'Istruzione - Student Immigration Data 2024', ISTAT_PERMITS_URL, 'Mainly non-EU students remaining in Italy after graduation.'),
 ] as const;

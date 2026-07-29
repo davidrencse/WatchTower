@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-29T00:49:35.2803228-07:00",
+  "title": "Design System: Project WatchTower",
+  "extensions": {
+    "colorMeta": {
+      "void": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "#080808",
+        "tonalRamp": ["#080808", "#171717", "#282828", "#3d3d3d", "#5d5d5d", "#858585", "#b8b8b8", "#ededed"]
+      },
+      "instrument-black": {
+        "role": "neutral",
+        "displayName": "Instrument Black",
+        "canonical": "#0f0f0f",
+        "tonalRamp": ["#0f0f0f", "#1d1d1d", "#303030", "#464646", "#666666", "#8c8c8c", "#bdbdbd", "#f0f0f0"]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "#e8e8e8",
+        "tonalRamp": ["#242424", "#444444", "#666666", "#898989", "#adadad", "#cccccc", "#e8e8e8", "#f7f7f7"]
+      },
+      "quiet-ink": {
+        "role": "neutral",
+        "displayName": "Quiet Ink",
+        "canonical": "#737373",
+        "tonalRamp": ["#202020", "#343434", "#4a4a4a", "#606060", "#737373", "#969696", "#bdbdbd", "#e6e6e6"]
+      },
+      "steel-signal": {
+        "role": "primary",
+        "displayName": "Steel Signal",
+        "canonical": "#6b7f8f",
+        "tonalRamp": ["#18232b", "#263744", "#374c5c", "#4d6374", "#6b7f8f", "#91a2af", "#bec9d0", "#edf1f4"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(255,255,255,0.12)",
+        "tonalRamp": ["#171717", "#2b2b2b", "#454545", "#666666", "#8d8d8d", "#b5b5b5", "#d8d8d8", "#f4f4f4"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Atlas Display",
+        "purpose": "Welcome statements and major geographic titles."
+      },
+      "body": {
+        "displayName": "Evidence Body",
+        "purpose": "Readable explanatory prose."
+      },
+      "label": {
+        "displayName": "Instrument Label",
+        "purpose": "Coordinates, counts, status, and system metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-control",
+        "value": "0 8px 28px rgba(0,0,0,0.38)",
+        "purpose": "Mode switches and compact controls floating above geographic stages."
+      },
+      {
+        "name": "flag-surface",
+        "value": "-22px 22px 40px -12px rgba(0,0,0,0.40)",
+        "purpose": "Country flag gallery depth."
+      }
+    ],
+    "motion": [
+      {
+        "name": "entry-ease",
+        "value": "cubic-bezier(0.16,1,0.3,1)",
+        "purpose": "One decisive welcome-to-atlas transition."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Atlas Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The decisive action that enters a geographic surface.",
+      "html": "<button class=\"ds-atlas-action\">ENTER THE ATLAS <span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-atlas-action{background:#e8e8e8;color:#080808;border:1px solid #e8e8e8;border-radius:8px;padding:14px 20px;font:500 11px/1.4 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;transition:transform .18s,background .18s}.ds-atlas-action:hover{background:#fff;transform:translateY(-1px)}.ds-atlas-action:focus-visible{outline:2px solid #6b7f8f;outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Instrument Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A compact mode or navigation control.",
+      "html": "<button class=\"ds-instrument-action\">GLOBE MAP</button>",
+      "css": ".ds-instrument-action{background:#0f0f0f;color:#e8e8e8;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:12px 16px;font:500 11px/1.4 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase}.ds-instrument-action:hover{border-color:rgba(255,255,255,.3)}.ds-instrument-action:focus-visible{outline:2px solid #6b7f8f;outline-offset:3px}"
+    },
+    {
+      "name": "Country Search Field",
+      "kind": "input",
+      "description": "Search within country coverage.",
+      "html": "<label class=\"ds-search\"><span>SEARCH</span><input placeholder=\"Search countries…\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:12px;background:#0f0f0f;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;color:#737373;font:500 10px/1.4 'JetBrains Mono',monospace;letter-spacing:.12em}.ds-search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#e8e8e8;font:400 16px/1.4 Inter,sans-serif}.ds-search:focus-within{border-color:#6b7f8f}"
+    },
+    {
+      "name": "Dossier Surface",
+      "kind": "card",
+      "description": "A bounded evidence surface for country information.",
+      "html": "<article class=\"ds-dossier\"><small>COUNTRY DOSSIER</small><h3>GERMANY</h3><p>Demographic, economic, and government indicators.</p></article>",
+      "css": ".ds-dossier{max-width:320px;background:#0f0f0f;color:#e8e8e8;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:24px}.ds-dossier small{color:#737373;font:500 10px/1.4 'JetBrains Mono',monospace;letter-spacing:.14em}.ds-dossier h3{margin:24px 0 8px;font:600 28px/1 Inter,sans-serif}.ds-dossier p{margin:0;color:#a3a3a3;font:400 14px/1.6 Inter,sans-serif}"
+    },
+    {
+      "name": "Coverage Status",
+      "kind": "custom",
+      "description": "Transparent disclosure of live and developing coverage.",
+      "html": "<div class=\"ds-status\"><span class=\"ds-status-mark\"></span><div><b>ACTIVE DEVELOPMENT</b><small>INCOMPLETE COVERAGE EXPECTED</small></div></div>",
+      "css": ".ds-status{display:flex;align-items:center;gap:12px;color:#e8e8e8}.ds-status-mark{width:7px;height:7px;background:#6b7f8f}.ds-status b,.ds-status small{display:block;font:500 10px/1.5 'JetBrains Mono',monospace;letter-spacing:.12em}.ds-status small{color:#737373}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cartographic Situation Room",
+    "overview": "WatchTower feels like a national atlas being read inside a quiet intelligence workspace: factual, geographically grounded, and exact without becoming theatrical. Maps, plots, measured lines, registration marks, and dossier metadata are structural devices. Large typography creates command; restrained supporting copy creates trust.",
+    "keyCharacteristics": [
+      "Near-black fields with pale cartographic ink.",
+      "Real geographic material at meaningful scale.",
+      "Condensed mission typography paired with neutral body copy and monospaced measurements.",
+      "Hairline borders, registration ticks, and square locator marks.",
+      "Steel-blue appears only for status, focus, or navigation emphasis."
+    ],
+    "rules": [
+      {
+        "name": "Signal Rarity",
+        "body": "Steel Signal marks state or direction; it never becomes ambient decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "Measurement",
+        "body": "Monospace earns its place only when the text names state, location, quantity, or system metadata.",
+        "section": "typography"
+      },
+      {
+        "name": "Evidence Before Elevation",
+        "body": "A surface should gain depth because it carries content or state, never merely to decorate an empty area.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do give one geographic artifact enough scale to anchor the viewport.",
+      "Do separate facts, status, and actions through alignment and linework.",
+      "Do keep work-in-progress coverage explicit.",
+      "Do preserve keyboard, touch, and reduced-motion paths."
+    ],
+    "donts": [
+      "Don't center the welcome experience inside a generic glass hero card.",
+      "Don't use glow, gradient text, or decorative dashboard widgets as substitutes for evidence.",
+      "Don't let technical typography become costume on ordinary prose.",
+      "Don't fabricate completion, customer, benchmark, or freshness claims."
+    ]
+  }
+}

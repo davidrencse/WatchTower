@@ -55,12 +55,14 @@ export function CountryFocusCarousel({
     if (!item) return;
     const target = item.offsetTop - (rail.clientHeight - item.offsetHeight) / 2;
     if (Math.abs(rail.scrollTop - target) < 1) return;
+    const shouldSmooth =
+      smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     isProgrammaticScroll.current = true;
-    rail.scrollTo({ top: Math.max(0, target), behavior: smooth ? 'smooth' : 'auto' });
+    rail.scrollTo({ top: Math.max(0, target), behavior: shouldSmooth ? 'smooth' : 'auto' });
     if (programmaticEndTimer.current) window.clearTimeout(programmaticEndTimer.current);
     programmaticEndTimer.current = window.setTimeout(() => {
       isProgrammaticScroll.current = false;
-    }, smooth ? 520 : 80);
+    }, shouldSmooth ? 360 : 80);
   }, []);
 
   // Sync rail → only on first mount or when active changes externally (not via our own scroll handler).
@@ -87,16 +89,14 @@ export function CountryFocusCarousel({
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         const center = rail.scrollTop + rail.clientHeight / 2;
-        let nearest = lastReportedIndex.current;
-        let nearestDist = Infinity;
-        rail.querySelectorAll<HTMLElement>('[data-rail-index]').forEach((el) => {
-          const itemCenter = el.offsetTop + el.offsetHeight / 2;
-          const dist = Math.abs(itemCenter - center);
-          if (dist < nearestDist) {
-            nearestDist = dist;
-            nearest = Number(el.dataset.railIndex) || 0;
-          }
-        });
+        const first = rail.querySelector<HTMLElement>('[data-rail-index=0]');
+        if (!first) return;
+        const stride = RAIL_ITEM_HEIGHT + 14;
+        const firstCenter = first.offsetTop + RAIL_ITEM_HEIGHT / 2;
+        const nearest = Math.max(
+          0,
+          Math.min(flags.length - 1, Math.round((center - firstCenter) / stride)),
+        );
         if (nearest === lastReportedIndex.current) return;
         lastReportedIndex.current = nearest;
         const next = flags[nearest];
@@ -119,6 +119,8 @@ export function CountryFocusCarousel({
   // between native scroll, scroll-snap, and the state-driven re-center effect.
   const nudgeRef = useRef<(delta: number) => void>(() => undefined);
   useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
     let acc = 0;
     let lastFireAt = 0;
     const onWheel = (e: WheelEvent) => {
@@ -140,8 +142,8 @@ export function CountryFocusCarousel({
         nudgeRef.current(dir);
       }
     };
-    window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
+    rail.addEventListener('wheel', onWheel, { passive: false });
+    return () => rail.removeEventListener('wheel', onWheel);
   }, []);
 
   const nudge = useCallback(
@@ -239,11 +241,12 @@ export function CountryFocusCarousel({
               ref={railRef}
               role="listbox"
               aria-label="Countries"
+              aria-activedescendant={activeFlag ? `country-option-${activeFlag.id}` : undefined}
               tabIndex={0}
               onKeyDown={onRailKeyDown}
               className="wt-country-rail h-full overflow-y-scroll outline-none focus-visible:ring-2 focus-visible:ring-white/15"
             >
-              <ul className="flex flex-col gap-[14px] px-2 py-2">
+              <ul role="presentation" className="flex flex-col gap-[14px] px-2 py-2">
                 {flags.map((flag, i) => {
                   const distance = Math.abs(i - activeIndex);
                   const state =
@@ -251,6 +254,7 @@ export function CountryFocusCarousel({
                   return (
                     <li
                       key={flag.id}
+                      role="presentation"
                       data-rail-index={i}
                       className="wt-country-rail-item"
                       style={{ height: RAIL_ITEM_HEIGHT }}
@@ -259,6 +263,7 @@ export function CountryFocusCarousel({
                         flag={flag}
                         state={state}
                         isActive={i === activeIndex}
+                        optionId={`country-option-${flag.id}`}
                         onClick={() => onTileClick(flag, i)}
                       />
                     </li>
@@ -287,7 +292,7 @@ export function CountryFocusCarousel({
         </aside>
       </div>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-5 pt-10 sm:pb-6">
+      <div className="wt-country-search-dock pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-10 sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <div
           aria-hidden
           className="wt-glass-fade-bottom pointer-events-none absolute inset-x-0 bottom-0 h-24"
@@ -306,17 +311,21 @@ function RailTile({
   flag,
   state,
   isActive,
+  optionId,
   onClick,
 }: {
   flag: FlagEntry;
   state: 'active' | 'near' | 'far';
   isActive: boolean;
+  optionId: string;
   onClick: () => void;
 }) {
   return (
     <button
+      id={optionId}
       type="button"
       onClick={onClick}
+      tabIndex={-1}
       aria-current={isActive ? 'true' : undefined}
       role="option"
       aria-selected={isActive}

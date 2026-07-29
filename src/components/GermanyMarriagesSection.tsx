@@ -16,7 +16,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 
 export type MarriageTrendRow = {
   year: string;
@@ -33,6 +33,23 @@ export type MarriageTrendRow = {
   arabPct: number;
   asianIndianCount: number;
   asianIndianPct: number;
+};
+
+export type MarriageDetailedTableRow = {
+  year: string;
+  totalMarriages: string;
+  nonNativeCount: string;
+  nonNativePct: string;
+  europeanCount: string;
+  europeanPct: string;
+  nonEuropeanCount: string;
+  nonEuropeanPct: string;
+  africanCount: string;
+  africanPct: string;
+  arabCount: string;
+  arabPct: string;
+  asianIndianCount: string;
+  asianIndianPct: string;
 };
 
 type MarriageAggregate = {
@@ -230,6 +247,7 @@ function MarriagePieCard({
   labels,
   aggregate,
   nativeAdj = 'German',
+  rangeLabel = '2000–2025',
 }: {
   title: string;
   labels: {
@@ -240,6 +258,7 @@ function MarriagePieCard({
   };
   aggregate: MarriageAggregate;
   nativeAdj?: string;
+  rangeLabel?: string;
 }) {
   const totalMarriages = aggregate.totalMarriages;
   const nonGermanPct = pctOfTotal(aggregate.nonGermanTotal, totalMarriages);
@@ -268,7 +287,7 @@ function MarriagePieCard({
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">{title}</CardTitle>
         <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">
-          Aggregated 2000-2025 disjoint breakdown (% of all marriages, 100% base)
+          Aggregated {rangeLabel} disjoint breakdown (% of all marriages, 100% base)
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
@@ -345,6 +364,7 @@ function MarriageDataTableCard({
   arabLabel,
   asianIndianLabel,
   nativeAdj = 'German',
+  rangeLabel = '2000–2025',
 }: {
   title: string;
   data: readonly MarriageTrendRow[];
@@ -355,13 +375,14 @@ function MarriageDataTableCard({
   arabLabel: string;
   asianIndianLabel: string;
   nativeAdj?: string;
+  rangeLabel?: string;
 }) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">{title}</CardTitle>
         <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">
-          Interracial marriage statistics table (2000-2025)
+          Interracial marriage statistics table ({rangeLabel})
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
@@ -401,6 +422,77 @@ function MarriageDataTableCard({
                 <TableCell className="text-right tabular-nums">{row.arabPct.toFixed(2)}%</TableCell>
                 <TableCell className="text-right tabular-nums">{row.asianIndianCount.toLocaleString('en-US')}</TableCell>
                 <TableCell className="text-right tabular-nums">{row.asianIndianPct.toFixed(2)}%</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MarriageDetailedDataTableCard({
+  title,
+  data,
+  nativeAdj,
+  nativeShortLabel,
+  nativeSex,
+  spouseSex,
+  rangeLabel,
+}: {
+  title: string;
+  data: readonly MarriageDetailedTableRow[];
+  nativeAdj: string;
+  nativeShortLabel: string;
+  nativeSex: 'F' | 'M';
+  spouseSex: 'F' | 'M';
+  rangeLabel: string;
+}) {
+  return (
+    <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">{title}</CardTitle>
+        <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">
+          Interracial marriage statistics table ({rangeLabel})
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-3 pt-0">
+        <Table className="min-w-[1480px] whitespace-nowrap text-xs" aria-label={`${title}, ${rangeLabel}`}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className="sticky left-0 z-20 bg-surface-metric">Year</TableHead>
+              <TableHead scope="col" className="text-right">Total Marriages</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + Non-{nativeAdj}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + European (non-{nativeShortLabel}) {spouseSex}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + Non-European {spouseSex}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + African {spouseSex}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + Arab {spouseSex}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+              <TableHead scope="col" className="text-right">{nativeAdj} {nativeSex} + Asian/Indian {spouseSex}</TableHead>
+              <TableHead scope="col" className="text-right">%</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row) => (
+              <TableRow key={`${nativeSex}-detailed-${row.year}`}>
+                <TableCell className="sticky left-0 z-10 bg-surface-metric">{row.year}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.totalMarriages}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.nonNativeCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.nonNativePct}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.europeanCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.europeanPct}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.nonEuropeanCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.nonEuropeanPct}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.africanCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.africanPct}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.arabCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.arabPct}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.asianIndianCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{row.asianIndianPct}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -503,7 +595,13 @@ function LgbtLineCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow
   );
 }
 
-function MarriageRatesVolumeCrudeCard({ series = MARRIAGE_RATES_SERIES }: { series?: readonly MarriageRatesRow[] }) {
+function MarriageRatesVolumeCrudeCard({
+  series = MARRIAGE_RATES_SERIES,
+  sourceNote,
+}: {
+  series?: readonly MarriageRatesRow[];
+  sourceNote?: ReactNode;
+}) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -566,12 +664,21 @@ function MarriageRatesVolumeCrudeCard({ series = MARRIAGE_RATES_SERIES }: { seri
             </ComposedChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {sourceNote ? (
+          <div className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">{sourceNote}</div>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function MarriageRatesAgeLineCard({ series = MARRIAGE_RATES_SERIES }: { series?: readonly MarriageRatesRow[] }) {
+function MarriageRatesAgeLineCard({
+  series = MARRIAGE_RATES_SERIES,
+  sourceNote,
+}: {
+  series?: readonly MarriageRatesRow[];
+  sourceNote?: ReactNode;
+}) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -611,6 +718,9 @@ function MarriageRatesAgeLineCard({ series = MARRIAGE_RATES_SERIES }: { series?:
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {sourceNote ? (
+          <div className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">{sourceNote}</div>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -639,6 +749,28 @@ type GermanyMarriagesSectionProps = {
   lgbtSeries?: readonly LgbtUnionRow[];
   /** Native-population adjective woven into interracial labels (e.g. "French"). */
   nativeAdj?: string;
+  /** Show only the two headline marriage-rate charts. */
+  ratesOnly?: boolean;
+  /** Hide the LGBT block while retaining the exact rates + interracial UI. */
+  showLgbt?: boolean;
+  /** Display range used by the interracial pies and tables. */
+  mixedMarriageRangeLabel?: string;
+  /** Optional female display table with source-preserved values and category breakdowns. */
+  femaleDetailedTableRows?: readonly MarriageDetailedTableRow[];
+  /** Display range for the optional female detail table. */
+  femaleDetailedTableRangeLabel?: string;
+  /** Optional male display table with source-preserved values and category breakdowns. */
+  maleDetailedTableRows?: readonly MarriageDetailedTableRow[];
+  /** Display range for the optional male detail table. */
+  maleDetailedTableRangeLabel?: string;
+  /** Abbreviation used in detailed-table headers, such as "It." for Italian. */
+  detailedTableNativeShortLabel?: string;
+  /** Source/method text displayed beneath the copied interracial tables. */
+  mixedMarriageSourceNote?: ReactNode;
+  /** Source/method text displayed beneath the LGBT charts. */
+  lgbtSourceNote?: ReactNode;
+  marriageRatesSourceNote?: ReactNode;
+  marriageAgeSourceNote?: ReactNode;
 };
 
 export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
@@ -647,6 +779,18 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
   maleSeries = MALE_SERIES,
   lgbtSeries = LGBT_SERIES,
   nativeAdj = 'German',
+  ratesOnly = false,
+  showLgbt = true,
+  mixedMarriageRangeLabel = '2000–2025',
+  femaleDetailedTableRows,
+  femaleDetailedTableRangeLabel = mixedMarriageRangeLabel,
+  maleDetailedTableRows,
+  maleDetailedTableRangeLabel = mixedMarriageRangeLabel,
+  detailedTableNativeShortLabel = nativeAdj,
+  mixedMarriageSourceNote,
+  lgbtSourceNote,
+  marriageRatesSourceNote,
+  marriageAgeSourceNote,
 }: GermanyMarriagesSectionProps = {}) {
   const femaleAggregate = aggregateMarriageSeries(femaleSeries);
   const maleAggregate = aggregateMarriageSeries(maleSeries);
@@ -654,19 +798,44 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
   const femaleLineConfig = buildMarriageLineConfig(nativeAdj, 'F', 'M');
   const maleLineConfig = buildMarriageLineConfig(nativeAdj, 'M', 'F');
 
+  if (ratesOnly) {
+    return (
+      <div className="flex flex-col gap-3">
+        <CollapsibleFlagSection title="Marriage rates" count={2} defaultOpen>
+          <div className="flex flex-col gap-3">
+            <MarriageRatesVolumeCrudeCard
+              series={marriageRatesSeries}
+              sourceNote={marriageRatesSourceNote}
+            />
+            <MarriageRatesAgeLineCard
+              series={marriageRatesSeries}
+              sourceNote={marriageAgeSourceNote}
+            />
+          </div>
+        </CollapsibleFlagSection>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <CollapsibleFlagSection title="Marriage rates" count={2} defaultOpen>
         <div className="flex flex-col gap-3">
-          <MarriageRatesVolumeCrudeCard series={marriageRatesSeries} />
-          <MarriageRatesAgeLineCard series={marriageRatesSeries} />
+          <MarriageRatesVolumeCrudeCard
+            series={marriageRatesSeries}
+            sourceNote={marriageRatesSourceNote}
+          />
+          <MarriageRatesAgeLineCard
+            series={marriageRatesSeries}
+            sourceNote={marriageAgeSourceNote}
+          />
         </div>
       </CollapsibleFlagSection>
 
       <CollapsibleFlagSection title="Interracial marriages" count={9} defaultOpen>
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <MarriageSummaryCard title="Total marraiges" value={totalMarriagesAggregate.toLocaleString('en-US')} />
+            <MarriageSummaryCard title="Total marriages" value={totalMarriagesAggregate.toLocaleString('en-US')} />
             <MarriageSummaryCard title={`Total interracial marriages (${nativeAdj} Female)`} value={femaleAggregate.nonGermanTotal.toLocaleString('en-US')} />
             <MarriageSummaryCard title={`Total interracial marriages (${nativeAdj} Male)`} value={maleAggregate.nonGermanTotal.toLocaleString('en-US')} />
           </div>
@@ -676,6 +845,7 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
               title={`${nativeAdj} female marriages (pie)`}
               aggregate={femaleAggregate}
               nativeAdj={nativeAdj}
+              rangeLabel={mixedMarriageRangeLabel}
               labels={{
                 european: `${nativeAdj} F + European (non-${nativeAdj}) M`,
                 african: `${nativeAdj} F + African M`,
@@ -687,6 +857,7 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
               title={`${nativeAdj} male marriages (pie)`}
               aggregate={maleAggregate}
               nativeAdj={nativeAdj}
+              rangeLabel={mixedMarriageRangeLabel}
               labels={{
                 european: `${nativeAdj} M + European (non-${nativeAdj}) F`,
                 african: `${nativeAdj} M + African F`,
@@ -699,38 +870,76 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
           <MarriageLineCard title={`${nativeAdj} female marriages by category (line)`} data={femaleSeries} chartConfig={femaleLineConfig} nativeAdj={nativeAdj} />
           <MarriageLineCard title={`${nativeAdj} male marriages by category (line)`} data={maleSeries} chartConfig={maleLineConfig} nativeAdj={nativeAdj} />
 
-          <MarriageDataTableCard
-            title={`${nativeAdj} female marriages table`}
-            data={femaleSeries}
-            prefix="F"
-            nativeAdj={nativeAdj}
-            europeanLabel={`${nativeAdj} F + European (non-${nativeAdj}) M`}
-            nonEuropeanLabel={`${nativeAdj} F + Non-European M`}
-            africanLabel={`${nativeAdj} F + African M`}
-            arabLabel={`${nativeAdj} F + Arab M`}
-            asianIndianLabel={`${nativeAdj} F + Asian/Indian M`}
-          />
-          <MarriageDataTableCard
-            title={`${nativeAdj} male marriages table`}
-            data={maleSeries}
-            prefix="M"
-            nativeAdj={nativeAdj}
-            europeanLabel={`${nativeAdj} M + European (non-${nativeAdj}) F`}
-            nonEuropeanLabel={`${nativeAdj} M + Non-European F`}
-            africanLabel={`${nativeAdj} M + African F`}
-            arabLabel={`${nativeAdj} M + Arab F`}
-            asianIndianLabel={`${nativeAdj} M + Asian/Indian F`}
-          />
+          {femaleDetailedTableRows ? (
+            <MarriageDetailedDataTableCard
+              title={`${nativeAdj} female marriages table`}
+              data={femaleDetailedTableRows}
+              nativeAdj={nativeAdj}
+              nativeShortLabel={detailedTableNativeShortLabel}
+              nativeSex="F"
+              spouseSex="M"
+              rangeLabel={femaleDetailedTableRangeLabel}
+            />
+          ) : (
+            <MarriageDataTableCard
+              title={`${nativeAdj} female marriages table`}
+              data={femaleSeries}
+              prefix="F"
+              nativeAdj={nativeAdj}
+              europeanLabel={`${nativeAdj} F + European (non-${nativeAdj}) M`}
+              nonEuropeanLabel={`${nativeAdj} F + Non-European M`}
+              africanLabel={`${nativeAdj} F + African M`}
+              arabLabel={`${nativeAdj} F + Arab M`}
+              asianIndianLabel={`${nativeAdj} F + Asian/Indian M`}
+              rangeLabel={mixedMarriageRangeLabel}
+            />
+          )}
+          {maleDetailedTableRows ? (
+            <MarriageDetailedDataTableCard
+              title={`${nativeAdj} male marriages table`}
+              data={maleDetailedTableRows}
+              nativeAdj={nativeAdj}
+              nativeShortLabel={detailedTableNativeShortLabel}
+              nativeSex="M"
+              spouseSex="F"
+              rangeLabel={maleDetailedTableRangeLabel}
+            />
+          ) : (
+            <MarriageDataTableCard
+              title={`${nativeAdj} male marriages table`}
+              data={maleSeries}
+              prefix="M"
+              nativeAdj={nativeAdj}
+              europeanLabel={`${nativeAdj} M + European (non-${nativeAdj}) F`}
+              nonEuropeanLabel={`${nativeAdj} M + Non-European F`}
+              africanLabel={`${nativeAdj} M + African F`}
+              arabLabel={`${nativeAdj} M + Arab F`}
+              asianIndianLabel={`${nativeAdj} M + Asian/Indian F`}
+              rangeLabel={mixedMarriageRangeLabel}
+            />
+          )}
+          {mixedMarriageSourceNote ? (
+            <div className="font-sans text-[10px] leading-relaxed text-neutral-500">
+              {mixedMarriageSourceNote}
+            </div>
+          ) : null}
         </div>
       </CollapsibleFlagSection>
 
-      <CollapsibleFlagSection title="LGBT marriages" count={5} defaultOpen>
-        <div className="flex flex-col gap-3">
-          <LgbtSummaryRow series={lgbtSeries} />
-          <LgbtPieCard series={lgbtSeries} />
-          <LgbtLineCard series={lgbtSeries} />
-        </div>
-      </CollapsibleFlagSection>
+      {showLgbt ? (
+        <CollapsibleFlagSection title="LGBT marriages" count={5} defaultOpen>
+          <div className="flex flex-col gap-3">
+            <LgbtSummaryRow series={lgbtSeries} />
+            <LgbtPieCard series={lgbtSeries} />
+            <LgbtLineCard series={lgbtSeries} />
+            {lgbtSourceNote ? (
+              <div className="font-sans text-[10px] leading-relaxed text-neutral-500">
+                {lgbtSourceNote}
+              </div>
+            ) : null}
+          </div>
+        </CollapsibleFlagSection>
+      ) : null}
     </div>
   );
 });

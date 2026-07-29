@@ -23,10 +23,16 @@ export function AppLayout({
         transparent ? 'bg-transparent' : 'bg-[var(--bg)]',
       ].join(' ')}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[1000] focus:rounded-md focus:bg-[var(--card)] focus:px-4 focus:py-3 focus:text-sm focus:text-[var(--fg)] focus:shadow-soft"
+      >
+        Skip to content
+      </a>
       {showHeader ? (
         <header
           className={[
-            'sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--shell-header)] shadow-header backdrop-blur-md supports-[backdrop-filter]:bg-[var(--shell-header)]',
+            'sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--shell-header)] shadow-header',
             headerClassName,
           ]
             .filter(Boolean)
@@ -35,7 +41,9 @@ export function AppLayout({
           <Header />
         </header>
       ) : null}
-      <main className={showHeader ? '' : 'min-h-screen'}>{children}</main>
+      <main id="main-content" tabIndex={-1} className={showHeader ? '' : 'min-h-screen'}>
+        {children}
+      </main>
     </div>
   );
 }

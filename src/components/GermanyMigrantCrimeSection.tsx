@@ -469,20 +469,26 @@ const deportationReentryChartConfig = {
 export function GermanyYearlyDeportationsChart({
   series = DEPORTATION_TREND_SERIES,
   countryLabel = 'Germany',
+  description = 'Deported migrants recorded per calendar year.',
+  sourceNote,
 }: {
   series?: readonly DeportationTrendRow[];
   countryLabel?: string;
+  description?: string;
+  sourceNote?: string;
 } = {}) {
   const fill = yearlyDeportationsChartConfig.yearlyDeported.color ?? '#34d399';
+  const firstYear = series[0]?.year ?? '';
+  const lastYear = series[series.length - 1]?.year ?? '';
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Yearly deportations ({countryLabel}, 2000-2025)
+          Yearly deportations ({countryLabel}, {firstYear}-{lastYear})
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Deported migrants recorded per calendar year.
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -534,6 +540,9 @@ export function GermanyYearlyDeportationsChart({
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {sourceNote ? (
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-600">{sourceNote}</p>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -542,10 +551,28 @@ export function GermanyYearlyDeportationsChart({
 export function GermanyDeportationReentryChart({
   series = DEPORTATION_REENTRY_BY_YEAR,
   countryLabel = 'Germany',
+  title,
+  description,
+  barLabel = 'Returned after deportation',
+  lineLabel = 'Share of deported who returned',
+  summaryCountLabel = 'returned',
+  summaryPctLabel = 'overall re-entry rate',
+  sourceNote,
 }: {
   series?: readonly DeportationReentryRow[];
   countryLabel?: string;
+  title?: string;
+  description?: string;
+  barLabel?: string;
+  lineLabel?: string;
+  summaryCountLabel?: string;
+  summaryPctLabel?: string;
+  sourceNote?: string;
 } = {}) {
+  const resolvedConfig = {
+    returnedCount: { ...deportationReentryChartConfig.returnedCount, label: barLabel },
+    returnPct: { ...deportationReentryChartConfig.returnPct, label: lineLabel },
+  } satisfies ChartConfig;
   // Derive the summary line from the series so it matches whichever country's data is passed in.
   const reentryTotalReturned = series.reduce((n, r) => n + r.returnedCount, 0);
   const reentryTotalDeported = series.reduce(
@@ -559,15 +586,15 @@ export function GermanyDeportationReentryChart({
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Immigrants who returned to {countryLabel} after deportation
+          {title ?? `Immigrants who returned to ${countryLabel} after deportation`}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Bars show the number of deported immigrants who returned; line shows the percentage of deported who returned
-          that year.
+          {description ??
+            'Bars show the number of deported immigrants who returned; line shows the percentage of deported who returned that year.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={deportationReentryChartConfig} className="h-[360px] w-full font-sans">
+        <ChartContainer config={resolvedConfig} className="h-[360px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={[...series]} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -615,7 +642,7 @@ export function GermanyDeportationReentryChart({
                 wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
                 formatter={(value) => (
                   <span className="text-neutral-400">
-                    {deportationReentryChartConfig[value as keyof typeof deportationReentryChartConfig]?.label ??
+                    {resolvedConfig[value as keyof typeof resolvedConfig]?.label ??
                       String(value)}
                   </span>
                 )}
@@ -624,7 +651,7 @@ export function GermanyDeportationReentryChart({
                 yAxisId="count"
                 dataKey="returnedCount"
                 name="returnedCount"
-                fill={deportationReentryChartConfig.returnedCount.color}
+                fill={resolvedConfig.returnedCount.color}
                 radius={[4, 4, 0, 0]}
                 maxBarSize={28}
                 isAnimationActive={false}
@@ -634,7 +661,7 @@ export function GermanyDeportationReentryChart({
                 type="monotone"
                 dataKey="returnPct"
                 name="returnPct"
-                stroke={deportationReentryChartConfig.returnPct.color}
+                stroke={resolvedConfig.returnPct.color}
                 strokeWidth={2.25}
                 dot={{ r: 2 }}
                 activeDot={{ r: 4 }}
@@ -644,9 +671,12 @@ export function GermanyDeportationReentryChart({
           </ResponsiveContainer>
         </ChartContainer>
         <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
-          Total ({reentryFirstYear}–{reentryLastYear}): ~{reentryTotalReturned.toLocaleString('en-US')} returned · ~
-          {reentryOverallPct.toFixed(1)}% overall re-entry rate.
+          Total ({reentryFirstYear}–{reentryLastYear}): ~{reentryTotalReturned.toLocaleString('en-US')}{' '}
+          {summaryCountLabel} · ~{reentryOverallPct.toFixed(1)}% {summaryPctLabel}.
         </p>
+        {sourceNote ? (
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-600">{sourceNote}</p>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -655,9 +685,13 @@ export function GermanyDeportationReentryChart({
 export function GermanyDeportationTrendChart({
   series = DEPORTATION_TREND_SERIES,
   countryLabel = 'Germany',
+  description = 'Cumulative deported migrants (left axis) and deportation rate per 100k migrants (right axis). Hover a series to focus it.',
+  sourceNote,
 }: {
   series?: readonly DeportationTrendRow[];
   countryLabel?: string;
+  description?: string;
+  sourceNote?: string;
 } = {}) {
   const [hoveredKey, setHoveredKey] = useState<DeportationSeriesKey | null>(null);
   const isDimmed = (key: DeportationSeriesKey) => hoveredKey !== null && hoveredKey !== key;
@@ -684,11 +718,10 @@ export function GermanyDeportationTrendChart({
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Migrant deportations ({countryLabel}, 2000-2025)
+          Migrant deportations ({countryLabel}, {trendFirst?.year}-{trendLast?.year})
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-          Cumulative deported migrants (left axis) and deportation rate per 100k migrants (right axis). Hover a series
-          to focus it.
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -796,6 +829,9 @@ export function GermanyDeportationTrendChart({
             {peakRateRow?.deportationRateDisplay} peak ({peakRateRow?.year}) to a {troughRateRow?.deportationRateDisplay}{' '}
             trough ({troughRateRow?.year}), ending at {trendLast?.deportationRateDisplay} in {trendLast?.year}.
           </p>
+          {sourceNote ? (
+            <p className="font-sans text-[10px] leading-relaxed text-neutral-600">{sourceNote}</p>
+          ) : null}
         </div>
       </CardContent>
     </Card>

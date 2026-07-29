@@ -308,10 +308,17 @@ const PUBLIC_OPINION_IMMIGRATION = [
 ] as const;
 
 const publicOpinionChartConfig = {
+  publicOpinion: { label: 'Public opinion on immigration', color: '#f97316' },
   tooManyImmigrants: { label: '"Too many immigrants" agree', color: '#f97316' },
   fasterDeportations: { label: 'Deport failed asylum seekers faster', color: '#a78bfa' },
   strongerBorderControl: { label: 'Strengthen border control', color: '#22d3ee' },
 } satisfies ChartConfig;
+
+type PublicOpinionSeriesKey =
+  | 'publicOpinion'
+  | 'tooManyImmigrants'
+  | 'fasterDeportations'
+  | 'strongerBorderControl';
 
 type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
 
@@ -632,7 +639,7 @@ const SERIES_ORDER: readonly { key: MigrantArrivalsSeriesKey; label: string }[] 
   { key: 'africa', label: 'Africa' },
 ];
 
-function GermanyMigrantArrivalsInteractiveChart({
+export function GermanyMigrantArrivalsInteractiveChart({
   data = MIGRANT_ARRIVALS_SERIES,
 }: {
   data?: readonly MigrantArrivalsRow[];
@@ -796,13 +803,21 @@ function GermanyMigrantArrivalsInteractiveChart({
 
 const TOTAL_MIGRANTS_LINE = '#a78bfa';
 
-function GermanyTotalMigrantsMigrationBackgroundChart({
+export function GermanyTotalMigrantsMigrationBackgroundChart({
   data = TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR,
+  seriesLabel = 'Total migrants (migration background)',
 }: {
   data?: readonly MigrationBackgroundRow[];
+  seriesLabel?: string;
 }) {
+  const resolvedConfig = {
+    migrants: {
+      ...totalMigrantsMigrationBackgroundChartConfig.migrants,
+      label: seriesLabel,
+    },
+  } satisfies ChartConfig;
   return (
-    <ChartContainer config={totalMigrantsMigrationBackgroundChartConfig} className="h-[340px] w-full font-sans">
+    <ChartContainer config={resolvedConfig} className="h-[340px] w-full font-sans">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={[...data]} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -841,7 +856,7 @@ function GermanyTotalMigrantsMigrationBackgroundChart({
           <Line
             type="monotone"
             dataKey="migrants"
-            name="Total migrants (migration background)"
+            name={seriesLabel}
             stroke={TOTAL_MIGRANTS_LINE}
             strokeWidth={2.5}
             dot={{ r: 2 }}
@@ -854,7 +869,14 @@ function GermanyTotalMigrantsMigrationBackgroundChart({
   );
 }
 
-type ContributionRow = { group: string; paid: string; received: string; net: string };
+type ContributionRow = {
+  group: string;
+  paid: string;
+  payerShare?: string;
+  overallPaid?: string;
+  received: string;
+  net: string;
+};
 type WelfareRow = { nationality: string; recipients: string; share: string; notes: string };
 type OriginCountRow = { country: string; count: number };
 type RegionAsylumRow = {
@@ -915,47 +937,80 @@ type GermanyImmigrationSectionProps = {
   /** Refugee / protection-holder stock tile (defaults to Germany). */
   refugeesValue?: number;
   refugeesNote?: string;
+  refugeesLabel?: string;
   /** Work / economic visa tile (defaults to Germany). */
   workVisasValue?: number;
   workVisasNote?: string;
+  workVisasLabel?: string;
   /** Migration-background population tile (defaults to Germany). */
   migrantBackgroundValue?: number;
   migrantBackgroundNote?: string;
+  migrantBackgroundLabel?: string;
   /** Country label woven into chart titles/descriptions (e.g. "France"). */
   countryLabel?: string;
   /** "Total amount of migrants (migration background)" line series. */
   migrationBackgroundByYear?: readonly MigrationBackgroundRow[];
+  migrationBackgroundTitle?: string;
+  migrationBackgroundDesc?: string;
+  migrationBackgroundSeriesLabel?: string;
   /** "Migrant arrivals by origin" interactive series. */
   migrantArrivalsSeries?: readonly MigrantArrivalsRow[];
+  migrantArrivalsTitle?: string;
+  migrantArrivalsDesc?: string;
   /** Deportation trend + yearly bar series (2000–2025). */
   deportationTrendSeries?: readonly DeportationTrendRow[];
   /** Deportation re-entry series (2000–2025). */
   deportationReentrySeries?: readonly DeportationReentryRow[];
+  deportationSourceNote?: string;
+  deportationReentryTitle?: string;
+  deportationReentryDesc?: string;
+  deportationReentryBarLabel?: string;
+  deportationReentryLineLabel?: string;
+  deportationReentrySummaryCountLabel?: string;
+  deportationReentrySummaryPctLabel?: string;
   /** Immigrant-origin treemap items (default: Germany's bundled CSV). */
   treemapItems?: readonly GermanyImmigrationTreemapItem[];
   /** Footnote under the treemap (default: Germany's source text). */
   treemapNote?: string;
   /** Healthcare & social-housing usage share series (2000–2025). */
   healthcareHousingSeries?: readonly { year: string; socialHousingShare: number; healthcareShare: number }[];
+  healthcareHousingTitle?: string;
+  healthcareHousingDesc?: string;
+  healthcareHousingLabels?: { first: string; second: string };
+  healthcareHousingYDomain?: [number, number];
   /** Public-opinion-on-immigration series (2000–2025) + its description. */
   publicOpinionSeries?: readonly {
     year: string;
-    tooManyImmigrants: number;
-    fasterDeportations: number;
-    strongerBorderControl: number;
+    publicOpinion?: number;
+    tooManyImmigrants?: number;
+    fasterDeportations?: number;
+    strongerBorderControl?: number;
   }[];
   publicOpinionDesc?: string;
+  publicOpinionTitle?: string;
+  publicOpinionLabels?: { first: string; second: string; third: string };
+  publicOpinionYDomain?: [number, number];
+  publicOpinionSeriesKeys?: readonly PublicOpinionSeriesKey[];
   /** Language-proficiency-by-origin bar series + its description. */
   languageIntegrationSeries?: readonly { origin: string; b1PlusRate: number }[];
+  languageIntegrationTitle?: string;
   languageIntegrationDesc?: string;
+  languageIntegrationMetricLabel?: string;
   /** Net-fiscal-contribution table + supporting notes. */
   contributionRows?: readonly ContributionRow[];
   contributionNotes?: { welfareUsage: string; ageControlled: string; rawView: string; sourceLabel: string; sourceHref: string };
+  contributionTitle?: string;
+  contributionDesc?: string;
+  contributionTableTitle?: string;
+  contributionTableDesc?: string;
+  contributionPeriodLabel?: string;
   /** Welfare-by-nationality table (Bürgergeld → RSA for France). */
   welfareTitle?: string;
   welfareDesc?: string;
   welfareRows?: readonly WelfareRow[];
   welfareNote?: ReactNode;
+  welfareFirstColumnLabel?: string;
+  welfareShareColumnLabel?: string;
   /** Refugee-origins bar chart. */
   refugeeOriginsTitle?: string;
   refugeeBreakdown?: readonly OriginCountRow[];
@@ -966,6 +1021,13 @@ type GermanyImmigrationSectionProps = {
   asylumSeekersWomen?: number;
   /** Asylum-applications pie (by country of origin). */
   asylumApplications?: readonly AsylumApplicationRow[];
+  asylumSectionTitle?: string;
+  asylumSectionDesc?: string;
+  asylumTotalLabel?: string;
+  asylumMenLabel?: string;
+  asylumWomenLabel?: string;
+  asylumApplicationsTitle?: string;
+  asylumApplicationsDesc?: string;
   /** Advocates subsection overrides (forwarded to GermanyImmigrationAdvocatesSubsection). */
   advocates?: readonly AdvocateCard[];
   advocatesHeading?: string;
@@ -976,28 +1038,71 @@ type GermanyImmigrationSectionProps = {
 export const GermanyImmigrationSection = memo(function GermanyImmigrationSection({
   refugeesValue = REFUGEE_TOTAL_2024,
   refugeesNote = 'Germany, 2024.',
+  refugeesLabel = 'Refugees',
   workVisasValue = WORK_VISAS_2021_2025,
   workVisasNote = 'Issued from 2021 to 2025.',
+  workVisasLabel = 'Work Visas',
   migrantBackgroundValue = MIGRANT_BACKGROUND_2024_2025,
   migrantBackgroundNote = 'Germany, 2024–2025.',
+  migrantBackgroundLabel = 'Migrant Background',
   countryLabel = 'Germany',
   migrationBackgroundByYear,
+  migrationBackgroundTitle = 'Total amount of migrants (migration background)',
+  migrationBackgroundDesc,
+  migrationBackgroundSeriesLabel = 'Total migrants (migration background)',
   migrantArrivalsSeries,
+  migrantArrivalsTitle,
+  migrantArrivalsDesc,
   deportationTrendSeries,
   deportationReentrySeries,
+  deportationSourceNote,
+  deportationReentryTitle,
+  deportationReentryDesc,
+  deportationReentryBarLabel,
+  deportationReentryLineLabel,
+  deportationReentrySummaryCountLabel,
+  deportationReentrySummaryPctLabel,
   treemapItems,
   treemapNote = 'Immigrant counts by country of origin (2024 flow). Source metadata in CSV: PopulationPyramid.net Germany Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales to the panel width so the full treemap is visible without horizontal scrolling.',
   healthcareHousingSeries = HEALTHCARE_SOCIAL_HOUSING_USAGE,
+  healthcareHousingTitle = 'Healthcare and social-housing usage share by recent immigrants',
+  healthcareHousingDesc = 'Long-run trend from 2000-2025 for social housing share and healthcare spending share.',
+  healthcareHousingLabels = {
+    first: healthcareHousingChartConfig.socialHousingShare.label,
+    second: healthcareHousingChartConfig.healthcareShare.label,
+  },
+  healthcareHousingYDomain = [0, 50],
   publicOpinionSeries = PUBLIC_OPINION_IMMIGRATION,
   publicOpinionDesc = 'Share agreeing with key immigration statements in Germany, 2000-2025.',
+  publicOpinionTitle = 'Public opinion on immigration',
+  publicOpinionLabels = {
+    first: publicOpinionChartConfig.tooManyImmigrants.label,
+    second: publicOpinionChartConfig.fasterDeportations.label,
+    third: publicOpinionChartConfig.strongerBorderControl.label,
+  },
+  publicOpinionYDomain = [50, 85],
+  publicOpinionSeriesKeys = [
+    'tooManyImmigrants',
+    'fasterDeportations',
+    'strongerBorderControl',
+  ],
   languageIntegrationSeries = LANGUAGE_PROFICIENCY_INTEGRATION_2025,
+  languageIntegrationTitle = 'Language proficiency and integration rates by origin (2025)',
   languageIntegrationDesc = 'Share of each origin group reaching B1 German or higher after 5 years.',
+  languageIntegrationMetricLabel = languageIntegrationChartConfig.b1PlusRate.label,
   contributionRows = GERMANY_CONTRIBUTION_ROWS,
   contributionNotes = GERMANY_CONTRIBUTION_NOTES,
+  contributionTitle = 'Contribution',
+  contributionDesc = 'Tax contribution per group.',
+  contributionTableTitle,
+  contributionTableDesc,
+  contributionPeriodLabel = 'Welfare Usage (2025)',
   welfareTitle = GERMANY_WELFARE_TITLE,
   welfareDesc = GERMANY_WELFARE_DESC,
   welfareRows = GERMANY_WELFARE_ROWS,
   welfareNote = GERMANY_WELFARE_NOTE,
+  welfareFirstColumnLabel = 'Nationality',
+  welfareShareColumnLabel = '% of All Foreign Recipients',
   refugeeOriginsTitle = 'Refugee origins in Germany (2024)',
   refugeeBreakdown = REFUGEE_BREAKDOWN_2024,
   asylumByRegion = ILLEGAL_ASYLUM_SEEKERS_BY_YEAR,
@@ -1005,6 +1110,13 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   asylumSeekersMen = ASYLUM_SEEKERS_MEN,
   asylumSeekersWomen = ASYLUM_SEEKERS_WOMEN,
   asylumApplications,
+  asylumSectionTitle = 'Illegal Asylum Seekers',
+  asylumSectionDesc = 'Annual asylum applications by region of origin (2000–2025). Stacked bars show regional composition; line marks reported total applications.',
+  asylumTotalLabel = 'Total Asylum Seekers',
+  asylumMenLabel = 'Men',
+  asylumWomenLabel = 'Women',
+  asylumApplicationsTitle = 'Asylum applications [note for 2025]',
+  asylumApplicationsDesc = 'Applicants by country of origin, includes "Other" (counts + share %).',
   advocates,
   advocatesHeading,
   advocatesIntro,
@@ -1021,6 +1133,43 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   }, [asylumApplications]);
   const asylumMenPct = asylumSeekersTotal > 0 ? (asylumSeekersMen / asylumSeekersTotal) * 100 : 0;
   const asylumWomenPct = asylumSeekersTotal > 0 ? (asylumSeekersWomen / asylumSeekersTotal) * 100 : 0;
+  const hasContributionPayerDetails = contributionRows.some(
+    (row) => row.payerShare || row.overallPaid,
+  );
+  const resolvedHealthcareHousingConfig = {
+    socialHousingShare: {
+      ...healthcareHousingChartConfig.socialHousingShare,
+      label: healthcareHousingLabels.first,
+    },
+    healthcareShare: {
+      ...healthcareHousingChartConfig.healthcareShare,
+      label: healthcareHousingLabels.second,
+    },
+  } satisfies ChartConfig;
+  const resolvedPublicOpinionConfig = {
+    publicOpinion: {
+      ...publicOpinionChartConfig.publicOpinion,
+      label: publicOpinionLabels.first,
+    },
+    tooManyImmigrants: {
+      ...publicOpinionChartConfig.tooManyImmigrants,
+      label: publicOpinionLabels.first,
+    },
+    fasterDeportations: {
+      ...publicOpinionChartConfig.fasterDeportations,
+      label: publicOpinionLabels.second,
+    },
+    strongerBorderControl: {
+      ...publicOpinionChartConfig.strongerBorderControl,
+      label: publicOpinionLabels.third,
+    },
+  } satisfies ChartConfig;
+  const resolvedLanguageIntegrationConfig = {
+    b1PlusRate: {
+      ...languageIntegrationChartConfig.b1PlusRate,
+      label: languageIntegrationMetricLabel,
+    },
+  } satisfies ChartConfig;
   const [items, setItems] = useState<GermanyImmigrationTreemapItem[]>(() =>
     treemapItems ? [...treemapItems] : [],
   );
@@ -1072,7 +1221,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
-          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Refugees</p>
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{refugeesLabel}</p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {refugeesValue.toLocaleString('en-US')}
           </p>
@@ -1081,7 +1230,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Work Visas
+            {workVisasLabel}
           </p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {workVisasValue.toLocaleString('en-US')}
@@ -1091,7 +1240,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
         <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-            Migrant Background
+            {migrantBackgroundLabel}
           </p>
           <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
             {migrantBackgroundValue.toLocaleString('en-US')}
@@ -1103,25 +1252,29 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Total amount of migrants (migration background)
+            {migrationBackgroundTitle}
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Persons with migration background in {countryLabel} (2000–2025). Hover points for exact counts.
+            {migrationBackgroundDesc ??
+              `Persons with migration background in ${countryLabel} (2000–2025). Hover points for exact counts.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <GermanyTotalMigrantsMigrationBackgroundChart data={migrationBackgroundByYear} />
+          <GermanyTotalMigrantsMigrationBackgroundChart
+            data={migrationBackgroundByYear}
+            seriesLabel={migrationBackgroundSeriesLabel}
+          />
         </CardContent>
       </Card>
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Migrant arrivals by origin ({countryLabel})
+            {migrantArrivalsTitle ?? `Migrant arrivals by origin (${countryLabel})`}
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Four series on a single arrivals axis (compact ticks). Approximate labels keep ~ / + in tooltips; lines use
-            rounded numeric values.
+            {migrantArrivalsDesc ??
+              'Four series on a single arrivals axis (compact ticks). Approximate labels keep ~ / + in tooltips; lines use rounded numeric values.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
@@ -1129,21 +1282,39 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
         </CardContent>
       </Card>
 
-      <GermanyDeportationTrendChart series={deportationTrendSeries} countryLabel={countryLabel} />
-      <GermanyYearlyDeportationsChart series={deportationTrendSeries} countryLabel={countryLabel} />
-      <GermanyDeportationReentryChart series={deportationReentrySeries} countryLabel={countryLabel} />
+      <GermanyDeportationTrendChart
+        series={deportationTrendSeries}
+        countryLabel={countryLabel}
+        sourceNote={deportationSourceNote}
+      />
+      <GermanyYearlyDeportationsChart
+        series={deportationTrendSeries}
+        countryLabel={countryLabel}
+        sourceNote={deportationSourceNote}
+      />
+      <GermanyDeportationReentryChart
+        series={deportationReentrySeries}
+        countryLabel={countryLabel}
+        title={deportationReentryTitle}
+        description={deportationReentryDesc}
+        barLabel={deportationReentryBarLabel}
+        lineLabel={deportationReentryLineLabel}
+        summaryCountLabel={deportationReentrySummaryCountLabel}
+        summaryPctLabel={deportationReentrySummaryPctLabel}
+        sourceNote={deportationSourceNote}
+      />
 
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Language proficiency and integration rates by origin (2025)
+            {languageIntegrationTitle}
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
             {languageIntegrationDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <ChartContainer config={languageIntegrationChartConfig} className="h-[320px] w-full font-sans">
+          <ChartContainer config={resolvedLanguageIntegrationConfig} className="h-[320px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={[...languageIntegrationSeries]}
@@ -1180,7 +1351,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 <Bar
                   dataKey="b1PlusRate"
                   name="b1PlusRate"
-                  fill={languageIntegrationChartConfig.b1PlusRate.color}
+                  fill={resolvedLanguageIntegrationConfig.b1PlusRate.color}
                   radius={[0, 6, 6, 0]}
                   isAnimationActive={false}
                 />
@@ -1203,14 +1374,14 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Healthcare and social-housing usage share by recent immigrants
+            {healthcareHousingTitle}
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-            Long-run trend from 2000-2025 for social housing share and healthcare spending share.
+            {healthcareHousingDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <ChartContainer config={healthcareHousingChartConfig} className="h-[340px] w-full font-sans">
+          <ChartContainer config={resolvedHealthcareHousingConfig} className="h-[340px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={[...healthcareHousingSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1224,7 +1395,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   height={42}
                 />
                 <YAxis
-                  domain={[0, 50]}
+                  domain={healthcareHousingYDomain}
                   axisLine={false}
                   tickLine={false}
                   width={46}
@@ -1239,8 +1410,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
                   formatter={(value) => <span className="text-neutral-400">{value}</span>}
                 />
-                <Line type="monotone" dataKey="socialHousingShare" name={healthcareHousingChartConfig.socialHousingShare.label} stroke={healthcareHousingChartConfig.socialHousingShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="healthcareShare" name={healthcareHousingChartConfig.healthcareShare.label} stroke={healthcareHousingChartConfig.healthcareShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="socialHousingShare" name={resolvedHealthcareHousingConfig.socialHousingShare.label} stroke={resolvedHealthcareHousingConfig.socialHousingShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="healthcareShare" name={resolvedHealthcareHousingConfig.healthcareShare.label} stroke={resolvedHealthcareHousingConfig.healthcareShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -1250,14 +1421,14 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
       <Card className="col-span-full border-line bg-surface-metric shadow-card">
         <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
           <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            Public opinion on immigration
+            {publicOpinionTitle}
           </CardTitle>
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
             {publicOpinionDesc}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <ChartContainer config={publicOpinionChartConfig} className="h-[340px] w-full font-sans">
+          <ChartContainer config={resolvedPublicOpinionConfig} className="h-[340px] w-full font-sans">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={[...publicOpinionSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1271,7 +1442,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   height={42}
                 />
                 <YAxis
-                  domain={[50, 85]}
+                  domain={publicOpinionYDomain}
                   axisLine={false}
                   tickLine={false}
                   width={44}
@@ -1286,9 +1457,18 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
                   formatter={(value) => <span className="text-neutral-400">{value}</span>}
                 />
-                <Line type="monotone" dataKey="tooManyImmigrants" name={publicOpinionChartConfig.tooManyImmigrants.label} stroke={publicOpinionChartConfig.tooManyImmigrants.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="fasterDeportations" name={publicOpinionChartConfig.fasterDeportations.label} stroke={publicOpinionChartConfig.fasterDeportations.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="strongerBorderControl" name={publicOpinionChartConfig.strongerBorderControl.label} stroke={publicOpinionChartConfig.strongerBorderControl.color} strokeWidth={2.25} dot={false} isAnimationActive={false} />
+                {publicOpinionSeriesKeys.includes('publicOpinion') && (
+                  <Line type="monotone" dataKey="publicOpinion" name={resolvedPublicOpinionConfig.publicOpinion.label} stroke={resolvedPublicOpinionConfig.publicOpinion.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('tooManyImmigrants') && (
+                  <Line type="monotone" dataKey="tooManyImmigrants" name={resolvedPublicOpinionConfig.tooManyImmigrants.label} stroke={resolvedPublicOpinionConfig.tooManyImmigrants.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('fasterDeportations') && (
+                  <Line type="monotone" dataKey="fasterDeportations" name={resolvedPublicOpinionConfig.fasterDeportations.label} stroke={resolvedPublicOpinionConfig.fasterDeportations.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('strongerBorderControl') && (
+                  <Line type="monotone" dataKey="strongerBorderControl" name={resolvedPublicOpinionConfig.strongerBorderControl.label} stroke={resolvedPublicOpinionConfig.strongerBorderControl.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -1304,16 +1484,42 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Contribution</CardTitle>
-          <CardDescription>Tax contribution per group.</CardDescription>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{contributionTitle}</CardTitle>
+          <CardDescription>{contributionDesc}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {(contributionTableTitle || contributionTableDesc) && (
+            <div className="space-y-1">
+              {contributionTableTitle && (
+                <h3 className="font-sans text-xs font-semibold text-neutral-200">
+                  {contributionTableTitle}
+                </h3>
+              )}
+              {contributionTableDesc && (
+                <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+                  {contributionTableDesc}
+                </p>
+              )}
+            </div>
+          )}
           <div className="scrollbar-none overflow-x-auto border border-line">
             <table className="min-w-full border-collapse text-left font-sans text-xs">
               <thead className="bg-neutral-900 text-neutral-300">
                 <tr>
                   <th className="px-3 py-2 font-medium">Group</th>
-                  <th className="px-3 py-2 text-right font-medium">Taxes + Social Contributions Paid (from work)</th>
+                  <th className="px-3 py-2 text-right font-medium">
+                    {hasContributionPayerDetails
+                      ? 'Mean contribution (among those who pay)'
+                      : 'Taxes + Social Contributions Paid (from work)'}
+                  </th>
+                  {hasContributionPayerDetails && (
+                    <>
+                      <th className="px-3 py-2 text-right font-medium">Share of group that pays</th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        Approx. overall average (including zeros)
+                      </th>
+                    </>
+                  )}
                   <th className="px-3 py-2 text-right font-medium">Other Transfers Received</th>
                   <th className="px-3 py-2 text-right font-medium">Net Contribution (Taxes Paid - Transfers Received)</th>
                 </tr>
@@ -1323,6 +1529,12 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   <tr key={row.group} className="border-t border-line">
                     <td className="px-3 py-2 text-neutral-200">{row.group}</td>
                     <td className="px-3 py-2 text-right text-neutral-100">{row.paid}</td>
+                    {hasContributionPayerDetails && (
+                      <>
+                        <td className="px-3 py-2 text-right text-neutral-100">{row.payerShare ?? '—'}</td>
+                        <td className="px-3 py-2 text-right text-neutral-100">{row.overallPaid ?? '—'}</td>
+                      </>
+                    )}
                     <td className="px-3 py-2 text-right text-neutral-100">{row.received}</td>
                     <td className="px-3 py-2 text-right text-neutral-100">{row.net}</td>
                   </tr>
@@ -1333,7 +1545,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
           <div className="grid grid-cols-1 gap-3">
             <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
-              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Welfare Usage (2025)</p>
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{contributionPeriodLabel}</p>
               <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.welfareUsage}</p>
             </article>
             <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
@@ -1370,9 +1582,9 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
             <table className="min-w-full border-collapse text-left font-sans text-xs">
               <thead className="bg-neutral-900 text-neutral-300">
                 <tr>
-                  <th className="px-3 py-2 font-medium">Nationality</th>
+                  <th className="px-3 py-2 font-medium">{welfareFirstColumnLabel}</th>
                   <th className="px-3 py-2 text-right font-medium">Recipients</th>
-                  <th className="px-3 py-2 text-right font-medium">% of All Foreign Recipients</th>
+                  <th className="px-3 py-2 text-right font-medium">{welfareShareColumnLabel}</th>
                   <th className="px-3 py-2 font-medium">Notes</th>
                 </tr>
               </thead>
@@ -1445,24 +1657,21 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
       <Card className="rounded-sm border-line bg-surface-metric">
         <CardHeader className="pb-2">
-          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Illegal Asylum Seekers</CardTitle>
-          <CardDescription>
-            Annual asylum applications by region of origin (2000–2025). Stacked bars show regional composition; line
-            marks reported total applications.
-          </CardDescription>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{asylumSectionTitle}</CardTitle>
+          <CardDescription>{asylumSectionDesc}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-                Total Asylum Seekers
+                {asylumTotalLabel}
               </p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
                 {asylumSeekersTotal.toLocaleString('en-US')}
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
-              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Men</p>
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumMenLabel}</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
                 {asylumSeekersMen.toLocaleString('en-US')}
               </p>
@@ -1471,7 +1680,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
-              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Women</p>
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumWomenLabel}</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
                 {asylumSeekersWomen.toLocaleString('en-US')}
               </p>
@@ -1553,10 +1762,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
 
       <Card className="rounded-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">Asylum applications [note for 2025]</CardTitle>
-          <CardDescription>
-            Applicants by country of origin, includes &quot;Other&quot; (counts + share %).
-          </CardDescription>
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{asylumApplicationsTitle}</CardTitle>
+          <CardDescription>{asylumApplicationsDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={asylumChartConfig} className="h-[360px]">
