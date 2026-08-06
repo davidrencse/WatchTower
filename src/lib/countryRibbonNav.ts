@@ -20,9 +20,8 @@ const GFP_UNRANKED_ISO3 = new Set(['CYP', 'LIE', 'MLT', 'MCO']);
 /**
  * Stable subsection anchors aligned with CountryStatsDashboard + GermanyGovernmentSection.
  *
- * `militaryIso3` defaults to `iso3` but can point at the *actual* country when a scaffold renders
- * another country's data (Italy borrows France's `iso3`), so the ribbon's Military subsections
- * mirror the military profile that is actually on screen.
+ * `militaryIso3` defaults to `iso3` and can be supplied explicitly for older callers. The
+ * ribbon's Military subsections mirror the profile that is actually on screen.
  */
 export function buildCountryRibbonNav(iso3: string, militaryIso3: string = iso3): RibbonMainItem[] {
   const germanyLike = treatAsGermany(iso3);

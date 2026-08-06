@@ -57,3 +57,39 @@ export function parseCsvRows(raw: string): string[][] {
 
   return rows;
 }
+
+/**
+ * Case-insensitive header lookup table for a CSV header row.
+ *
+ * Keys are lowercased and stripped of the BOM that Excel-exported tables carry on their first
+ * column, so `cell(row, idx, 'Metric')` resolves whatever casing the source file happens to use.
+ */
+export function headerIndexMap(headerRow: string[]): Map<string, number> {
+  const m = new Map<string, number>();
+  headerRow.forEach((h, i) => {
+    const k = h.replace(/\uFEFF/g, '').trim().toLowerCase();
+    if (k) m.set(k, i);
+  });
+  return m;
+}
+
+/**
+ * First non-missing column value for a row, trying each candidate header name in order.
+ * Returns `''` when none of the names exist, so callers never have to null-check.
+ */
+export function cell(row: string[], idx: Map<string, number>, ...names: string[]): string {
+  for (const n of names) {
+    const i = idx.get(n.toLowerCase());
+    if (i !== undefined) return (row[i] ?? '').trim();
+  }
+  return '';
+}
+
+/**
+ * Canonical form for matching a free-text label (country name, metric name) across tables:
+ * trimmed, lowercased, and with runs of whitespace collapsed. Source CSVs disagree on casing
+ * and spacing, so every row lookup normalises both sides before comparing.
+ */
+export function normalizeLabel(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, ' ');
+}

@@ -5,12 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prerender-seo.mjs && npm run check:bundle",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
     "lint": "eslint .",
+    "audit:italy": "node scripts/audit-italy-dossier.mjs",
     "preview": "vite preview",
     "enrich:news-images": "node scripts/enrich-germany-news-images.mjs",
     "update:military-data": "node scripts/generate-military-data.mjs",
-    "update:military-equipment": "node scripts/generate-military-equipment.mjs"
+    "update:military-equipment": "node scripts/generate-military-equipment.mjs",
+    "update:globe-geometry": "node scripts/bake-world-land.mjs && node scripts/bake-world-borders.mjs && node scripts/bake-country-shapes.mjs",
+    "update:military-bases": "node scripts/bake-military-bases.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
@@ -18,9 +22,12 @@
     "clsx": "^2.1.1",
     "d3-hierarchy": "^3.1.2",
     "lucide-react": "^1.16.0",
+    "maplibre-gl": "^5.24.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.1",
+    "satellite.js": "^7.1.0",
+    "simple-icons": "^16.27.1",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {

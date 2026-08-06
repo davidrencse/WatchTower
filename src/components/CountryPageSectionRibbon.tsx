@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { cn } from '../lib/utils';
 import type { RibbonMainItem } from '../lib/countryRibbonNav';
 
@@ -186,17 +186,50 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
         hi.style.height = `${to.h}px`;
       });
     }
-  }, [activeMainId, nav]);
+  }, []);
 
   useLayoutEffect(() => {
+    const highlight = pillHighlightRef.current;
     applyPillHighlight();
     return () => {
-      pillHighlightRef.current?.getAnimations?.().forEach((a) => a.cancel());
+      highlight?.getAnimations?.().forEach((animation) => animation.cancel());
     };
   }, [applyPillHighlight]);
 
+  useEffect(() => {
+    if (!activeMainId) return;
+    const tab = tabRefs.current.get(activeMainId);
+    if (!tab) return;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
+    tab.scrollIntoView({
+      behavior: reducedMotion ? 'auto' : 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [activeMainId]);
+
+  const handleTrackKeyDown = useCallback((event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const tabs = nav
+      .map((item) => tabRefs.current.get(item.id))
+      .filter((tab): tab is HTMLButtonElement => tab != null);
+    if (tabs.length === 0) return;
+    const currentIndex = Math.max(0, tabs.indexOf(document.activeElement as HTMLButtonElement));
+    const nextIndex = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? tabs.length - 1
+        : event.key === 'ArrowLeft'
+          ? Math.max(0, currentIndex - 1)
+          : Math.min(tabs.length - 1, currentIndex + 1);
+    event.preventDefault();
+    tabs[nextIndex]?.focus();
+    tabs[nextIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [nav]);
+
   useLayoutEffect(() => {
     let raf = 0;
+    const highlight = pillHighlightRef.current;
     const schedule = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
@@ -208,7 +241,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
     return () => {
       window.removeEventListener('resize', schedule);
       if (raf) cancelAnimationFrame(raf);
-      pillHighlightRef.current?.getAnimations?.().forEach((a) => a.cancel());
+      highlight?.getAnimations?.().forEach((animation) => animation.cancel());
     };
   }, [applyPillHighlight]);
 
@@ -305,6 +338,8 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
           <div
             ref={pillTrackRef}
             data-country-ribbon-nav
+            aria-label="Country sections; use left and right arrow keys to browse"
+            onKeyDown={handleTrackKeyDown}
             className={cn(
               'scrollbar-none relative flex w-full flex-nowrap items-stretch justify-start gap-1 overflow-x-auto rounded-full border border-white/15 sm:justify-center',
               'bg-[#d4d4d8]/95 p-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]',
@@ -323,12 +358,24 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                   key={item.id}
                   ref={(el) => setTabEl(item.id, el)}
                   type="button"
+                  aria-current={selected ? 'location' : undefined}
+                  aria-haspopup={item.subsections.length > 0 ? 'dialog' : undefined}
+                  aria-expanded={item.subsections.length > 0 ? bubbleMainId === item.id : undefined}
                   className={cn(
-                    'relative z-10 flex min-h-[44px] min-w-[5.5rem] shrink-0 flex-none items-center justify-center rounded-full px-3 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:min-h-[46px] sm:min-w-0 sm:flex-1 sm:px-5 sm:text-[11px]',
+                    'relative z-10 flex min-h-[44px] min-w-[5.5rem] shrink-0 flex-none items-center justify-center rounded-full px-3 py-2 font-sans text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:min-h-[46px] sm:min-w-0 sm:flex-1 sm:px-5 sm:text-[11px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#d4d4d8]',
                     selected ? 'text-white' : 'bg-transparent text-neutral-900 hover:bg-black/[0.07]',
                   )}
-                  onClick={() => onMainClick(item.id)}
+                  onClick={(event) => {
+                    event.currentTarget.scrollIntoView({
+                      behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+                        ? 'auto'
+                        : 'smooth',
+                      block: 'nearest',
+                      inline: 'center',
+                    });
+                    onMainClick(item.id);
+                  }}
                 >
                   <span className="line-clamp-2 text-center leading-snug">{item.label}</span>
                 </button>
@@ -363,7 +410,7 @@ export const CountryPageSectionRibbon = memo(function CountryPageSectionRibbon({
                       <button
                         type="button"
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-left font-sans text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:px-4 sm:text-[11px]',
+                          'flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-left font-sans text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors duration-75 sm:px-4 sm:text-[11px]',
                           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
                           pressed
                             ? 'bg-black text-white shadow-[0_6px_18px_rgba(0,0,0,0.35)]'

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { useCountryRibbonExpandOptional } from '../context/CountryRibbonExpandContext';
 import { cn } from '../lib/utils';
@@ -25,6 +25,8 @@ type CollapsibleFlagSectionProps = {
   ribbonExpandKey?: string;
 };
 
+const CollapsibleDepthContext = createContext(0);
+
 export function CollapsibleFlagSection({
   title,
   count,
@@ -42,15 +44,26 @@ export function CollapsibleFlagSection({
   // "all collapsed on open" default) so heavy content isn't mounted for every section at once.
   const initialOpen = defaultOpen && !(collapseSignal !== undefined && collapseSignal > 0);
   const [open, setOpen] = useState(initialOpen);
-  // Mount the (chart-heavy) children the first time the section is opened, then keep them
-  // mounted (one-way latch) so state, scroll position, and chart animations persist. No
-  // scroll/visibility gating — an opened section renders its content immediately and in full.
-  const [hasOpened, setHasOpened] = useState(initialOpen);
+  // Wait for the opened details element to receive a measurable layout before mounting charts.
+  const depth = useContext(CollapsibleDepthContext);
+  const [contentReady, setContentReady] = useState(false);
   const ribbonExpand = useCountryRibbonExpandOptional();
 
-  useEffect(() => {
-    if (open) setHasOpened(true);
+  useLayoutEffect(() => {
+    if (!open) {
+      setContentReady(false);
+      return;
+    }
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => setContentReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame) cancelAnimationFrame(secondFrame);
+    };
   }, [open]);
+
   useLayoutEffect(() => {
     if (!ribbonExpandKey || !ribbonExpand) return;
     return ribbonExpand.register(ribbonExpandKey, () => {
@@ -85,6 +98,8 @@ export function CollapsibleFlagSection({
     >
       <summary className="flag-section-summary grid cursor-pointer grid-cols-[minmax(0,1fr)_4.75rem_5.5rem] items-center gap-x-3 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--card-hover)]">
         <span
+          role="heading"
+          aria-level={Math.min(6, depth + 2)}
           className={cn(
             'min-w-0',
             typeof title === 'string'
@@ -101,7 +116,7 @@ export function CollapsibleFlagSection({
         >
           {headerControls ?? <span className="block h-px w-full" aria-hidden />}
         </div>
-        <span className="flex min-w-0 shrink-0 items-center justify-end gap-2 text-[13px] font-normal text-neutral-500 tabular-nums">
+        <span className="flex min-w-0 shrink-0 items-center justify-end gap-2 text-xs font-normal text-neutral-400 tabular-nums">
           <span>{count}</span>
           <span
             className="text-neutral-400 transition-transform duration-200 group-open:rotate-180"
@@ -111,9 +126,13 @@ export function CollapsibleFlagSection({
           </span>
         </span>
       </summary>
-      <div className="wt-collapsible-content border-t border-[var(--line)] p-4">
-        {hasOpened ? children : <div aria-hidden style={{ minHeight: 240 }} />}
-      </div>
+      {open && contentReady ? (
+        <div className="wt-collapsible-content border-t border-[var(--line)] p-4">
+          <CollapsibleDepthContext.Provider value={depth + 1}>
+            {children}
+          </CollapsibleDepthContext.Provider>
+        </div>
+      ) : null}
     </details>
   );
 

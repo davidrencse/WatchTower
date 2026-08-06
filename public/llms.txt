@@ -1,0 +1,16 @@
+# WatchTower
+
+> WatchTower is an interactive country intelligence atlas covering demographics, economics, government, health, crime, migration, and security.
+
+Canonical site: https://watchtower.app/
+
+## Site structure
+
+- Home and atlas: https://watchtower.app/
+- Country dossiers use lowercase country slugs, for example: https://watchtower.app/germany
+- Dossiers may include demographics, economics, government, health, crime, migration, military, and current-events sections.
+- Figures should be read together with the source and methodology notes shown beside them.
+
+## Access policy
+
+Automated AI crawlers are disallowed by https://watchtower.app/robots.txt. This file is provided as a concise site guide for people and manually initiated tools; it does not override that policy.

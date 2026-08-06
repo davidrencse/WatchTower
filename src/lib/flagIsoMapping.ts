@@ -1,6 +1,10 @@
 /**
  * Maps `flag-of-*.png` ids to ISO 3166-1 alpha-3 codes present in
  * `Assets/Data/shared/centralized_merged_country_stats.csv` (or legacy screenshot CSV).
+ *
+ * The East Asia four (CHN / JPN / KOR / TWN) are mapped for the globe and routing even though
+ * the shared CSV has no rows for them yet — their pages render the "to be completed" template
+ * until the datasets land. See {@link EAST_ASIA_ISO3}.
  */
 export const FLAG_ID_TO_ISO3: Record<string, string> = {
   'flag-of-Australia.png': 'AUS',
@@ -50,7 +54,14 @@ export const FLAG_ID_TO_ISO3: Record<string, string> = {
   'flag-of-United-States.png': 'USA',
   'flag-of-United-States-of-America.png': 'USA',
   'flag-of-USA.png': 'USA',
+  'flag-of-China.png': 'CHN',
+  'flag-of-Japan.png': 'JPN',
+  'flag-of-South-Korea.png': 'KOR',
+  'flag-of-Taiwan.png': 'TWN',
 };
+
+/** East Asia set — mapped and drawn on the globe, but with no dossier data behind them yet. */
+export const EAST_ASIA_ISO3: ReadonlySet<string> = new Set(['CHN', 'JPN', 'KOR', 'TWN']);
 
 export function getIso3ForFlagId(flagId: string): string | undefined {
   return FLAG_ID_TO_ISO3[flagId];

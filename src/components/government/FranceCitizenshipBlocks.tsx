@@ -3,8 +3,8 @@ import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContaine
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
 import { cn } from '../../lib/utils';
-import { GOV_POLITICS_CARD_GRID, GovStatCard } from '../GermanyGovernmentPoliticsBlocks';
-import type { GermanyGovernmentPoliticsRow } from '../../lib/germanyGovernmentPolitics';
+import { GOV_POLITICS_CARD_GRID, GovStatCard } from '../countries/germany/GermanyGovernmentPoliticsBlocks';
+import type { GermanyGovernmentPoliticsRow } from '../../lib/countries/germany/germanyGovernmentPolitics';
 import {
   FRANCE_CITIZENSHIP_ROUTES,
   FRANCE_CITIZENSHIP_SERIES,
@@ -185,7 +185,7 @@ function PriorNationalityDataGrid() {
       <CardContent className="space-y-4 p-4 pt-4">
         <div ref={chartRef} className="relative mx-auto w-full max-w-md" onMouseLeave={() => setHover(null)}>
           <ChartContainer config={chartConfig} className="h-[min(56vw,280px)] w-full min-h-[220px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
               <PieChart onMouseLeave={() => setHover(null)}>
                 <Pie
                   data={[...FRANCE_PRIOR_NATIONALITY_DATA]}
@@ -354,7 +354,7 @@ export function FranceCitizenshipBlocks() {
         </CardHeader>
         <CardContent className="p-3 pt-0">
           <ChartContainer config={seriesConfig} className="h-[240px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
               <LineChart
                 data={[...FRANCE_CITIZENSHIP_SERIES]}
                 margin={{ top: 10, right: 10, left: 8, bottom: 6 }}
@@ -434,7 +434,7 @@ export function FranceCitizenshipBlocks() {
         <CardContent className="p-3 pt-0">
           <div ref={routeTooltip.chartRef} className="relative" onMouseLeave={() => routeTooltip.setHover(null)}>
             <ChartContainer config={routeConfig} className="h-[210px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
                 <PieChart onMouseLeave={() => routeTooltip.setHover(null)}>
                   <Pie
                     data={[...FRANCE_CITIZENSHIP_ROUTES]}

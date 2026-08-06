@@ -1,99 +1,251 @@
-import { ArrowRight, Crosshair, ScanLine } from 'lucide-react';
-import './HomeHero.css';
+import {
+  ArrowRight,
+  Crosshair,
+  ScanLine,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import d3Logo from "simple-icons/icons/d3.svg";
+import eslintLogo from "simple-icons/icons/eslint.svg";
+import lucideLogo from "simple-icons/icons/lucide.svg";
+import npmLogo from "simple-icons/icons/npm.svg";
+import postcssLogo from "simple-icons/icons/postcss.svg";
+import radixLogo from "simple-icons/icons/radixui.svg";
+import reactLogo from "simple-icons/icons/react.svg";
+import tailwindLogo from "simple-icons/icons/tailwindcss.svg";
+import typescriptLogo from "simple-icons/icons/typescript.svg";
+import vercelLogo from "simple-icons/icons/vercel.svg";
+import viteLogo from "simple-icons/icons/vite.svg";
+import "./HomeHero.css";
 
 type HomeHeroProps = {
   onExplore: () => void;
+  onPrefetchAtlas?: () => void;
 };
 
-const intelligenceAreas = ['Demographics', 'Economy', 'Government', 'Health', 'Crime', 'Migration'];
+const intelligenceAreas = [
+  "Demographics",
+  "Economy",
+  "Government",
+  "Health",
+  "Crime",
+  "Migration",
+];
 
-export function HomeHero({ onExplore }: HomeHeroProps) {
+type Technology = {
+  name: string;
+  role: string;
+  logo: string | null;
+};
+
+const technologies: Technology[] = [
+  { name: "React", role: "UI", logo: reactLogo },
+  { name: "TypeScript", role: "Type safety", logo: typescriptLogo },
+  { name: "Vite", role: "Build", logo: viteLogo },
+  { name: "Tailwind CSS", role: "Styles", logo: tailwindLogo },
+  { name: "Recharts", role: "Charts", logo: null },
+  { name: "D3.js", role: "Data visualization", logo: d3Logo },
+  { name: "Radix UI", role: "UI primitives", logo: radixLogo },
+  { name: "Lucide", role: "Icons", logo: lucideLogo },
+  { name: "PostCSS", role: "CSS tooling", logo: postcssLogo },
+  { name: "ESLint", role: "Linting", logo: eslintLogo },
+  { name: "npm", role: "Packages", logo: npmLogo },
+  { name: "Vercel", role: "Hosting", logo: vercelLogo },
+];
+
+function TechnologyLogo({ technology }: { technology: Technology }) {
+  if (technology.logo) {
+    return <img src={technology.logo} alt="" loading="lazy" decoding="async" />;
+  }
+
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden>
+      <path d="M7 36V13h34" />
+      <path d="m10 31 8-9 7 5 12-14" />
+      <circle cx="18" cy="22" r="2.2" />
+      <circle cx="25" cy="27" r="2.2" />
+      <circle cx="37" cy="13" r="2.2" />
+    </svg>
+  );
+}
+
+function TechnologyRail({ duplicate = false }: { duplicate?: boolean }) {
+  return (
+    <div
+      className={`wt-tech__set${duplicate ? " wt-tech__set--copy" : ""}`}
+      role={duplicate ? undefined : "list"}
+      aria-hidden={duplicate || undefined}
+    >
+      {technologies.map((technology) => (
+        <article
+          key={`${duplicate ? "copy-" : ""}${technology.name}`}
+          className="wt-tech__item"
+          role={duplicate ? undefined : "listitem"}
+        >
+          <span className="wt-tech__logo" aria-hidden>
+            <TechnologyLogo technology={technology} />
+          </span>
+          <span className="wt-tech__identity">
+            <strong>{technology.name}</strong>
+            <small>{technology.role}</small>
+          </span>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function TechStackCarousel() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isIntersecting = useRef(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const syncVisibility = () => {
+      setIsVisible(isIntersecting.current && !document.hidden);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting.current = entry.isIntersecting;
+        syncVisibility();
+      },
+      { threshold: 0.12 },
+    );
+    observer.observe(section);
+    document.addEventListener("visibilitychange", syncVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncVisibility);
+    };
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="technology-stack"
+      className="wt-tech"
+      aria-label="Technology stack"
+    >
+      <div className="wt-tech__meta">
+        <span>Tech stack</span>
+        <span>{technologies.length} modules</span>
+      </div>
+      <div
+        className="wt-tech__viewport"
+        data-running={isVisible ? "true" : "false"}
+        tabIndex={0}
+        aria-label="Project technology stack. Focus or hover to pause."
+        aria-roledescription="carousel"
+      >
+        <div className="wt-tech__track">
+          <TechnologyRail />
+          <TechnologyRail duplicate />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HomeHero({ onExplore, onPrefetchAtlas }: HomeHeroProps) {
   return (
     <main className="wt-home">
-      <div className="wt-home__map" aria-hidden>
-        <div className="wt-home__map-image" />
-        <div className="wt-home__map-shade" />
-        <div className="wt-home__map-grid" />
+      <div className="wt-home__landing">
+        <div className="wt-home__map" aria-hidden>
+          <div className="wt-home__map-image" />
+          <div className="wt-home__map-shade" />
+          <div className="wt-home__map-grid" />
 
-        <div className="wt-home__map-axis wt-home__map-axis--vertical">
-          <span>N 70</span>
-          <span>N 30</span>
-        </div>
-        <div className="wt-home__map-axis wt-home__map-axis--horizontal">
-          <span>W 12</span>
-          <span>E 42</span>
-        </div>
-
-        <span className="wt-home__target wt-home__target--one" />
-        <span className="wt-home__target wt-home__target--two" />
-        <span className="wt-home__target wt-home__target--three" />
-        <span className="wt-home__target wt-home__target--four" />
-      </div>
-
-      <div className="wt-home__frame" aria-hidden>
-        <span className="wt-home__corner wt-home__corner--tl" />
-        <span className="wt-home__corner wt-home__corner--tr" />
-        <span className="wt-home__corner wt-home__corner--bl" />
-        <span className="wt-home__corner wt-home__corner--br" />
-      </div>
-
-      <header className="wt-home__header">
-        <a className="wt-home__brand" href="/" aria-label="Project WatchTower home">
-          <Crosshair aria-hidden />
-          <span>
-            <strong>Project WatchTower</strong>
-            <small>Country intelligence atlas</small>
-          </span>
-        </a>
-
-        <div className="wt-home__status" aria-label="System status">
-          <span className="wt-home__status-dot" />
-          <span>Atlas online</span>
-          <span className="wt-home__status-code">WT / 01</span>
-        </div>
-      </header>
-
-      <section className="wt-home__briefing" aria-labelledby="watchtower-title">
-        <div className="wt-home__eyebrow">
-          <ScanLine aria-hidden />
-          <span>Western-first-world country intelligence</span>
-        </div>
-
-        <h1 id="watchtower-title" className="wt-home__title">
-          <span>Global</span>
-          <span>Reconnaissance</span>
-        </h1>
-
-        <p className="wt-home__summary">
-          WatchTower brings country-level data and statistics into one regularly updated intelligence
-          atlas, prioritizing indicators that shape everyday life across the Western first world.
-        </p>
-
-        <div className="wt-home__actions">
-          <button type="button" className="wt-home__enter" onClick={onExplore}>
-            <span>Enter the atlas</span>
-            <ArrowRight aria-hidden />
-          </button>
-
-          <div className="wt-home__coverage">
-            <span className="wt-home__coverage-label">Coverage</span>
-            <span className="wt-home__coverage-state">Active development</span>
-            <span className="wt-home__coverage-note">
-              Incomplete coverage and occasional issues are expected.
-            </span>
+          <div className="wt-home__map-axis wt-home__map-axis--vertical">
+            <span>N 70</span>
+            <span>N 30</span>
           </div>
-        </div>
-      </section>
+          <div className="wt-home__map-axis wt-home__map-axis--horizontal">
+            <span>W 12</span>
+            <span>E 42</span>
+          </div>
 
-      <footer className="wt-home__footer" aria-label="Intelligence coverage areas">
-        <span className="wt-home__footer-label">Signals monitored</span>
-        <ul>
-          {intelligenceAreas.map((area) => (
-            <li key={area}>{area}</li>
-          ))}
-        </ul>
-        <span className="wt-home__coordinates">51.5072° N&nbsp;&nbsp; 0.1276° W</span>
-      </footer>
+          <span className="wt-home__target wt-home__target--one" />
+          <span className="wt-home__target wt-home__target--two" />
+          <span className="wt-home__target wt-home__target--three" />
+          <span className="wt-home__target wt-home__target--four" />
+        </div>
+
+        <div className="wt-home__frame" aria-hidden>
+          <span className="wt-home__corner wt-home__corner--tl" />
+          <span className="wt-home__corner wt-home__corner--tr" />
+          <span className="wt-home__corner wt-home__corner--bl" />
+          <span className="wt-home__corner wt-home__corner--br" />
+        </div>
+
+        <header className="wt-home__header">
+          <a
+            className="wt-home__brand"
+            href="/"
+            aria-label="Project WatchTower home"
+          >
+            <Crosshair aria-hidden />
+            <span>
+              <strong>Project WatchTower</strong>
+              <small>Country data atlas</small>
+            </span>
+          </a>
+
+          <div className="wt-home__status" aria-label="System status">
+            <span className="wt-home__status-dot" />
+            <span>Online</span>
+          </div>
+        </header>
+
+        <section
+          className="wt-home__briefing"
+          aria-labelledby="watchtower-title"
+        >
+          <div className="wt-home__eyebrow">
+            <ScanLine aria-hidden />
+            <span>Western-first-world country intelligence</span>
+          </div>
+
+          <h1 id="watchtower-title" className="wt-home__title">
+            <span>Global</span>
+            <span>Reconnaissance</span>
+          </h1>
+
+          <p className="wt-home__summary">
+            Country data on demographics, economics, government, health, crime,
+            and migration. Updated as sources change.
+          </p>
+
+          <div className="wt-home__actions">
+            <button
+              type="button"
+              className="wt-home__enter"
+              onClick={onExplore}
+              onPointerEnter={onPrefetchAtlas}
+              onFocus={onPrefetchAtlas}
+              onTouchStart={onPrefetchAtlas}
+            >
+              <span>Open atlas</span>
+              <ArrowRight aria-hidden />
+            </button>
+          </div>
+        </section>
+
+        <footer
+          className="wt-home__footer"
+          aria-label="Country data categories"
+        >
+          <span className="wt-home__footer-label">Data categories</span>
+          <ul>
+            {intelligenceAreas.map((area) => (
+              <li key={area}>{area}</li>
+            ))}
+          </ul>
+        </footer>
+
+        <TechStackCarousel />
+      </div>
     </main>
   );
 }

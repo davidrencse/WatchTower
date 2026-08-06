@@ -1,6 +1,6 @@
 import { FLAGS } from './flags';
 import { flagIdHasCountryStats, getIso3ForFlagId } from '../lib/flagIsoMapping';
-import { COUNTRY_SHAPES } from './countryShapes';
+import { COUNTRY_ANCHORS } from './countryAnchors';
 import type { FlagEntry } from '../types/flag';
 
 /**
@@ -12,7 +12,7 @@ import type { FlagEntry } from '../types/flag';
  *    are intentionally excluded from `FLAGS`, so they're listed explicitly here and are not
  *    clickable into a page.
  *
- * Each marker is joined to a simplified border polygon in `COUNTRY_SHAPES` by ISO-3 code; the
+ * Each marker is joined to a label anchor in `COUNTRY_ANCHORS` by ISO-3 code; the
  * polygon centroid doubles as the label anchor.
  */
 export type GlobeStatus = 'live' | 'soon';
@@ -22,7 +22,7 @@ export interface GlobeMarker {
   label: string;
   /** Flag PNG under `/flags/…`, used for the hover card. */
   src: string;
-  /** ISO 3166-1 alpha-3 — key into `COUNTRY_SHAPES`. */
+  /** ISO 3166-1 alpha-3 — key into `COUNTRY_ANCHORS` and `/geo/country-shapes.json`. */
   iso: string;
   /** Label anchor [lat, lng] (polygon centroid). */
   lat: number;
@@ -40,13 +40,15 @@ const SOON: { id: string; label: string; iso: string }[] = [
   { id: 'flag-of-Azerbaijan.png', label: 'Azerbaijan', iso: 'AZE' },
   { id: 'flag-of-Georgia.png', label: 'Georgia', iso: 'GEO' },
   { id: 'flag-of-North-Macedonia.png', label: 'North Macedonia', iso: 'MKD' },
+  { id: 'flag-of-Russia.png', label: 'Russia', iso: 'RUS' },
   { id: 'flag-of-San-Marino.png', label: 'San Marino', iso: 'SMR' },
+  { id: 'flag-of-Ukraine.png', label: 'Ukraine', iso: 'UKR' },
 ];
 
 function anchorFor(iso: string): [number, number] | null {
-  const s = COUNTRY_SHAPES[iso];
-  if (!s) return null;
-  return [s.a[1], s.a[0]]; // stored [lng, lat] → return [lat, lng]
+  const a = COUNTRY_ANCHORS[iso];
+  if (!a) return null;
+  return [a[1], a[0]]; // stored [lng, lat] → return [lat, lng]
 }
 
 function buildMarkers(): GlobeMarker[] {
@@ -89,6 +91,3 @@ function buildMarkers(): GlobeMarker[] {
 }
 
 export const GLOBE_MARKERS: GlobeMarker[] = buildMarkers();
-
-export const GLOBE_LIVE_COUNT = GLOBE_MARKERS.filter((m) => m.status === 'live').length;
-export const GLOBE_SOON_COUNT = GLOBE_MARKERS.filter((m) => m.status === 'soon').length;

@@ -123,7 +123,13 @@ export function CountrySearchBar({ flags, activeFlagId, onPick }: CountrySearchB
                       ].join(' ')}
                     >
                       <span className="flex h-9 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/[0.06] bg-black/50">
-                        <img src={flag.src} alt="" className="max-h-full max-w-full object-contain" />
+                        <img
+                          src={flag.src}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          className="max-h-full max-w-full object-contain"
+                        />
                       </span>
                       <span className="min-w-0 flex-1 truncate font-sans text-[13px] font-medium">
                         {flag.label}

@@ -1,9 +1,6 @@
+import { normalizeLabel } from './csv';
 import type { CountryStatMetric } from '../types/countryStats';
 import type { CountryWideRow } from './parseCountriesWideCsv';
-
-function norm(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, ' ');
-}
 
 /** Aligns merged-stats country labels with `corruption_money_lost_modeled_estimates.csv` `Country` names. */
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -31,10 +28,10 @@ function fmtUsdBillions(value: number): string {
 }
 
 export function findCorruptionLostRow(rows: CountryWideRow[], countryName: string): CountryWideRow | null {
-  const targetNorm = norm(countryName);
+  const targetNorm = normalizeLabel(countryName);
   const target = COUNTRY_ALIASES[targetNorm] ?? targetNorm;
   for (const r of rows) {
-    const c = norm(String(r.Country ?? r.country ?? ''));
+    const c = normalizeLabel(String(r.Country ?? r.country ?? ''));
     if (c === target) return r;
   }
   return null;

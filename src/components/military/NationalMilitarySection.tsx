@@ -117,6 +117,7 @@ function EquipImage({ src, alt, icon, accent }: { src?: string; alt: string; ico
     <img
       src={src}
       alt={alt}
+      loading="lazy"
       decoding="async"
       onError={() => setFailed(true)}
       className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
@@ -176,7 +177,7 @@ function EquipCard({ item, accent, shareBase }: { item: EquipItem; accent: strin
         <div className="mt-auto">
           {readyPct != null && item.ready != null ? (
             <Meter
-              label="Combat-ready"
+              label="Estimated ready"
               note={`${item.ready.toLocaleString('en-US')} · ${readyPct}%`}
               pct={readyPct}
               color="#4ade80"
@@ -239,7 +240,8 @@ function BranchSection({
   collapseSignal?: number;
   expandSignal?: number;
 }) {
-  const shareBase = branch.items.filter((i) => !i.support).reduce((n, i) => n + i.total, 0);
+  const shareBase =
+    branch.showShare === false ? 0 : branch.items.filter((i) => !i.support).reduce((n, i) => n + i.total, 0);
   return (
     <CollapsibleFlagSection
       title={branch.title}

@@ -1,0 +1,36 @@
+{
+  "title": "Globe UI overhaul — structure",
+  "question": "Overhaul the 3D globe chrome inside the Cartographic Situation Room. The roll assigned Indexed Instrument Modes. Keep it, take a fused alternate, or re-roll. WebGL globe, country select, layers, events, and dossier routes stay.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Indexed Instrument Modes",
+      "kicker": "THE ROLL",
+      "lineage": "Situation-room briefing binder · one instrument page at a time",
+      "body": "Full-bleed globe always. Compact numbered tabs (01 Statistics · 02 Layers · 03 Events · 04 Feed) open exactly one instrument surface; the rest stay off-stage. Pin callouts stay sparse and paginated. Fixes the clogged-screen problem by making chrome mutually exclusive. Signature interaction: key or click an index and the prior module folds away while the new one docks to a fixed rail.",
+      "hero": "",
+      "board": ""
+    },
+    {
+      "id": "challenger-gate-board",
+      "label": "Live Gate Board",
+      "kicker": "FUSED ALTERNATE",
+      "lineage": "Boarding-pass + departure board, dressed in WatchTower ink",
+      "body": "Bottom console becomes a live ranked board: event rows reorder by recency/severity, layers sit as LED switches in a pass strip, stats collapse into a scannable block. Change state holds steel highlight until noticed. Stronger for scanning incidents; denser bottom edge than Indexed Modes.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board.webp"
+    },
+    {
+      "id": "challenger-peepholes",
+      "label": "Aperture Instruments",
+      "kicker": "FUSED ALTERNATE",
+      "lineage": "Cut apertures / peepholes into the HUD",
+      "body": "Stats, layers, and news preview through small square registration apertures on the map frame. Tap expands that aperture to a full instrument panel; back shrinks it to a porthole. Globe stays dominant; discovery is spatial. Risk: more motion and a less familiar Operate pattern.",
+      "hero": "",
+      "board": ""
+    }
+  ],
+  "reroll": true,
+  "canon": true,
+  "steer": true
+}

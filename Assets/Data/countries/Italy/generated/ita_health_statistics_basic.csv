@@ -1,13 +1,17 @@
 Country,Metric,Submetric,Breakdown,Value,Unit,Reference Year,Source Name,Source URL,Notes
-Italy,Healthcare expenditure,Share of GDP,Total,9.4,percent of GDP,2024,https://www.istat.it/ / health statistics,true,Latest published health expenditure share of GDP.
-Italy,Healthcare expenditure,Per capita,Total,3100,EUR per person,2024,https://www.istat.it/ / health statistics,true,Approximate per-capita health expenditure (EUR-converted).
-Italy,Healthcare expenditure,Public/private split,Public financing share,76,percent of current health expenditure,2024,https://www.istat.it/ / health statistics,true,Public share of current health expenditure.
-Italy,Healthcare expenditure,Public/private split,Private financing share,24,percent of current health expenditure,2024,https://www.istat.it/ / health statistics,true,Residual private share.
-Italy,Obesity rate,Adult,Total,19.9,percent of adults,2024,WHO / https://www.istat.it/ / health statistics,true,Adult obesity prevalence (BMI 30+).
-Italy,Smoking prevalence,Adult,Total,19,percent of adults,2024,WHO / https://www.istat.it/ / health statistics,true,Adult smoking prevalence.
-Italy,Suicide Rate,,Total,6.3,"per 100,000 population",2024,WHO / https://www.istat.it/ / health statistics,true,Age-standardised suicide rate.
-Italy,"Physicians per 1,000 people",,,4.1,"physicians per 1,000",2024,OECD/WHO / https://www.istat.it/ / health statistics,true,Practising physicians density.
-Italy,Total number of doctors,,,241490,physicians,2024,OECD/WHO / https://www.istat.it/ / health statistics,true,Derived: physician density × population. Modeled derivation.
-Italy,Healthy life expectancy,At birth,Total,71.9,years,2024,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
-Italy,Preventable mortality rate,,,160,"per 100,000 population",2024,OECD/Eurostat,https://ec.europa.eu/eurostat,Preventable mortality.
-Italy,Alcohol consumption,,Total,7.7,litres pure alcohol per capita 15+,2024,WHO / https://www.istat.it/ / health statistics,true,Annual per-capita alcohol consumption.
+Italy,Healthcare expenditure,Share of GDP,Total,9.4,percent of GDP,2024,Istat,,Latest published health expenditure share of GDP.
+Italy,Healthcare expenditure,Per capita,Total,3100,EUR per person,2024,Istat,,Approximate per-capita health expenditure (EUR-converted).
+Italy,Healthcare expenditure,Public/private split,Public financing share,76,percent of current health expenditure,2024,Istat,,Public share of current health expenditure.
+Italy,Healthcare expenditure,Public/private split,Private financing share,24,percent of current health expenditure,2024,Istat,,Residual private share.
+Italy,Obesity rate,Self-reported adults,Total,12,percent,2025,OECD,,Self-reported adult obesity rate.
+Italy,Smoking prevalence,Daily adults 15+,Total,19.5,percent,2025,OECD,,Daily smoking prevalence among adults aged 15 and older.
+Italy,Suicide Rate,,Total,6,"per 100,000 population",2025,OECD,,Suicide mortality rate.
+Italy,"Physicians per 1,000 people",Practising physicians,Total,5.4,"physicians per 1,000",2025,OECD,,Practising physician density.
+Italy,Total number of doctors,Practising physicians,Total,"≈318,000",physicians,2025,OECD (derived),,Derived: 5.4 physicians per 1,000 residents applied to Italy's population of 58,943,464 on 1 January 2025.
+Italy,Healthy life expectancy,At birth,Total,70.6,years,2021,WHO,https://www.who.int/data/gho,WHO healthy life expectancy (HALE) at birth.
+Italy,Preventable mortality rate,,Total,93,"per 100,000 population",2025,OECD,,Preventable mortality.
+Italy,Alcohol consumption,Adults 15+,Total,8,litres pure alcohol per capita,2025,OECD,,Annual per-capita alcohol consumption among people aged 15 and older.
+Italy,Life expectancy,At birth,Total,83.7,years,2025,OECD,,Life expectancy at birth (2025 estimate); men 81.7 years, women 85.7 years.
+Italy,Self-reported poor health,,Total,5.9,percent,2025,OECD,,Share reporting poor health.
+Italy,Insufficient physical activity,Adults,Total,45,percent,2025,OECD,,Share of adults with insufficient physical activity.
+Italy,Healthy life expectancy (OECD country note),At birth,WHO HALE estimate,70.6,years,2021,OECD Health at a Glance 2025 / WHO Global Health Observatory,https://www.who.int/data/gho/data/countries/country-details/GHO/italy,WHO HALE at birth estimate used for the OECD-aligned health overview.

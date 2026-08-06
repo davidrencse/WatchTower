@@ -1,14 +1,13 @@
 /** Shared dashboard layout for CountryStatsDashboard (metrics grouping). */
 
 /**
- * Countries that render the full Germany dashboard layout (ribbon nav, all
- * subsections, all bundled Germany sections). France is mirrored onto Germany's
- * UI on purpose — France-specific data sources don't exist yet, so we reuse
- * Germany's bundled assets so the page can still be browsed.
+ * Countries that render the full Germany-derived dashboard layout (ribbon nav,
+ * subsections, and every statistic slot). Country datasets override the template
+ * where available; missing values remain visible as labeled placeholders.
  */
 export function treatAsGermany(iso3: string): boolean {
   const u = iso3.toUpperCase();
-  return u === 'DEU' || u === 'FRA';
+  return u === 'DEU' || u === 'FRA' || u === 'ITA' || u === 'ESP';
 }
 
 /** Expenditure tiles (nested under Economic → Government spending). */
@@ -86,6 +85,21 @@ export const BIRTH_RATES_SUBSECTION_METRICS_ITA = [
   'Teen birth rate',
   'Mean age of mothers at childbirth',
   'Childhood overweight and obesity (Italy)',
+] as const;
+
+export const BIRTH_RATES_SUBSECTION_METRICS_ESP = [
+  'Total birth rate',
+  'Spain-born birth rate',
+  'Immigrant birth rate',
+  'Migrant background M:F ratio',
+  'Births to foreign-born mothers',
+  'Infant mortality rate',
+  'Child mortality rate',
+  'Contraceptive use',
+  'Abortion rate',
+  'Teen birth rate',
+  'Mean age of mothers at childbirth',
+  'Childhood overweight and obesity (Spain)',
 ] as const;
 
 export const BIRTH_RATES_SUBSECTION_METRICS_DEFAULT = [
@@ -187,6 +201,8 @@ export function getStatSections(iso3: string, actualIso3 = iso3): StatSectionDef
               metrics:
                 actualUpper === 'ITA'
                   ? [...BIRTH_RATES_SUBSECTION_METRICS_ITA]
+                  : actualUpper === 'ESP'
+                  ? [...BIRTH_RATES_SUBSECTION_METRICS_ESP]
                   : upper === 'FRA'
                   ? [...BIRTH_RATES_SUBSECTION_METRICS_FRA]
                   : [...BIRTH_RATES_SUBSECTION_METRICS_DEU],

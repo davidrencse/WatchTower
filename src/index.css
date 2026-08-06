@@ -355,7 +355,9 @@ html #wt-custom-cursor-root[data-mode='globe'] {
   will-change: transform;
 }
 
-.wt-dax-carousel:hover .wt-dax-carousel-track {
+.wt-dax-carousel:hover .wt-dax-carousel-track,
+.wt-dax-carousel:focus-within .wt-dax-carousel-track,
+.wt-dax-carousel[data-paused='true'] .wt-dax-carousel-track {
   animation-play-state: paused;
 }
 
@@ -706,13 +708,8 @@ html #wt-custom-cursor-root[data-mode='globe'] {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  html {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }
 
@@ -768,7 +765,7 @@ html #wt-custom-cursor-root[data-mode='globe'] {
 }
 
 .gov-spend-year-pill-active {
-  animation: govSpendYearPillIn 0.48s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+  animation: govSpendYearPillIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .gov-spend-year-label-active {

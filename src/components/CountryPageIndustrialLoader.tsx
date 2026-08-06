@@ -49,7 +49,7 @@ export function CountryPageIndustrialLoader({ countryLabel }: CountryPageIndustr
       role="status"
       aria-live="polite"
       aria-busy="true"
-      aria-label="Loading country statistics"
+      aria-label={`Loading ${countryLabel ?? 'country'} dossier`}
     >
       <div className="rounded-sm border border-white/15 bg-black p-5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)] sm:p-7">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
@@ -118,7 +118,9 @@ export function CountryPageIndustrialLoader({ countryLabel }: CountryPageIndustr
               className="absolute inset-y-0 left-0 h-full w-1/4 bg-white shadow-[0_0_12px_rgba(255,255,255,0.85)] animate-industrial-fill will-change-transform motion-reduce:animate-none motion-reduce:opacity-90"
             />
           </div>
-          <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">Hydrating tiles · streaming CSV</p>
+          <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">
+            Opening dossier · resolving country record
+          </p>
         </div>
       </div>
     </div>

@@ -67,7 +67,7 @@ export function GermanySuicideRatesChartTile({
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={GERMANY_SUICIDE_RATE_CHART_CONFIG} className="h-[280px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={[...series]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -130,7 +130,7 @@ export function GermanyTestosteroneMenChartTile({
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={GERMANY_TESTOSTERONE_MEN_CHART_CONFIG} className="h-[280px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={[...series]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -196,7 +196,7 @@ export function GermanyLgbtPopulationIdentificationChartTile({
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={GERMANY_LGBT_IDENTIFICATION_CHART_CONFIG} className="h-[360px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={[...series]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -294,7 +294,7 @@ export function GermanyBirthsLineChartTile({
       </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[320px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={[...series]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -422,7 +422,7 @@ export function GermanyBirthsByRaceChartTile({
       </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[360px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <AreaChart data={[...series]} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -572,7 +572,7 @@ export function GermanyMixedRaceBirthsChartTile({
       </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[320px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={[...series]} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -836,7 +836,7 @@ export function GermanyHoverSeriesTile({
             </CardHeader>
             <CardContent className="flex min-h-0 flex-1 flex-col p-3 pt-0">
               <ChartContainer config={config} className="h-full w-full">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
                   <AreaChart data={data} margin={{ top: 6, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <XAxis

@@ -12,6 +12,7 @@ const REGION_BY_ISO3: Record<string, CountryRegion> = {
   AUS: 'Oceania', NZL: 'Oceania',
   USA: 'North America', CAN: 'North America',
   ZAF: 'Africa',
+  CHN: 'Asia', JPN: 'Asia', KOR: 'Asia', TWN: 'Asia',
 };
 
 /** Derived region label — falls back to Europe for the rest of the curated set. */

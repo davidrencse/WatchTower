@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { memo } from 'react';
-import type { EconomicStructuralIndicator } from '../lib/franceEconomyStats';
+import type { EconomicStructuralIndicator } from '../lib/countries/france/franceEconomyStats';
 
 const UC = 'uppercase tracking-[0.05em]';
 

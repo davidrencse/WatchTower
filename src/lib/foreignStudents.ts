@@ -1,13 +1,9 @@
 import type { CountryStatMetric } from '../types/countryStats';
 import type { CountryWideRow } from './parseCountriesWideCsv';
-import { parseCsvRows } from './csv';
+import { parseCsvRows, normalizeLabel } from './csv';
 
 type Origin = { country: string; count: number | null; sharePct: number | null };
 type AidPayload = { totalAid: number; origins: { country: string; aidCount: number; sharePct: number }[] };
-
-function norm(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, ' ');
-}
 
 const COUNTRY_ALIASES: Record<string, string> = {
   'bosnia herzegovina': 'bosnia and herzegovina',
@@ -36,10 +32,10 @@ function tile(metric: string, value: string, ref: string, geo: string, url: stri
 }
 
 export function findForeignStudentsRow(rows: CountryWideRow[], countryName: string): CountryWideRow | null {
-  const targetNorm = norm(countryName);
+  const targetNorm = normalizeLabel(countryName);
   const target = COUNTRY_ALIASES[targetNorm] ?? targetNorm;
   for (const r of rows) {
-    const c = norm(String(r.country ?? r.Country ?? ''));
+    const c = normalizeLabel(String(r.country ?? r.Country ?? ''));
     if (c === target) return r;
   }
   return null;

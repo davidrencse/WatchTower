@@ -27,7 +27,7 @@ export type EquipItem = {
   /** Representative in-service platform(s) for the category. */
   platform: string;
   total: number;
-  /** GlobalFirePower "combat-ready" count, where published. */
+  /** GlobalFirePower estimated readiness count, where published. */
   ready?: number;
   image?: string;
   icon: IconKind;
@@ -42,6 +42,8 @@ export type Branch = {
   headline: string;
   blurb: string;
   items: EquipItem[];
+  /** Hide share-of-fleet meters when published role categories overlap. */
+  showShare?: boolean;
 };
 
 /** A non-equipment force component (cyber command, nuclear deterrent, gendarmerie…). */

@@ -25,12 +25,3 @@ export function indexCountriesByIso3(rows: CountryWideRow[]): Map<string, Countr
   return m;
 }
 
-/** For `countries_proxy_demographics_births.csv` rows keyed by `country_code`. */
-export function indexCountriesByCountryCode(rows: CountryWideRow[]): Map<string, CountryWideRow> {
-  const m = new Map<string, CountryWideRow>();
-  for (const r of rows) {
-    const code = r.country_code?.trim().toUpperCase();
-    if (code) m.set(code, r);
-  }
-  return m;
-}

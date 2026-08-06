@@ -1,9 +1,6 @@
+import { normalizeLabel } from './csv';
 import type { CountryStatMetric } from '../types/countryStats';
 import type { CountryWideRow } from './parseCountriesWideCsv';
-
-function norm(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, ' ');
-}
 
 const COUNTRY_ALIASES: Record<string, string> = {
   'bosnia herzegovina': 'bosnia and herzegovina',
@@ -39,10 +36,10 @@ function tile(metric: string, value: string, ref: string, geo: string, url: stri
 }
 
 export function findExpenditureRow(rows: CountryWideRow[], countryName: string): CountryWideRow | null {
-  const targetNorm = norm(countryName);
+  const targetNorm = normalizeLabel(countryName);
   const target = COUNTRY_ALIASES[targetNorm] ?? targetNorm;
   for (const r of rows) {
-    const c = norm(String(r.Country ?? r.country ?? ''));
+    const c = normalizeLabel(String(r.Country ?? r.country ?? ''));
     if (c === target) return r;
   }
   return null;

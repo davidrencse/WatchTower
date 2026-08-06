@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  /** Optional override for the X/OSINT pins endpoint the globe polls. */
+  readonly VITE_OSINT_PINS_URL?: string;
+}
+
 declare module 'virtual:flag-filenames' {
   export const FLAG_FILENAMES: readonly string[];
 }

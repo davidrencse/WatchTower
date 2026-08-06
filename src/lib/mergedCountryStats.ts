@@ -119,22 +119,3 @@ export type CrimeAuditRow = {
 };
 
 /** Parse `crime_baseline_replacement_audit.csv` and return rows for a country (name match). */
-export function filterCrimeAuditForCountry(
-  rows: CountryWideRow[],
-  countryName: string,
-): CrimeAuditRow[] {
-  const target = countryName.trim().toLowerCase();
-  const out: CrimeAuditRow[] = [];
-  for (const r of rows) {
-    const c = val(r, 'country');
-    if (c.toLowerCase() !== target) continue;
-    out.push({
-      country: c,
-      metric: val(r, 'metric'),
-      oldYear: val(r, 'old_year'),
-      newYear: val(r, 'new_year'),
-      replaced: val(r, 'replaced'),
-    });
-  }
-  return out;
-}

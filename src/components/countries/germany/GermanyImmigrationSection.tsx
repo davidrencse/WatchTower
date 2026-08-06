@@ -1,0 +1,1789 @@
+import { useCsvText } from '../../../hooks/useCsvText';
+import { memo, useMemo, useState, type ReactNode } from 'react';
+import germanyTreemapCsvRaw from '../../../../Assets/Data/countries/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
+import { cn } from '../../../lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from '../../ui/chart';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  type GermanyImmigrationTreemapItem,
+  parseGermanyTreemapCsv,
+} from '../../../lib/countries/germany/germanyImmigrationTreemapData';
+import { GermanyImmigrationTreemap } from './GermanyImmigrationTreemap';
+import {
+  GermanyImmigrationAdvocatesSubsection,
+  type AdvocateCard,
+} from './GermanyImmigrationAdvocatesSubsection';
+import {
+  GermanyDeportationReentryChart,
+  GermanyDeportationTrendChart,
+  GermanyYearlyDeportationsChart,
+  type DeportationTrendRow,
+  type DeportationReentryRow,
+} from './GermanyMigrantCrimeSection';
+
+const TREEMAP_CSV_URL = '/data/germany_immigration_treemap_labeled_items.csv';
+const REFUGEE_TOTAL_2024 = 3_304_000;
+const WORK_VISAS_2021_2025 = 579_000;
+const MIGRANT_BACKGROUND_2024_2025 = 25_000_000;
+
+/** Total population with migration background (Migrationshintergrund), Germany — annual series for chart. */
+const TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR: readonly { year: string; migrants: number }[] = [
+  { year: '2000', migrants: 12_800_000 },
+  { year: '2001', migrants: 13_000_000 },
+  { year: '2002', migrants: 13_200_000 },
+  { year: '2003', migrants: 13_500_000 },
+  { year: '2004', migrants: 13_900_000 },
+  { year: '2005', migrants: 14_421_000 },
+  { year: '2006', migrants: 14_222_000 },
+  { year: '2007', migrants: 14_435_000 },
+  { year: '2008', migrants: 14_562_000 },
+  { year: '2009', migrants: 14_999_000 },
+  { year: '2010', migrants: 14_679_000 },
+  { year: '2011', migrants: 14_796_000 },
+  { year: '2012', migrants: 15_276_000 },
+  { year: '2013', migrants: 16_546_000 },
+  { year: '2014', migrants: 16_330_000 },
+  { year: '2015', migrants: 17_053_000 },
+  { year: '2016', migrants: 18_443_000 },
+  { year: '2017', migrants: 20_297_000 },
+  { year: '2018', migrants: 20_799_000 },
+  { year: '2019', migrants: 21_246_000 },
+  { year: '2020', migrants: 21_968_000 },
+  { year: '2021', migrants: 21_625_000 },
+  { year: '2022', migrants: 22_907_000 },
+  { year: '2023', migrants: 24_055_000 },
+  { year: '2024', migrants: 25_387_000 },
+  { year: '2025', migrants: 25_765_000 },
+];
+
+const totalMigrantsMigrationBackgroundChartConfig = {
+  migrants: {
+    label: 'Total migrants (migration background)',
+    color: '#a78bfa',
+  },
+} satisfies ChartConfig;
+
+const REFUGEE_BREAKDOWN_2024 = [
+  { country: 'Ukraine', count: 1_098_760 },
+  { country: 'Syria', count: 712_985 },
+  { country: 'Afghanistan', count: 347_550 },
+  { country: 'Iraq', count: 189_545 },
+  { country: 'Turkey', count: 157_290 },
+  { country: 'Iran', count: 72_510 },
+  { country: 'Russian Federation', count: 69_400 },
+  { country: 'Eritrea', count: 67_445 },
+  { country: 'Somalia', count: 49_195 },
+  { country: 'Kosovo', count: 40_820 },
+  { country: 'Nigeria', count: 34_140 },
+  { country: 'Serbia', count: 32_000 },
+  { country: 'Pakistan', count: 20_460 },
+  { country: 'Bosnia and Herzegovina', count: 18_445 },
+  { country: 'Azerbaijan', count: 17_440 },
+  { country: 'Armenia', count: 17_055 },
+  { country: 'Guinea', count: 16_670 },
+  { country: 'Stateless', count: 16_255 },
+  { country: 'Lebanon', count: 16_005 },
+  { country: 'Georgia', count: 15_400 },
+  { country: 'Vietnam', count: 15_400 },
+  { country: 'Ethiopia', count: 12_765 },
+  { country: 'North Macedonia', count: 12_050 },
+  { country: 'Albania', count: 11_810 },
+  { country: 'Venezuela', count: 9_375 },
+  { country: 'Colombia', count: 8_555 },
+  { country: 'Moldova', count: 8_350 },
+  { country: 'Sri Lanka', count: 7_395 },
+  { country: 'Egypt', count: 7_330 },
+  { country: 'Cameroon', count: 7_220 },
+] as const;
+
+const ASYLUM_APPLICATIONS_2025 = [
+  { country: 'Afghanistan', applications: 64_104 },
+  { country: 'Syria', applications: 24_240 },
+  { country: 'Turkey', applications: 14_686 },
+  { country: 'Somalia', applications: 4_713 },
+  { country: 'Iraq', applications: 4_907 },
+  { country: 'Russia', applications: 3_943 },
+  { country: 'Eritrea', applications: 2_572 },
+  { country: 'Iran', applications: 2_873 },
+  { country: 'Guinea', applications: 2_238 },
+  { country: 'Vietnam', applications: 1_993 },
+  { country: 'Other', applications: 42_274 },
+] as const;
+
+const ASYLUM_PIE_COLORS = [
+  '#f59e0b',
+  '#22c55e',
+  '#60a5fa',
+  '#c084fc',
+  '#f43f5e',
+  '#38bdf8',
+  '#84cc16',
+  '#fb7185',
+  '#14b8a6',
+  '#eab308',
+  '#a3a3a3',
+];
+
+const ASYLUM_TOTAL_2025 = ASYLUM_APPLICATIONS_2025.reduce((sum, row) => sum + row.applications, 0);
+
+const ASYLUM_APPLICATIONS_2025_PIE = ASYLUM_APPLICATIONS_2025.map((row, index) => ({
+  ...row,
+  sharePct: ASYLUM_TOTAL_2025 > 0 ? (row.applications / ASYLUM_TOTAL_2025) * 100 : 0,
+  fill: ASYLUM_PIE_COLORS[index % ASYLUM_PIE_COLORS.length],
+}));
+
+const refugeesChartConfig: ChartConfig = {
+  count: {
+    label: 'Refugees',
+    color: 'var(--uk-accent)',
+  },
+};
+
+const asylumChartConfig: ChartConfig = {
+  applications: {
+    label: 'Asylum applications',
+    color: 'var(--uk-accent)',
+  },
+};
+
+/** Cumulative asylum seeker stock (totals for summary boxes). */
+const ASYLUM_SEEKERS_TOTAL = 3_248_500;
+const ASYLUM_SEEKERS_MEN = 2_156_000;
+const ASYLUM_SEEKERS_WOMEN = 1_092_500;
+
+type IllegalAsylumSeekersRow = {
+  year: string;
+  middleEast: number;
+  african: number;
+  asianExclIndian: number;
+  indian: number;
+  other: number;
+  totalAsylumApplications: number;
+};
+
+const ILLEGAL_ASYLUM_SEEKERS_BY_YEAR: readonly IllegalAsylumSeekersRow[] = [
+  { year: '2000', middleEast: 18500, african: 8500, asianExclIndian: 6200, indian: 800, other: 4200, totalAsylumApplications: 38200 },
+  { year: '2001', middleEast: 19200, african: 8800, asianExclIndian: 6500, indian: 850, other: 4500, totalAsylumApplications: 39850 },
+  { year: '2002', middleEast: 17800, african: 9200, asianExclIndian: 6800, indian: 900, other: 4800, totalAsylumApplications: 39500 },
+  { year: '2003', middleEast: 16500, african: 9500, asianExclIndian: 7100, indian: 950, other: 5100, totalAsylumApplications: 39150 },
+  { year: '2004', middleEast: 17200, african: 9800, asianExclIndian: 7400, indian: 1000, other: 5400, totalAsylumApplications: 40800 },
+  { year: '2005', middleEast: 16800, african: 10200, asianExclIndian: 7800, indian: 1100, other: 5700, totalAsylumApplications: 41600 },
+  { year: '2006', middleEast: 19500, african: 12500, asianExclIndian: 8500, indian: 1300, other: 6200, totalAsylumApplications: 48000 },
+  { year: '2007', middleEast: 21200, african: 13800, asianExclIndian: 9200, indian: 1500, other: 6800, totalAsylumApplications: 52500 },
+  { year: '2008', middleEast: 22800, african: 15200, asianExclIndian: 9800, indian: 1700, other: 7200, totalAsylumApplications: 56700 },
+  { year: '2009', middleEast: 24500, african: 16800, asianExclIndian: 10500, indian: 1900, other: 7800, totalAsylumApplications: 61500 },
+  { year: '2010', middleEast: 26200, african: 18500, asianExclIndian: 11200, indian: 2100, other: 8500, totalAsylumApplications: 66500 },
+  { year: '2011', middleEast: 28500, african: 20500, asianExclIndian: 12500, indian: 2400, other: 9200, totalAsylumApplications: 73100 },
+  { year: '2012', middleEast: 31200, african: 22800, asianExclIndian: 13800, indian: 2800, other: 10200, totalAsylumApplications: 80800 },
+  { year: '2013', middleEast: 45800, african: 28500, asianExclIndian: 17200, indian: 3500, other: 12800, totalAsylumApplications: 107800 },
+  { year: '2014', middleEast: 85200, african: 41200, asianExclIndian: 28500, indian: 5200, other: 18500, totalAsylumApplications: 178600 },
+  { year: '2015', middleEast: 312000, african: 98000, asianExclIndian: 45200, indian: 8500, other: 28500, totalAsylumApplications: 476200 },
+  { year: '2016', middleEast: 268000, african: 72000, asianExclIndian: 38500, indian: 7200, other: 24500, totalAsylumApplications: 390700 },
+  { year: '2017', middleEast: 142000, african: 48500, asianExclIndian: 31200, indian: 6800, other: 19800, totalAsylumApplications: 223300 },
+  { year: '2018', middleEast: 98000, african: 35200, asianExclIndian: 26800, indian: 6200, other: 17200, totalAsylumApplications: 185400 },
+  { year: '2019', middleEast: 72000, african: 28500, asianExclIndian: 24500, indian: 5800, other: 15800, totalAsylumApplications: 136600 },
+  { year: '2020', middleEast: 45200, african: 19800, asianExclIndian: 18500, indian: 4200, other: 12200, totalAsylumApplications: 99700 },
+  { year: '2021', middleEast: 68200, african: 24500, asianExclIndian: 22800, indian: 5200, other: 14200, totalAsylumApplications: 134700 },
+  { year: '2022', middleEast: 148000, african: 38500, asianExclIndian: 31200, indian: 6800, other: 18500, totalAsylumApplications: 225300 },
+  { year: '2023', middleEast: 185000, african: 45200, asianExclIndian: 35800, indian: 7200, other: 21200, totalAsylumApplications: 294300 },
+  { year: '2024', middleEast: 112000, african: 28500, asianExclIndian: 24500, indian: 5800, other: 15800, totalAsylumApplications: 176600 },
+  { year: '2025', middleEast: 52000, african: 15200, asianExclIndian: 13800, indian: 3200, other: 8500, totalAsylumApplications: 92700 },
+];
+
+const illegalAsylumSeekersChartConfig = {
+  middleEast: { label: 'Middle East', color: '#f59e0b' },
+  african: { label: 'African', color: '#c084fc' },
+  asianExclIndian: { label: 'Asian (excl. Indian)', color: '#22d3ee' },
+  indian: { label: 'Indian', color: '#34d399' },
+  other: { label: 'Other', color: '#94a3b8' },
+  totalAsylumApplications: { label: 'Total asylum applications', color: '#64748b' },
+} satisfies ChartConfig;
+
+const ILLEGAL_ASYLUM_STACK_KEYS = ['middleEast', 'african', 'asianExclIndian', 'indian', 'other'] as const;
+
+/** Recharts SVG text does not inherit Tailwind `font-sans`; match site `--font-sans` / Inter stack. */
+const SITE_CHART_FONT_FAMILY =
+  "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+const SITE_CHART_AXIS_TICK = {
+  fill: 'rgba(163,163,163,0.9)',
+  fontSize: 10,
+  fontFamily: SITE_CHART_FONT_FAMILY,
+} as const;
+
+const SITE_CHART_CATEGORY_TICK = {
+  fill: 'rgba(212,212,212,0.95)',
+  fontSize: 10,
+  fontFamily: SITE_CHART_FONT_FAMILY,
+} as const;
+
+const LANGUAGE_PROFICIENCY_INTEGRATION_2025 = [
+  { origin: 'Syrian/Afghan', b1PlusRate: 38 },
+  { origin: 'North African', b1PlusRate: 42 },
+  { origin: 'Turkish', b1PlusRate: 55 },
+  { origin: 'Ukrainian/Russian', b1PlusRate: 72 },
+  { origin: 'Indian/Chinese', b1PlusRate: 81 },
+  { origin: 'Polish/Italian', b1PlusRate: 88 },
+] as const;
+
+const languageIntegrationChartConfig = {
+  b1PlusRate: { label: 'B1+ after 5 years', color: '#22c55e' },
+} satisfies ChartConfig;
+
+const HEALTHCARE_SOCIAL_HOUSING_USAGE = [
+  { year: '2000', socialHousingShare: 12.5, healthcareShare: 8.2 },
+  { year: '2001', socialHousingShare: 13.1, healthcareShare: 8.5 },
+  { year: '2002', socialHousingShare: 13.8, healthcareShare: 8.9 },
+  { year: '2003', socialHousingShare: 14.4, healthcareShare: 9.3 },
+  { year: '2004', socialHousingShare: 15.1, healthcareShare: 9.8 },
+  { year: '2005', socialHousingShare: 15.9, healthcareShare: 10.4 },
+  { year: '2006', socialHousingShare: 16.8, healthcareShare: 11.1 },
+  { year: '2007', socialHousingShare: 17.7, healthcareShare: 11.8 },
+  { year: '2008', socialHousingShare: 18.6, healthcareShare: 12.5 },
+  { year: '2009', socialHousingShare: 19.4, healthcareShare: 13.2 },
+  { year: '2010', socialHousingShare: 20.1, healthcareShare: 13.8 },
+  { year: '2011', socialHousingShare: 20.8, healthcareShare: 14.4 },
+  { year: '2012', socialHousingShare: 21.5, healthcareShare: 15.0 },
+  { year: '2013', socialHousingShare: 22.3, healthcareShare: 15.7 },
+  { year: '2014', socialHousingShare: 23.1, healthcareShare: 16.4 },
+  { year: '2015', socialHousingShare: 28.5, healthcareShare: 21.5 },
+  { year: '2016', socialHousingShare: 34.2, healthcareShare: 26.8 },
+  { year: '2017', socialHousingShare: 36.8, healthcareShare: 28.4 },
+  { year: '2018', socialHousingShare: 37.5, healthcareShare: 28.9 },
+  { year: '2019', socialHousingShare: 38.1, healthcareShare: 29.2 },
+  { year: '2020', socialHousingShare: 39.4, healthcareShare: 29.8 },
+  { year: '2021', socialHousingShare: 40.7, healthcareShare: 30.5 },
+  { year: '2022', socialHousingShare: 41.5, healthcareShare: 30.9 },
+  { year: '2023', socialHousingShare: 41.8, healthcareShare: 31.1 },
+  { year: '2024', socialHousingShare: 41.9, healthcareShare: 31.2 },
+  { year: '2025', socialHousingShare: 42.0, healthcareShare: 31.3 },
+] as const;
+
+const healthcareHousingChartConfig = {
+  socialHousingShare: { label: 'Social housing share', color: '#f97316' },
+  healthcareShare: { label: 'Healthcare spending share', color: '#38bdf8' },
+} satisfies ChartConfig;
+
+const PUBLIC_OPINION_IMMIGRATION = [
+  { year: '2000', tooManyImmigrants: 62, fasterDeportations: 58, strongerBorderControl: 65 },
+  { year: '2001', tooManyImmigrants: 64, fasterDeportations: 60, strongerBorderControl: 67 },
+  { year: '2002', tooManyImmigrants: 66, fasterDeportations: 61, strongerBorderControl: 68 },
+  { year: '2003', tooManyImmigrants: 67, fasterDeportations: 62, strongerBorderControl: 69 },
+  { year: '2004', tooManyImmigrants: 68, fasterDeportations: 63, strongerBorderControl: 70 },
+  { year: '2005', tooManyImmigrants: 69, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2006', tooManyImmigrants: 70, fasterDeportations: 65, strongerBorderControl: 72 },
+  { year: '2007', tooManyImmigrants: 69, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2008', tooManyImmigrants: 68, fasterDeportations: 63, strongerBorderControl: 70 },
+  { year: '2009', tooManyImmigrants: 67, fasterDeportations: 62, strongerBorderControl: 69 },
+  { year: '2010', tooManyImmigrants: 66, fasterDeportations: 61, strongerBorderControl: 68 },
+  { year: '2011', tooManyImmigrants: 65, fasterDeportations: 60, strongerBorderControl: 67 },
+  { year: '2012', tooManyImmigrants: 64, fasterDeportations: 59, strongerBorderControl: 66 },
+  { year: '2013', tooManyImmigrants: 63, fasterDeportations: 58, strongerBorderControl: 65 },
+  { year: '2014', tooManyImmigrants: 62, fasterDeportations: 57, strongerBorderControl: 64 },
+  { year: '2015', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2016', tooManyImmigrants: 78, fasterDeportations: 74, strongerBorderControl: 81 },
+  { year: '2017', tooManyImmigrants: 75, fasterDeportations: 72, strongerBorderControl: 79 },
+  { year: '2018', tooManyImmigrants: 73, fasterDeportations: 70, strongerBorderControl: 77 },
+  { year: '2019', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2020', tooManyImmigrants: 69, fasterDeportations: 66, strongerBorderControl: 73 },
+  { year: '2021', tooManyImmigrants: 67, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2022', tooManyImmigrants: 74, fasterDeportations: 72, strongerBorderControl: 78 },
+  { year: '2023', tooManyImmigrants: 77, fasterDeportations: 75, strongerBorderControl: 80 },
+  { year: '2024', tooManyImmigrants: 76, fasterDeportations: 74, strongerBorderControl: 79 },
+  { year: '2025', tooManyImmigrants: 75, fasterDeportations: 73, strongerBorderControl: 78 },
+] as const;
+
+const publicOpinionChartConfig = {
+  publicOpinion: { label: 'Public opinion on immigration', color: '#f97316' },
+  tooManyImmigrants: { label: '"Too many immigrants" agree', color: '#f97316' },
+  fasterDeportations: { label: 'Deport failed asylum seekers faster', color: '#a78bfa' },
+  strongerBorderControl: { label: 'Strengthen border control', color: '#22d3ee' },
+} satisfies ChartConfig;
+
+type PublicOpinionSeriesKey =
+  | 'publicOpinion'
+  | 'tooManyImmigrants'
+  | 'fasterDeportations'
+  | 'strongerBorderControl';
+
+type MigrantArrivalsSeriesKey = 'total' | 'europe' | 'nonEurope' | 'africa';
+
+export type MigrationBackgroundRow = { year: string; migrants: number };
+
+export type MigrantArrivalsRow = {
+  year: string;
+  total: number;
+  totalDisplay: string;
+  europe: number;
+  europeDisplay: string;
+  nonEurope: number;
+  nonEuropeDisplay: string;
+  africa: number;
+  africaDisplay: string;
+};
+
+const MIGRANT_ARRIVALS_SERIES: readonly MigrantArrivalsRow[] = [
+  {
+    year: '2000',
+    total: 841158,
+    totalDisplay: '841,158',
+    europe: 649249,
+    europeDisplay: '649,249',
+    nonEurope: 191909,
+    nonEuropeDisplay: '191,909',
+    africa: 25000,
+    africaDisplay: '~25,000',
+  },
+  {
+    year: '2001',
+    total: 879217,
+    totalDisplay: '879,217',
+    europe: 685259,
+    europeDisplay: '685,259',
+    nonEurope: 193958,
+    nonEuropeDisplay: '193,958',
+    africa: 26000,
+    africaDisplay: '~26,000',
+  },
+  {
+    year: '2002',
+    total: 842543,
+    totalDisplay: '842,543',
+    europe: 658341,
+    europeDisplay: '658,341',
+    nonEurope: 184202,
+    nonEuropeDisplay: '184,202',
+    africa: 27000,
+    africaDisplay: '~27,000',
+  },
+  {
+    year: '2003',
+    total: 768975,
+    totalDisplay: '768,975',
+    europe: 601759,
+    europeDisplay: '601,759',
+    nonEurope: 167216,
+    nonEuropeDisplay: '167,216',
+    africa: 28000,
+    africaDisplay: '~28,000',
+  },
+  {
+    year: '2004',
+    total: 780175,
+    totalDisplay: '780,175',
+    europe: 602182,
+    europeDisplay: '602,182',
+    nonEurope: 177993,
+    nonEuropeDisplay: '177,993',
+    africa: 29000,
+    africaDisplay: '~29,000',
+  },
+  {
+    year: '2005',
+    total: 707352,
+    totalDisplay: '707,352',
+    europe: 550000,
+    europeDisplay: '~550,000',
+    nonEurope: 157000,
+    nonEuropeDisplay: '~157,000',
+    africa: 30000,
+    africaDisplay: '~30,000',
+  },
+  {
+    year: '2006',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 520000,
+    europeDisplay: '~520,000',
+    nonEurope: 160000,
+    nonEuropeDisplay: '~160,000',
+    africa: 32000,
+    africaDisplay: '~32,000',
+  },
+  {
+    year: '2007',
+    total: 670000,
+    totalDisplay: '~670,000',
+    europe: 510000,
+    europeDisplay: '~510,000',
+    nonEurope: 160000,
+    nonEuropeDisplay: '~160,000',
+    africa: 33000,
+    africaDisplay: '~33,000',
+  },
+  {
+    year: '2008',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 500000,
+    europeDisplay: '~500,000',
+    nonEurope: 180000,
+    nonEuropeDisplay: '~180,000',
+    africa: 35000,
+    africaDisplay: '~35,000',
+  },
+  {
+    year: '2009',
+    total: 650000,
+    totalDisplay: '~650,000',
+    europe: 480000,
+    europeDisplay: '~480,000',
+    nonEurope: 170000,
+    nonEuropeDisplay: '~170,000',
+    africa: 36000,
+    africaDisplay: '~36,000',
+  },
+  {
+    year: '2010',
+    total: 640000,
+    totalDisplay: '~640,000',
+    europe: 470000,
+    europeDisplay: '~470,000',
+    nonEurope: 170000,
+    nonEuropeDisplay: '~170,000',
+    africa: 37000,
+    africaDisplay: '~37,000',
+  },
+  {
+    year: '2011',
+    total: 680000,
+    totalDisplay: '~680,000',
+    europe: 480000,
+    europeDisplay: '~480,000',
+    nonEurope: 200000,
+    nonEuropeDisplay: '~200,000',
+    africa: 40000,
+    africaDisplay: '~40,000',
+  },
+  {
+    year: '2012',
+    total: 720000,
+    totalDisplay: '~720,000',
+    europe: 490000,
+    europeDisplay: '~490,000',
+    nonEurope: 230000,
+    nonEuropeDisplay: '~230,000',
+    africa: 42000,
+    africaDisplay: '~42,000',
+  },
+  {
+    year: '2013',
+    total: 780000,
+    totalDisplay: '~780,000',
+    europe: 520000,
+    europeDisplay: '~520,000',
+    nonEurope: 260000,
+    nonEuropeDisplay: '~260,000',
+    africa: 45000,
+    africaDisplay: '~45,000',
+  },
+  {
+    year: '2014',
+    total: 950000,
+    totalDisplay: '~950,000',
+    europe: 650000,
+    europeDisplay: '~650,000',
+    nonEurope: 300000,
+    nonEuropeDisplay: '~300,000',
+    africa: 50000,
+    africaDisplay: '~50,000',
+  },
+  {
+    year: '2015',
+    total: 2136954,
+    totalDisplay: '2,136,954',
+    europe: 1036000,
+    europeDisplay: '~1,036,000',
+    nonEurope: 1100000,
+    nonEuropeDisplay: '~1,100,000+',
+    africa: 80000,
+    africaDisplay: '~80,000+',
+  },
+  {
+    year: '2016',
+    total: 1900000,
+    totalDisplay: '~1,900,000',
+    europe: 1050000,
+    europeDisplay: '~1,050,000',
+    nonEurope: 850000,
+    nonEuropeDisplay: '~850,000',
+    africa: 90000,
+    africaDisplay: '~90,000',
+  },
+  {
+    year: '2017',
+    total: 1550000,
+    totalDisplay: '~1,550,000',
+    europe: 850000,
+    europeDisplay: '~850,000',
+    nonEurope: 700000,
+    nonEuropeDisplay: '~700,000',
+    africa: 85000,
+    africaDisplay: '~85,000',
+  },
+  {
+    year: '2018',
+    total: 1400000,
+    totalDisplay: '~1,400,000',
+    europe: 750000,
+    europeDisplay: '~750,000',
+    nonEurope: 650000,
+    nonEuropeDisplay: '~650,000',
+    africa: 80000,
+    africaDisplay: '~80,000',
+  },
+  {
+    year: '2019',
+    total: 1300000,
+    totalDisplay: '~1,300,000',
+    europe: 680000,
+    europeDisplay: '~680,000',
+    nonEurope: 620000,
+    nonEuropeDisplay: '~620,000',
+    africa: 75000,
+    africaDisplay: '~75,000',
+  },
+  {
+    year: '2020',
+    total: 995938,
+    totalDisplay: '995,938',
+    europe: 546000,
+    europeDisplay: '~546,000',
+    nonEurope: 450000,
+    nonEuropeDisplay: '~450,000',
+    africa: 45000,
+    africaDisplay: '~45,000',
+  },
+  {
+    year: '2021',
+    total: 1186702,
+    totalDisplay: '1,186,702',
+    europe: 636000,
+    europeDisplay: '~636,000',
+    nonEurope: 550000,
+    nonEuropeDisplay: '~550,000',
+    africa: 60000,
+    africaDisplay: '~60,000',
+  },
+  {
+    year: '2022',
+    total: 2665772,
+    totalDisplay: '2,665,772',
+    europe: 2010890,
+    europeDisplay: '2,010,890',
+    nonEurope: 655000,
+    nonEuropeDisplay: '~655,000',
+    africa: 90000,
+    africaDisplay: '~90,000',
+  },
+  {
+    year: '2023',
+    total: 1932509,
+    totalDisplay: '1,932,509',
+    europe: 1299997,
+    europeDisplay: '1,299,997 (incl. Ukraine heavy)',
+    nonEurope: 632512,
+    nonEuropeDisplay: '~632,512',
+    africa: 95000,
+    africaDisplay: '~95,000',
+  },
+  {
+    year: '2024',
+    total: 1694192,
+    totalDisplay: '1,694,192',
+    europe: 1131103,
+    europeDisplay: '~1,131,103',
+    nonEurope: 563089,
+    nonEuropeDisplay: '~563,089',
+    africa: 85000,
+    africaDisplay: '~85,000',
+  },
+  {
+    year: '2025',
+    total: 1481299,
+    totalDisplay: '1,481,299',
+    europe: 972578,
+    europeDisplay: '~972,578',
+    nonEurope: 508721,
+    nonEuropeDisplay: '~508,721',
+    africa: 80000,
+    africaDisplay: '~80,000',
+  },
+];
+
+const migrantArrivalsChartConfig = {
+  total: { label: 'Total migrants (arrivals)', color: '#f59e0b' },
+  europe: { label: 'Migrants from European countries', color: '#22c55e' },
+  nonEurope: { label: 'Migrants from non-European countries', color: '#38bdf8' },
+  africa: { label: 'Migrants from Africa', color: '#c084fc' },
+} satisfies ChartConfig;
+
+const SERIES_ORDER: readonly { key: MigrantArrivalsSeriesKey; label: string }[] = [
+  { key: 'total', label: 'Total migrants (arrivals)' },
+  { key: 'europe', label: 'European countries' },
+  { key: 'nonEurope', label: 'Non-European countries' },
+  { key: 'africa', label: 'Africa' },
+];
+
+export function GermanyMigrantArrivalsInteractiveChart({
+  data = MIGRANT_ARRIVALS_SERIES,
+}: {
+  data?: readonly MigrantArrivalsRow[];
+}) {
+  const [hoveredKey, setHoveredKey] = useState<MigrantArrivalsSeriesKey | null>(null);
+
+  const dim = (key: MigrantArrivalsSeriesKey) =>
+    hoveredKey !== null && hoveredKey !== key ? 'dimmed' : 'focus';
+
+  const strokeFor = (key: MigrantArrivalsSeriesKey) => {
+    const grey = '#737373';
+    const colors = {
+      total: '#f59e0b',
+      europe: '#22c55e',
+      nonEurope: '#38bdf8',
+      africa: '#c084fc',
+    } as const;
+    return dim(key) === 'dimmed' ? grey : colors[key];
+  };
+
+  const opacityFor = (key: MigrantArrivalsSeriesKey) => (dim(key) === 'dimmed' ? 0.28 : 1);
+
+  const widthFor = (key: MigrantArrivalsSeriesKey) =>
+    hoveredKey === key || hoveredKey === null ? (hoveredKey === key ? 3.25 : 2.5) : 2;
+
+  return (
+    <div className="space-y-3" onMouseLeave={() => setHoveredKey(null)}>
+      <ChartContainer config={migrantArrivalsChartConfig} className="h-[380px] w-full font-sans">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+          <ComposedChart data={[...data]} margin={{ top: 8, right: 8, left: 4, bottom: 8 }}>
+            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <XAxis
+              dataKey="year"
+              tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tickFormatter={(value) =>
+                new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+              }
+              tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+              axisLine={false}
+              tickLine={false}
+              width={48}
+              domain={[0, 'auto']}
+              label={{
+                value: 'Arrivals',
+                angle: -90,
+                position: 'insideLeft',
+                fill: 'rgba(163,163,163,0.65)',
+                fontSize: 9,
+              }}
+            />
+            <ChartTooltip
+              cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+              content={
+                <ChartTooltipContent
+                  className="rounded-md max-w-[min(100vw-2rem,320px)]"
+                  labelFormatter={(_, payload) => {
+                    const row = (payload as { payload?: MigrantArrivalsRow }[] | undefined)?.[0]?.payload;
+                    return row ? `Year ${row.year}` : '';
+                  }}
+                  formatter={(_v, _entryLabel, item) => {
+                    const entry = item as { payload?: MigrantArrivalsRow; dataKey?: unknown };
+                    const row = entry.payload;
+                    const dk = String(entry.dataKey ?? '');
+                    if (!row) return '—';
+                    if (dk === 'total') return row.totalDisplay;
+                    if (dk === 'europe') return row.europeDisplay;
+                    if (dk === 'nonEurope') return row.nonEuropeDisplay;
+                    if (dk === 'africa') return row.africaDisplay;
+                    return '—';
+                  }}
+                />
+              }
+            />
+            <Line
+              type="monotone"
+              dataKey="total"
+              name="Total migrants (arrivals)"
+              stroke={strokeFor('total')}
+              strokeOpacity={opacityFor('total')}
+              strokeWidth={widthFor('total')}
+              dot={{ r: hoveredKey === 'total' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('total')}
+            />
+            <Line
+              type="monotone"
+              dataKey="europe"
+              name="Migrants from European countries"
+              stroke={strokeFor('europe')}
+              strokeOpacity={opacityFor('europe')}
+              strokeWidth={widthFor('europe')}
+              dot={{ r: hoveredKey === 'europe' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('europe')}
+            />
+            <Line
+              type="monotone"
+              dataKey="nonEurope"
+              name="Migrants from non-European countries"
+              stroke={strokeFor('nonEurope')}
+              strokeOpacity={opacityFor('nonEurope')}
+              strokeWidth={widthFor('nonEurope')}
+              dot={{ r: hoveredKey === 'nonEurope' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('nonEurope')}
+            />
+            <Line
+              type="monotone"
+              dataKey="africa"
+              name="Migrants from Africa"
+              stroke={strokeFor('africa')}
+              strokeOpacity={opacityFor('africa')}
+              strokeWidth={widthFor('africa')}
+              dot={{ r: hoveredKey === 'africa' ? 3 : 2 }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
+              onMouseEnter={() => setHoveredKey('africa')}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-1">
+        {SERIES_ORDER.map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            className={cn(
+              'flex items-center gap-2 rounded-md px-2 py-1 font-sans text-[11px] text-neutral-300 transition-colors',
+              hoveredKey === key ? 'bg-white/[0.08] text-neutral-100' : 'hover:bg-white/[0.05]',
+            )}
+            onMouseEnter={() => setHoveredKey(key)}
+          >
+            <span
+              className="h-0.5 w-6 shrink-0 rounded-full"
+              style={{
+                backgroundColor:
+                  hoveredKey !== null && hoveredKey !== key ? '#737373' : migrantArrivalsChartConfig[key].color,
+                opacity: hoveredKey !== null && hoveredKey !== key ? 0.35 : 1,
+              }}
+              aria-hidden
+            />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+      <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
+        Hover a line or legend item to emphasize that series; others fade to grey. All series share one arrivals scale
+        (Africa sits lower; use hover or the tooltip for exact values).
+      </p>
+    </div>
+  );
+}
+
+const TOTAL_MIGRANTS_LINE = '#a78bfa';
+
+export function GermanyTotalMigrantsMigrationBackgroundChart({
+  data = TOTAL_MIGRANTS_MIGRATION_BACKGROUND_BY_YEAR,
+  seriesLabel = 'Total migrants (migration background)',
+}: {
+  data?: readonly MigrationBackgroundRow[];
+  seriesLabel?: string;
+}) {
+  const resolvedConfig = {
+    migrants: {
+      ...totalMigrantsMigrationBackgroundChartConfig.migrants,
+      label: seriesLabel,
+    },
+  } satisfies ChartConfig;
+  return (
+    <ChartContainer config={resolvedConfig} className="h-[340px] w-full font-sans">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+        <LineChart data={[...data]} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
+          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+          <XAxis
+            dataKey="year"
+            tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+            axisLine={false}
+            tickLine={false}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            tickFormatter={(v) => {
+              const n = Number(v);
+              if (!Number.isFinite(n)) return '';
+              if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+              return `${Math.round(n / 1000)}k`;
+            }}
+            tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+            axisLine={false}
+            tickLine={false}
+            width={44}
+          />
+          <ChartTooltip
+            cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+            content={
+              <ChartTooltipContent
+                className="rounded-md"
+                formatter={(value) => {
+                  const n = Number(value);
+                  return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                }}
+                labelFormatter={(label) => `Year ${label}`}
+              />
+            }
+          />
+          <Line
+            type="monotone"
+            dataKey="migrants"
+            name={seriesLabel}
+            stroke={TOTAL_MIGRANTS_LINE}
+            strokeWidth={2.5}
+            dot={{ r: 2 }}
+            activeDot={{ r: 5 }}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  );
+}
+
+type ContributionRow = {
+  group: string;
+  paid: string;
+  payerShare?: string;
+  overallPaid?: string;
+  received: string;
+  net: string;
+};
+type WelfareRow = { nationality: string; recipients: string; share: string; notes: string };
+type OriginCountRow = { country: string; count: number };
+type RegionAsylumRow = {
+  year: string;
+  middleEast: number;
+  african: number;
+  asianExclIndian: number;
+  indian: number;
+  other: number;
+  totalAsylumApplications: number;
+};
+type AsylumApplicationRow = { country: string; applications: number };
+
+const GERMANY_CONTRIBUTION_ROWS: readonly ContributionRow[] = [
+  { group: 'Natives', paid: 'EUR 819', received: 'EUR 74', net: '+EUR 745' },
+  { group: '1st-generation migrants', paid: 'EUR 692', received: 'EUR 211', net: '+EUR 481' },
+  { group: '2nd-generation migrants', paid: 'EUR 504', received: 'EUR 94', net: '+EUR 410' },
+];
+const GERMANY_CONTRIBUTION_NOTES = {
+  welfareUsage:
+    'Foreigners (~14.8% of population) received 46.6% of all Burgergeld (main welfare benefit) spending, approximately EUR 21.7 billion.',
+  ageControlled:
+    'When controlling for age and demographics, 1st-generation migrants become less positive or net negative, while natives and 2nd-generation migrants perform similarly.',
+  rawView:
+    'Without controlling for age, migrants (especially 1st generation) appear as net contributors mainly because they are younger on average and receive far less in pensions.',
+  sourceLabel: 'econstor.eu GLO-DP-1530',
+  sourceHref: 'https://www.econstor.eu/bitstream/10419/306683/1/GLO-DP-1530.pdf',
+};
+const GERMANY_WELFARE_TITLE = '2025 Burgergeld (Main Welfare Benefit) - How Much They Take';
+const GERMANY_WELFARE_DESC = 'Total Burgergeld paid: approximately EUR 47 billion.';
+const GERMANY_WELFARE_ROWS: readonly WelfareRow[] = [
+  { nationality: 'All Foreigners', recipients: '~2.57 - 2.81 million', share: '100%', notes: '46.6% of total Burgergeld budget' },
+  { nationality: 'Ukrainians', recipients: '678,539 - 705,932', share: '~26-27%', notes: 'EUR 6.0 - 6.5 billion (published)' },
+  { nationality: 'Syrians', recipients: '485,240 - 512,161', share: '~19%', notes: 'EUR 3.9 - 4.2 billion (published)' },
+  { nationality: 'Afghans', recipients: '200,779', share: '~7.8%', notes: 'Not published individually' },
+  { nationality: 'Turks', recipients: '189,595 - 192,077', share: '~7.4%', notes: 'Not published individually' },
+  { nationality: 'Iraqis', recipients: '93,516 - 101,000', share: '~3.6-3.9%', notes: 'Not published individually' },
+  { nationality: 'Others (Bulgarians, Romanians, Poles, etc.)', recipients: 'Remaining ~800,000+', share: '-', notes: 'Combined in foreign total' },
+];
+const GERMANY_WELFARE_NOTE = (
+  <div className="space-y-2 font-sans text-[10px] leading-relaxed text-neutral-500">
+    <p>
+      Source (Statista / Bundesagentur fur Arbeit, June 2025):{' '}
+      <a
+        className="underline underline-offset-2 hover:text-neutral-300"
+        href="https://de.statista.com/statistik/daten/studie/1622726/umfrage/empfaenger-von-buergergeld-in-deutschland-nach-staatsangehoerigkeiten/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        de.statista.com recipient statistics
+      </a>
+    </p>
+    <p>Source: Tagesschau / Federal Ministry reports confirming the EUR 21.7-22 billion total for foreigners.</p>
+  </div>
+);
+
+type GermanyImmigrationSectionProps = {
+  /** Refugee / protection-holder stock tile (defaults to Germany). */
+  refugeesValue?: number;
+  refugeesNote?: string;
+  refugeesLabel?: string;
+  /** Work / economic visa tile (defaults to Germany). */
+  workVisasValue?: number;
+  workVisasNote?: string;
+  workVisasLabel?: string;
+  /** Migration-background population tile (defaults to Germany). */
+  migrantBackgroundValue?: number;
+  migrantBackgroundNote?: string;
+  migrantBackgroundLabel?: string;
+  /** Country label woven into chart titles/descriptions (e.g. "France"). */
+  countryLabel?: string;
+  /** "Total amount of migrants (migration background)" line series. */
+  migrationBackgroundByYear?: readonly MigrationBackgroundRow[];
+  migrationBackgroundTitle?: string;
+  migrationBackgroundDesc?: string;
+  migrationBackgroundSeriesLabel?: string;
+  /** "Migrant arrivals by origin" interactive series. */
+  migrantArrivalsSeries?: readonly MigrantArrivalsRow[];
+  migrantArrivalsTitle?: string;
+  migrantArrivalsDesc?: string;
+  /** Deportation trend + yearly bar series (2000–2025). */
+  deportationTrendSeries?: readonly DeportationTrendRow[];
+  /** Deportation re-entry series (2000–2025). */
+  deportationReentrySeries?: readonly DeportationReentryRow[];
+  deportationSourceNote?: string;
+  deportationReentryTitle?: string;
+  deportationReentryDesc?: string;
+  deportationReentryBarLabel?: string;
+  deportationReentryLineLabel?: string;
+  deportationReentrySummaryCountLabel?: string;
+  deportationReentrySummaryPctLabel?: string;
+  /** Immigrant-origin treemap items (default: Germany's bundled CSV). */
+  treemapItems?: readonly GermanyImmigrationTreemapItem[];
+  /** Footnote under the treemap (default: Germany's source text). */
+  treemapNote?: string;
+  /** Healthcare & social-housing usage share series (2000–2025). */
+  healthcareHousingSeries?: readonly { year: string; socialHousingShare: number; healthcareShare: number }[];
+  healthcareHousingTitle?: string;
+  healthcareHousingDesc?: string;
+  healthcareHousingLabels?: { first: string; second: string };
+  healthcareHousingYDomain?: [number, number];
+  /** Public-opinion-on-immigration series (2000–2025) + its description. */
+  publicOpinionSeries?: readonly {
+    year: string;
+    publicOpinion?: number;
+    tooManyImmigrants?: number;
+    fasterDeportations?: number;
+    strongerBorderControl?: number;
+  }[];
+  publicOpinionDesc?: string;
+  publicOpinionTitle?: string;
+  publicOpinionLabels?: { first: string; second: string; third: string };
+  publicOpinionYDomain?: [number, number];
+  publicOpinionSeriesKeys?: readonly PublicOpinionSeriesKey[];
+  /** Language-proficiency-by-origin bar series + its description. */
+  languageIntegrationSeries?: readonly { origin: string; b1PlusRate: number }[];
+  languageIntegrationTitle?: string;
+  languageIntegrationDesc?: string;
+  languageIntegrationMetricLabel?: string;
+  /** Net-fiscal-contribution table + supporting notes. */
+  contributionRows?: readonly ContributionRow[];
+  contributionNotes?: { welfareUsage: string; ageControlled: string; rawView: string; sourceLabel: string; sourceHref: string };
+  contributionTitle?: string;
+  contributionDesc?: string;
+  contributionTableTitle?: string;
+  contributionTableDesc?: string;
+  contributionPeriodLabel?: string;
+  /** Welfare-by-nationality table (Bürgergeld → RSA for France). */
+  welfareTitle?: string;
+  welfareDesc?: string;
+  welfareRows?: readonly WelfareRow[];
+  welfareNote?: ReactNode;
+  welfareFirstColumnLabel?: string;
+  welfareShareColumnLabel?: string;
+  /** Refugee-origins bar chart. */
+  refugeeOriginsTitle?: string;
+  refugeeBreakdown?: readonly OriginCountRow[];
+  /** Asylum-by-region series + summary tiles. */
+  asylumByRegion?: readonly RegionAsylumRow[];
+  asylumSeekersTotal?: number;
+  asylumSeekersMen?: number;
+  asylumSeekersWomen?: number;
+  /** Asylum-applications pie (by country of origin). */
+  asylumApplications?: readonly AsylumApplicationRow[];
+  asylumSectionTitle?: string;
+  asylumSectionDesc?: string;
+  asylumTotalLabel?: string;
+  asylumMenLabel?: string;
+  asylumWomenLabel?: string;
+  asylumApplicationsTitle?: string;
+  asylumApplicationsDesc?: string;
+  /** Advocates subsection overrides (forwarded to GermanyImmigrationAdvocatesSubsection). */
+  advocates?: readonly AdvocateCard[];
+  advocatesHeading?: string;
+  advocatesIntro?: string;
+  advocatesCoalition?: string;
+};
+
+export const GermanyImmigrationSection = memo(function GermanyImmigrationSection({
+  refugeesValue = REFUGEE_TOTAL_2024,
+  refugeesNote = 'Germany, 2024.',
+  refugeesLabel = 'Refugees',
+  workVisasValue = WORK_VISAS_2021_2025,
+  workVisasNote = 'Issued from 2021 to 2025.',
+  workVisasLabel = 'Work Visas',
+  migrantBackgroundValue = MIGRANT_BACKGROUND_2024_2025,
+  migrantBackgroundNote = 'Germany, 2024–2025.',
+  migrantBackgroundLabel = 'Migrant Background',
+  countryLabel = 'Germany',
+  migrationBackgroundByYear,
+  migrationBackgroundTitle = 'Total amount of migrants (migration background)',
+  migrationBackgroundDesc,
+  migrationBackgroundSeriesLabel = 'Total migrants (migration background)',
+  migrantArrivalsSeries,
+  migrantArrivalsTitle,
+  migrantArrivalsDesc,
+  deportationTrendSeries,
+  deportationReentrySeries,
+  deportationSourceNote,
+  deportationReentryTitle,
+  deportationReentryDesc,
+  deportationReentryBarLabel,
+  deportationReentryLineLabel,
+  deportationReentrySummaryCountLabel,
+  deportationReentrySummaryPctLabel,
+  treemapItems,
+  treemapNote = 'Immigrant counts by country of origin (2024 flow). Source metadata in CSV: PopulationPyramid.net Germany Immigration Statistics; underlying migrant stock reference UN DESA International Migrant Stock 2024. Chart scales to the panel width so the full treemap is visible without horizontal scrolling.',
+  healthcareHousingSeries = HEALTHCARE_SOCIAL_HOUSING_USAGE,
+  healthcareHousingTitle = 'Healthcare and social-housing usage share by recent immigrants',
+  healthcareHousingDesc = 'Long-run trend from 2000-2025 for social housing share and healthcare spending share.',
+  healthcareHousingLabels = {
+    first: healthcareHousingChartConfig.socialHousingShare.label,
+    second: healthcareHousingChartConfig.healthcareShare.label,
+  },
+  healthcareHousingYDomain = [0, 50],
+  publicOpinionSeries = PUBLIC_OPINION_IMMIGRATION,
+  publicOpinionDesc = 'Share agreeing with key immigration statements in Germany, 2000-2025.',
+  publicOpinionTitle = 'Public opinion on immigration',
+  publicOpinionLabels = {
+    first: publicOpinionChartConfig.tooManyImmigrants.label,
+    second: publicOpinionChartConfig.fasterDeportations.label,
+    third: publicOpinionChartConfig.strongerBorderControl.label,
+  },
+  publicOpinionYDomain = [50, 85],
+  publicOpinionSeriesKeys = [
+    'tooManyImmigrants',
+    'fasterDeportations',
+    'strongerBorderControl',
+  ],
+  languageIntegrationSeries = LANGUAGE_PROFICIENCY_INTEGRATION_2025,
+  languageIntegrationTitle = 'Language proficiency and integration rates by origin (2025)',
+  languageIntegrationDesc = 'Share of each origin group reaching B1 German or higher after 5 years.',
+  languageIntegrationMetricLabel = languageIntegrationChartConfig.b1PlusRate.label,
+  contributionRows = GERMANY_CONTRIBUTION_ROWS,
+  contributionNotes = GERMANY_CONTRIBUTION_NOTES,
+  contributionTitle = 'Contribution',
+  contributionDesc = 'Tax contribution per group.',
+  contributionTableTitle,
+  contributionTableDesc,
+  contributionPeriodLabel = 'Welfare Usage (2025)',
+  welfareTitle = GERMANY_WELFARE_TITLE,
+  welfareDesc = GERMANY_WELFARE_DESC,
+  welfareRows = GERMANY_WELFARE_ROWS,
+  welfareNote = GERMANY_WELFARE_NOTE,
+  welfareFirstColumnLabel = 'Nationality',
+  welfareShareColumnLabel = '% of All Foreign Recipients',
+  refugeeOriginsTitle = 'Refugee origins in Germany (2024)',
+  refugeeBreakdown = REFUGEE_BREAKDOWN_2024,
+  asylumByRegion = ILLEGAL_ASYLUM_SEEKERS_BY_YEAR,
+  asylumSeekersTotal = ASYLUM_SEEKERS_TOTAL,
+  asylumSeekersMen = ASYLUM_SEEKERS_MEN,
+  asylumSeekersWomen = ASYLUM_SEEKERS_WOMEN,
+  asylumApplications,
+  asylumSectionTitle = 'Illegal Asylum Seekers',
+  asylumSectionDesc = 'Annual asylum applications by region of origin (2000–2025). Stacked bars show regional composition; line marks reported total applications.',
+  asylumTotalLabel = 'Total Asylum Seekers',
+  asylumMenLabel = 'Men',
+  asylumWomenLabel = 'Women',
+  asylumApplicationsTitle = 'Asylum applications [note for 2025]',
+  asylumApplicationsDesc = 'Applicants by country of origin, includes "Other" (counts + share %).',
+  advocates,
+  advocatesHeading,
+  advocatesIntro,
+  advocatesCoalition,
+}: GermanyImmigrationSectionProps = {}) {
+  const asylumPie = useMemo(() => {
+    if (!asylumApplications) return ASYLUM_APPLICATIONS_2025_PIE;
+    const total = asylumApplications.reduce((s, r) => s + r.applications, 0);
+    return asylumApplications.map((row, index) => ({
+      ...row,
+      sharePct: total > 0 ? (row.applications / total) * 100 : 0,
+      fill: ASYLUM_PIE_COLORS[index % ASYLUM_PIE_COLORS.length],
+    }));
+  }, [asylumApplications]);
+  const asylumMenPct = asylumSeekersTotal > 0 ? (asylumSeekersMen / asylumSeekersTotal) * 100 : 0;
+  const asylumWomenPct = asylumSeekersTotal > 0 ? (asylumSeekersWomen / asylumSeekersTotal) * 100 : 0;
+  const hasContributionPayerDetails = contributionRows.some(
+    (row) => row.payerShare || row.overallPaid,
+  );
+  const resolvedHealthcareHousingConfig = {
+    socialHousingShare: {
+      ...healthcareHousingChartConfig.socialHousingShare,
+      label: healthcareHousingLabels.first,
+    },
+    healthcareShare: {
+      ...healthcareHousingChartConfig.healthcareShare,
+      label: healthcareHousingLabels.second,
+    },
+  } satisfies ChartConfig;
+  const resolvedPublicOpinionConfig = {
+    publicOpinion: {
+      ...publicOpinionChartConfig.publicOpinion,
+      label: publicOpinionLabels.first,
+    },
+    tooManyImmigrants: {
+      ...publicOpinionChartConfig.tooManyImmigrants,
+      label: publicOpinionLabels.first,
+    },
+    fasterDeportations: {
+      ...publicOpinionChartConfig.fasterDeportations,
+      label: publicOpinionLabels.second,
+    },
+    strongerBorderControl: {
+      ...publicOpinionChartConfig.strongerBorderControl,
+      label: publicOpinionLabels.third,
+    },
+  } satisfies ChartConfig;
+  const resolvedLanguageIntegrationConfig = {
+    b1PlusRate: {
+      ...languageIntegrationChartConfig.b1PlusRate,
+      label: languageIntegrationMetricLabel,
+    },
+  } satisfies ChartConfig;
+  const [isRefugeeSectionOpen, setIsRefugeeSectionOpen] = useState(false);
+
+  // A caller-supplied `treemapItems` wins outright; otherwise fetch, falling back to the
+  // bundled Germany table whenever the response is missing or empty.
+  const { text: treemapCsv } = useCsvText(
+    treemapItems ? '' : TREEMAP_CSV_URL,
+    germanyTreemapCsvRaw,
+  );
+
+  const { items, loadError } = useMemo(() => {
+    if (treemapItems) return { items: [...treemapItems], loadError: null };
+    if (!treemapCsv.trim()) return { items: [], loadError: 'Immigration treemap CSV is empty.' };
+    try {
+      return { items: parseGermanyTreemapCsv(treemapCsv), loadError: null };
+    } catch (cause) {
+      return {
+        items: [],
+        loadError: cause instanceof Error ? cause.message : 'Failed to load treemap data.',
+      };
+    }
+  }, [treemapCsv, treemapItems]);
+
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{refugeesLabel}</p>
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+            {refugeesValue.toLocaleString('en-US')}
+          </p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{refugeesNote}</p>
+        </article>
+
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            {workVisasLabel}
+          </p>
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+            {workVisasValue.toLocaleString('en-US')}
+          </p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{workVisasNote}</p>
+        </article>
+
+        <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            {migrantBackgroundLabel}
+          </p>
+          <p className="mt-4 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl lg:text-4xl">
+            {migrantBackgroundValue.toLocaleString('en-US')}
+          </p>
+          <p className="mt-3 font-sans text-[10px] leading-relaxed text-neutral-500">{migrantBackgroundNote}</p>
+        </article>
+      </div>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            {migrationBackgroundTitle}
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            {migrationBackgroundDesc ??
+              `Persons with migration background in ${countryLabel} (2000–2025). Hover points for exact counts.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <GermanyTotalMigrantsMigrationBackgroundChart
+            data={migrationBackgroundByYear}
+            seriesLabel={migrationBackgroundSeriesLabel}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            {migrantArrivalsTitle ?? `Migrant arrivals by origin (${countryLabel})`}
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            {migrantArrivalsDesc ??
+              'Four series on a single arrivals axis (compact ticks). Approximate labels keep ~ / + in tooltips; lines use rounded numeric values.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <GermanyMigrantArrivalsInteractiveChart data={migrantArrivalsSeries} />
+        </CardContent>
+      </Card>
+
+      <GermanyDeportationTrendChart
+        series={deportationTrendSeries}
+        countryLabel={countryLabel}
+        sourceNote={deportationSourceNote}
+      />
+      <GermanyYearlyDeportationsChart
+        series={deportationTrendSeries}
+        countryLabel={countryLabel}
+        sourceNote={deportationSourceNote}
+      />
+      <GermanyDeportationReentryChart
+        series={deportationReentrySeries}
+        countryLabel={countryLabel}
+        title={deportationReentryTitle}
+        description={deportationReentryDesc}
+        barLabel={deportationReentryBarLabel}
+        lineLabel={deportationReentryLineLabel}
+        summaryCountLabel={deportationReentrySummaryCountLabel}
+        summaryPctLabel={deportationReentrySummaryPctLabel}
+        sourceNote={deportationSourceNote}
+      />
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            {languageIntegrationTitle}
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            {languageIntegrationDesc}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={resolvedLanguageIntegrationConfig} className="h-[320px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <BarChart
+                data={[...languageIntegrationSeries]}
+                layout="vertical"
+                margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
+              >
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
+                <XAxis
+                  type="number"
+                  domain={[0, 100]}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={SITE_CHART_AXIS_TICK}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="origin"
+                  axisLine={false}
+                  tickLine={false}
+                  width={136}
+                  tick={SITE_CHART_CATEGORY_TICK}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md font-sans"
+                      labelFormatter={(label) => String(label)}
+                      formatter={(value) => `${Number(value).toFixed(0)}%`}
+                    />
+                  }
+                />
+                <Bar
+                  dataKey="b1PlusRate"
+                  name="b1PlusRate"
+                  fill={resolvedLanguageIntegrationConfig.b1PlusRate.color}
+                  radius={[0, 6, 6, 0]}
+                  isAnimationActive={false}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {loadError ? (
+        <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
+      ) : null}
+
+      <div className="w-full min-w-0 rounded-md border border-line bg-surface-metric shadow-inset p-3">
+        <GermanyImmigrationTreemap items={items} />
+      </div>
+
+      <p className="font-sans text-[10px] leading-relaxed text-neutral-500">{treemapNote}</p>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            {healthcareHousingTitle}
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            {healthcareHousingDesc}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={resolvedHealthcareHousingConfig} className="h-[340px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <LineChart data={[...healthcareHousingSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={42}
+                />
+                <YAxis
+                  domain={healthcareHousingYDomain}
+                  axisLine={false}
+                  tickLine={false}
+                  width={46}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} labelFormatter={(label) => `Year ${label}`} />}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                />
+                <Line type="monotone" dataKey="socialHousingShare" name={resolvedHealthcareHousingConfig.socialHousingShare.label} stroke={resolvedHealthcareHousingConfig.socialHousingShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="healthcareShare" name={resolvedHealthcareHousingConfig.healthcareShare.label} stroke={resolvedHealthcareHousingConfig.healthcareShare.color} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-full border-line bg-surface-metric shadow-card">
+        <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
+          <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            {publicOpinionTitle}
+          </CardTitle>
+          <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
+            {publicOpinionDesc}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+          <ChartContainer config={resolvedPublicOpinionConfig} className="h-[340px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <LineChart data={[...publicOpinionSeries]} margin={{ top: 8, right: 10, left: 2, bottom: 36 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  angle={-35}
+                  textAnchor="end"
+                  height={42}
+                />
+                <YAxis
+                  domain={publicOpinionYDomain}
+                  axisLine={false}
+                  tickLine={false}
+                  width={44}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                  content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(0)}%`} labelFormatter={(label) => `Year ${label}`} />}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => <span className="text-neutral-400">{value}</span>}
+                />
+                {publicOpinionSeriesKeys.includes('publicOpinion') && (
+                  <Line type="monotone" dataKey="publicOpinion" name={resolvedPublicOpinionConfig.publicOpinion.label} stroke={resolvedPublicOpinionConfig.publicOpinion.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('tooManyImmigrants') && (
+                  <Line type="monotone" dataKey="tooManyImmigrants" name={resolvedPublicOpinionConfig.tooManyImmigrants.label} stroke={resolvedPublicOpinionConfig.tooManyImmigrants.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('fasterDeportations') && (
+                  <Line type="monotone" dataKey="fasterDeportations" name={resolvedPublicOpinionConfig.fasterDeportations.label} stroke={resolvedPublicOpinionConfig.fasterDeportations.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+                {publicOpinionSeriesKeys.includes('strongerBorderControl') && (
+                  <Line type="monotone" dataKey="strongerBorderControl" name={resolvedPublicOpinionConfig.strongerBorderControl.label} stroke={resolvedPublicOpinionConfig.strongerBorderControl.color} strokeWidth={2.25} dot={publicOpinionSeries.length <= 3 ? { r: 4 } : false} isAnimationActive={false} />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      <GermanyImmigrationAdvocatesSubsection
+        advocates={advocates}
+        heading={advocatesHeading}
+        intro={advocatesIntro}
+        coalitionNote={advocatesCoalition}
+      />
+
+      <Card className="rounded-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{contributionTitle}</CardTitle>
+          <CardDescription>{contributionDesc}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(contributionTableTitle || contributionTableDesc) && (
+            <div className="space-y-1">
+              {contributionTableTitle && (
+                <h3 className="font-sans text-xs font-semibold text-neutral-200">
+                  {contributionTableTitle}
+                </h3>
+              )}
+              {contributionTableDesc && (
+                <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+                  {contributionTableDesc}
+                </p>
+              )}
+            </div>
+          )}
+          <div className="scrollbar-none overflow-x-auto border border-line">
+            <table className="min-w-full border-collapse text-left font-sans text-xs">
+              <thead className="bg-neutral-900 text-neutral-300">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Group</th>
+                  <th className="px-3 py-2 text-right font-medium">
+                    {hasContributionPayerDetails
+                      ? 'Mean contribution (among those who pay)'
+                      : 'Taxes + Social Contributions Paid (from work)'}
+                  </th>
+                  {hasContributionPayerDetails && (
+                    <>
+                      <th className="px-3 py-2 text-right font-medium">Share of group that pays</th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        Approx. overall average (including zeros)
+                      </th>
+                    </>
+                  )}
+                  <th className="px-3 py-2 text-right font-medium">Other Transfers Received</th>
+                  <th className="px-3 py-2 text-right font-medium">Net Contribution (Taxes Paid - Transfers Received)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contributionRows.map((row) => (
+                  <tr key={row.group} className="border-t border-line">
+                    <td className="px-3 py-2 text-neutral-200">{row.group}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.paid}</td>
+                    {hasContributionPayerDetails && (
+                      <>
+                        <td className="px-3 py-2 text-right text-neutral-100">{row.payerShare ?? '—'}</td>
+                        <td className="px-3 py-2 text-right text-neutral-100">{row.overallPaid ?? '—'}</td>
+                      </>
+                    )}
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.received}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.net}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{contributionPeriodLabel}</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.welfareUsage}</p>
+            </article>
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Age-Controlled View</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.ageControlled}</p>
+            </article>
+            <article className="rounded-md border border-line bg-surface-metric shadow-card p-3">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">Raw View (No Age Control)</p>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-200">{contributionNotes.rawView}</p>
+            </article>
+          </div>
+
+          <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
+            Source:{' '}
+            <a
+              className="underline underline-offset-2 hover:text-neutral-300"
+              href={contributionNotes.sourceHref}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {contributionNotes.sourceLabel}
+            </a>
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{welfareTitle}</CardTitle>
+          <CardDescription>{welfareDesc}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="scrollbar-none overflow-x-auto border border-line">
+            <table className="min-w-full border-collapse text-left font-sans text-xs">
+              <thead className="bg-neutral-900 text-neutral-300">
+                <tr>
+                  <th className="px-3 py-2 font-medium">{welfareFirstColumnLabel}</th>
+                  <th className="px-3 py-2 text-right font-medium">Recipients</th>
+                  <th className="px-3 py-2 text-right font-medium">{welfareShareColumnLabel}</th>
+                  <th className="px-3 py-2 font-medium">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {welfareRows.map((row) => (
+                  <tr key={row.nationality} className="border-t border-line">
+                    <td className="px-3 py-2 text-neutral-200">{row.nationality}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.recipients}</td>
+                    <td className="px-3 py-2 text-right text-neutral-100">{row.share}</td>
+                    <td className="px-3 py-2 text-neutral-100">{row.notes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {welfareNote}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-sm">
+        <CardHeader
+          role="button"
+          tabIndex={0}
+          onClick={() => setIsRefugeeSectionOpen((prev) => !prev)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setIsRefugeeSectionOpen((prev) => !prev);
+            }
+          }}
+          aria-expanded={isRefugeeSectionOpen}
+          className="cursor-pointer pb-2"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{refugeeOriginsTitle}</CardTitle>
+              <CardDescription>Breakdown by country of origin.</CardDescription>
+            </div>
+            <span className="font-sans text-[11px] text-neutral-400" aria-hidden>
+              {isRefugeeSectionOpen ? '▾' : '▸'}
+            </span>
+          </div>
+        </CardHeader>
+        {isRefugeeSectionOpen ? (
+          <CardContent className="space-y-4">
+            <ChartContainer config={refugeesChartConfig} className="h-[780px]">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+                <BarChart data={[...refugeeBreakdown].reverse()} layout="vertical" margin={{ top: 8, right: 20, left: 80, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2f2f2f" horizontal={false} />
+                  <XAxis type="number" stroke="#8a8a8a" tick={{ fontSize: 11, fill: '#8a8a8a' }} tickFormatter={(v: number) => v.toLocaleString('en-US')} />
+                  <YAxis
+                    type="category"
+                    dataKey="country"
+                    stroke="#8a8a8a"
+                    width={150}
+                    tick={{ fontSize: 11, fill: '#cfcfcf' }}
+                  />
+                  <ChartTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                    content={<ChartTooltipContent formatter={(value) => Number(value).toLocaleString('en-US')} />}
+                  />
+                  <Bar dataKey="count" name="Refugees" fill="var(--uk-accent)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        ) : null}
+      </Card>
+
+      <Card className="rounded-sm border-line bg-surface-metric">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{asylumSectionTitle}</CardTitle>
+          <CardDescription>{asylumSectionDesc}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                {asylumTotalLabel}
+              </p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {asylumSeekersTotal.toLocaleString('en-US')}
+              </p>
+            </article>
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumMenLabel}</p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {asylumSeekersMen.toLocaleString('en-US')}
+              </p>
+              <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
+                ({asylumMenPct.toFixed(1)}%)
+              </p>
+            </article>
+            <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumWomenLabel}</p>
+              <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
+                {asylumSeekersWomen.toLocaleString('en-US')}
+              </p>
+              <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
+                ({asylumWomenPct.toFixed(1)}%)
+              </p>
+            </article>
+          </div>
+
+          <ChartContainer config={illegalAsylumSeekersChartConfig} className="h-[400px] w-full sm:h-[440px]">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <ComposedChart data={[...asylumByRegion]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 9, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={1}
+                  angle={-35}
+                  textAnchor="end"
+                  height={48}
+                />
+                <YAxis
+                  tickFormatter={(v) =>
+                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v))
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={52}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(label) => `Year ${label}`}
+                      formatter={(value, name) => {
+                        const label =
+                          illegalAsylumSeekersChartConfig[String(name) as keyof typeof illegalAsylumSeekersChartConfig]
+                            ?.label ?? String(name);
+                        return [`${Number(value).toLocaleString('en-US')}`, label];
+                      }}
+                    />
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
+                  formatter={(value) =>
+                    illegalAsylumSeekersChartConfig[value as keyof typeof illegalAsylumSeekersChartConfig]?.label ??
+                    String(value)
+                  }
+                />
+                {ILLEGAL_ASYLUM_STACK_KEYS.map((key) => (
+                  <Bar
+                    key={key}
+                    dataKey={key}
+                    stackId="asylum"
+                    fill={illegalAsylumSeekersChartConfig[key].color}
+                    isAnimationActive={false}
+                  />
+                ))}
+                <Line
+                  type="monotone"
+                  dataKey="totalAsylumApplications"
+                  name="totalAsylumApplications"
+                  stroke={illegalAsylumSeekersChartConfig.totalAsylumApplications.color}
+                  strokeWidth={2}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{asylumApplicationsTitle}</CardTitle>
+          <CardDescription>{asylumApplicationsDesc}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={asylumChartConfig} className="h-[360px]">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <PieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                <Pie
+                  data={asylumPie}
+                  dataKey="applications"
+                  nameKey="country"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={112}
+                  stroke="none"
+                  labelLine={false}
+                >
+                  {asylumPie.map((entry) => (
+                    <Cell key={entry.country} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value, _name, item) => {
+                        const payload = item as { payload?: { sharePct?: number } } | undefined;
+                        const pct = payload?.payload?.sharePct ?? 0;
+                        return `${Number(value).toLocaleString('en-US')} (${pct.toFixed(2)}%)`;
+                      }}
+                    />
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
+                  formatter={(value) => {
+                    const country = String(value);
+                    const pct = asylumPie.find((r) => r.country === country)?.sharePct ?? 0;
+                    return `${country} (${pct.toFixed(2)}%)`;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    </div>
+  );
+});

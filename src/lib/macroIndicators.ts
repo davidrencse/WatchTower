@@ -1,9 +1,6 @@
+import { normalizeLabel } from './csv';
 import type { CountryStatMetric } from '../types/countryStats';
 import type { CountryWideRow } from './parseCountriesWideCsv';
-
-function norm(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, ' ');
-}
 
 const COUNTRY_ALIASES: Record<string, string> = {
   'bosnia herzegovina': 'bosnia and herzegovina',
@@ -38,10 +35,10 @@ function fmtUsd(raw: string): string {
 }
 
 export function findMacroIndicatorsRow(rows: CountryWideRow[], countryName: string): CountryWideRow | null {
-  const targetNorm = norm(countryName);
+  const targetNorm = normalizeLabel(countryName);
   const target = COUNTRY_ALIASES[targetNorm] ?? targetNorm;
   for (const r of rows) {
-    const c = norm(String(r.country ?? r.Country ?? ''));
+    const c = normalizeLabel(String(r.country ?? r.Country ?? ''));
     if (c === target) return r;
   }
   return null;

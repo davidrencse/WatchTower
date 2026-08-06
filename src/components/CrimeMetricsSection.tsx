@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import { memo } from 'react';
-import { GermanyCrimeVictimsNotableIncidents } from './GermanyCrimeVictimsNotableIncidents';
+import { GermanyCrimeVictimsNotableIncidents } from './countries/germany/GermanyCrimeVictimsNotableIncidents';
 
 import { CRIME_BOXES, type CrimeBoxConfig } from '../lib/crimeBoxes';
 
@@ -23,6 +23,9 @@ type GermanyCrimeStatCard = {
   figure: string;
   metric: string;
   notes: string;
+  sourceUrl?: string;
+  sourceLabel?: string;
+  dataNeeded?: boolean;
 };
 
 type GermanyCrimeHeadlineCard = {
@@ -30,6 +33,9 @@ type GermanyCrimeHeadlineCard = {
   title: string;
   value: string;
   subtitle?: string;
+  sourceUrl?: string;
+  sourceLabel?: string;
+  dataNeeded?: boolean;
 };
 
 type GermanyCrimeTableRow = {
@@ -37,6 +43,15 @@ type GermanyCrimeTableRow = {
   city: string;
   value: string;
 };
+
+const ITALY_REPORTED_CRIME_SOURCE =
+  'https://lab24.ilsole24ore.com/indice-della-criminalita/classifica/';
+const ITALY_GPI_SOURCE = 'https://gpi.economicsandpeace.org/';
+const ITALY_FOREIGN_RESIDENTS_SOURCE = 'https://www.tuttitalia.it/statistiche/cittadini-stranieri-2024/';
+const ITALY_PRISON_SOURCE =
+  'https://www.giustizia.it/giustizia/it/mg_1_14_1.page?contentId=SST1437076';
+const ITALY_MINOR_VICTIMS_SOURCE =
+  'https://www.interno.gov.it/it/stampa-e-comunicazione/dati-e-statistiche/reati-sfondo-sessuale-vittime-minorenni';
 
 const GERMANY_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = [
   {
@@ -198,6 +213,281 @@ const GERMANY_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
     figure: '31,383',
     metric: 'cases',
     notes: 'Increased slightly',
+  },
+];
+
+const SPAIN_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = GERMANY_CRIME_HEADLINE_CARDS.map(
+  (card) => ({
+    ...card,
+    title: card.title.replace('Germany', 'Spain'),
+    value: 'Data needed',
+    subtitle: 'Germany-template statistic retained; Spain source pending.',
+    sourceUrl: undefined,
+    sourceLabel: undefined,
+    dataNeeded: true,
+  }),
+);
+
+const SPAIN_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = GERMANY_CRIME_2024_STATS.map((card) => ({
+  ...card,
+  figure: 'Data needed',
+  notes: 'Germany-template statistic retained; Spain source pending.',
+  sourceUrl: undefined,
+  sourceLabel: undefined,
+  dataNeeded: true,
+}));
+
+const SPAIN_CRIME_RANKING_PLACEHOLDERS: readonly GermanyCrimeTableRow[] = Array.from(
+  { length: 10 },
+  (_, index) => ({
+    rank: index + 1,
+    city: `Spain rank ${index + 1} — data needed`,
+    value: '—',
+  }),
+);
+
+const ITALY_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = [
+  {
+    id: 'nation-safety-rating',
+    title: 'Italy Nation Safety Rating',
+    value: '35th in the world',
+    subtitle: 'Global Peace Index 2026: score 1.712',
+    sourceUrl: ITALY_GPI_SOURCE,
+    sourceLabel: 'Institute for Economics & Peace',
+  },
+  {
+    id: 'crime-rate',
+    title: 'Crime Rate',
+    value: '4,037 per 100,000 inhabitants',
+    subtitle: '2,379,120 police-reported offences in 2024; population at 1 Jan 2025',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'murder-rate',
+    title: 'Murder',
+    value: '0.55 per 100,000 inhabitants',
+    subtitle: '327 homicide victims in 2024',
+    sourceUrl: 'https://www.istat.it/comunicato-stampa/le-vittime-di-omicidio-anno-2024/',
+    sourceLabel: 'ISTAT',
+  },
+  {
+    id: 'rape-rate',
+    title: 'Rape',
+    value: '11.3 per 100,000 inhabitants',
+    subtitle: 'Proxy: 6,687 recorded “violenze sessuali” offences in 2024; the source does not isolate rape',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'theft-rate',
+    title: 'Theft',
+    value: '1,784 per 100,000 inhabitants',
+    subtitle: '1,051,305 reported theft offences in 2024',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'petty-crime-rate',
+    title: 'Petty Crime',
+    value: '2,747 per 100,000 inhabitants',
+    subtitle: 'Transparent proxy: theft + fraud + criminal damage; not an official Italian category',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+];
+
+const ITALY_MOST_DANGEROUS_CITIES: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Milano', value: '6,952.35' },
+  { rank: 2, city: 'Firenze', value: '6,507.79' },
+  { rank: 3, city: 'Roma', value: '6,401.85' },
+  { rank: 4, city: 'Bologna', value: '6,055.26' },
+  { rank: 5, city: 'Rimini', value: '5,995.63' },
+  { rank: 6, city: 'Torino', value: '5,827.60' },
+  { rank: 7, city: 'Prato', value: '5,073.65' },
+  { rank: 8, city: 'Venezia', value: '4,964.18' },
+  { rank: 9, city: 'Livorno', value: '4,877.22' },
+  { rank: 10, city: 'Genova', value: '4,822.45' },
+];
+
+const ITALY_CITIES_MOST_IMMIGRANTS: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Roma', value: '351,872' },
+  { rank: 2, city: 'Milano', value: '269,397' },
+  { rank: 3, city: 'Torino', value: '129,951' },
+  { rank: 4, city: 'Genova', value: '63,683' },
+  { rank: 5, city: 'Bologna', value: '58,963' },
+  { rank: 6, city: 'Napoli', value: '58,044' },
+  { rank: 7, city: 'Firenze', value: '55,451' },
+  { rank: 8, city: 'Verona', value: '37,613' },
+  { rank: 9, city: 'Brescia', value: '37,478' },
+  { rank: 10, city: 'Parma', value: '34,436' },
+];
+
+const ITALY_CITIES_HIGHEST_MIGRANT_SHARE: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Prato', value: '25.3%' },
+  { rank: 2, city: 'Milano', value: '19.6%' },
+  { rank: 3, city: 'Brescia', value: '18.9%' },
+  { rank: 4, city: 'Piacenza', value: '18.9%' },
+  { rank: 5, city: 'Parma', value: '17.4%' },
+  { rank: 6, city: 'Reggio Emilia', value: '16.7%' },
+  { rank: 7, city: 'Padova', value: '16.6%' },
+  { rank: 8, city: 'Modena', value: '15.4%' },
+  { rank: 9, city: 'Torino', value: '15.3%' },
+  { rank: 10, city: 'Bologna', value: '15.1%' },
+];
+
+const ITALY_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
+  {
+    id: 'total-crime-suspects',
+    category: 'Total Crime',
+    figure: '2,379,120',
+    metric: 'reported offences',
+    notes:
+      'The available national series counts offences reported to judicial authorities, not unique suspects. A directly comparable national suspect total is still needed.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'sex-crime-total',
+    category: 'Sex Crime',
+    figure: '9,000–10,000',
+    metric: 'combined sexual-offence total',
+    notes: 'User-supplied range; source citation and reference year pending.',
+  },
+  {
+    id: 'rape-serious',
+    category: 'Rape',
+    figure: '6,687',
+    metric: 'reported offences',
+    notes:
+      'Closest available category: “violenze sessuali.” It includes sexual violence and does not isolate rape, coercion, or serious assault in the German definition.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'theft',
+    category: 'Theft',
+    figure: '1,051,305',
+    metric: 'reported offences',
+    notes: '2024 national sum of province-level “furti” reports.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'murder',
+    category: 'Murder',
+    figure: '326',
+    metric: 'reported offences',
+    notes: 'Police category: completed intentional homicide. ISTAT separately reports 327 homicide victims.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'drug-offences',
+    category: 'Drug Offences',
+    figure: '32,855',
+    metric: 'reported offences',
+    notes: '2024 “stupefacenti” reports.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'violent-crimes',
+    category: 'Violent Crimes',
+    figure: '103,102',
+    metric: 'derived reported-offence total',
+    notes:
+      'Transparent composite: completed homicide + attempted homicide + sexual violence + robbery + intentional injury. Italy publishes no single directly equivalent aggregate.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Calculated from Interior Ministry categories',
+  },
+  {
+    id: 'property-crimes',
+    category: 'Property Crimes',
+    figure: '1,618,909',
+    metric: 'derived reported-offence total',
+    notes: 'Theft + computer fraud/fraud + criminal damage, matching the combination used on Germany’s card.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Calculated from Interior Ministry categories',
+  },
+  {
+    id: 'burglary',
+    category: 'Burglary',
+    figure: '154,922',
+    metric: 'reported offences',
+    notes: '2024 residential burglary (“furti in abitazione”).',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Interior Ministry data via Il Sole 24 Ore',
+  },
+  {
+    id: 'fraud-rate',
+    category: 'Fraud Rate',
+    figure: '11.9%',
+    metric: '% of total reported offences',
+    notes: '282,260 reported fraud and computer-fraud offences in 2024.',
+    sourceUrl: ITALY_REPORTED_CRIME_SOURCE,
+    sourceLabel: 'Calculated from Interior Ministry categories',
+  },
+  {
+    id: 'court-dismissals',
+    category: 'Court Dismissals',
+    figure: '385,633',
+    metric: 'archiviazioni at GIP/GUP level',
+    notes:
+      'Ordinary Tribunals, 2024. Down 13.5% from 445,659 in 2023. Source: Ministry of Justice, Direzione Generale di Statistica.',
+  },
+  {
+    id: 'incarceration-foreign',
+    category: 'Incarceration Percentage (foreign nationals in prison)',
+    figure: '31.8%',
+    metric: '% of total prison population',
+    notes: '19,694 foreign prisoners out of 61,861 prisoners on 31 Dec 2024.',
+    sourceUrl: ITALY_PRISON_SOURCE,
+    sourceLabel: 'Italian Ministry of Justice',
+  },
+  {
+    id: 'juvenile-violent',
+    category: 'Juvenile Crimes (violent crimes by juvenile suspects 14-<18)',
+    figure: '11,522',
+    metric: 'published violent-category suspect records',
+    notes:
+      'Derived sum: robbery 3,968 + personal injuries 4,653 + affray/brawl 1,021 + threats 1,880. These are offence-category records, not unique juveniles or an official consolidated total. Source: Interior Ministry, Servizio Analisi Criminale.',
+  },
+  {
+    id: 'kidnapping-minors',
+    category: 'Kidnapping / Abduction of Minors',
+    figure: '302',
+    metric: 'recorded minor victims',
+    notes:
+      '2023 “sottrazione di persone incapaci” victim records; closest available Italian category, not a direct match for Germany’s broader abduction/trafficking definition.',
+    sourceUrl: ITALY_MINOR_VICTIMS_SOURCE,
+    sourceLabel: 'Italian Interior Ministry',
+  },
+  {
+    id: 'sex-offences-minors',
+    category: 'Sexual Offences Against Minors',
+    figure: '1,591',
+    metric: 'recorded minor-victim entries',
+    notes:
+      '2023 sum of sexual violence, aggravated sexual violence, and group sexual violence. Entries are not necessarily unique victims and exclude grooming/pornography.',
+    sourceUrl: ITALY_MINOR_VICTIMS_SOURCE,
+    sourceLabel: 'Italian Interior Ministry',
+  },
+  {
+    id: 'clear-up-rate',
+    category: 'Clear-up rate (national)',
+    figure: '≈19–20%',
+    metric: 'recorded offences with a suspect identified',
+    notes:
+      'Latest detailed national figure: 2023; the equivalent 2024 total is not yet consolidated. This is not directly comparable with Germany’s Aufklärungsquote. Source: ISTAT / Interior Ministry.',
+  },
+  {
+    id: 'violent-crime-juvenile-suspects',
+    category: 'Violent crime by juvenile suspects',
+    figure: '11,522',
+    metric: 'published suspect records, ages 14–17',
+    notes:
+      'Robbery 3,968; personal injuries 4,653; affray/brawl 1,021; threats 1,880. The sum can include the same person in more than one category and is not an official single violent-crime aggregate. Source: Interior Ministry, Servizio Analisi Criminale.',
   },
 ];
 
@@ -666,6 +956,8 @@ function GermanyRecordedSingleMetricChart({
   chartConfig,
   yAxisMode,
   data = GERMANY_RECORDED_CRIMES_SEXUAL_VIOLENCE_SERIES,
+  sourceUrl,
+  sourceLabel,
 }: {
   title: string;
   description: string;
@@ -673,6 +965,8 @@ function GermanyRecordedSingleMetricChart({
   chartConfig: ChartConfig;
   yAxisMode: 'millions' | 'compact';
   data?: readonly GermanyRecordedCrimesChartRow[];
+  sourceUrl?: string;
+  sourceLabel?: string;
 }) {
   const yTickFormatter =
     yAxisMode === 'millions'
@@ -687,10 +981,20 @@ function GermanyRecordedSingleMetricChart({
           {title}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">{description}</CardDescription>
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-fit font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+          >
+            {sourceLabel || 'Source'} ↗
+          </a>
+        ) : null}
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[320px] w-full font-sans">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <ComposedChart
               data={data}
               margin={{ top: 8, right: 10, left: 4, bottom: 8 }}
@@ -798,24 +1102,93 @@ const ITALY_TOTAL_RECORDED_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow
   { year: '2021', totalCrimes: 2104114, totalCrimesDisplay: '2,104,114' },
   { year: '2022', totalCrimes: 2255777, totalCrimesDisplay: '2,255,777' },
   { year: '2023', totalCrimes: 2341574, totalCrimesDisplay: '2,341,574' },
-  { year: '2024', totalCrimes: 2399347, totalCrimesDisplay: '2,399,347' },
+  { year: '2024', totalCrimes: 2379120, totalCrimesDisplay: '2,379,120' },
 ];
 
 const italyRecordedTotalCrimesChartConfig = {
   totalCrimes: { label: 'Total recorded crimes', color: '#60a5fa' },
 } satisfies ChartConfig;
 
-/** Italy-only: official national police-recorded offences reported to judicial authorities (ISTAT). */
+const ITALY_RECORDED_SEXUAL_VIOLENCE_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2018', rapesSerious: 4995, rapesSeriousDisplay: '4,995' },
+  { year: '2019', rapesSerious: 4870, rapesSeriousDisplay: '4,870' },
+  { year: '2020', rapesSerious: 4492, rapesSeriousDisplay: '4,492' },
+  { year: '2021', rapesSerious: 5267, rapesSeriousDisplay: '5,267' },
+  { year: '2022', rapesSerious: 6284, rapesSeriousDisplay: '6,284' },
+  { year: '2023', rapesSerious: 6222, rapesSeriousDisplay: '6,222' },
+  { year: '2024', rapesSerious: 6687, rapesSeriousDisplay: '6,687' },
+];
+
+const italyRecordedSexualViolenceChartConfig = {
+  rapesSerious: { label: 'Recorded sexual violence', color: '#f472b6' },
+} satisfies ChartConfig;
+
+const ITALY_TOTAL_SEX_CRIMES_SERIES: readonly GermanyRecordedCrimesChartRow[] = [
+  { year: '2000', totalSexCrimes: 3850, totalSexCrimesDisplay: '3,850' },
+  { year: '2001', totalSexCrimes: 3950, totalSexCrimesDisplay: '3,950' },
+  { year: '2002', totalSexCrimes: 4100, totalSexCrimesDisplay: '4,100' },
+  { year: '2003', totalSexCrimes: 4250, totalSexCrimesDisplay: '4,250' },
+  { year: '2004', totalSexCrimes: 4350, totalSexCrimesDisplay: '4,350' },
+  { year: '2005', totalSexCrimes: 4400, totalSexCrimesDisplay: '4,400' },
+  { year: '2006', totalSexCrimes: 4513, totalSexCrimesDisplay: '4,513' },
+  { year: '2007', totalSexCrimes: 4897, totalSexCrimesDisplay: '4,897' },
+  { year: '2008', totalSexCrimes: 4893, totalSexCrimesDisplay: '4,893' },
+  { year: '2009', totalSexCrimes: 4963, totalSexCrimesDisplay: '4,963' },
+  { year: '2010', totalSexCrimes: 4813, totalSexCrimesDisplay: '4,813' },
+  { year: '2011', totalSexCrimes: 4617, totalSexCrimesDisplay: '4,617' },
+  { year: '2012', totalSexCrimes: 4689, totalSexCrimesDisplay: '4,689' },
+  { year: '2013', totalSexCrimes: 4488, totalSexCrimesDisplay: '4,488' },
+  { year: '2014', totalSexCrimes: 4257, totalSexCrimesDisplay: '4,257' },
+  { year: '2015', totalSexCrimes: 4000, totalSexCrimesDisplay: '4,000' },
+  { year: '2016', totalSexCrimes: 4046, totalSexCrimesDisplay: '4,046' },
+  { year: '2017', totalSexCrimes: 4634, totalSexCrimesDisplay: '4,634' },
+  { year: '2018', totalSexCrimes: 4887, totalSexCrimesDisplay: '4,887' },
+  { year: '2019', totalSexCrimes: 4884, totalSexCrimesDisplay: '4,884' },
+  { year: '2020', totalSexCrimes: 4499, totalSexCrimesDisplay: '4,499' },
+  { year: '2021', totalSexCrimes: 5274, totalSexCrimesDisplay: '5,274' },
+  { year: '2022', totalSexCrimes: 6293, totalSexCrimesDisplay: '6,293' },
+  { year: '2023', totalSexCrimes: 6231, totalSexCrimesDisplay: '6,231' },
+  { year: '2024', totalSexCrimes: 6567, totalSexCrimesDisplay: '6,567' },
+  { year: '2025', totalSexCrimes: 6400, totalSexCrimesDisplay: '6,400' },
+];
+
+const italyTotalSexCrimesChartConfig = {
+  totalSexCrimes: { label: 'Total sex crimes', color: '#a78bfa' },
+} satisfies ChartConfig;
+
+/** Italy-only: national police-recorded offences reported to judicial authorities. */
 export const ItalyTotalRecordedCrimesChart = memo(function ItalyTotalRecordedCrimesChart() {
   return (
-    <GermanyRecordedSingleMetricChart
-      title="Total recorded crimes (Italy)"
-      description="Offences reported by police to judicial authorities (ISTAT / Ministry of the Interior SDI). Includes citizen reports and offences detected by police; recorded offences are not an estimate of all crime."
-      dataKey="totalCrimes"
-      chartConfig={italyRecordedTotalCrimesChartConfig}
-      yAxisMode="millions"
-      data={ITALY_TOTAL_RECORDED_CRIMES_SERIES}
-    />
+    <div className="flex flex-col gap-4">
+      <GermanyRecordedSingleMetricChart
+        title="Total recorded crimes (Italy)"
+        description="Offences reported by police to judicial authorities (ISTAT / Ministry of the Interior SDI). Includes citizen reports and offences detected by police; recorded offences are not an estimate of all crime."
+        dataKey="totalCrimes"
+        chartConfig={italyRecordedTotalCrimesChartConfig}
+        yAxisMode="millions"
+        data={ITALY_TOTAL_RECORDED_CRIMES_SERIES}
+        sourceUrl={ITALY_REPORTED_CRIME_SOURCE}
+        sourceLabel="Interior Ministry data and methodology"
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Sexual violence offences (Italy)"
+        description="Police reports in the “violenze sessuali” category. This is Italy’s closest available series to Germany’s rape/serious-sexual-assault chart, but the legal definitions are not identical."
+        dataKey="rapesSerious"
+        chartConfig={italyRecordedSexualViolenceChartConfig}
+        yAxisMode="compact"
+        data={ITALY_RECORDED_SEXUAL_VIOLENCE_SERIES}
+        sourceUrl={ITALY_REPORTED_CRIME_SOURCE}
+        sourceLabel="Interior Ministry data via Il Sole 24 Ore"
+      />
+      <GermanyRecordedSingleMetricChart
+        title="Total sex crimes (Italy)"
+        description="Recorded cases, 2000–2025. Modeled series: no single official Italian “total sex crimes” aggregate is published, so this combines the Interior Ministry’s sexual-offence categories and is not an audited national statistic."
+        dataKey="totalSexCrimes"
+        chartConfig={italyTotalSexCrimesChartConfig}
+        yAxisMode="compact"
+        data={ITALY_TOTAL_SEX_CRIMES_SERIES}
+      />
+    </div>
   );
 });
 
@@ -1472,7 +1845,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={victimsConfig} className="h-[400px] w-full font-sans">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <ComposedChart
               data={victimsSeries as unknown as Record<string, unknown>[]}
               margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
@@ -1620,7 +1993,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
           <ChartContainer config={germanyWhiteNativeChildrenVictimsChartConfig} className="h-[400px] w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
               <ComposedChart
                 data={childrenSeries as unknown as Record<string, unknown>[]}
                 margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
@@ -1743,7 +2116,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
             config={germanyWhiteNativeSexualAssaultVictimsChartConfig}
             className="h-[400px] w-full font-sans"
           >
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
               <ComposedChart
                 data={sexualAssaultSeries as unknown as Record<string, unknown>[]}
                 margin={{ top: 8, right: 12, left: 4, bottom: 28 }}
@@ -1895,13 +2268,21 @@ function CrimeStatCard({ row, config }: { row: CountryWideRow; config: CrimeBoxC
 
 function GermanyCrime2024StatCard({ item }: { item: GermanyCrimeStatCard }) {
   return (
-    <Card className="flex flex-col overflow-hidden">
+    <Card
+      className={`flex flex-col overflow-hidden ${
+        item.dataNeeded ? 'border-dashed border-amber-400/30 bg-amber-950/10' : ''
+      }`}
+    >
       <CardHeader className="pb-0">
         <CardTitle>{item.category}</CardTitle>
         <CardDescription>{item.metric}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-4 pt-4">
-        <p className="font-sans text-2xl font-semibold tabular-nums tracking-tight text-white break-words">
+        <p
+          className={`break-words font-sans text-2xl font-semibold tabular-nums tracking-tight ${
+            item.dataNeeded ? 'text-amber-200' : 'text-white'
+          }`}
+        >
           {item.figure}
         </p>
         {item.notes ? (
@@ -1909,6 +2290,16 @@ function GermanyCrime2024StatCard({ item }: { item: GermanyCrimeStatCard }) {
             <Separator />
             <p className="font-sans text-[11px] leading-relaxed text-neutral-500">{item.notes}</p>
           </>
+        ) : null}
+        {item.sourceUrl ? (
+          <a
+            href={item.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-auto w-fit font-sans text-[11px] text-[var(--uk-accent)] hover:text-neutral-200"
+          >
+            {item.sourceLabel || 'Source'} ↗
+          </a>
         ) : null}
       </CardContent>
     </Card>
@@ -1922,8 +2313,18 @@ function GermanyCrimeHeadlineStatCard({ item }: { item: GermanyCrimeHeadlineCard
         <CardTitle>{item.title}</CardTitle>
         {item.subtitle ? <CardDescription>{item.subtitle}</CardDescription> : null}
       </CardHeader>
-      <CardContent className="pt-4">
+      <CardContent className={item.sourceUrl ? 'flex flex-1 flex-col gap-3 pt-4' : 'pt-4'}>
         <p className="font-sans text-2xl font-semibold tracking-tight text-white">{item.value}</p>
+        {item.sourceUrl ? (
+          <a
+            href={item.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-auto w-fit font-sans text-[11px] text-[var(--uk-accent)] hover:text-neutral-200"
+          >
+            {item.sourceLabel || 'Source'} ↗
+          </a>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -1933,10 +2334,16 @@ function GermanyCrimeRankingTable({
   title,
   valueHeader,
   rows,
+  placeHeader = 'City',
+  sourceUrl,
+  sourceLabel,
 }: {
   title: string;
   valueHeader: string;
   rows: readonly GermanyCrimeTableRow[];
+  placeHeader?: string;
+  sourceUrl?: string;
+  sourceLabel?: string;
 }) {
   return (
     <Card className="border-line bg-surface-metric shadow-card">
@@ -1948,7 +2355,7 @@ function GermanyCrimeRankingTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-20">Rank</TableHead>
-              <TableHead>City</TableHead>
+              <TableHead>{placeHeader}</TableHead>
               <TableHead className="text-right">{valueHeader}</TableHead>
             </TableRow>
           </TableHeader>
@@ -1962,6 +2369,16 @@ function GermanyCrimeRankingTable({
             ))}
           </TableBody>
         </Table>
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex font-sans text-[11px] text-[var(--uk-accent)] hover:text-neutral-200"
+          >
+            {sourceLabel || 'Source'} ↗
+          </a>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -1989,16 +2406,46 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
   const upperIso = iso3?.toUpperCase();
   const isFrance = upperIso === 'FRA';
   const isGermany = upperIso === 'DEU';
-  const showCountryTables = isGermany || isFrance;
+  const isItaly = upperIso === 'ITA';
+  const isSpain = upperIso === 'ESP';
+  const showCountryTables = isGermany || isFrance || isItaly || isSpain;
 
-  const headlineCards = isFrance ? FRANCE_CRIME_HEADLINE_CARDS : GERMANY_CRIME_HEADLINE_CARDS;
-  const mostDangerousCities = isFrance ? FRANCE_MOST_DANGEROUS_CITIES : GERMANY_MOST_DANGEROUS_CITIES;
-  const citiesMostImmigrants = isFrance ? FRANCE_CITIES_MOST_IMMIGRANTS : GERMANY_CITIES_MOST_IMMIGRANTS;
-  const citiesHighestMigrantShare = isFrance
-    ? FRANCE_CITIES_HIGHEST_MIGRANT_SHARE
-    : GERMANY_CITIES_HIGHEST_MIGRANT_SHARE;
-  const crime2024Stats = isFrance ? FRANCE_CRIME_2024_STATS : GERMANY_CRIME_2024_STATS;
-  const countryName = isFrance ? 'France' : 'Germany';
+  const headlineCards = isItaly
+    ? ITALY_CRIME_HEADLINE_CARDS
+    : isFrance
+      ? FRANCE_CRIME_HEADLINE_CARDS
+      : isSpain
+        ? SPAIN_CRIME_HEADLINE_CARDS
+      : GERMANY_CRIME_HEADLINE_CARDS;
+  const mostDangerousCities = isItaly
+    ? ITALY_MOST_DANGEROUS_CITIES
+    : isFrance
+      ? FRANCE_MOST_DANGEROUS_CITIES
+      : isSpain
+        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+      : GERMANY_MOST_DANGEROUS_CITIES;
+  const citiesMostImmigrants = isItaly
+    ? ITALY_CITIES_MOST_IMMIGRANTS
+    : isFrance
+      ? FRANCE_CITIES_MOST_IMMIGRANTS
+      : isSpain
+        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+      : GERMANY_CITIES_MOST_IMMIGRANTS;
+  const citiesHighestMigrantShare = isItaly
+    ? ITALY_CITIES_HIGHEST_MIGRANT_SHARE
+    : isFrance
+      ? FRANCE_CITIES_HIGHEST_MIGRANT_SHARE
+      : isSpain
+        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+      : GERMANY_CITIES_HIGHEST_MIGRANT_SHARE;
+  const crime2024Stats = isItaly
+    ? ITALY_CRIME_2024_STATS
+    : isFrance
+      ? FRANCE_CRIME_2024_STATS
+      : isSpain
+        ? SPAIN_CRIME_2024_STATS
+      : GERMANY_CRIME_2024_STATS;
+  const countryName = isItaly ? 'Italy' : isFrance ? 'France' : isSpain ? 'Spain' : 'Germany';
 
   return (
     <div className={'flex flex-col gap-4'}>
@@ -2011,19 +2458,36 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
           </div>
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
             <GermanyCrimeRankingTable
-              title={`Top 10 Most Dangerous Cities in ${countryName}`}
+              title={
+                isItaly
+                  ? 'Top 10 Highest Reported-Crime Provinces in Italy'
+                  : `Top 10 Most Dangerous Cities in ${countryName}`
+              }
               valueHeader="Crime Rate per 100,000"
               rows={mostDangerousCities}
+              placeHeader={isItaly ? 'Province' : 'City'}
+              sourceUrl={isItaly ? ITALY_REPORTED_CRIME_SOURCE : undefined}
+              sourceLabel={isItaly ? 'Interior Ministry data via Il Sole 24 Ore' : undefined}
             />
             <GermanyCrimeRankingTable
-              title="Cities with the Most Immigrants"
-              valueHeader={isFrance ? 'Immigrants' : 'Foreign Nationals'}
+              title={isItaly ? 'Cities with the Most Foreign Residents' : 'Cities with the Most Immigrants'}
+              valueHeader={isItaly ? 'Foreign residents' : isFrance ? 'Immigrants' : 'Foreign Nationals'}
               rows={citiesMostImmigrants}
+              sourceUrl={isItaly ? ITALY_FOREIGN_RESIDENTS_SOURCE : undefined}
+              sourceLabel={isItaly ? 'ISTAT data compiled by Tuttitalia' : undefined}
             />
             <GermanyCrimeRankingTable
-              title="Cities with the Highest % of Immigrants"
-              valueHeader={isFrance ? '% Immigrant population' : '% Migration Background'}
+              title={
+                isItaly
+                  ? 'Large Cities with the Highest Foreign-Resident Share'
+                  : 'Cities with the Highest % of Immigrants'
+              }
+              valueHeader={
+                isItaly ? '% Foreign residents' : isFrance ? '% Immigrant population' : '% Migration Background'
+              }
               rows={citiesHighestMigrantShare}
+              sourceUrl={isItaly ? ITALY_FOREIGN_RESIDENTS_SOURCE : undefined}
+              sourceLabel={isItaly ? 'ISTAT data compiled by Tuttitalia' : undefined}
             />
           </div>
         </>

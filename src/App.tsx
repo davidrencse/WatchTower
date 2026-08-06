@@ -1,22 +1,47 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { AppLayout } from './components/AppLayout';
-import { CountryGlobe } from './components/CountryGlobe';
 import { CustomCursor } from './components/CustomCursor';
-import { FlagGallery } from './components/FlagGallery';
 import { GalleryViewToggle, type GalleryView } from './components/GalleryViewToggle';
 import { HomeHero } from './components/HomeHero';
 import { SelectedFlagView, prefetchCountryDashboard } from './components/SelectedFlagView';
 import { WatchtowerSceneBackground } from './components/WatchtowerSceneBackground';
 import { useTheme } from './context/ThemeContext';
 import { FLAGS } from './data/flags';
-import { GLOBE_MARKERS } from './data/globeCountries';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
 import { flagIdHasCountryStats } from './lib/flagIsoMapping';
 import { flagForPath, pathForFlag } from './lib/countryRoute';
-import { scheduleIdleTask } from './lib/idleTask';
 import type { FlagEntry } from './types/flag';
 
 const HERO_EXIT_MS = 400;
+const SITE_ORIGIN = (import.meta.env.VITE_SITE_URL || 'https://watchtower.app').replace(/\/+$/, '');
+const loadCountryGlobe = () => import('./components/MapGlobe');
+const loadFlagGallery = () => import('./components/FlagGallery');
+const CountryGlobe = lazy(() =>
+  loadCountryGlobe().then((module) => ({ default: module.CountryGlobe })),
+);
+const FlagGallery = lazy(() =>
+  loadFlagGallery().then((module) => ({ default: module.FlagGallery })),
+);
+
+function GlobeLoadingState() {
+  return (
+    <div
+      data-theme="dark"
+      className="grid h-[100dvh] w-full place-items-center bg-black text-white"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="w-48">
+        <p className="mb-3 text-center font-mono text-xs uppercase tracking-[0.18em] text-white/70">
+          Loading globe
+        </p>
+        <span className="block h-px w-full overflow-hidden bg-white/20">
+          <span className="block h-full w-2/3 animate-pulse bg-white/80" />
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /** Ignore gallery flag taps briefly after leaving the hero — avoids the same touch/click hitting a tile underneath. */
 function gallerySelectGraceMs(): number {
@@ -43,7 +68,7 @@ function App() {
   const suppressGallerySelectUntil = useRef(0);
   const { theme } = useTheme();
 
-  usePrefetchFlagImages(stage !== 'home');
+  usePrefetchFlagImages(stage === 'gallery' && !selected && galleryView === 'flags');
 
   const openGalleryFromHero = useCallback(() => {
     openingGalleryFromHero.current = true;
@@ -58,13 +83,6 @@ function App() {
     return () => window.clearTimeout(t);
   }, [heroExiting]);
 
-  // Once the gallery is shown, warm the country-dossier chunk (dashboard + recharts) during
-  // idle so the first country opens instantly instead of waiting on a large download.
-  useEffect(() => {
-    if (stage !== 'gallery') return;
-    return scheduleIdleTask(() => prefetchCountryDashboard(), 2000);
-  }, [stage]);
-
   useEffect(() => {
     if (stage !== 'gallery' || !openingGalleryFromHero.current) return;
     openingGalleryFromHero.current = false;
@@ -72,8 +90,8 @@ function App() {
   }, [stage]);
 
   useEffect(() => {
-    // Home splash and the full-screen globe both own the viewport — no page scroll. Only a
-    // selected country dossier scrolls normally.
+    // The home surface and globe own a fixed viewport. Country dossiers return
+    // scrolling to the document.
     if (!selected) {
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -113,9 +131,19 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
-  // Reflect the current country in the tab title so shared/bookmarked pages are recognisable.
+  // Keep route-specific discovery metadata aligned with the shareable country URL.
   useEffect(() => {
-    document.title = selected ? `${selected.label} · WatchTower` : 'WatchTower';
+    const title = selected ? `${selected.label} · WatchTower` : 'WatchTower';
+    const routePath = selected ? pathForFlag(selected) : '/';
+    const canonicalUrl = `${SITE_ORIGIN}${routePath}`;
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const openGraphUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+    const openGraphTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+
+    document.title = title;
+    canonical?.setAttribute('href', canonicalUrl);
+    openGraphUrl?.setAttribute('content', canonicalUrl);
+    openGraphTitle?.setAttribute('content', title);
   }, [selected]);
 
   const selectFlag = useCallback((flag: FlagEntry) => {
@@ -142,20 +170,25 @@ function App() {
             .filter(Boolean)
             .join(' ')}
         >
-          {galleryView === 'globe' ? (
-            <CountryGlobe markers={GLOBE_MARKERS} onSelect={selectFlag} />
-          ) : (
-            <>
-              {theme === 'dark' ? <WatchtowerSceneBackground fixed /> : null}
-              <AppLayout showHeader={false} transparent={theme === 'dark'}>
-                <FlagGallery
-                  activeFlagId={activeFlagId}
-                  onActiveFlagChange={setActiveFlagId}
-                  onSelectFlag={selectFlag}
-                />
-              </AppLayout>
-            </>
-          )}
+          <Suspense fallback={<GlobeLoadingState />}>
+            {galleryView === 'globe' ? (
+              <CountryGlobe
+                onSelect={selectFlag}
+                onPrefetchDossier={prefetchCountryDashboard}
+              />
+            ) : (
+              <>
+                {theme === 'dark' ? <WatchtowerSceneBackground fixed /> : null}
+                <AppLayout showHeader={false} transparent={theme === 'dark'}>
+                  <FlagGallery
+                    activeFlagId={activeFlagId}
+                    onActiveFlagChange={setActiveFlagId}
+                    onSelectFlag={selectFlag}
+                  />
+                </AppLayout>
+              </>
+            )}
+          </Suspense>
           {!heroExiting ? (
             <GalleryViewToggle
               view={galleryView}
@@ -174,7 +207,12 @@ function App() {
       {showHeroOverlay ? (
         <div data-theme="dark" className="fixed inset-0 z-50" aria-hidden={heroExiting}>
           <div className={heroExiting ? 'wt-hero-exit' : undefined}>
-            <HomeHero onExplore={openGalleryFromHero} />
+            <HomeHero
+              onExplore={openGalleryFromHero}
+              onPrefetchAtlas={() => {
+                void loadCountryGlobe();
+              }}
+            />
           </div>
         </div>
       ) : null}

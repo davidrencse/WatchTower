@@ -118,7 +118,9 @@ function syncFlagsToPublic() {
       }
       fs.mkdirSync(destDir, { recursive: true });
       for (const name of fs.readdirSync(destDir)) {
-        if (name.endsWith('.png')) fs.unlinkSync(path.join(destDir, name));
+        // `force` so a file that vanished between the readdir and the unlink (a parallel build,
+        // or the dev server restarting mid-sync) cannot take the whole server down with ENOENT.
+        if (name.endsWith('.png')) fs.rmSync(path.join(destDir, name), { force: true });
       }
       for (const name of fs.readdirSync(srcDir)) {
         if (!name.toLowerCase().endsWith('.png')) continue;
@@ -196,7 +198,30 @@ function virtualFlagFilenames() {
 
 export default defineConfig({
   plugins: [react(), syncDataCsvToPublic(), syncFlagsToPublic(), syncHeroAssetsToPublic(), virtualFlagFilenames()],
+  optimizeDeps: {
+    // Vite's esbuild pre-bundler scans satellite.js and trips over the top-level await in its
+    // Emscripten pthreads build, which killed the dev server's dependency optimisation. The
+    // package is only used inside a worker, where it does not need pre-bundling anyway.
+    exclude: ['satellite.js'],
+  },
+  resolve: {
+    alias: [
+      // Keep satellite.js's optional Emscripten builds out of the browser bundle — see the stub.
+      { find: '#wasm-single-thread', replacement: '/src/workers/satelliteWasmStub.ts' },
+      { find: '#wasm-multi-thread', replacement: '/src/workers/satelliteWasmStub.ts' },
+    ],
+  },
+  worker: {
+    // The satellite propagator is a module worker, and satellite.js reaches its optional WASM
+    // runtimes through dynamic imports that use top-level await — which Vite's default `iife`
+    // worker format cannot represent. Those runtimes are never invoked (we only use the JS SGP4
+    // entry points), but the format still has to be ES for the build to emit them.
+    format: 'es',
+  },
   build: {
+    // Vite warns on raw bytes, which overstates the deferred MapLibre transport cost.
+    // The post-build budget checks every compressed JS chunk and the initial JS payload.
+    chunkSizeWarningLimit: 1100,
     rollupOptions: {
       output: {
         manualChunks(id) {

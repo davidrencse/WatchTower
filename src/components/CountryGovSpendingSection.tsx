@@ -20,35 +20,35 @@ import { GERMANY_CORRUPTION_LOST_SOURCE_URL } from '../lib/corruptionLost';
 import {
   GERMANY_CORRUPTION_LOST_BY_YEAR,
   germanyCorruptionLostRowForYear,
-} from '../lib/germanyCorruptionLostByYear';
-import { germanyGovSpendingLeadRowForYear } from '../lib/germanyGovernmentSpendingLeadByYear';
+} from '../lib/countries/germany/germanyCorruptionLostByYear';
+import { germanyGovSpendingLeadRowForYear } from '../lib/countries/germany/germanyGovernmentSpendingLeadByYear';
 import {
   FRANCE_CORRUPTION_LOST_BY_YEAR,
   franceCorruptionLostRowForYear,
-} from '../lib/franceCorruptionLostByYear';
-import { franceFiscalSupportRowForYear } from '../lib/franceFiscalSupportByYear';
-import { franceGovSpendRowForYear } from '../lib/franceGovernmentSpendingByYear';
+} from '../lib/countries/france/franceCorruptionLostByYear';
+import { franceFiscalSupportRowForYear } from '../lib/countries/france/franceFiscalSupportByYear';
+import { franceGovSpendRowForYear } from '../lib/countries/france/franceGovernmentSpendingByYear';
 import {
   FRANCE_GENERAL_GOVERNMENT_EXPENDITURE_SERIES,
   franceGeneralGovExpenditureForYear,
-} from '../lib/franceGeneralGovernmentExpenditure';
-import { ITALY_GENERAL_GOVERNMENT_EXPENDITURE_SERIES } from '../lib/italyGeneralGovernmentExpenditure';
+} from '../lib/countries/france/franceGeneralGovernmentExpenditure';
+import { ITALY_GENERAL_GOVERNMENT_EXPENDITURE_SERIES } from '../lib/countries/italy/italyGeneralGovernmentExpenditure';
 import {
   franceGovernmentExpenditureCategoryRowForYear,
   type FranceGovernmentExpenditureCategoryKey,
-} from '../lib/franceGovernmentExpenditureByCategory';
+} from '../lib/countries/france/franceGovernmentExpenditureByCategory';
 import {
   italyGovernmentExpenditureCategoryRowForYear,
   type ItalyGovernmentExpenditureCategoryKey,
-} from '../lib/italyGovernmentExpenditureByCategory';
+} from '../lib/countries/italy/italyGovernmentExpenditureByCategory';
 import {
   italyGovSpendRowForYear,
   type ItalyGovSpendingYearRow,
-} from '../lib/italyGovernmentSpendingByYear';
+} from '../lib/countries/italy/italyGovernmentSpendingByYear';
 import {
   ITALY_FISCAL_SUPPORT_BY_YEAR,
   italyFiscalSupportRowForYear,
-} from '../lib/italyFiscalSupportByYear';
+} from '../lib/countries/italy/italyFiscalSupportByYear';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import {
@@ -82,6 +82,23 @@ function govSpendLeadRowForYear(year: number, iso3: string) {
 }
 
 /** Government spending lead tile: immigration welfare + family + refugee totals (billion €). */
+/**
+ * Italy's immigration-welfare / corruption / ODA figures come from a hand-built
+ * trend rather than a published Italian series, and there is no source row to hang
+ * a link off. Say so on the card instead of presenting them as sourced statistics.
+ */
+const ITALY_FISCAL_MODELLED_NOTE =
+  'Modeled estimate. Italy does not publish a consolidated annual series for this measure; the 2000–2025 trend here is constructed, not an official statistic, and carries no source link.';
+
+function ItalyModelledEstimateNote({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <div className="mt-3 border-t border-white/[0.06] pt-3">
+      <p className="font-sans text-[10px] leading-relaxed text-amber-200/70">{ITALY_FISCAL_MODELLED_NOTE}</p>
+    </div>
+  );
+}
+
 export function GermanyImmigrationWelfareYearTile({
   selectedYear,
   sourceRow,
@@ -135,6 +152,7 @@ export function GermanyImmigrationWelfareYearTile({
         </div>
       ) : null}
       {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
+      <ItalyModelledEstimateNote show={iso3.toUpperCase() === 'ITA'} />
     </article>
   );
 }
@@ -177,6 +195,7 @@ export function GermanyForeignAidYearTile({
           </div>
         ) : null}
         {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
+        <ItalyModelledEstimateNote show={iso3.toUpperCase() === 'ITA'} />
       </div>
     </article>
   );
@@ -448,9 +467,9 @@ const ITALY_GOV_SPEND_CARD_DEFS: readonly ItalyGovSpendCardDef[] = [
   { label: 'Transport & Infrastructure', notes: 'Roads, rail and transport networks (COFOG GF04.5)', color: '#0ea5e9', getEurBn: (r) => r.transportInfrastructure },
   { label: 'General Public Services & Administration', notes: 'Core administration, excluding debt interest (GF01 net of interest)', color: '#a855f7', getEurBn: (r) => r.generalPublicServices },
   { label: 'Interest Payments on Debt', notes: 'Interest on Italy\'s public debt (D.41 payable)', color: '#f97316', getEurBn: (r) => r.interestPayments },
-  { label: 'Housing & Community', notes: 'Housing and community amenities incl. building-renovation credits (GF06)', color: '#14b8a6', getEurBn: (r) => r.housing },
+  { label: 'Housing & Community', notes: 'Housing and community amenities incl. building-renovation credits (GF06). Highlight box: this amount is already counted inside the "Other" card, not additional to it.', color: '#14b8a6', getEurBn: (r) => r.housing },
   { label: 'Economic Affairs & Subsidies', notes: 'Industry, energy, agriculture and business support, excl. transport (GF04)', color: '#84cc16', getEurBn: (r) => r.economicAffairsSubsidies },
-  { label: 'Other (Public Order, Environment, Culture)', notes: 'Public order & safety, environmental protection and recreation/culture (GF03/05/08)', color: '#f43f5e', getEurBn: (r) => r.other },
+  { label: 'Other (Public Order, Environment, Housing, Culture)', notes: 'Public order & safety, environmental protection, housing & community and recreation/culture (GF03/05/06/08). Includes the Housing & Community card above, which is broken out separately — do not add the two together.', color: '#f43f5e', getEurBn: (r) => r.other },
   { label: 'Public investment', notes: 'General government gross fixed capital formation (P.51g)', color: '#06b6d4', getEurBn: (r) => r.publicInvestment },
   { label: 'Pensions', notes: 'Old-age pensions (COFOG GF10.02) — Italy\'s single largest outlay', color: '#eab308', getEurBn: (r) => r.pensions },
 ];
@@ -515,6 +534,12 @@ const GERMANY_CORRUPTION_LOST_CHART_CONFIG = {
   pctGdp: { label: '% of GDP', color: '#a78bfa' },
 } satisfies ChartConfig;
 
+/** Italy's series is in millions, so the shared "€bn" legend would mislabel the axis. */
+const ITALY_CORRUPTION_LOST_CHART_CONFIG = {
+  lostBnEur: { label: 'Money lost (€M)', color: '#f59e0b' },
+  pctGdp: { label: '% of GDP', color: '#a78bfa' },
+} satisfies ChartConfig;
+
 type GovExpenditureSeriesPoint = { year: string; total: number };
 
 function GovernmentTotalExpenditureChart({
@@ -542,7 +567,7 @@ function GovernmentTotalExpenditureChart({
       </CardHeader>
       <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <AreaChart data={series} margin={{ top: 8, right: 10, left: 12, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -910,7 +935,7 @@ function GermanyGovernmentSpendingCategoryLineChart({
               config={chartConfig}
               className="mx-auto h-[300px] w-full max-w-[360px] shrink-0 sm:max-w-[400px]"
             >
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
                 <PieChart>
                   <Tooltip
                     contentStyle={{
@@ -1060,14 +1085,18 @@ function GermanyCorruptionLostMetricTile({
             : `${row.pctGdp.toFixed(2)}% of GDP · ${selectedYear}`}
         </p>
       </div>
-      {!isItaly ? (
+      {isItaly ? (
+        <div className="mt-auto">
+          <ItalyModelledEstimateNote show />
+        </div>
+      ) : (
         <div className="mt-auto pt-3">
           <SourceLinks
             url={GERMANY_CORRUPTION_LOST_SOURCE_URL}
             className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
           />
         </div>
-      ) : null}
+      )}
     </article>
   );
 }
@@ -1102,8 +1131,11 @@ function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: numb
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={GERMANY_CORRUPTION_LOST_CHART_CONFIG} className="h-[280px] w-full sm:h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer
+          config={isItaly ? ITALY_CORRUPTION_LOST_CHART_CONFIG : GERMANY_CORRUPTION_LOST_CHART_CONFIG}
+          className="h-[280px] w-full sm:h-[320px]"
+        >
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
             <LineChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
@@ -1158,7 +1190,11 @@ function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: numb
                 yAxisId="left"
                 type="monotone"
                 dataKey="lostDisplay"
-                name={GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.label}
+                name={
+                  isItaly
+                    ? ITALY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.label
+                    : GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.label
+                }
                 stroke={GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.color}
                 strokeWidth={2}
                 dot={{ r: 2, fill: GERMANY_CORRUPTION_LOST_CHART_CONFIG.lostBnEur.color }}

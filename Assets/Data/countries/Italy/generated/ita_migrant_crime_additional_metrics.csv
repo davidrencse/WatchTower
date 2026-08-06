@@ -1,10 +1,10 @@
 country,metric,value,unit,reference_year,source,source_url,method_note
-Italy,violent_crimes_by_migrants,190000.00000000003,estimated suspects (range midpoint from ~450k-550k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-Italy,property_crimes_by_migrants,900000.0000000001,estimated suspects (range midpoint from ~2.0-2.3M),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-Italy,burglary_by_migrants,17000,estimated suspects (range midpoint from ~40k-50k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-Italy,fraud_rate_by_migrants,69000,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Italy,violent_crimes_by_migrants,+5.8%–6.7%,change vs 2023,2024,,,Intentional injuries / assaults (lesioni dolose); user-supplied change versus 2023.
+Italy,property_crimes_by_migrants,"1,054,599",recorded thefts,2024,,,Property crime is dominated by 1,054,599 thefts.
+Italy,burglary_by_migrants,+5.4%,change vs 2023,2024,,,Residential burglaries (furti in abitazione); user-supplied change versus 2023.
+Italy,fraud_rate_by_migrants,"≈ 286,000",recorded frauds and computer frauds,2024,,,"Cyber offences: ≈ 26,900."
 Italy,court_dismissals_by_migrants,39000,estimated_proceedings,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-Italy,incarceration_percentage_by_migrants,18,percent,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Italy,incarceration_percentage_by_migrants,31.7%–31.8%,foreign share of prison population,2024,,,"Adult prison population: 61,900–63,500. Incarceration rate: 105–108 per 100,000. Overcrowding: 122%–124% of capacity."
 Italy,juvenile_crimes_by_migrants,75000,estimated suspects (range midpoint from ~180k-220k),2000-2025,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
 Italy,kidnapping_abduction_of_minors_by_migrants,3000,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
-Italy,sexual_offenses_against_minors_by_migrants,6000,estimated_cases,2024,Modeled estimate scaled from comparable published patterns,true,Modeled estimate: scaled by relative foreign-born population.
+Italy,sexual_offenses_against_minors_by_migrants,+15%–16%,change vs 2023,2024,,,Sexual acts with minors; user-supplied change versus 2023.

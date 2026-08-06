@@ -10,5 +10,12 @@
         "reason": "User confirmed Inter is the intentional app-wide body font; globe surface uses JetBrains Mono"
       }
     ]
+  },
+  "hook": {
+    "enabled": false,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
   }
 }

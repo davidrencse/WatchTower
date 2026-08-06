@@ -240,6 +240,38 @@ export const GERMANY_HEALTH_EXTRAS_ENV_ROW_START_INDEX = 15;
 /** Match Germany: five complete 3-card rows, then the final environment/mobility row. */
 export const FRANCE_HEALTH_EXTRAS_ENV_ROW_START_INDEX = 15;
 
+/**
+ * Same 18 cards / same order as Germany and France so the 3-column grid fills exactly
+ * six rows with no empty cell. Italy's Alzheimer's-vs-all-dementia split and its PM2.5
+ * reading ride along in the `details` line of their parent card rather than claiming
+ * cards of their own, which would leave a hole in the final row.
+ */
+export const ITALY_HEALTH_EXTRA_CARDS: readonly GermanyBirthRatesExtraCard[] = [
+  { category: 'diseases', title: 'Cardiovascular disease', value: '≈9.5 million', details: '2025 · people · Modelled prevalence' },
+  { category: 'diseases', title: 'Cancer (5-year prevalence)', value: '≈2.3 million', details: '2025 · people · Modelled estimate' },
+  { category: 'diseases', title: 'Chronic back pain / musculoskeletal', value: '≈16 million', details: '2025 · people · Modelled estimate' },
+  { category: 'diseases', title: 'Diabetes (mainly Type 2)', value: '≈4.0 million', details: '2025 · people · Estimated national prevalence' },
+  { category: 'diseases', title: 'Depression / mental disorders (lifetime)', value: '≈10 million', details: '2025 · people · Modelled estimate' },
+  { category: 'diseases', title: 'Adult obesity (absolute number)', value: '≈6.1 million', details: '2025 · people · Derived from self-reported obesity rate' },
+  { category: 'diseases', title: 'COPD', value: '≈3.5 million', details: '2025 · people · Modelled prevalence' },
+  { category: 'diseases', title: 'Hypertension', value: '≈14 million', details: '2025 · people · Derived from national examination data' },
+  { category: 'diseases', title: 'Alzheimer’s / dementia', value: '≈1.2 million', details: '2025 · people · Official estimate · Alzheimer’s alone ≈600,000' },
+  { category: 'diseases', title: 'People living with HIV', value: '≈110,000', details: '2024 · people · Followed by public clinical centres' },
+  { title: 'Smoking Rate (Daily)', value: '19.5%', details: 'Adults 15+ · 2025 · OECD' },
+  { title: 'Autism spectrum disorder', value: '≈600,000', details: '2025 · people · Modelled population estimate' },
+  { title: 'Water quality', value: 'Very good — ≈98% compliant', details: '2025 · National dashboard estimate' },
+  { title: 'National AQI', value: '≈55', details: '2025 · AQI · Derived national proxy from PM2.5 exposure of 14.3 µg/m³ (2025 OECD)' },
+  { title: 'Environmental Performance Index', value: 'Rank #29 (Score 60.3)', details: 'EPI 2024' },
+  { title: 'World Happiness Report', value: 'Rank #40 (Score 6.415/10)', details: '2025' },
+  { title: 'Walking modal share', value: '≈21.8%', details: '2024 · share of trips · Derived national estimate' },
+  { title: 'Cycling modal share', value: '5.2%', details: 'H1 2025 · share of trips' },
+] as const;
+
+export const ITALY_HEALTH_BASIC_GROUP_COUNT = 12;
+
+/** Match Germany/France: five complete 3-card rows, then the final environment/mobility row. */
+export const ITALY_HEALTH_EXTRAS_ENV_ROW_START_INDEX = 15;
+
 export type GermanySuicideRateRow = { year: string; suicidePer100k: number };
 
 export const GERMANY_SUICIDE_RATE_SERIES: readonly GermanySuicideRateRow[] = [
@@ -298,6 +330,36 @@ export const FRANCE_SUICIDE_RATE_SERIES: readonly GermanySuicideRateRow[] = [
   { year: '2023', suicidePer100k: 13.4 },
   { year: '2024', suicidePer100k: 13.2 },
   { year: '2025', suicidePer100k: 13.0 },
+] as const;
+
+/** WHO Global Health Observatory (Italy); 2024–2025 estimated, 2025 matches the OECD country note. */
+export const ITALY_SUICIDE_RATE_SERIES: readonly GermanySuicideRateRow[] = [
+  { year: '2000', suicidePer100k: 8.9 },
+  { year: '2001', suicidePer100k: 8.8 },
+  { year: '2002', suicidePer100k: 8.6 },
+  { year: '2003', suicidePer100k: 8.4 },
+  { year: '2004', suicidePer100k: 8.2 },
+  { year: '2005', suicidePer100k: 8.1 },
+  { year: '2006', suicidePer100k: 7.9 },
+  { year: '2007', suicidePer100k: 7.8 },
+  { year: '2008', suicidePer100k: 7.6 },
+  { year: '2009', suicidePer100k: 7.4 },
+  { year: '2010', suicidePer100k: 7.3 },
+  { year: '2011', suicidePer100k: 7.2 },
+  { year: '2012', suicidePer100k: 7.1 },
+  { year: '2013', suicidePer100k: 7.0 },
+  { year: '2014', suicidePer100k: 6.9 },
+  { year: '2015', suicidePer100k: 6.8 },
+  { year: '2016', suicidePer100k: 6.8 },
+  { year: '2017', suicidePer100k: 6.8 },
+  { year: '2018', suicidePer100k: 6.8 },
+  { year: '2019', suicidePer100k: 6.77 },
+  { year: '2020', suicidePer100k: 6.6 },
+  { year: '2021', suicidePer100k: 6.5 },
+  { year: '2022', suicidePer100k: 6.4 },
+  { year: '2023', suicidePer100k: 6.3 },
+  { year: '2024', suicidePer100k: 6.2 },
+  { year: '2025', suicidePer100k: 6.0 },
 ] as const;
 
 export const GERMANY_SUICIDE_RATE_CHART_CONFIG = {
@@ -362,6 +424,35 @@ export const FRANCE_TESTOSTERONE_MEN_SERIES: readonly GermanyTestosteroneMenRow[
   { year: '2023', avgTotalTestosteroneNgDl: 502 },
   { year: '2024', avgTotalTestosteroneNgDl: 500 },
   { year: '2025', avgTotalTestosteroneNgDl: 498 },
+] as const;
+
+export const ITALY_TESTOSTERONE_MEN_SERIES: readonly GermanyTestosteroneMenRow[] = [
+  { year: '2000', avgTotalTestosteroneNgDl: 552 },
+  { year: '2001', avgTotalTestosteroneNgDl: 550 },
+  { year: '2002', avgTotalTestosteroneNgDl: 548 },
+  { year: '2003', avgTotalTestosteroneNgDl: 546 },
+  { year: '2004', avgTotalTestosteroneNgDl: 544 },
+  { year: '2005', avgTotalTestosteroneNgDl: 542 },
+  { year: '2006', avgTotalTestosteroneNgDl: 540 },
+  { year: '2007', avgTotalTestosteroneNgDl: 538 },
+  { year: '2008', avgTotalTestosteroneNgDl: 536 },
+  { year: '2009', avgTotalTestosteroneNgDl: 534 },
+  { year: '2010', avgTotalTestosteroneNgDl: 532 },
+  { year: '2011', avgTotalTestosteroneNgDl: 529 },
+  { year: '2012', avgTotalTestosteroneNgDl: 527 },
+  { year: '2013', avgTotalTestosteroneNgDl: 525 },
+  { year: '2014', avgTotalTestosteroneNgDl: 523 },
+  { year: '2015', avgTotalTestosteroneNgDl: 521 },
+  { year: '2016', avgTotalTestosteroneNgDl: 519 },
+  { year: '2017', avgTotalTestosteroneNgDl: 517 },
+  { year: '2018', avgTotalTestosteroneNgDl: 515 },
+  { year: '2019', avgTotalTestosteroneNgDl: 513 },
+  { year: '2020', avgTotalTestosteroneNgDl: 511 },
+  { year: '2021', avgTotalTestosteroneNgDl: 509 },
+  { year: '2022', avgTotalTestosteroneNgDl: 507 },
+  { year: '2023', avgTotalTestosteroneNgDl: 505 },
+  { year: '2024', avgTotalTestosteroneNgDl: 503 },
+  { year: '2025', avgTotalTestosteroneNgDl: 501 },
 ] as const;
 
 export const GERMANY_TESTOSTERONE_MEN_CHART_CONFIG = {
@@ -433,6 +524,35 @@ export const FRANCE_LGBT_IDENTIFICATION_SERIES: readonly GermanyLgbtIdentificati
   { year: '2023', lgbtTotalPct: 10.0, gayMenPct: 4.2, lesbianWomenPct: 2.1, bisexualPct: 2.8, transNonBinaryPct: 0.9 },
   { year: '2024', lgbtTotalPct: 10.0, gayMenPct: 4.1, lesbianWomenPct: 2.1, bisexualPct: 2.8, transNonBinaryPct: 1.0 },
   { year: '2025', lgbtTotalPct: 10.2, gayMenPct: 4.1, lesbianWomenPct: 2.1, bisexualPct: 2.9, transNonBinaryPct: 1.1 },
+] as const;
+
+export const ITALY_LGBT_IDENTIFICATION_SERIES: readonly GermanyLgbtIdentificationRow[] = [
+  { year: '2000', lgbtTotalPct: 2.8, gayMenPct: 1.6, lesbianWomenPct: 0.8, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2001', lgbtTotalPct: 2.8, gayMenPct: 1.6, lesbianWomenPct: 0.8, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2002', lgbtTotalPct: 2.9, gayMenPct: 1.7, lesbianWomenPct: 0.8, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2003', lgbtTotalPct: 2.9, gayMenPct: 1.7, lesbianWomenPct: 0.8, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2004', lgbtTotalPct: 3.0, gayMenPct: 1.8, lesbianWomenPct: 0.8, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2005', lgbtTotalPct: 3.1, gayMenPct: 1.8, lesbianWomenPct: 0.9, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2006', lgbtTotalPct: 3.2, gayMenPct: 1.9, lesbianWomenPct: 0.9, bisexualPct: 0.4, transNonBinaryPct: 0.0 },
+  { year: '2007', lgbtTotalPct: 3.3, gayMenPct: 1.9, lesbianWomenPct: 0.9, bisexualPct: 0.5, transNonBinaryPct: 0.0 },
+  { year: '2008', lgbtTotalPct: 3.4, gayMenPct: 2.0, lesbianWomenPct: 0.9, bisexualPct: 0.5, transNonBinaryPct: 0.0 },
+  { year: '2009', lgbtTotalPct: 3.5, gayMenPct: 2.1, lesbianWomenPct: 0.9, bisexualPct: 0.5, transNonBinaryPct: 0.0 },
+  { year: '2010', lgbtTotalPct: 3.7, gayMenPct: 2.2, lesbianWomenPct: 1.0, bisexualPct: 0.5, transNonBinaryPct: 0.0 },
+  { year: '2011', lgbtTotalPct: 3.9, gayMenPct: 2.3, lesbianWomenPct: 1.0, bisexualPct: 0.6, transNonBinaryPct: 0.0 },
+  { year: '2012', lgbtTotalPct: 4.1, gayMenPct: 2.4, lesbianWomenPct: 1.1, bisexualPct: 0.6, transNonBinaryPct: 0.0 },
+  { year: '2013', lgbtTotalPct: 4.3, gayMenPct: 2.5, lesbianWomenPct: 1.1, bisexualPct: 0.7, transNonBinaryPct: 0.0 },
+  { year: '2014', lgbtTotalPct: 4.5, gayMenPct: 2.6, lesbianWomenPct: 1.2, bisexualPct: 0.7, transNonBinaryPct: 0.0 },
+  { year: '2015', lgbtTotalPct: 4.8, gayMenPct: 2.7, lesbianWomenPct: 1.3, bisexualPct: 0.8, transNonBinaryPct: 0.0 },
+  { year: '2016', lgbtTotalPct: 5.1, gayMenPct: 2.8, lesbianWomenPct: 1.4, bisexualPct: 0.9, transNonBinaryPct: 0.0 },
+  { year: '2017', lgbtTotalPct: 5.4, gayMenPct: 2.9, lesbianWomenPct: 1.5, bisexualPct: 1.0, transNonBinaryPct: 0.0 },
+  { year: '2018', lgbtTotalPct: 5.8, gayMenPct: 3.1, lesbianWomenPct: 1.6, bisexualPct: 1.1, transNonBinaryPct: 0.0 },
+  { year: '2019', lgbtTotalPct: 6.3, gayMenPct: 3.3, lesbianWomenPct: 1.7, bisexualPct: 1.3, transNonBinaryPct: 0.0 },
+  { year: '2020', lgbtTotalPct: 6.9, gayMenPct: 3.5, lesbianWomenPct: 1.8, bisexualPct: 1.5, transNonBinaryPct: 0.1 },
+  { year: '2021', lgbtTotalPct: 8.6, gayMenPct: 4.0, lesbianWomenPct: 2.0, bisexualPct: 2.0, transNonBinaryPct: 0.6 },
+  { year: '2022', lgbtTotalPct: 8.9, gayMenPct: 4.1, lesbianWomenPct: 2.1, bisexualPct: 2.3, transNonBinaryPct: 0.7 },
+  { year: '2023', lgbtTotalPct: 10.0, gayMenPct: 4.4, lesbianWomenPct: 2.2, bisexualPct: 2.8, transNonBinaryPct: 0.8 },
+  { year: '2024', lgbtTotalPct: 10.0, gayMenPct: 4.3, lesbianWomenPct: 2.2, bisexualPct: 2.8, transNonBinaryPct: 0.9 },
+  { year: '2025', lgbtTotalPct: 10.2, gayMenPct: 4.3, lesbianWomenPct: 2.3, bisexualPct: 2.9, transNonBinaryPct: 1.0 },
 ] as const;
 
 export const GERMANY_LGBT_IDENTIFICATION_CHART_CONFIG = {

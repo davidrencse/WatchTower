@@ -10,6 +10,10 @@ const ALWAYS_INCLUDE_FLAGS = [
   'flag-of-Australia.png',
   'flag-of-New-Zealand.png',
   'flag-of-South-Africa.png',
+  'flag-of-China.png',
+  'flag-of-Japan.png',
+  'flag-of-South-Korea.png',
+  'flag-of-Taiwan.png',
 ] as const;
 
 function mergedFlagFilenames(): string[] {
