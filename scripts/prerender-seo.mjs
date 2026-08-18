@@ -31,23 +31,43 @@ const countries = fs
   })
   .sort((a, b) => a.label.localeCompare(b.label));
 
-function countryHtml(country) {
-  const title = `${country.label} · WatchTower`;
-  const canonicalUrl = `${siteOrigin}/${country.slug}`;
+/**
+ * Static legal routes. This script is plain ESM and cannot import the TypeScript source, so
+ * these mirror `src/data/legalDocuments.ts` by hand — keep the slugs and titles in step when
+ * adding or renaming a document there.
+ */
+const legalRoutes = [
+  { slug: 'privacy', title: 'Privacy Policy' },
+  { slug: 'eula', title: 'End-User Licence Agreement' },
+];
+
+function routeHtml(slug, title) {
+  const fullTitle = `${title} · WatchTower`;
+  const canonicalUrl = `${siteOrigin}/${slug}`;
   return rootHtml
-    .replace(/<title>[^<]*<\/title>/i, `<title>${title}</title>`)
+    .replace(/<title>[^<]*<\/title>/i, `<title>${fullTitle}</title>`)
     .replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonicalUrl}$2`)
-    .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/i, `$1${title}$2`)
+    .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/i, `$1${fullTitle}$2`)
     .replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/i, `$1${canonicalUrl}$2`);
 }
 
 for (const country of countries) {
   const routeDir = path.join(distDir, country.slug);
   fs.mkdirSync(routeDir, { recursive: true });
-  fs.writeFileSync(path.join(routeDir, 'index.html'), countryHtml(country));
+  fs.writeFileSync(path.join(routeDir, 'index.html'), routeHtml(country.slug, country.label));
 }
 
-const sitemapUrls = ['/', ...countries.map((country) => `/${country.slug}`)];
+for (const route of legalRoutes) {
+  const routeDir = path.join(distDir, route.slug);
+  fs.mkdirSync(routeDir, { recursive: true });
+  fs.writeFileSync(path.join(routeDir, 'index.html'), routeHtml(route.slug, route.title));
+}
+
+const sitemapUrls = [
+  '/',
+  ...countries.map((country) => `/${country.slug}`),
+  ...legalRoutes.map((route) => `/${route.slug}`),
+];
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -57,4 +77,6 @@ const sitemap = [
 ].join('\n');
 fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
 
-console.log(`Prerendered SEO metadata for ${countries.length} country routes and generated sitemap.xml.`);
+console.log(
+  `Prerendered SEO metadata for ${countries.length} country routes and ${legalRoutes.length} legal routes, and generated sitemap.xml.`,
+);

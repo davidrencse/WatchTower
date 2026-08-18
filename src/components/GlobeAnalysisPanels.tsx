@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -1198,7 +1199,12 @@ function GlobeNewsMonitor({
   );
 }
 
-export function GlobeAnalysisPanels({
+/**
+ * Memoised because every prop is a ref or a stable state value, while its parent re-renders on
+ * each pin / satellite hover — which, when a satellite badge is tracking the camera, is every
+ * frame. Without this the whole panel tree (and its own RAF positioners) re-rendered with it.
+ */
+export const GlobeAnalysisPanels = memo(function GlobeAnalysisPanels({
   newsAnchors,
   eventAnchors,
   conflictEvents,
@@ -1218,4 +1224,4 @@ export function GlobeAnalysisPanels({
       />
     </aside>
   );
-}
+});

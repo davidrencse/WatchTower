@@ -47,6 +47,15 @@ export type Branch = {
 };
 
 /** A non-equipment force component (cyber command, nuclear deterrent, gendarmerie…). */
+export type MilitaryPanelItem = {
+  name: string;
+  note: string;
+  aliases?: string;
+  attribution?: string;
+  operations?: readonly string[];
+  sourceUrl?: string;
+};
+
 export type MilitaryPanel = {
   id: string;
   /** Collapsible section title, e.g. "Cyberspace". */
@@ -57,7 +66,7 @@ export type MilitaryPanel = {
   blurb: string;
   stats: readonly { label: string; value: string; sub?: string }[];
   listTitle: string;
-  items: readonly { name: string; note: string }[];
+  items: readonly MilitaryPanelItem[];
   footnote: string;
 };
 

@@ -1,5 +1,6 @@
 import type { CountryStatMetric } from '../../../types/countryStats';
 import { parseCsvRows } from '../../csv';
+import { formatMaxDigits, formatWhole } from '../../numberFormat';
 
 type IndicatorRow = {
   country: string;
@@ -28,16 +29,13 @@ function parseGermanyBirthHealthCsv(raw: string): IndicatorRow[] {
 function fmtInt(s: string): string {
   const n = Number(s);
   if (!Number.isFinite(n)) return s;
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+  return formatWhole(n);
 }
 
 function fmtDecimal(s: string, digits = 2): string {
   const n = Number(s);
   if (!Number.isFinite(n)) return s;
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: digits,
-  }).format(n);
+  return formatMaxDigits(n, digits);
 }
 
 function normalizeSourceUrls(urlField: string): string {

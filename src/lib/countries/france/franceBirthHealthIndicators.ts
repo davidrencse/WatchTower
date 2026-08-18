@@ -1,5 +1,6 @@
 import type { CountryStatMetric } from '../../../types/countryStats';
 import { parseCsvRows } from '../../csv';
+import { formatMaxDigits } from '../../numberFormat';
 
 type IndicatorRow = {
   country: string; metric: string; value: string; unit: string;
@@ -23,9 +24,7 @@ function urls(value: string): string {
 
 function number(value: string, digits = 1): string {
   const parsed = Number(value);
-  return Number.isFinite(parsed)
-    ? new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(parsed)
-    : value;
+  return Number.isFinite(parsed) ? formatMaxDigits(parsed, digits) : value;
 }
 
 function formatted(row: IndicatorRow): string {

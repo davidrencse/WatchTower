@@ -10,7 +10,7 @@
  */
 
 export type IncidentImage = {
-  /** App-root-relative path, e.g. `/incidents/cologne-nye.jpg`. */
+  /** App-root-relative path, e.g. `/incidents/cologne-nye.webp`. */
   src: string;
   /** Describes the place, not the event. */
   alt: string;

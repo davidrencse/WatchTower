@@ -17,8 +17,12 @@ export function ChartContainer({
   className,
   children,
 }: React.PropsWithChildren<{ config: ChartConfig; className?: string }>) {
+  // A fresh `{ config }` each render would re-render every tooltip under the chart even when the
+  // config is the same object the caller passed last time.
+  const value = React.useMemo(() => ({ config }), [config]);
+
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={value}>
       <div className={cn('h-[300px] w-full', className)}>{children}</div>
     </ChartContext.Provider>
   );

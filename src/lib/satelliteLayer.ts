@@ -21,6 +21,7 @@ import { SATELLITE_GROUPS } from '../data/satelliteGroups';
 import { SAT_STRIDE } from '../workers/satelliteStride';
 
 const MAX_GROUPS = 16;
+const ORBIT_COLOR = new Float32Array([0.86, 0.9, 1]);
 
 function hexToRgb(hex: string): [number, number, number] {
   const value = Number.parseInt(hex.replace('#', ''), 16);
@@ -86,6 +87,7 @@ export interface SatelliteLayer extends CustomLayerInterface {
 export function createSatelliteLayer(id: string, map: MapLibreMap): SatelliteLayer {
   let gl: WebGL2RenderingContext | null = null;
   let program: WebGLProgram | null = null;
+  let attributes = { pos: -1, alt: -1, group: -1, ecef: -1 };
   let variant = '';
   let uniforms: Record<string, WebGLUniformLocation | null> = {};
 
@@ -108,7 +110,7 @@ export function createSatelliteLayer(id: string, map: MapLibreMap): SatelliteLay
 
   // Captured every frame so CPU picking uses precisely the matrix the GPU just drew with.
   let mainMatrix: number[] | Float32Array | null = null;
-  let camera = { dir: new Float32Array([0, 0, 1]), dist: 2 };
+  const camera = { dir: new Float32Array([0, 0, 1]), dist: 2 };
 
   const GLOBE_RADIUS_M = 6371008.8;
 
@@ -123,14 +125,11 @@ export function createSatelliteLayer(id: string, map: MapLibreMap): SatelliteLay
     const lng = (lngLat.lng * Math.PI) / 180;
     const lat = (lngLat.lat * Math.PI) / 180;
     const cosLat = Math.cos(lat);
-    return {
-      dir: new Float32Array([
-        Math.sin(lng) * cosLat,
-        Math.sin(lat),
-        Math.cos(lng) * cosLat,
-      ]),
-      dist: Math.max(1.001, (GLOBE_RADIUS_M + altitude) / GLOBE_RADIUS_M),
-    };
+    camera.dir[0] = Math.sin(lng) * cosLat;
+    camera.dir[1] = Math.sin(lat);
+    camera.dir[2] = Math.cos(lng) * cosLat;
+    camera.dist = Math.max(1.001, (GLOBE_RADIUS_M + altitude) / GLOBE_RADIUS_M);
+    return camera;
   };
 
   const build = (input: CustomRenderMethodInput) => {
@@ -242,6 +241,12 @@ void main() {
     ]) {
       uniforms[name] = gl.getUniformLocation(program, name);
     }
+    attributes = {
+      pos: gl.getAttribLocation(program, 'a_pos'),
+      alt: gl.getAttribLocation(program, 'a_alt'),
+      group: gl.getAttribLocation(program, 'a_group'),
+      ecef: gl.getAttribLocation(program, 'a_ecef'),
+    };
     variant = input.shaderData.variantName;
   };
 
@@ -294,7 +299,7 @@ void main() {
       glContext.uniform1f(uniforms.u_opacity, opacity);
       glContext.uniform1f(uniforms.u_selected, selected ?? -1);
 
-      camera = cameraInGlobeSpace();
+      cameraInGlobeSpace();
       glContext.uniform3fv(uniforms.u_camera_dir, camera.dir);
       glContext.uniform1f(uniforms.u_camera_dist, camera.dist);
 
@@ -317,10 +322,10 @@ void main() {
         dirtyGroups = false;
       }
 
-      const posLocation = glContext.getAttribLocation(program, 'a_pos');
-      const altLocation = glContext.getAttribLocation(program, 'a_alt');
-      const groupLocation = glContext.getAttribLocation(program, 'a_group');
-      const ecefLocation = glContext.getAttribLocation(program, 'a_ecef');
+      const posLocation = attributes.pos;
+      const altLocation = attributes.alt;
+      const groupLocation = attributes.group;
+      const ecefLocation = attributes.ecef;
       const stride = SAT_STRIDE * 4;
 
       // ── satellites
@@ -349,7 +354,7 @@ void main() {
         }
         glContext.uniform1f(uniforms.u_use_override, 1);
         glContext.uniform1f(uniforms.u_round, 0);
-        glContext.uniform3fv(uniforms.u_override, [0.86, 0.9, 1]);
+        glContext.uniform3fv(uniforms.u_override, ORBIT_COLOR);
         glContext.uniform1f(uniforms.u_opacity, opacity * 0.55);
         glContext.bindBuffer(glContext.ARRAY_BUFFER, trackBuffer);
         glContext.enableVertexAttribArray(posLocation);
@@ -384,6 +389,7 @@ void main() {
     },
 
     setOpacity(next) {
+      if (opacity === next) return;
       opacity = next;
       map.triggerRepaint();
     },
@@ -426,21 +432,68 @@ void main() {
       };
     },
 
+    /**
+     * Hot path: this runs once per pointer sample against the whole catalogue (~12k objects
+     * with Starlink loaded), so nothing inside the loop may allocate or call into MapLibre.
+     * The matrix, canvas size and camera eye are hoisted, and the ray/sphere occlusion test —
+     * the only part with a `sqrt` — is deferred until a candidate is already within `radius`,
+     * which drops it from ~12k evaluations per move to at most a handful.
+     */
     pick(px, py, radius) {
       if (!mainMatrix || count === 0 || opacity <= 0.01) return null;
+      const m = mainMatrix;
+      const m0 = m[0], m4 = m[4], m8 = m[8], m12 = m[12];
+      const m1 = m[1], m5 = m[5], m9 = m[9], m13 = m[13];
+      const m3 = m[3], m7 = m[7], m11 = m[11], m15 = m[15];
+      const canvas = map.getCanvas();
+      const halfWidth = canvas.clientWidth * 0.5;
+      const halfHeight = canvas.clientHeight * 0.5;
+      const eyeX = camera.dir[0] * camera.dist;
+      const eyeY = camera.dir[1] * camera.dist;
+      const eyeZ = camera.dir[2] * camera.dist;
+      const eyeLengthSquared = eyeX * eyeX + eyeY * eyeY + eyeZ * eyeZ - 1;
+
       let best: number | null = null;
       let bestDistance = radius * radius;
+
       for (let i = 0; i < count; i++) {
         if (!visible[groups[i] ?? 0]) continue;
-        const screen = layer.project(i);
-        if (!screen) continue;
-        const dx = screen.x - px;
-        const dy = screen.y - py;
+        const offset = i * SAT_STRIDE;
+        const altitude = positions[offset + 2];
+        if (altitude < 0) continue;
+        const scale = 1 + altitude / GLOBE_RADIUS_M;
+        const x = positions[offset + 3] * scale;
+        const y = positions[offset + 4] * scale;
+        const z = positions[offset + 5] * scale;
+
+        const clipW = m3 * x + m7 * y + m11 * z + m15;
+        if (clipW <= 0) continue;
+        const inverseW = 1 / clipW;
+        const screenX = ((m0 * x + m4 * y + m8 * z + m12) * inverseW + 1) * halfWidth;
+        const dx = screenX - px;
+        if (dx * dx >= bestDistance) continue;
+        const screenY = (1 - (m1 * x + m5 * y + m9 * z + m13) * inverseW) * halfHeight;
+        const dy = screenY - py;
         const distance = dx * dx + dy * dy;
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = i;
+        if (distance >= bestDistance) continue;
+
+        // Same ray/sphere cull the vertex shader runs, inlined so the loop stays allocation-free.
+        const rayX = x - eyeX;
+        const rayY = y - eyeY;
+        const rayZ = z - eyeZ;
+        const a = rayX * rayX + rayY * rayY + rayZ * rayZ;
+        const b = 2 * (eyeX * rayX + eyeY * rayY + eyeZ * rayZ);
+        const discriminant = b * b - 4 * a * eyeLengthSquared;
+        if (discriminant >= 0) {
+          const root = Math.sqrt(discriminant);
+          const inverse2A = 1 / (2 * a);
+          const t0 = (-b - root) * inverse2A;
+          const t1 = (-b + root) * inverse2A;
+          if ((t0 > 0 && t0 < 1) || (t1 > 0 && t1 < 1)) continue;
         }
+
+        bestDistance = distance;
+        best = i;
       }
       return best;
     },

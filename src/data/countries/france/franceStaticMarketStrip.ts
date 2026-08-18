@@ -13,13 +13,13 @@ function history(last: number, changePercent: number, phase: number): { close: n
 function stock(
   ticker: string,
   companyName: string,
-  priceEur: number,
-  changeEur: number,
+  price: number,
+  change: number,
   changePercent: number,
   highlight: string,
 ): GermanyStockStripRow {
   const phase = ticker.split('').reduce((sum, character) => sum + character.charCodeAt(0), 0) * 0.01;
-  return { ticker, companyName, priceEur, changeEur, changePercent, highlight, history: history(priceEur, changePercent, phase) };
+  return { ticker, companyName, price, change, changePercent, highlight, history: history(price, changePercent, phase) };
 }
 
 /**

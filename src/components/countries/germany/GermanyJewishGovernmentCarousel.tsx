@@ -96,11 +96,13 @@ function PersonBlock({ entry }: { entry: GermanyJewishGovernmentEntry }) {
 type GermanyJewishGovernmentCarouselProps = {
   entriesOverride?: readonly GermanyJewishGovernmentEntry[];
   sourceCaption?: string;
+  methodologyNote?: string;
 };
 
 export function GermanyJewishGovernmentCarousel({
   entriesOverride,
   sourceCaption,
+  methodologyNote,
 }: GermanyJewishGovernmentCarouselProps) {
   const entries = useMemo(() => {
     if (entriesOverride) return [...entriesOverride];
@@ -140,6 +142,11 @@ export function GermanyJewishGovernmentCarousel({
               <p className={`font-sans text-[10px] leading-relaxed text-neutral-400 ${UC_META}`}>
                 {entries.length} profiles · Federal {federalN} · State {stateN} · Positions of power {posN}
               </p>
+              {methodologyNote ? (
+                <p className="mt-2 max-w-[75ch] font-sans text-[11px] leading-relaxed text-neutral-300">
+                  {methodologyNote}
+                </p>
+              ) : null}
             </CardContent>
           </Card>
 

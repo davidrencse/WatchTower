@@ -1,4 +1,5 @@
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
+import { formatCompact, formatGrouped, formatWhole } from '../lib/numberFormat';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { Separator } from './ui/separator';
@@ -216,35 +217,127 @@ const GERMANY_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = [
   },
 ];
 
-const SPAIN_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = GERMANY_CRIME_HEADLINE_CARDS.map(
-  (card) => ({
+const SPAIN_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = [
+  {
+    id: 'nation-safety-rating',
+    title: 'Spain Nation Safety Rating',
+    value: '61.9',
+    subtitle: 'Numbeo Safety Index',
+  },
+  {
+    id: 'crime-rate',
+    title: 'Crime Rate',
+    value: '50.1 offences per 1,000 inhabitants',
+  },
+  {
+    id: 'murder-rate',
+    title: 'Murder',
+    value: '0.70 per 100,000 inhabitants',
+    subtitle: '348 cases',
+  },
+  {
+    id: 'rape-rate',
+    title: 'Rape',
+    value: '21,159 sexual offences',
+    subtitle: 'Total recorded sexual offences; the source does not isolate rape',
+  },
+  {
+    id: 'theft-rate',
+    title: 'Theft',
+    value: '649,076 thefts',
+    subtitle: 'Hurtos (non-violent theft)',
+  },
+  {
+    id: 'petty-crime-rate',
+    title: 'Petty Crime',
+    value: '≈ 420,000',
+    subtitle: 'Estimate: pickpocketing + low-value theft',
+  },
+];
+
+const SPAIN_CRIME_2024_FIGURES: Readonly<
+  Record<string, Pick<GermanyCrimeStatCard, 'figure' | 'metric' | 'notes'>>
+> = {
+  'sex-crime-total': {
+    figure: '21,159',
+    metric: 'offences',
+    notes: 'Total recorded sexual offences',
+  },
+  theft: { figure: '649,076', metric: 'offences', notes: 'Hurtos (non-violent theft)' },
+  murder: { figure: '348', metric: 'completed cases', notes: '0.70 per 100,000 inhabitants' },
+  'total-crime-suspects': { figure: '2,456,413', metric: 'recorded offences', notes: '-' },
+  'rape-serious': { figure: '5,206', metric: 'offences', notes: '-' },
+  'drug-offences': { figure: '21,533', metric: 'offences', notes: '-' },
+  'violent-crimes': { figure: '93,951', metric: 'offences', notes: '-' },
+  'property-crimes': { figure: '860,381', metric: 'offences', notes: '-' },
+  burglary: { figure: '81,040', metric: 'offences', notes: '-' },
+  'fraud-rate': { figure: '16.9%', metric: '% of total offences', notes: '-' },
+  'court-dismissals': { figure: '1,100,000', metric: '-', notes: '-' },
+  'incarceration-foreign': {
+    figure: '32.7%',
+    metric: '% of total prison population',
+    notes: '-',
+  },
+  'juvenile-violent': { figure: '8,500', metric: 'juvenile suspects', notes: 'Ages 14–<18' },
+  'kidnapping-minors': { figure: '105', metric: 'cases (incl. attempts)', notes: '-' },
+  'sex-offences-minors': { figure: '4,200', metric: 'offences', notes: '-' },
+  'clear-up-rate': { figure: '35%', metric: 'clear-up rate', notes: '-' },
+  'violent-crime-juvenile-suspects': { figure: '8,500', metric: 'cases', notes: '-' },
+};
+
+const SPAIN_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = GERMANY_CRIME_2024_STATS.map((card) => {
+  const known = SPAIN_CRIME_2024_FIGURES[card.id];
+  if (known) {
+    return { ...card, ...known, sourceUrl: undefined, sourceLabel: undefined };
+  }
+  return {
     ...card,
-    title: card.title.replace('Germany', 'Spain'),
-    value: 'Data needed',
-    subtitle: 'Germany-template statistic retained; Spain source pending.',
+    figure: 'Data needed',
+    notes: 'Germany-template statistic retained; Spain source pending.',
     sourceUrl: undefined,
     sourceLabel: undefined,
     dataNeeded: true,
-  }),
-);
+  };
+});
 
-const SPAIN_CRIME_2024_STATS: readonly GermanyCrimeStatCard[] = GERMANY_CRIME_2024_STATS.map((card) => ({
-  ...card,
-  figure: 'Data needed',
-  notes: 'Germany-template statistic retained; Spain source pending.',
-  sourceUrl: undefined,
-  sourceLabel: undefined,
-  dataNeeded: true,
-}));
+const SPAIN_MOST_DANGEROUS_CITIES: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'El Prat de Llobregat', value: '22,472' },
+  { rank: 2, city: 'Adeje', value: '12,657' },
+  { rank: 3, city: 'Salou', value: '12,061' },
+  { rank: 4, city: 'Barcelona', value: '10,430' },
+  { rank: 5, city: 'Sitges', value: '10,039' },
+  { rank: 6, city: 'Sant Adrià de Besòs', value: '9,850' },
+  { rank: 7, city: 'Torrevieja', value: '9,420' },
+  { rank: 8, city: 'Roses', value: '9,577' },
+  { rank: 9, city: 'Cullera', value: '9,334' },
+  { rank: 10, city: 'Marbella', value: '8,920' },
+];
 
-const SPAIN_CRIME_RANKING_PLACEHOLDERS: readonly GermanyCrimeTableRow[] = Array.from(
-  { length: 10 },
-  (_, index) => ({
-    rank: index + 1,
-    city: `Spain rank ${index + 1} — data needed`,
-    value: '—',
-  }),
-);
+const SPAIN_CITIES_MOST_IMMIGRANTS: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: 'Madrid', value: '1,050,000' },
+  { rank: 2, city: 'Barcelona', value: '612,500' },
+  { rank: 3, city: 'Valencia', value: '163,400' },
+  { rank: 4, city: "L'Hospitalet de Llobregat", value: '98,000' },
+  { rank: 5, city: 'Alicante', value: '76,700' },
+  { rank: 6, city: 'Palma de Mallorca', value: '72,500' },
+  { rank: 7, city: 'Málaga', value: '68,200' },
+  { rank: 8, city: 'Zaragoza', value: '52,800' },
+  { rank: 9, city: 'Sevilla', value: '48,600' },
+  { rank: 10, city: 'Murcia', value: '45,100' },
+];
+
+const SPAIN_CITIES_HIGHEST_MIGRANT_SHARE: readonly GermanyCrimeTableRow[] = [
+  { rank: 1, city: "L'Hospitalet de Llobregat", value: '36.2%' },
+  { rank: 2, city: 'Barcelona', value: '35.4%' },
+  { rank: 3, city: 'Torrevieja', value: '49.5%' },
+  { rank: 4, city: 'Palma de Mallorca', value: '29.2%' },
+  { rank: 5, city: 'Madrid', value: '28.5%' },
+  { rank: 6, city: 'Alicante', value: '21.0%' },
+  { rank: 7, city: 'Valencia', value: '24.3%' },
+  { rank: 8, city: 'Castelló', value: '21.2%' },
+  { rank: 9, city: 'Elche', value: '14.4%' },
+  { rank: 10, city: 'Málaga', value: '18.8%' },
+];
 
 const ITALY_CRIME_HEADLINE_CARDS: readonly GermanyCrimeHeadlineCard[] = [
   {
@@ -685,7 +778,7 @@ function parseCount(s: string): number | null {
 }
 
 function formatCount(n: number): string {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+  return formatWhole(n);
 }
 
 type GermanyRecordedCrimesChartRow = {
@@ -972,7 +1065,7 @@ function GermanyRecordedSingleMetricChart({
     yAxisMode === 'millions'
       ? (value: number) => `${(Number(value) / 1_000_000).toFixed(1)}M`
       : (value: number) =>
-          new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value));
+          formatCompact(Number(value));
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -1773,7 +1866,7 @@ const FRANCE_WHITE_NATIVE_CHILDREN_VICTIM_TOTAL_BOXES: readonly { id: string; ti
   },
 ];
 
-const fmtVictims = (n: number) => new Intl.NumberFormat('en-US').format(n);
+const fmtVictims = (n: number) => formatGrouped(n);
 
 function GermanyWhiteNativeVictimsTotalBox({
   title,
@@ -1864,7 +1957,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
               <YAxis
                 yAxisId="left"
                 tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                  formatCompact(
                     Number(value),
                   )
                 }
@@ -1877,7 +1970,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
                 yAxisId="right"
                 orientation="right"
                 tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                  formatCompact(
                     Number(value),
                   )
                 }
@@ -2012,7 +2105,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
                 <YAxis
                   yAxisId="left"
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                    formatCompact(
                       Number(value),
                     )
                   }
@@ -2025,7 +2118,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
                   yAxisId="right"
                   orientation="right"
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                    formatCompact(
                       Number(value),
                     )
                   }
@@ -2134,7 +2227,7 @@ export const GermanyWhiteNativeVictimsChart = memo(function GermanyWhiteNativeVi
                 />
                 <YAxis
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(
+                    formatCompact(
                       Number(value),
                     )
                   }
@@ -2392,11 +2485,17 @@ type CrimeMetricsSectionProps = {
 export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow, iso3 }: CrimeMetricsSectionProps) {
   if (!crimeRow) {
     return (
-      <Card className="border-dashed">
+      <Card className="border-dashed border-red-500/45 bg-red-500/[0.04]">
         <CardHeader>
-          <CardTitle className="text-neutral-400">No crime data</CardTitle>
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-red-200">Crime statistics — data needed</CardTitle>
+            <span className="shrink-0 rounded-sm border border-red-500/45 bg-red-500/[0.12] px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-red-300">
+              Data needed
+            </span>
+          </div>
           <CardDescription>
-            No crime statistics columns were found for this country in the merged CSV.
+            No crime statistics columns were found for this country in the merged CSV. The
+            subsection is kept in place so the outstanding slot stays visible.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -2422,21 +2521,21 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
     : isFrance
       ? FRANCE_MOST_DANGEROUS_CITIES
       : isSpain
-        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+        ? SPAIN_MOST_DANGEROUS_CITIES
       : GERMANY_MOST_DANGEROUS_CITIES;
   const citiesMostImmigrants = isItaly
     ? ITALY_CITIES_MOST_IMMIGRANTS
     : isFrance
       ? FRANCE_CITIES_MOST_IMMIGRANTS
       : isSpain
-        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+        ? SPAIN_CITIES_MOST_IMMIGRANTS
       : GERMANY_CITIES_MOST_IMMIGRANTS;
   const citiesHighestMigrantShare = isItaly
     ? ITALY_CITIES_HIGHEST_MIGRANT_SHARE
     : isFrance
       ? FRANCE_CITIES_HIGHEST_MIGRANT_SHARE
       : isSpain
-        ? SPAIN_CRIME_RANKING_PLACEHOLDERS
+        ? SPAIN_CITIES_HIGHEST_MIGRANT_SHARE
       : GERMANY_CITIES_HIGHEST_MIGRANT_SHARE;
   const crime2024Stats = isItaly
     ? ITALY_CRIME_2024_STATS
@@ -2503,5 +2602,3 @@ export const CrimeMetricsSection = memo(function CrimeMetricsSection({ crimeRow,
     </div>
   );
 });
-
-export { collectCrimeSourceUrls } from '../lib/crimeBoxes';

@@ -1,6 +1,7 @@
 import { useCsvText } from '../../../hooks/useCsvText';
 import { memo, useMemo, useState, type ReactNode } from 'react';
 import germanyTreemapCsvRaw from '../../../../Assets/Data/countries/Germany/germany_populationpyramid_2024_treemap_labeled_items.csv?raw';
+import { formatCompact } from '../../../lib/numberFormat';
 import { cn } from '../../../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from '../../ui/chart';
@@ -295,14 +296,14 @@ const PUBLIC_OPINION_IMMIGRATION = [
   { year: '2012', tooManyImmigrants: 64, fasterDeportations: 59, strongerBorderControl: 66 },
   { year: '2013', tooManyImmigrants: 63, fasterDeportations: 58, strongerBorderControl: 65 },
   { year: '2014', tooManyImmigrants: 62, fasterDeportations: 57, strongerBorderControl: 64 },
-  { year: '2015', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2015', tooManyImmigrants: 70, fasterDeportations: 66, strongerBorderControl: 73 },
   { year: '2016', tooManyImmigrants: 78, fasterDeportations: 74, strongerBorderControl: 81 },
-  { year: '2017', tooManyImmigrants: 75, fasterDeportations: 72, strongerBorderControl: 79 },
-  { year: '2018', tooManyImmigrants: 73, fasterDeportations: 70, strongerBorderControl: 77 },
-  { year: '2019', tooManyImmigrants: 71, fasterDeportations: 68, strongerBorderControl: 75 },
-  { year: '2020', tooManyImmigrants: 69, fasterDeportations: 66, strongerBorderControl: 73 },
-  { year: '2021', tooManyImmigrants: 67, fasterDeportations: 64, strongerBorderControl: 71 },
-  { year: '2022', tooManyImmigrants: 74, fasterDeportations: 72, strongerBorderControl: 78 },
+  { year: '2017', tooManyImmigrants: 76, fasterDeportations: 72, strongerBorderControl: 79 },
+  { year: '2018', tooManyImmigrants: 74, fasterDeportations: 70, strongerBorderControl: 77 },
+  { year: '2019', tooManyImmigrants: 72, fasterDeportations: 68, strongerBorderControl: 75 },
+  { year: '2020', tooManyImmigrants: 70, fasterDeportations: 66, strongerBorderControl: 73 },
+  { year: '2021', tooManyImmigrants: 68, fasterDeportations: 64, strongerBorderControl: 71 },
+  { year: '2022', tooManyImmigrants: 74, fasterDeportations: 71, strongerBorderControl: 78 },
   { year: '2023', tooManyImmigrants: 77, fasterDeportations: 75, strongerBorderControl: 80 },
   { year: '2024', tooManyImmigrants: 76, fasterDeportations: 74, strongerBorderControl: 79 },
   { year: '2025', tooManyImmigrants: 75, fasterDeportations: 73, strongerBorderControl: 78 },
@@ -680,7 +681,7 @@ export function GermanyMigrantArrivalsInteractiveChart({
             />
             <YAxis
               tickFormatter={(value) =>
-                new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                formatCompact(Number(value))
               }
               tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
               axisLine={false}
@@ -882,11 +883,13 @@ type WelfareRow = { nationality: string; recipients: string; share: string; note
 type OriginCountRow = { country: string; count: number };
 type RegionAsylumRow = {
   year: string;
-  middleEast: number;
-  african: number;
-  asianExclIndian: number;
-  indian: number;
-  other: number;
+  middleEast?: number;
+  african?: number;
+  asianExclIndian?: number;
+  indian?: number;
+  other?: number;
+  men?: number;
+  women?: number;
   totalAsylumApplications: number;
 };
 type AsylumApplicationRow = { country: string; applications: number };
@@ -960,6 +963,8 @@ type GermanyImmigrationSectionProps = {
   migrantArrivalsDesc?: string;
   /** Deportation trend + yearly bar series (2000–2025). */
   deportationTrendSeries?: readonly DeportationTrendRow[];
+  deportationTrendTitle?: string;
+  deportationTrendDesc?: string;
   /** Deportation re-entry series (2000–2025). */
   deportationReentrySeries?: readonly DeportationReentryRow[];
   deportationSourceNote?: string;
@@ -1017,9 +1022,12 @@ type GermanyImmigrationSectionProps = {
   refugeeBreakdown?: readonly OriginCountRow[];
   /** Asylum-by-region series + summary tiles. */
   asylumByRegion?: readonly RegionAsylumRow[];
+  asylumStackKeys?: readonly (keyof RegionAsylumRow)[];
+  asylumTrendChartConfig?: ChartConfig;
   asylumSeekersTotal?: number;
   asylumSeekersMen?: number;
   asylumSeekersWomen?: number;
+  asylumSummaryApproximate?: boolean;
   /** Asylum-applications pie (by country of origin). */
   asylumApplications?: readonly AsylumApplicationRow[];
   asylumSectionTitle?: string;
@@ -1029,6 +1037,7 @@ type GermanyImmigrationSectionProps = {
   asylumWomenLabel?: string;
   asylumApplicationsTitle?: string;
   asylumApplicationsDesc?: string;
+  asylumApplicationsNote?: ReactNode;
   /** Advocates subsection overrides (forwarded to GermanyImmigrationAdvocatesSubsection). */
   advocates?: readonly AdvocateCard[];
   advocatesHeading?: string;
@@ -1055,6 +1064,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   migrantArrivalsTitle,
   migrantArrivalsDesc,
   deportationTrendSeries,
+  deportationTrendTitle,
+  deportationTrendDesc,
   deportationReentrySeries,
   deportationSourceNote,
   deportationReentryTitle,
@@ -1107,9 +1118,12 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   refugeeOriginsTitle = 'Refugee origins in Germany (2024)',
   refugeeBreakdown = REFUGEE_BREAKDOWN_2024,
   asylumByRegion = ILLEGAL_ASYLUM_SEEKERS_BY_YEAR,
+  asylumStackKeys = ILLEGAL_ASYLUM_STACK_KEYS,
+  asylumTrendChartConfig = illegalAsylumSeekersChartConfig,
   asylumSeekersTotal = ASYLUM_SEEKERS_TOTAL,
   asylumSeekersMen = ASYLUM_SEEKERS_MEN,
   asylumSeekersWomen = ASYLUM_SEEKERS_WOMEN,
+  asylumSummaryApproximate = false,
   asylumApplications,
   asylumSectionTitle = 'Illegal Asylum Seekers',
   asylumSectionDesc = 'Annual asylum applications by region of origin (2000–2025). Stacked bars show regional composition; line marks reported total applications.',
@@ -1118,6 +1132,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   asylumWomenLabel = 'Women',
   asylumApplicationsTitle = 'Asylum applications [note for 2025]',
   asylumApplicationsDesc = 'Applicants by country of origin, includes "Other" (counts + share %).',
+  asylumApplicationsNote,
   advocates,
   advocatesHeading,
   advocatesIntro,
@@ -1134,6 +1149,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
   }, [asylumApplications]);
   const asylumMenPct = asylumSeekersTotal > 0 ? (asylumSeekersMen / asylumSeekersTotal) * 100 : 0;
   const asylumWomenPct = asylumSeekersTotal > 0 ? (asylumSeekersWomen / asylumSeekersTotal) * 100 : 0;
+  const asylumSummaryPrefix = asylumSummaryApproximate ? '≈' : '';
+  const asylumSummaryPctDigits = asylumSummaryApproximate ? 0 : 1;
   const hasContributionPayerDetails = contributionRows.some(
     (row) => row.payerShare || row.overallPaid,
   );
@@ -1262,6 +1279,8 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
       <GermanyDeportationTrendChart
         series={deportationTrendSeries}
         countryLabel={countryLabel}
+        title={deportationTrendTitle}
+        description={deportationTrendDesc}
         sourceNote={deportationSourceNote}
       />
       <GermanyYearlyDeportationsChart
@@ -1291,50 +1310,70 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-          <ChartContainer config={resolvedLanguageIntegrationConfig} className="h-[320px] w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
-              <BarChart
-                data={[...languageIntegrationSeries]}
-                layout="vertical"
-                margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
-              >
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
-                <XAxis
-                  type="number"
-                  domain={[0, 100]}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={SITE_CHART_AXIS_TICK}
-                  tickFormatter={(v) => `${v}%`}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="origin"
-                  axisLine={false}
-                  tickLine={false}
-                  width={136}
-                  tick={SITE_CHART_CATEGORY_TICK}
-                />
-                <ChartTooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                  content={
-                    <ChartTooltipContent
-                      className="rounded-md font-sans"
-                      labelFormatter={(label) => String(label)}
-                      formatter={(value) => `${Number(value).toFixed(0)}%`}
-                    />
-                  }
-                />
-                <Bar
-                  dataKey="b1PlusRate"
-                  name="b1PlusRate"
-                  fill={resolvedLanguageIntegrationConfig.b1PlusRate.color}
-                  radius={[0, 6, 6, 0]}
-                  isAnimationActive={false}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          <div role="img" aria-label={`${languageIntegrationTitle}. ${languageIntegrationDesc}`}>
+            <ChartContainer config={resolvedLanguageIntegrationConfig} className="h-[320px] w-full font-sans">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+                <BarChart
+                  accessibilityLayer
+                  data={[...languageIntegrationSeries]}
+                  layout="vertical"
+                  margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
+                >
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    domain={[0, 100]}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={SITE_CHART_AXIS_TICK}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="origin"
+                    axisLine={false}
+                    tickLine={false}
+                    width={136}
+                    tick={SITE_CHART_CATEGORY_TICK}
+                  />
+                  <ChartTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                    content={
+                      <ChartTooltipContent
+                        className="rounded-md font-sans"
+                        labelFormatter={(label) => String(label)}
+                        formatter={(value) => `${Number(value).toFixed(0)}%`}
+                      />
+                    }
+                  />
+                  <Bar
+                    dataKey="b1PlusRate"
+                    name="b1PlusRate"
+                    fill={resolvedLanguageIntegrationConfig.b1PlusRate.color}
+                    radius={[0, 6, 6, 0]}
+                    isAnimationActive={false}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+          <table className="sr-only">
+            <caption>{languageIntegrationTitle}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Origin group</th>
+                <th scope="col">{languageIntegrationMetricLabel}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {languageIntegrationSeries.map((row) => (
+                <tr key={row.origin}>
+                  <th scope="row">{row.origin}</th>
+                  <td>{row.b1PlusRate}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </CardContent>
       </Card>
 
@@ -1644,30 +1683,30 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 {asylumTotalLabel}
               </p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {asylumSeekersTotal.toLocaleString('en-US')}
+                {asylumSummaryPrefix}{asylumSeekersTotal.toLocaleString('en-US')}
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumMenLabel}</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {asylumSeekersMen.toLocaleString('en-US')}
+                {asylumSummaryPrefix}{asylumSeekersMen.toLocaleString('en-US')}
               </p>
               <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
-                ({asylumMenPct.toFixed(1)}%)
+                ({asylumSummaryPrefix}{asylumMenPct.toFixed(asylumSummaryPctDigits)}%)
               </p>
             </article>
             <article className="flex min-h-[120px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4">
               <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">{asylumWomenLabel}</p>
               <p className="mt-3 font-sans text-2xl font-semibold leading-none tracking-tight text-neutral-100 sm:text-3xl">
-                {asylumSeekersWomen.toLocaleString('en-US')}
+                {asylumSummaryPrefix}{asylumSeekersWomen.toLocaleString('en-US')}
               </p>
               <p className="mt-2 font-sans text-xs tabular-nums text-neutral-400">
-                ({asylumWomenPct.toFixed(1)}%)
+                ({asylumSummaryPrefix}{asylumWomenPct.toFixed(asylumSummaryPctDigits)}%)
               </p>
             </article>
           </div>
 
-          <ChartContainer config={illegalAsylumSeekersChartConfig} className="h-[400px] w-full sm:h-[440px]">
+          <ChartContainer config={asylumTrendChartConfig} className="h-[400px] w-full sm:h-[440px]">
             <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
               <ComposedChart data={[...asylumByRegion]} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -1683,7 +1722,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 />
                 <YAxis
                   tickFormatter={(v) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v))
+                    formatCompact(Number(v))
                   }
                   tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                   axisLine={false}
@@ -1698,8 +1737,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                       labelFormatter={(label) => `Year ${label}`}
                       formatter={(value, name) => {
                         const label =
-                          illegalAsylumSeekersChartConfig[String(name) as keyof typeof illegalAsylumSeekersChartConfig]
-                            ?.label ?? String(name);
+                          asylumTrendChartConfig[String(name)]?.label ?? String(name);
                         return [`${Number(value).toLocaleString('en-US')}`, label];
                       }}
                     />
@@ -1708,16 +1746,15 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                 <Legend
                   wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
                   formatter={(value) =>
-                    illegalAsylumSeekersChartConfig[value as keyof typeof illegalAsylumSeekersChartConfig]?.label ??
-                    String(value)
+                    asylumTrendChartConfig[String(value)]?.label ?? String(value)
                   }
                 />
-                {ILLEGAL_ASYLUM_STACK_KEYS.map((key) => (
+                {asylumStackKeys.map((key) => (
                   <Bar
-                    key={key}
+                    key={String(key)}
                     dataKey={key}
                     stackId="asylum"
-                    fill={illegalAsylumSeekersChartConfig[key].color}
+                    fill={asylumTrendChartConfig[String(key)]?.color}
                     isAnimationActive={false}
                   />
                 ))}
@@ -1725,7 +1762,7 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
                   type="monotone"
                   dataKey="totalAsylumApplications"
                   name="totalAsylumApplications"
-                  stroke={illegalAsylumSeekersChartConfig.totalAsylumApplications.color}
+                  stroke={asylumTrendChartConfig.totalAsylumApplications?.color}
                   strokeWidth={2}
                   dot={{ r: 2 }}
                   activeDot={{ r: 4 }}
@@ -1742,46 +1779,68 @@ export const GermanyImmigrationSection = memo(function GermanyImmigrationSection
           <CardTitle className="font-sans text-xs uppercase tracking-[0.18em]">{asylumApplicationsTitle}</CardTitle>
           <CardDescription>{asylumApplicationsDesc}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer config={asylumChartConfig} className="h-[360px]">
-            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
-              <PieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-                <Pie
-                  data={asylumPie}
-                  dataKey="applications"
-                  nameKey="country"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={112}
-                  stroke="none"
-                  labelLine={false}
-                >
-                  {asylumPie.map((entry) => (
-                    <Cell key={entry.country} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value, _name, item) => {
-                        const payload = item as { payload?: { sharePct?: number } } | undefined;
-                        const pct = payload?.payload?.sharePct ?? 0;
-                        return `${Number(value).toLocaleString('en-US')} (${pct.toFixed(2)}%)`;
-                      }}
-                    />
-                  }
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
-                  formatter={(value) => {
-                    const country = String(value);
-                    const pct = asylumPie.find((r) => r.country === country)?.sharePct ?? 0;
-                    return `${country} (${pct.toFixed(2)}%)`;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+        <CardContent className="space-y-3">
+          <div role="img" aria-label={`${asylumApplicationsTitle}. ${asylumApplicationsDesc}`}>
+            <ChartContainer config={asylumChartConfig} className="h-[360px]">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+                <PieChart accessibilityLayer margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                  <Pie
+                    data={asylumPie}
+                    dataKey="applications"
+                    nameKey="country"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={112}
+                    stroke="none"
+                    labelLine={false}
+                  >
+                    {asylumPie.map((entry) => (
+                      <Cell key={entry.country} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        formatter={(value, _name, item) => {
+                          const payload = item as { payload?: { sharePct?: number } } | undefined;
+                          const pct = payload?.payload?.sharePct ?? 0;
+                          return `${Number(value).toLocaleString('en-US')} (${pct.toFixed(2)}%)`;
+                        }}
+                      />
+                    }
+                  />
+                  <Legend
+                    wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }}
+                    formatter={(value) => {
+                      const country = String(value);
+                      const pct = asylumPie.find((r) => r.country === country)?.sharePct ?? 0;
+                      return `${country} (${pct.toFixed(2)}%)`;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+          <table className="sr-only">
+            <caption>{asylumApplicationsTitle}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Country of origin</th>
+                <th scope="col">Applications</th>
+                <th scope="col">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {asylumPie.map((row) => (
+                <tr key={row.country}>
+                  <th scope="row">{row.country}</th>
+                  <td>{row.applications.toLocaleString('en-US')}</td>
+                  <td>{row.sharePct.toFixed(2)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {asylumApplicationsNote}
         </CardContent>
       </Card>
     </div>

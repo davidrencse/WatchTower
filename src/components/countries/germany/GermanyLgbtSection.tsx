@@ -9,8 +9,9 @@ import {
   parseGermanyMetricTableCsv,
 } from '../../../lib/countries/germany/germanyHealthCsv';
 import { cn } from '../../../lib/utils';
-import { formatValueDisplay, metaParts, splitUrls } from './GermanyGovernmentPoliticsBlocks';
+import { formatValueDisplay, metaParts, splitUrls } from '../../../lib/countries/germany/germanyGovernmentPoliticsFormat';
 import { CollapsibleFlagSection } from '../../CollapsibleFlagSection';
+import { EmptyCsvNotice } from '../../EmptyCsvNotice';
 
 const CSV_URL = '/data/germany_gender_care_statistics.csv';
 
@@ -428,11 +429,7 @@ export const GermanyLgbtSection = memo(function GermanyLgbtSection({
   }
 
   if (adultGroups.length === 0 && childrenGroups.length === 0) {
-    return (
-      <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
-      </p>
-    );
+    return <EmptyCsvNotice csvUrl={csvUrl} />;
   }
 
   return (

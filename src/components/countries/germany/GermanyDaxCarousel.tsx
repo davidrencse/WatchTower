@@ -7,24 +7,13 @@ const UC_META = 'uppercase tracking-[0.03em]';
 
 export type { GermanyStockStripRow };
 
-function formatEur(n: number): string {
-  return new Intl.NumberFormat('de-DE', {
+function currencyFormatter(locale: string, currency: string): Intl.NumberFormat {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n);
-}
-
-function formatSignedEur(n: number): string {
-  const fmt = new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
+    currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  if (n > 0) return `+${fmt.format(n)}`;
-  return fmt.format(n);
 }
 
 function formatPct(n: number): string {
@@ -73,9 +62,18 @@ const StockSparkline = memo(function StockSparkline({
   );
 });
 
-export const StockCard = memo(function StockCard({ item }: { item: GermanyStockStripRow }) {
+export const StockCard = memo(function StockCard({
+  item,
+  locale = 'de-DE',
+  currency = 'EUR',
+}: {
+  item: GermanyStockStripRow;
+  locale?: string;
+  currency?: string;
+}) {
   const up = item.changePercent >= 0;
   const pctClass = up ? 'text-emerald-400' : 'text-red-400';
+  const money = useMemo(() => currencyFormatter(locale, currency), [currency, locale]);
   const sparkPath = useMemo(
     () => sparklinePath(item.history.map((h) => h.close)),
     [item.history],
@@ -94,10 +92,12 @@ export const StockCard = memo(function StockCard({ item }: { item: GermanyStockS
       <CardContent className="space-y-1.5 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_45%)] px-2.5 pb-2.5 pt-1.5">
         <div className="flex flex-col gap-0">
           <span className="font-sans text-base font-semibold tabular-nums leading-none tracking-tight text-white">
-            {formatEur(item.priceEur)}
+            {money.format(item.price)}
           </span>
           <div className="flex flex-wrap items-baseline gap-x-1 font-sans text-[11px] tabular-nums">
-            <span className={pctClass}>{formatSignedEur(item.changeEur)}</span>
+            <span className={pctClass}>
+              {item.change > 0 ? `+${money.format(item.change)}` : money.format(item.change)}
+            </span>
             <span className={pctClass}>{formatPct(item.changePercent)}</span>
           </div>
         </div>
@@ -118,9 +118,13 @@ export const StockCard = memo(function StockCard({ item }: { item: GermanyStockS
 export const GermanyDaxCarousel = memo(function GermanyDaxCarousel({
   items = GERMANY_STATIC_MARKET_STRIP,
   ariaLabel = 'German equities and bond ETF (static snapshot)',
+  locale = 'de-DE',
+  currency = 'EUR',
 }: {
   items?: readonly GermanyStockStripRow[];
   ariaLabel?: string;
+  locale?: string;
+  currency?: string;
 } = {}) {
   const [paused, setPaused] = useState(false);
 
@@ -144,11 +148,11 @@ export const GermanyDaxCarousel = memo(function GermanyDaxCarousel({
         <div className="wt-dax-carousel-viewport max-w-full overflow-hidden border border-white/[0.12] bg-neutral-950/80">
           <div className="wt-dax-carousel-track flex w-max gap-2 pb-1">
             {items.map((item) => (
-              <StockCard key={item.ticker} item={item} />
+              <StockCard key={item.ticker} item={item} locale={locale} currency={currency} />
             ))}
             <div className="contents" aria-hidden="true">
               {items.map((item) => (
-                <StockCard key={`${item.ticker}-dup`} item={item} />
+                <StockCard key={`${item.ticker}-dup`} item={item} locale={locale} currency={currency} />
               ))}
             </div>
           </div>

@@ -275,6 +275,10 @@ function PanelSection({
   collapseSignal?: number;
   expandSignal?: number;
 }) {
+  const hasDetailedItems = panel.items.some(
+    (item) => item.aliases || item.attribution || item.operations?.length || item.sourceUrl,
+  );
+
   return (
     <CollapsibleFlagSection
       title={panel.title}
@@ -305,17 +309,64 @@ function PanelSection({
 
         <div className="rounded-md border border-line bg-surface-metric p-3.5 shadow-card">
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-500">{panel.listTitle}</p>
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {panel.items.map((d) => (
-              <div key={d.name} className="flex items-start gap-2 rounded border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: panel.accent }} />
-                <div>
-                  <p className="font-sans text-[11px] font-semibold leading-tight text-neutral-200">{d.name}</p>
-                  <p className="font-sans text-[9px] leading-snug text-neutral-500">{d.note}</p>
+          {hasDetailedItems ? (
+            <div className="mt-3 grid grid-cols-1 gap-x-6 md:grid-cols-2">
+              {panel.items.map((item) => (
+                <article key={item.name} className="border-t border-white/[0.08] py-4 first:border-t-0 md:[&:nth-child(2)]:border-t-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <h4 className="font-sans text-sm font-semibold leading-tight text-neutral-100">{item.name}</h4>
+                    {item.attribution ? (
+                      <span
+                        className="shrink-0 rounded-sm border px-1.5 py-0.5 font-sans text-[11px] font-semibold uppercase tracking-[0.08em]"
+                        style={{ borderColor: `${panel.accent}52`, color: panel.accent }}
+                      >
+                        {item.attribution}
+                      </span>
+                    ) : null}
+                  </div>
+                  {item.aliases ? (
+                    <p className="mt-1 font-sans text-xs leading-relaxed text-neutral-400">
+                      <span className="font-medium text-neutral-300">Aliases · </span>{item.aliases}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 font-sans text-xs leading-relaxed text-neutral-300">{item.note}</p>
+                  {item.operations?.length ? (
+                    <ul className="mt-2.5 space-y-1.5" aria-label={`${item.name} documented operations`}>
+                      {item.operations.map((operation) => (
+                        <li key={operation} className="flex items-start gap-2 font-sans text-xs leading-relaxed text-neutral-400">
+                          <span className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: panel.accent }} />
+                          <span>{operation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {item.sourceUrl ? (
+                    <a
+                      href={item.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex font-sans text-[11px] font-semibold transition-colors hover:text-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{ color: panel.accent, outlineColor: panel.accent }}
+                    >
+                      View actor record ↗
+                    </a>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {panel.items.map((d) => (
+                <div key={d.name} className="flex items-start gap-2 rounded border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: panel.accent }} />
+                  <div>
+                    <p className="font-sans text-[11px] font-semibold leading-tight text-neutral-200">{d.name}</p>
+                    <p className="font-sans text-[9px] leading-snug text-neutral-500">{d.note}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
         <p className="font-sans text-[10px] leading-relaxed text-neutral-600">{panel.footnote}</p>
       </div>

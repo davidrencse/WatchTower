@@ -8,3 +8,6 @@ dist/
 .tmp-chrome-cdp/
 .tmp-*/
 .tmp-*.png
+
+# Natural Earth source downloads cached by scripts/bake-*.mjs (tens of MB)
+scripts/_ne10_*.json

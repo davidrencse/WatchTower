@@ -16,6 +16,23 @@ export function parseCountriesWideCsv(raw: string): CountryWideRow[] {
   });
 }
 
+/**
+ * A row carrying every column of `rows` but no values, for a country the shared table has no
+ * entry for yet. Lets the dashboard render its full template with the usual labeled placeholders
+ * instead of collapsing to an error: no figure is invented, each slot simply reads blank.
+ */
+export function blankCountryWideRow(
+  rows: CountryWideRow[],
+  iso3: string,
+  country: string,
+): CountryWideRow {
+  const blank: CountryWideRow = {};
+  for (const key of Object.keys(rows[0] ?? {})) blank[key] = '';
+  blank.iso3 = iso3;
+  blank.country = country;
+  return blank;
+}
+
 export function indexCountriesByIso3(rows: CountryWideRow[]): Map<string, CountryWideRow> {
   const m = new Map<string, CountryWideRow>();
   for (const r of rows) {

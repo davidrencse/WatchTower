@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { SATELLITE_GROUPS } from '../data/satelliteGroups';
 
 /**
@@ -15,7 +17,8 @@ type SatelliteLegendProps = {
   onAll: (on: boolean) => void;
 };
 
-export function SatelliteLegend({
+/** Memoised: it is a sibling of the satellite badge, which re-renders on every hover sample. */
+export const SatelliteLegend = memo(function SatelliteLegend({
   visible,
   countsByGroup,
   total,
@@ -89,4 +92,4 @@ export function SatelliteLegend({
       </div>
     </aside>
   );
-}
+});

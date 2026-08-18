@@ -8,11 +8,22 @@ import { FRANCE_ZIONISM_GROUPS, FRANCE_ZIONISM_METRICS } from '../../../lib/coun
 import { FRANCE_JEWISH_GOVERNMENT_PEOPLE } from '../../../data/countries/france/franceJewishGovernmentPeople';
 import { ITALY_JEWISH_GOVERNMENT_PEOPLE } from '../../../data/countries/italy/italyJewishGovernmentPeople';
 import {
+  SPAIN_JEWISH_GOVERNMENT_METHODOLOGY,
+  SPAIN_JEWISH_GOVERNMENT_PEOPLE,
+} from '../../../data/countries/spain/spainJewishGovernmentPeople';
+import {
   ITALY_ISRAEL_CORPORATE_TIES,
   ITALY_ZIONISM_EVIDENCE_NOTE,
   ITALY_ZIONISM_GROUPS,
   ITALY_ZIONISM_METRICS,
 } from '../../../lib/countries/italy/italyPoliticsZionism';
+import {
+  SPAIN_ISRAEL_CORPORATE_TIES,
+  SPAIN_ISRAEL_CORPORATE_TIES_NOTE,
+  SPAIN_ZIONISM_EVIDENCE_NOTE,
+  SPAIN_ZIONISM_GROUPS,
+  SPAIN_ZIONISM_METRICS,
+} from '../../../lib/countries/spain/spainPoliticsZionism';
 
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
@@ -118,20 +129,40 @@ function ZionMetricCard({
   notes,
   source,
   sourceUrl,
+  status,
 }: {
   title: string;
   value: string;
   notes: string;
   source?: string;
   sourceUrl?: string;
+  status?: 'estimate' | 'measured' | 'institutional' | 'not-published';
 }) {
+  const statusLabel = status
+    ? {
+        estimate: 'Estimate',
+        measured: 'Measured',
+        institutional: 'Institutional',
+        'not-published': 'Not published',
+      }[status]
+    : null;
+
   return (
     <Card className="border-blue-500/20 bg-neutral-950/60">
-      <CardHeader className="space-y-1 p-3 pb-2">
-        <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>{title}</CardTitle>
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 p-3 pb-2">
+        <CardTitle className={`min-w-0 text-sm text-neutral-100 ${UC_TITLE}`}>{title}</CardTitle>
+        {statusLabel ? (
+          <span className={`shrink-0 rounded-sm border border-line bg-white/[0.03] px-1.5 py-0.5 font-sans text-[11px] text-neutral-400 ${UC_META}`}>
+            {statusLabel}
+          </span>
+        ) : null}
       </CardHeader>
       <CardContent className="p-3 pt-0">
-        <p className="font-sans text-2xl font-semibold text-blue-300">{value}</p>
+        <p
+          className={`font-sans text-2xl font-semibold ${status ? 'text-[color:var(--uk-accent)]' : 'text-blue-300'}`}
+        >
+          {value}
+        </p>
         <p className={`mt-2 font-sans text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>{notes}</p>
         {source ? (
           <p className={`mt-1 font-sans text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
@@ -160,6 +191,111 @@ export const GermanyPoliticsZionismSection = memo(function GermanyPoliticsZionis
   const effectiveIso3 = (actualIso3 ?? iso3).toUpperCase();
   const isItaly = effectiveIso3 === 'ITA';
   const isFrance = effectiveIso3 === 'FRA';
+  const isSpain = effectiveIso3 === 'ESP';
+
+  if (isSpain) {
+    return (
+      <div className="flex flex-col gap-3">
+        <aside
+          aria-label="Spain Zionism evidence status"
+          className="border-l border-amber-400/70 bg-amber-400/[0.06] px-4 py-3 font-sans text-xs leading-relaxed text-[color:var(--fg)]"
+        >
+          <span className="font-semibold uppercase tracking-[0.08em] text-[color:var(--fg)]">
+            Evidence status
+          </span>
+          <span className="ml-2">{SPAIN_ZIONISM_EVIDENCE_NOTE}</span>
+        </aside>
+        <div className={GOV_POLITICS_CARD_GRID}>
+          <GermanyJewishGovernmentCarousel
+            entriesOverride={SPAIN_JEWISH_GOVERNMENT_PEOPLE}
+            methodologyNote={SPAIN_JEWISH_GOVERNMENT_METHODOLOGY}
+            sourceCaption="Curated dataset: src/data/countries/spain/spainJewishGovernmentPeople.ts · Offices cross-checked against parliamentary records; identity/background requires explicit public documentation."
+          />
+
+          {SPAIN_ZIONISM_METRICS.map((metric) => (
+            <ZionMetricCard
+              key={metric.title}
+              title={metric.title}
+              value={metric.value}
+              notes={metric.notes}
+              source={metric.source}
+              sourceUrl={metric.sourceUrl}
+              status={metric.status}
+            />
+          ))}
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>
+                JEWISH COMMUNITY & MONITORING ORGANISATIONS
+              </CardTitle>
+              <CardDescription className={`text-[11px] text-neutral-400 ${UC_META}`}>
+                Publicly documented national and local organisations in Spain
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0">
+              <PoliticsGroupLeaderboard
+                accent="blue"
+                items={SPAIN_ZIONISM_GROUPS.map((g) => ({
+                  rank: g.rank,
+                  group: g.group,
+                  type: g.type,
+                  value: g.size,
+                  notes: g.notes,
+                }))}
+              />
+              <p className={`font-sans text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
+                Sources:{' '}
+                <a
+                  className="underline decoration-white/20 underline-offset-2 hover:text-blue-300"
+                  href="https://www.fcje.org/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  FCJE
+                </a>
+                {' · '}
+                <a
+                  className="underline decoration-white/20 underline-offset-2 hover:text-blue-300"
+                  href="https://observatorioantisemitismo.fcje.org/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Observatorio de Antisemitismo
+                </a>
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="sm:col-span-2 lg:col-span-3 border-blue-500/20 bg-neutral-950/60">
+            <CardHeader className="space-y-1 p-3 pb-2">
+              <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>
+                STATE POLICY &amp; EVIDENCE LINKS
+              </CardTitle>
+              <CardDescription className={`text-[11px] text-neutral-400 ${UC_META}`}>
+                {SPAIN_ISRAEL_CORPORATE_TIES_NOTE}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 pt-0">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {SPAIN_ISRAEL_CORPORATE_TIES.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="min-h-11 rounded-md border border-white/[0.06] bg-white/[0.02] p-3 font-sans text-[11px] leading-relaxed text-blue-100 transition-colors hover:border-blue-400/35 hover:bg-blue-400/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isItaly) {
     return (

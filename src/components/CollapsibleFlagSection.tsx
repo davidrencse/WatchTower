@@ -23,6 +23,12 @@ type CollapsibleFlagSectionProps = {
   expandNonce?: number;
   /** Ribbon nav: expand when `CountryRibbonExpandProvider` fires this key (no parent re-render). */
   ribbonExpandKey?: string;
+  /**
+   * Provenance of the section's contents. `'template'` outlines it in red and adds a "Data needed"
+   * chip — the section is structurally present but has no country source yet; `'estimate'` marks
+   * it amber for rough researched figures. Omitted means fully sourced.
+   */
+  dataStatus?: 'template' | 'estimate';
 };
 
 const CollapsibleDepthContext = createContext(0);
@@ -39,6 +45,7 @@ export function CollapsibleFlagSection({
   expandSignal,
   expandNonce,
   ribbonExpandKey,
+  dataStatus,
 }: CollapsibleFlagSectionProps) {
   // Start collapsed when a collapse signal is already active (matches the dossier's
   // "all collapsed on open" default) so heavy content isn't mounted for every section at once.
@@ -94,7 +101,14 @@ export function CollapsibleFlagSection({
       onToggle={(e) => {
         setOpen(e.currentTarget.open);
       }}
-      className="group wt-collapsible-section overflow-hidden rounded-md border border-[var(--line)] bg-[var(--card)] shadow-card"
+      className={cn(
+        'group wt-collapsible-section overflow-hidden rounded-md border bg-[var(--card)] shadow-card',
+        dataStatus === 'template'
+          ? 'border-red-500/45'
+          : dataStatus === 'estimate'
+            ? 'border-amber-400/35'
+            : 'border-[var(--line)]',
+      )}
     >
       <summary className="flag-section-summary grid cursor-pointer grid-cols-[minmax(0,1fr)_4.75rem_5.5rem] items-center gap-x-3 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-[var(--card-hover)]">
         <span
@@ -102,12 +116,30 @@ export function CollapsibleFlagSection({
           aria-level={Math.min(6, depth + 2)}
           className={cn(
             'min-w-0',
-            typeof title === 'string'
+            typeof title === 'string' && !dataStatus
               ? cn('truncate', uppercaseTitle && 'uppercase tracking-[0.06em]')
               : 'flex min-w-0 items-center gap-2.5',
           )}
         >
-          {title}
+          {typeof title === 'string' && dataStatus ? (
+            <span className={cn('min-w-0 truncate', uppercaseTitle && 'uppercase tracking-[0.06em]')}>
+              {title}
+            </span>
+          ) : (
+            title
+          )}
+          {dataStatus ? (
+            <span
+              className={cn(
+                'w-fit shrink-0 rounded-sm border px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.14em]',
+                dataStatus === 'template'
+                  ? 'border-red-500/45 bg-red-500/[0.12] text-red-300'
+                  : 'border-amber-400/40 bg-amber-400/[0.1] text-amber-200',
+              )}
+            >
+              {dataStatus === 'template' ? 'Data needed' : 'Estimate'}
+            </span>
+          ) : null}
         </span>
         <div
           className="flex items-center justify-center"

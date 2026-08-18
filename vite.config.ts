@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import { defineConfig } from 'vite';
@@ -138,14 +139,15 @@ function syncHeroAssetsToPublic() {
       const destDir = path.join(__dirname, 'public', 'hero');
       fs.mkdirSync(destDir, { recursive: true });
 
-      // Clear stale hero backdrops (source of truth is Assets/). Avoids shipping the
-      // original 16 MB PNG once the optimized JPEG exists.
+      // Clear stale hero backdrops (source of truth is Assets/). Avoids shipping an older,
+      // heavier format beside the optimized asset selected below.
       for (const name of fs.readdirSync(destDir)) {
-        if (/^europe\.(png|jpe?g|svg|webp)$/i.test(name)) fs.unlinkSync(path.join(destDir, name));
+        if (/^europe\.(avif|png|jpe?g|svg|webp)$/i.test(name)) fs.unlinkSync(path.join(destDir, name));
       }
 
-      // Prefer the optimized JPEG backdrop (~300 KB) over the multi-MB PNG source.
+      // Prefer the optimized AVIF backdrop, with older source formats as build-time fallbacks.
       const candidates = [
+        { src: path.join(__dirname, 'Assets', 'europe.avif'), dest: 'europe.avif' },
         { src: path.join(__dirname, 'Assets', 'europe.jpg'), dest: 'europe.jpg' },
         { src: path.join(__dirname, 'Assets', 'europe.png'), dest: 'europe.png' },
         { src: path.join(__dirname, 'Assets', 'europe_countries.svg'), dest: 'europe.svg' },
@@ -157,6 +159,40 @@ function syncHeroAssetsToPublic() {
         fs.copyFileSync(c.src, path.join(destDir, c.dest));
         break;
       }
+    },
+  };
+}
+
+/**
+ * Serve `/api/geolocate` during `npm run dev`.
+ *
+ * The route only exists as a serverless function in production, so without this the Recon deep
+ * scan would be a production-only feature — the one place it is least convenient to debug. It
+ * mounts `api/geolocate.js` itself rather than re-implementing the forward: that handler is
+ * written against plain Node `req`/`res` precisely so it can be reused here unchanged.
+ *
+ * The import is deferred to the first request so a syntax error in the handler surfaces as a
+ * failed fetch rather than a dev server that will not boot.
+ */
+function osintGeolocateDevApi() {
+  const handlerPath = pathToFileURL(path.join(__dirname, 'api', 'geolocate.js')).href;
+
+  return {
+    name: 'osint-geolocate-dev-api',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(
+        '/api/geolocate',
+        (req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) => {
+          void (async () => {
+            try {
+              const mod = await import(handlerPath);
+              await mod.default(req, res);
+            } catch (error) {
+              next(error);
+            }
+          })();
+        },
+      );
     },
   };
 }
@@ -197,7 +233,14 @@ function virtualFlagFilenames() {
 }
 
 export default defineConfig({
-  plugins: [react(), syncDataCsvToPublic(), syncFlagsToPublic(), syncHeroAssetsToPublic(), virtualFlagFilenames()],
+  plugins: [
+    react(),
+    syncDataCsvToPublic(),
+    syncFlagsToPublic(),
+    syncHeroAssetsToPublic(),
+    virtualFlagFilenames(),
+    osintGeolocateDevApi(),
+  ],
   optimizeDeps: {
     // Vite's esbuild pre-bundler scans satellite.js and trips over the top-level await in its
     // Emscripten pthreads build, which killed the dev server's dependency optimisation. The
@@ -225,6 +268,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Recharts also reaches the shared class-name helpers. Give those tiny utilities an
+          // explicit home or Rollup can absorb them into vendor-recharts, making every country
+          // dossier download the full chart runtime just to evaluate `cn()`.
+          if (
+            id.includes('node_modules/clsx') ||
+            id.includes('node_modules/tailwind-merge') ||
+            id.includes('node_modules/class-variance-authority')
+          ) {
+            return 'vendor-ui-utils';
+          }
           if (id.includes('node_modules/recharts')) return 'vendor-recharts';
           if (id.includes('node_modules/react-dom')) return 'vendor-react-dom';
           if (id.includes('node_modules/react')) return 'vendor-react';

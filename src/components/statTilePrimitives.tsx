@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { CountryStatMetric } from '../types/countryStats';
+import { isPendingSlot, isUnavailable } from '../lib/statTileValues';
 
 /** Shared building blocks for the country dashboard's stat tiles. */
 
@@ -7,18 +8,6 @@ export const STAT_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3';
 
 /** Recharts SVG text does not inherit Tailwind `font-sans`; match the site Inter stack. */
 export const CHART_AXIS_FONT = 'Inter, ui-sans-serif, system-ui, sans-serif';
-
-export function extractLeadingPercent(value: string): number | null {
-  const m = value.trim().match(/^([\d.]+)\s*%/);
-  if (!m) return null;
-  const n = parseFloat(m[1]!);
-  return Number.isFinite(n) ? n : null;
-}
-
-export function isUnavailable(value: string): boolean {
-  const v = value.trim();
-  return v === '' || v.toUpperCase() === 'N/A';
-}
 
 export function PercentRing({ percent }: { percent: number }) {
   const r = 38;
@@ -126,24 +115,35 @@ export function MetricTile({
   clipOverflow?: boolean;
 }) {
   const na = isUnavailable(row.value);
+  const pending = isPendingSlot(row);
+  const size = `${fixedHeightClass ?? minHeightClass ?? 'min-h-[148px]'} ${clipOverflow ? 'overflow-hidden' : ''}`;
   return (
     <article
       className={
-        accent
-          ? `flex ${fixedHeightClass ?? minHeightClass ?? 'min-h-[148px]'} ${clipOverflow ? 'overflow-hidden' : ''} flex-col rounded-md border border-[var(--uk-accent-border)] bg-[var(--uk-accent-surface)] p-4 shadow-card ring-1 ring-[var(--uk-accent-dim)] sm:p-5`
-          : `flex ${fixedHeightClass ?? minHeightClass ?? 'min-h-[148px]'} ${clipOverflow ? 'overflow-hidden' : ''} flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5`
+        pending
+          ? `flex ${size} flex-col rounded-md border border-dashed border-red-500/45 bg-red-500/[0.04] p-4 shadow-card sm:p-5`
+          : accent
+            ? `flex ${size} flex-col rounded-md border border-[var(--uk-accent-border)] bg-[var(--uk-accent-surface)] p-4 shadow-card ring-1 ring-[var(--uk-accent-dim)] sm:p-5`
+            : `flex ${size} flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5`
       }
     >
-      <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
-        {row.metric}
-      </p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          {row.metric}
+        </p>
+        {pending ? (
+          <span className="shrink-0 rounded-sm border border-red-500/45 bg-red-500/[0.12] px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-red-300">
+            Data needed
+          </span>
+        ) : null}
+      </div>
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
           <p
             className={
               largeValue
-                ? `font-sans tabular-nums text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
-                : `font-sans tabular-nums text-lg font-medium leading-snug sm:text-xl ${na ? 'text-neutral-600' : 'text-neutral-100'}`
+                ? `font-sans tabular-nums text-2xl font-semibold leading-none tracking-tight sm:text-3xl lg:text-4xl ${pending ? 'text-red-300/90' : na ? 'text-neutral-600' : 'text-neutral-100'}`
+                : `font-sans tabular-nums text-lg font-medium leading-snug sm:text-xl ${pending ? 'text-red-300/90' : na ? 'text-neutral-600' : 'text-neutral-100'}`
             }
           >
             {na ? 'N/A' : row.value}

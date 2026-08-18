@@ -1,3 +1,6 @@
+import { safeExternalUrl } from '../lib/safeUrl';
+import { formatShortDate } from '../lib/numberFormat';
+
 /**
  * NASA EONET (Earth Observatory Natural Event Tracker) v3.
  * Public, key-less, CORS-open feed of active natural events — fetched directly from
@@ -146,12 +149,13 @@ function normalizeEvent(raw: unknown, categoryId: EonetCategoryId): EonetEventPo
 
   const sources = Array.isArray(event.sources) ? event.sources : [];
   const firstSource = sources[0] as Record<string, unknown> | undefined;
-  const sourceUrl =
+  const rawSourceUrl =
     typeof firstSource?.url === 'string'
       ? firstSource.url
       : typeof event.link === 'string'
         ? event.link
         : 'https://eonet.gsfc.nasa.gov/';
+  const sourceUrl = safeExternalUrl(rawSourceUrl) ?? 'https://eonet.gsfc.nasa.gov/';
 
   return {
     id: String(event.id ?? `${categoryId}-${track[0][0]}-${track[0][1]}`),
@@ -212,11 +216,7 @@ export async function fetchEonetCategory(
 export function formatEonetDate(iso: string): string {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return 'Active';
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(parsed);
+  return formatShortDate(parsed);
 }
 
 /** e.g. `130 kts`, `90 NM²`. Empty string when no magnitude is reported. */

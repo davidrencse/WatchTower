@@ -456,6 +456,60 @@ export const P = {
   tiranaLand: [19.8187, 41.3275],
   shkoder: [19.5186, 42.0683],
   podgorica: [19.2624, 42.4304],
+
+  // India — departure regions behind the largest single non-EU migration flow.
+  // `delhi` above is the shared IGI departure point; these are the other documented
+  // sending hubs (Punjab/Doab for farm labour, the southern IT and nursing belts).
+  mumbai: [72.8777, 19.076],
+  amritsar: [74.8723, 31.634],
+  jalandhar: [75.5762, 31.326],
+  chandigarh: [76.7794, 30.7333],
+  ahmedabad: [72.5714, 23.0225],
+  hyderabad: [78.4867, 17.385],
+  bengaluru: [77.5946, 12.9716],
+  chennai: [80.2707, 13.0827],
+  kochi: [76.2673, 9.9312],
+  kolkata: [88.3639, 22.5726],
+
+  // Gulf air hub used by most India → Europe itineraries alongside dubai / abuDhabi
+  doha: [51.531, 25.286],
+
+  // Arrival airports for destinations that previously had no air corridor
+  sofiaAirport: [23.4114, 42.6952],
+  zagrebAirport: [16.0688, 45.7429],
+  tallinnAirport: [24.7986, 59.4133],
+  rigaAirport: [23.9711, 56.9236],
+  vilniusAirport: [25.2858, 54.6341],
+  bratislavaAirport: [17.2127, 48.1702],
+  ljubljanaAirport: [14.4576, 46.2237],
+  milanMalpensa: [8.7281, 45.6306],
+  munichAirport: [11.7861, 48.3538],
+
+  // Pakistan — departure hubs and the Balochistan / Iran overland staging points.
+  // `islamabad` above is the shared air departure point.
+  karachi: [67.0011, 24.8607],
+  lahore: [74.3436, 31.5497],
+  mirpur: [73.7517, 33.1487],
+  sialkot: [74.5229, 32.4945],
+  peshawar: [71.5785, 34.0151],
+  quetta: [67.0011, 30.1798],
+  taftan: [61.5833, 28.95],
+  zahedan: [60.8629, 29.4963],
+  kerman: [57.0788, 30.2839],
+
+  // Documented South Asian labour clusters reached overland from the airport of entry
+  latina: [12.9033, 41.4676],
+  manolada: [21.3667, 38.0333],
+  odemira: [-8.6417, 37.598],
+  birmingham: [-1.8904, 52.4862],
+
+  // Pylos maritime approach — the Adriana sinking (June 2023) put this stretch on the
+  // Libya → Italy track used from Tobruk by Pakistani and Egyptian passengers.
+  pylos: [21.6959, 36.9139],
+
+  // Additional US ports of entry for South Asian corridors
+  sfo: [-122.379, 37.6213],
+  newark: [-74.1687, 40.6895],
 } as const satisfies Record<string, MigrationCoordinate>;
 
 // --- Reusable path segments ------------------------------------------------
@@ -1093,4 +1147,44 @@ export const PATH = {
 
   // Italy alpine secondary (Briançon / Montgenèvre approach densification)
   milanToBriancon: [P.milan, P.turin, P.oulx, P.montgenevre, P.briancon] as const,
+
+  // India → Belgrade air hop. Serbia's visa-free regime for Indian nationals (2017
+  // until its suspension on 1 January 2023) put India among the top nationalities
+  // Frontex detected on the Western Balkans route; onward legs reuse the existing
+  // belgradeTo* segments below.
+  delhiToBelgradeAir: [P.delhi, P.dubai, P.belgradeAirport] as const,
+
+  belgradeAirportToBelgrade: [P.belgradeAirport, P.belgrade] as const,
+
+  // Airport-of-entry → documented Indian labour cluster
+  fiumicinoToLatina: [P.fiumicino, P.latina] as const,
+
+  athensToManolada: [P.athensAirport, P.manolada] as const,
+
+  lisbonToOdemira: [P.lisbonAirport, P.odemira] as const,
+
+  heathrowToBirmingham: [P.heathrow, P.birmingham] as const,
+
+  // Pakistan overland staging to Türkiye: Balochistan → the Taftan/Mirjaveh crossing →
+  // Iranian plateau, joining tehranToIstanbul at Tehran.
+  pakistanToTehranLand: [
+    P.karachi,
+    P.quetta,
+    P.taftan,
+    P.zahedan,
+    P.kerman,
+    P.tehran,
+  ] as const,
+
+  // Eastern Libya → the Pylos approach on the Tobruk departure track
+  tobrukToPylosSea: [
+    P.tobruk,
+    [22.6, 33.2] as MigrationCoordinate,
+    [22.0, 34.6] as MigrationCoordinate,
+    [21.8, 35.8] as MigrationCoordinate,
+    P.pylos,
+  ] as const,
+
+  // Canada → US northern-border approach (documented South Asian northern-border cases)
+  torontoToNiagara: [P.torontoPearson, P.toronto, P.niagaraFalls] as const,
 } as const;

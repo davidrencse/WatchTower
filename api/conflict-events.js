@@ -25,7 +25,8 @@ function sourceUrl(value) {
 function publishedAt(value) {
   const seconds = Number(value);
   if (Number.isFinite(seconds) && seconds > 0) {
-    return new Date(seconds * 1000).toISOString();
+    const parsed = new Date(seconds * 1000);
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
   }
   const parsed = new Date(String(value ?? ''));
   return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
@@ -116,13 +117,15 @@ export default async function handler(request, response) {
       warnings: events.length ? undefined : ['LiveUAmap returned no valid geolocated events.'],
     });
   } catch (error) {
+    console.warn(
+      '[conflict-events] upstream request failed:',
+      error instanceof Error ? error.name : 'UnknownError',
+    );
     return response.status(200).json({
       events: [],
       configured: true,
       updatedAt: new Date().toISOString(),
-      warnings: [
-        error instanceof Error ? error.message : 'LiveUAmap is temporarily unavailable.',
-      ],
+      warnings: ['LiveUAmap is temporarily unavailable.'],
     });
   }
 }

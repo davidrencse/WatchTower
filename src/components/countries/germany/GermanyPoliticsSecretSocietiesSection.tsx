@@ -5,8 +5,6 @@ import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_SECTION = 'uppercase tracking-[0.06em]';
 
-export const GERMANY_POLITICS_SECRET_SOCIETIES_GROUP_COUNT = 7;
-
 const ACTIVE_FREEMASONRY: readonly { title: string; body: string }[] = [
   {
     title: 'United Grand Lodges of Germany (Vereinigte Großlogen von Deutschland - VGLvD)',

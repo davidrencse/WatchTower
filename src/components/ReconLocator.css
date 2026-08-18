@@ -1,0 +1,124 @@
+/* Recon photo locator — the scan sweep, the reticle and the panel reveal.
+   Everything here is transform/opacity only so it composites off the main thread and never
+   competes with the globe's render loop. All of it collapses under prefers-reduced-motion. */
+
+/*
+ * Where the panel sits. The HackerNews rail is a 6.25rem band pinned to the bottom of the globe
+ * at z-index 60, so anything anchored at `bottom: 1.5rem` is not merely overlapped by it — it is
+ * completely hidden behind it, which is what happened to the Recon entry point. Clear the rail
+ * the same way the rest of the bottom HUD does (`.wt-globe-hud-bottom`) and out-rank it, so the
+ * open panel is never clipped at its lower edge either.
+ *
+ * The fallback in the `var()` keeps this correct if the rail's stylesheet has not loaded yet.
+ */
+.wt-recon-anchor {
+  bottom: calc(var(--wt-hn-rail-height, 6.25rem) + 1.5rem);
+  z-index: 61;
+}
+
+.wt-recon-panel {
+  animation: wt-recon-panel-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes wt-recon-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Sweep bar that crosses the thumbnail while the EXIF block is being read. */
+.wt-recon-scan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(87, 195, 214, 0) 42%,
+    rgba(87, 195, 214, 0.75) 50%,
+    rgba(87, 195, 214, 0) 58%,
+    transparent 100%
+  );
+  animation: wt-recon-sweep 1.1s linear infinite;
+}
+
+@keyframes wt-recon-sweep {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Targeting reticle drawn over the projected screen position of the resolved coordinate. */
+.wt-recon-reticle-ring {
+  transform-origin: center;
+  animation: wt-recon-ring 2.4s ease-out infinite;
+}
+
+.wt-recon-reticle-ring--delayed {
+  animation-delay: 0.8s;
+}
+
+@keyframes wt-recon-ring {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.wt-recon-reticle-core {
+  animation: wt-recon-core 1.6s ease-in-out infinite;
+}
+
+@keyframes wt-recon-core {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Corner brackets snap in once the descent lands. */
+.wt-recon-bracket {
+  animation: wt-recon-bracket-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes wt-recon-bracket-in {
+  from {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-recon-panel,
+  .wt-recon-scan::after,
+  .wt-recon-reticle-ring,
+  .wt-recon-reticle-core,
+  .wt-recon-bracket {
+    animation: none;
+  }
+  .wt-recon-scan::after {
+    opacity: 0.4;
+  }
+}

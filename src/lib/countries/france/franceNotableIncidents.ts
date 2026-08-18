@@ -26,7 +26,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-61947254' },
     ],
     image: {
-      src: '/incidents/paris-november-2015.jpg',
+      src: '/incidents/paris-november-2015.webp',
       alt: 'The Bataclan concert hall in Paris',
       credit: 'Bataclan concert hall — Chabe01, CC BY-SA 4.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Salle_Spectacle_Bataclan_-_Paris_XI_(FR75)_-_2022-01-28_-_3.jpg',
@@ -52,7 +52,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-63955246' },
     ],
     image: {
-      src: '/incidents/nice-truck-2016.png',
+      src: '/incidents/nice-truck-2016.webp',
       alt: 'The Promenade des Anglais seafront in Nice',
       credit: 'Promenade des Anglais, Nice — 3602kiva, CC0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:CollineDuChateau_NiceFrance2022.png',
@@ -78,7 +78,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-55329134' },
     ],
     image: {
-      src: '/incidents/charlie-hebdo-2015.jpg',
+      src: '/incidents/charlie-hebdo-2015.webp',
       alt: 'Place de la République in Paris, focal point of the post-attack gatherings',
       credit: 'Place de la République, Paris — Britchi Mirela, CC BY-SA 3.0 / Wikimedia Commons',
       creditUrl:
@@ -146,7 +146,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'France 24', url: 'https://www.france24.com/en/europe/20250226-french-court-hands-life-sentence-tunisian-national-nice-church-attack' },
     ],
     image: {
-      src: '/incidents/nice-basilica-2020.jpg',
+      src: '/incidents/nice-basilica-2020.webp',
       alt: 'The Notre-Dame basilica in Nice',
       credit: 'Notre-Dame basilica, Nice — Teresa Grau Ros, CC BY-SA 2.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Notre-Dame_de_Nice_PC250048_(50551243457).jpg',
@@ -172,7 +172,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'Wikipédia (FR)', url: 'https://fr.wikipedia.org/wiki/Meurtre_de_Philippine_Le_Noir_de_Carlan' },
     ],
     image: {
-      src: '/incidents/philippine-2024.jpg',
+      src: '/incidents/philippine-2024.webp',
       alt: 'The Bois de Boulogne in Paris',
       credit: 'Bois de Boulogne, Paris — Guilhem Vellut, CC BY 2.0 / Wikimedia Commons',
       creditUrl:
@@ -259,7 +259,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-41465755' },
     ],
     image: {
-      src: '/incidents/marseille-saint-charles-2017.jpg',
+      src: '/incidents/marseille-saint-charles-2017.webp',
       alt: 'The façade of Marseille Saint-Charles station',
       credit: 'Marseille Saint-Charles station — Raimond Spekking, CC BY-SA 4.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_de_la_gare_de_Marseille-Saint-Charles-7689.jpg',
@@ -345,7 +345,7 @@ export const FRANCE_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-65866514' },
     ],
     image: {
-      src: '/incidents/annecy-2023.jpg',
+      src: '/incidents/annecy-2023.webp',
       alt: 'Lake Annecy, beside the playground that was attacked',
       credit: 'Lake Annecy — Guilhem Vellut, CC BY 2.0 / Wikimedia Commons',
       creditUrl:

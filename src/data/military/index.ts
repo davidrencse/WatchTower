@@ -1,6 +1,7 @@
 import { FRANCE_MILITARY_PROFILE } from './france';
 import { GERMANY_MILITARY_PROFILE } from './germany';
 import { ITALY_MILITARY_PROFILE } from './italy';
+import { RUSSIA_MILITARY_PROFILE } from './russia';
 import { SPAIN_MILITARY_PROFILE } from './spain';
 import type { MilitaryProfile } from './types';
 
@@ -18,6 +19,7 @@ export const MILITARY_PROFILES: Readonly<Record<string, MilitaryProfile>> = {
   FRA: FRANCE_MILITARY_PROFILE,
   ITA: ITALY_MILITARY_PROFILE,
   ESP: SPAIN_MILITARY_PROFILE,
+  RUS: RUSSIA_MILITARY_PROFILE,
 };
 
 export function militaryProfileFor(iso3: string): MilitaryProfile | null {

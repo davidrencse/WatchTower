@@ -1,28 +1,15 @@
 import { lazy, Suspense } from 'react';
+import { loadCountryStatsDashboard } from '../lib/countryDashboardLoader';
 import { slugForFlag } from '../lib/countryRoute';
 import { getIso3ForFlagId } from '../lib/flagIsoMapping';
 import type { FlagEntry } from '../types/flag';
+import { AppErrorBoundary } from './AppErrorBoundary';
 import { CountryPageIndustrialLoader } from './CountryPageIndustrialLoader';
 import { CountryToBeCompletedPage } from './CountryToBeCompletedPage';
 
-let dashboardModulePromise: Promise<typeof import('./CountryStatsDashboard')> | null = null;
-const loadCountryStatsDashboard = () => {
-  dashboardModulePromise ??= import('./CountryStatsDashboard');
-  return dashboardModulePromise;
-};
 const CountryStatsDashboard = lazy(() =>
   loadCountryStatsDashboard().then((m) => ({ default: m.CountryStatsDashboard })),
 );
-
-const COMPLETED_COUNTRY_SLUGS = new Set(['germany', 'france', 'italy', 'spain']);
-
-/**
- * Warm the dashboard chunk (and its recharts dependency) ahead of selection so opening a
- * completed country dossier is instant. Safe to call repeatedly; the module cache dedupes it.
- */
-export function prefetchCountryDashboard(): void {
-  void loadCountryStatsDashboard();
-}
 
 type SelectedFlagViewProps = {
   flag: FlagEntry;
@@ -31,10 +18,15 @@ type SelectedFlagViewProps = {
 
 export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
   const slug = slugForFlag(flag);
-  if (COMPLETED_COUNTRY_SLUGS.has(slug)) {
-    const iso3 = getIso3ForFlagId(flag.id);
-    if (iso3) {
-      return (
+  // Every mapped country renders the Germany-derived dashboard layout. Countries with their own
+  // CSVs fill it in; the rest keep the template's labeled placeholders. A flag with no ISO-3 has
+  // nothing to key data off at all, so it stays on the pending page.
+  const iso3 = getIso3ForFlagId(flag.id);
+  if (iso3) {
+    return (
+      // Keyed on the country so navigating to a different dossier clears a previous failure
+      // instead of leaving the boundary latched open on the new page.
+      <AppErrorBoundary key={slug} context={flag.label}>
         <Suspense fallback={<CountryPageIndustrialLoader countryLabel={flag.label} />}>
           <CountryStatsDashboard
             flag={flag}
@@ -44,10 +36,9 @@ export function SelectedFlagView({ flag, onBack }: SelectedFlagViewProps) {
             onBack={onBack}
           />
         </Suspense>
-      );
-    }
+      </AppErrorBoundary>
+    );
   }
 
   return <CountryToBeCompletedPage flag={flag} onBack={onBack} />;
 }
-

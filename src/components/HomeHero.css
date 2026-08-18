@@ -38,7 +38,7 @@
 .wt-home__map-image {
   position: absolute;
   inset: -3%;
-  background-image: url('/hero/europe.jpg');
+  background-image: url('/hero/europe.avif');
   background-position: 54% center;
   background-size: cover;
   filter: grayscale(1) contrast(1.24) brightness(0.74);
@@ -345,8 +345,9 @@
 
 .wt-home__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
-  gap: clamp(1.5rem, 3vw, 3.5rem);
+  gap: 0.8rem;
   margin-top: clamp(1.35rem, 3.2vh, 2.5rem);
 }
 
@@ -415,6 +416,56 @@
   outline-offset: 4px;
 }
 
+.wt-home__legal-actions {
+  display: grid;
+  flex: 1 1 19rem;
+  max-width: 22rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.wt-home__legal-actions a {
+  display: inline-flex;
+  min-height: 3.85rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0 1rem;
+  border: 1px solid rgba(240, 240, 237, 0.34);
+  color: rgba(240, 240, 237, 0.82);
+  background: rgba(8, 8, 8, 0.42);
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: clamp(0.625rem, 0.67vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.wt-home__legal-actions a svg {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  transition: transform 180ms ease;
+}
+
+.wt-home__legal-actions a:hover {
+  border-color: rgba(240, 240, 237, 0.78);
+  color: var(--home-ink);
+  background: rgba(240, 240, 237, 0.1);
+}
+
+.wt-home__legal-actions a:hover svg {
+  transform: translateX(0.18rem);
+}
+
+.wt-home__legal-actions a:focus-visible {
+  outline: 2px solid var(--home-signal);
+  outline-offset: 4px;
+}
+
 .wt-home__footer-label {
   color: var(--home-signal);
   font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
@@ -458,6 +509,36 @@
   margin-right: clamp(0.5rem, 1vw, 1rem);
   color: rgba(240, 240, 237, 0.56);
   content: '·';
+}
+
+/* The footer keeps the conventional legal destination as a fallback; the larger controls in
+   the hero action area are the primary, above-the-fold entry points. */
+.wt-home__footer-legal {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: clamp(0.85rem, 1.6vw, 1.6rem);
+  margin-left: clamp(1rem, 2.4vw, 2.5rem);
+  padding-left: clamp(1rem, 2.4vw, 2.5rem);
+  border-left: 1px solid var(--home-line);
+}
+
+.wt-home__footer-legal a {
+  color: rgba(240, 240, 237, 0.82);
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: clamp(0.625rem, 0.66vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+
+.wt-home__footer-legal a:hover,
+.wt-home__footer-legal a:focus-visible {
+  color: rgba(240, 240, 237, 0.9);
+  text-decoration: underline;
+  text-underline-offset: 0.28em;
 }
 
 .wt-tech {
@@ -728,6 +809,17 @@
     min-height: 3.5rem;
   }
 
+  .wt-home__legal-actions {
+    width: 100%;
+    max-width: none;
+  }
+
+  .wt-home__legal-actions a {
+    min-height: 3.25rem;
+    padding-inline: 0.9rem;
+    font-size: 0.625rem;
+  }
+
   .wt-home__footer {
     display: grid;
     min-height: 3.25rem;
@@ -751,6 +843,22 @@
 
   .wt-home__footer li {
     font-size: 0.48rem;
+  }
+
+  /* Stacked footer: the rule and indent belong to a horizontal split, so drop both and let
+     the legal links sit as their own centred row. */
+  .wt-home__footer-legal {
+    justify-content: center;
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 0.5rem;
+    border-left: 0;
+    border-top: 1px solid var(--home-line);
+    gap: 1.4rem;
+  }
+
+  .wt-home__footer-legal a {
+    font-size: 0.625rem;
   }
 
   .wt-tech {

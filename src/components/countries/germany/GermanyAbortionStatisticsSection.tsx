@@ -1,5 +1,6 @@
 import { Fragment, memo, useMemo } from 'react';
 import abortionCsvRaw from '../../../../Assets/Data/countries/Germany/health/germany_abortion_statistics.csv?raw';
+import spainAbortionCsvRaw from '../../../../Assets/Data/countries/Spain/generated/esp_abortion_statistics.csv?raw';
 import { useCsvText } from '../../../hooks/useCsvText';
 import type { GermanyGovernmentPoliticsRow } from '../../../lib/countries/germany/germanyGovernmentPolitics';
 import {
@@ -8,9 +9,11 @@ import {
   parseGermanyMetricTableCsv,
 } from '../../../lib/countries/germany/germanyHealthCsv';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { formatValueDisplay, GOV_POLITICS_CARD_GRID, splitUrls } from './GermanyGovernmentPoliticsBlocks';
+import { GOV_POLITICS_CARD_GRID } from './GermanyGovernmentPoliticsBlocks';
+import { formatValueDisplay, splitUrls } from '../../../lib/countries/germany/germanyGovernmentPoliticsFormat';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../../ui/chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { EmptyCsvNotice } from '../../EmptyCsvNotice';
 
 const CSV_URL = '/data/germany_abortion_statistics.csv';
 
@@ -85,11 +88,18 @@ const TOTAL_ABORTIONS_METRIC = 'Total number of abortions';
 const UC_TITLE = 'uppercase tracking-[0.05em]';
 const UC_META = 'uppercase tracking-[0.03em]';
 
-/** Shadcn chart + Recharts line series (year vs count). */
-const totalAbortionsChartData = GERMANY_TOTAL_ABORTIONS_BY_YEAR.map((r) => ({
-  year: r.year,
-  abortions: r.total,
-}));
+type AnnualAbortionTotal = {
+  year: string;
+  total: number;
+};
+
+type TotalAbortionsChartSpec = {
+  title: string;
+  description: string;
+  series: readonly AnnualAbortionTotal[];
+  sources?: readonly { label: string; url: string }[];
+  note?: string;
+};
 
 const TOTAL_ABORTIONS_LINE_COLOR = '#f97316';
 
@@ -97,32 +107,134 @@ const totalAbortionsChartConfig = {
   abortions: { label: 'Total abortions', color: TOTAL_ABORTIONS_LINE_COLOR },
 } satisfies ChartConfig;
 
-const abortionRatePer1kChartData = GERMANY_ABORTION_RATE_PER_1K_WRA.map((r) => ({
-  year: r.year,
-  rate: r.rate,
-}));
+const GERMANY_TOTAL_ABORTIONS_CHART: TotalAbortionsChartSpec = {
+  title: 'Total Abortions in Germany',
+  description: 'Annual national totals (2000–2025), line chart.',
+  series: GERMANY_TOTAL_ABORTIONS_BY_YEAR,
+};
 
 const ABORTION_RATE_PER_1K_LINE_COLOR = '#38bdf8';
 
-const abortionRatePer1kChartConfig = {
-  rate: { label: 'Per 1,000 women (15–49)', color: ABORTION_RATE_PER_1K_LINE_COLOR },
-} satisfies ChartConfig;
+type AbortionRateChart = {
+  data: readonly { year: string; rate: number }[];
+  title: string;
+  description: string;
+  seriesLabel: string;
+  source?: {
+    label: string;
+    href: string;
+  };
+  note?: string;
+  valueDecimals?: number;
+};
 
-function AbortionRateReproductiveAgeChart() {
+const GERMANY_ABORTION_RATE_CHART: AbortionRateChart = {
+  data: GERMANY_ABORTION_RATE_PER_1K_WRA,
+  title: 'Abortion Rate per 1,000 Women of Reproductive Age (15–49 years)',
+  description: 'Annual abortions per 1,000 women aged 15–49 (2000–2025).',
+  seriesLabel: 'Abortions per 1,000 women (15–49)',
+  valueDecimals: 1,
+};
+
+function TotalAbortionsChart({ chart }: { chart: TotalAbortionsChartSpec }) {
+  const data = chart.series.map((row) => ({ year: row.year, abortions: row.total }));
+
+  return (
+    <Card className="overflow-hidden border-line bg-surface-metric">
+      <CardHeader className="space-y-1 p-3 pb-2">
+        <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>{chart.title}</CardTitle>
+        <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
+          {chart.description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2 p-3 pt-0">
+        <ChartContainer config={totalAbortionsChartConfig} className="h-[300px] w-full font-sans">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+            <LineChart accessibilityLayer data={data} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+              />
+              <ChartTooltip
+                cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
+                content={
+                  <ChartTooltipContent
+                    className="rounded-md"
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
+                    }}
+                    labelFormatter={(label) => `Year ${label}`}
+                  />
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="abortions"
+                name="Total abortions"
+                stroke={TOTAL_ABORTIONS_LINE_COLOR}
+                strokeWidth={2.5}
+                dot={{ r: 2 }}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+        <p className="font-sans text-[10px] leading-relaxed text-neutral-500">Hover points for exact counts.</p>
+        {chart.note ? <p className="font-sans text-[10px] leading-relaxed text-neutral-500">{chart.note}</p> : null}
+        {chart.sources?.length ? (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-white/[0.06] pt-2">
+            {chart.sources.map((source) => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--uk-accent)]"
+              >
+                {source.label} ↗
+              </a>
+            ))}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function AbortionRateReproductiveAgeChart({ chart }: { chart: AbortionRateChart }) {
+  const chartData = chart.data.map((row) => ({ ...row }));
+  const valueDecimals = chart.valueDecimals ?? 2;
+  const chartConfig = {
+    rate: { label: chart.seriesLabel, color: ABORTION_RATE_PER_1K_LINE_COLOR },
+  } satisfies ChartConfig;
+
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric">
       <CardHeader className="space-y-1 p-3 pb-2">
         <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
-          Abortion Rate per 1,000 Women of Reproductive Age (15–49 years)
+          {chart.title}
         </CardTitle>
         <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-          Annual abortions per 1,000 women aged 15–49 (2000–2025), line chart.
+          {chart.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-3 pt-0">
-        <ChartContainer config={abortionRatePer1kChartConfig} className="h-[300px] w-full font-sans">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full font-sans">
           <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
-            <LineChart data={abortionRatePer1kChartData} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
+            <LineChart data={chartData} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="year"
@@ -146,7 +258,7 @@ function AbortionRateReproductiveAgeChart() {
                     className="rounded-md"
                     formatter={(value) => {
                       const n = Number(value);
-                      return Number.isFinite(n) ? n.toFixed(1) : '—';
+                      return Number.isFinite(n) ? n.toFixed(valueDecimals) : '—';
                     }}
                     labelFormatter={(label) => `Year ${label}`}
                   />
@@ -155,7 +267,7 @@ function AbortionRateReproductiveAgeChart() {
               <Line
                 type="monotone"
                 dataKey="rate"
-                name="Abortions per 1,000 women (15–49)"
+                name={chart.seriesLabel}
                 stroke={ABORTION_RATE_PER_1K_LINE_COLOR}
                 strokeWidth={2.5}
                 dot={{ r: 2 }}
@@ -165,8 +277,22 @@ function AbortionRateReproductiveAgeChart() {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        {chart.note ? <p className="font-sans text-[10px] leading-relaxed text-neutral-400">{chart.note}</p> : null}
         <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
-          Hover points for the rate (shadcn chart + Recharts).
+          Hover points for exact rates.
+          {chart.source ? (
+            <>
+              {' '}Source:{' '}
+              <a
+                href={chart.source.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--uk-accent)] hover:text-neutral-200"
+              >
+                {chart.source.label} ↗
+              </a>
+            </>
+          ) : null}
         </p>
       </CardContent>
     </Card>
@@ -265,6 +391,8 @@ type GermanyAbortionStatisticsSectionProps = {
   isGermany?: boolean;
   /** Country value expected in the CSV; Germany remains the default. */
   countryLabel?: string;
+  /** Optional country-specific annual national totals chart. */
+  totalAbortionsChart?: TotalAbortionsChartSpec;
   priorLiveBirthCards?: {
     atLeastOneValue: string;
     atLeastOneBody: string;
@@ -279,18 +407,21 @@ type GermanyAbortionStatisticsSectionProps = {
       share: string;
     }[];
   };
+  abortionRateChart?: AbortionRateChart;
 };
 
 export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionStatisticsSection({
   csvUrl = CSV_URL,
   isGermany = true,
   countryLabel = 'Germany',
+  totalAbortionsChart,
   priorLiveBirthCards,
   relationshipStatus,
+  abortionRateChart,
 }: GermanyAbortionStatisticsSectionProps) {
   const { text: raw, error: loadError } = useCsvText(
     csvUrl,
-    isGermany ? abortionCsvRaw : '',
+    isGermany ? abortionCsvRaw : countryLabel === 'Spain' ? spainAbortionCsvRaw : '',
     'Failed to load abortion statistics.',
   );
 
@@ -302,6 +433,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
   const splitTotal = groups[0]?.[0]?.metric === TOTAL_ABORTIONS_METRIC;
   const totalGroup = splitTotal ? groups[0]! : null;
   const otherGroups = splitTotal ? groups.slice(1) : groups;
+  const resolvedTotalAbortionsChart = totalAbortionsChart ?? (isGermany ? GERMANY_TOTAL_ABORTIONS_CHART : null);
 
   const otherByMetric = useMemo(() => {
     const m = new Map<string, GermanyGovernmentPoliticsRow[]>();
@@ -314,11 +446,7 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
   }
 
   if (groups.length === 0) {
-    return (
-      <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
-      </p>
-    );
+    return <EmptyCsvNotice csvUrl={csvUrl} />;
   }
 
   return (
@@ -349,74 +477,16 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
             ) : null}
           </div>
 
-          {isGermany ? (
-          <Card className="overflow-hidden border-line bg-surface-metric">
-            <CardHeader className="space-y-1 p-3 pb-2">
-              <CardTitle className={`text-sm font-semibold text-neutral-100 ${UC_TITLE}`}>
-                Total Abortions in Germany
-              </CardTitle>
-              <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-                Annual national totals (2000–2025), line chart.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2 p-3 pt-0">
-              <ChartContainer config={totalAbortionsChartConfig} className="h-[300px] w-full font-sans">
-                <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
-                  <LineChart data={totalAbortionsChartData} margin={{ top: 8, right: 10, left: 4, bottom: 8 }}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                    <XAxis
-                      dataKey="year"
-                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                      axisLine={false}
-                      tickLine={false}
-                      interval="preserveStartEnd"
-                    />
-                    <YAxis
-                      tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
-                      tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={48}
-                    />
-                    <ChartTooltip
-                      cursor={{ stroke: 'rgba(255,255,255,0.12)' }}
-                      content={
-                        <ChartTooltipContent
-                          className="rounded-md"
-                          formatter={(value) => {
-                            const n = Number(value);
-                            return Number.isFinite(n) ? n.toLocaleString('en-US') : '—';
-                          }}
-                          labelFormatter={(label) => `Year ${label}`}
-                        />
-                      }
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="abortions"
-                      name="Total abortions"
-                      stroke={TOTAL_ABORTIONS_LINE_COLOR}
-                      strokeWidth={2.5}
-                      dot={{ r: 2 }}
-                      activeDot={{ r: 4 }}
-                      isAnimationActive={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-              <p className="font-sans text-[10px] leading-relaxed text-neutral-500">
-                Hover points for exact counts (shadcn chart + Recharts).
-              </p>
-            </CardContent>
-          </Card>
-          ) : null}
+          {resolvedTotalAbortionsChart ? <TotalAbortionsChart chart={resolvedTotalAbortionsChart} /> : null}
         </>
       ) : (
         <div className={GOV_POLITICS_CARD_GRID}>
           {groups.map((g) => (
             <Fragment key={g[0]!.metric}>
               <AbortionCleanMetricCard rows={g} />
-              {isGermany && g[0]!.metric === ABORTION_RATIO_METRIC ? <AbortionRateReproductiveAgeChart /> : null}
+              {(isGermany || abortionRateChart) && g[0]!.metric === ABORTION_RATIO_METRIC ? (
+                <AbortionRateReproductiveAgeChart chart={abortionRateChart ?? GERMANY_ABORTION_RATE_CHART} />
+              ) : null}
             </Fragment>
           ))}
         </div>
@@ -427,7 +497,9 @@ export const GermanyAbortionStatisticsSection = memo(function GermanyAbortionSta
           {otherByMetric.get(ABORTION_RATIO_METRIC) ? (
             <div className={GOV_POLITICS_CARD_GRID}>
               <AbortionCleanMetricCard rows={otherByMetric.get(ABORTION_RATIO_METRIC)!} className="col-span-full" />
-              {isGermany ? <AbortionRateReproductiveAgeChart /> : null}
+              {isGermany || abortionRateChart ? (
+                <AbortionRateReproductiveAgeChart chart={abortionRateChart ?? GERMANY_ABORTION_RATE_CHART} />
+              ) : null}
             </div>
           ) : null}
 

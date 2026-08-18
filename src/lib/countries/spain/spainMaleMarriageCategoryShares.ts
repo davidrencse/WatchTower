@@ -1,0 +1,31 @@
+import type { SpainFemaleMarriageCategoryShareRow as SpainMarriageCategoryShareRow } from './spainFemaleMarriageCategoryShares';
+
+/** Reconstructed dashboard estimates; shares are percentages of all marriages. */
+export const SPAIN_MALE_MARRIAGE_CATEGORY_SHARES: readonly SpainMarriageCategoryShareRow[] = [
+  { year: '2000', african: 0.25, arabNorthAfrican: 0.35, asianIndian: 0.45, europeanNonSpanish: 2.30, otherNonEuropean: 0.80, latinAmerican: 2.60 },
+  { year: '2001', african: 0.26, arabNorthAfrican: 0.37, asianIndian: 0.48, europeanNonSpanish: 2.45, otherNonEuropean: 0.85, latinAmerican: 2.85 },
+  { year: '2002', african: 0.27, arabNorthAfrican: 0.39, asianIndian: 0.51, europeanNonSpanish: 2.60, otherNonEuropean: 0.90, latinAmerican: 3.10 },
+  { year: '2003', african: 0.28, arabNorthAfrican: 0.41, asianIndian: 0.54, europeanNonSpanish: 2.75, otherNonEuropean: 0.95, latinAmerican: 3.40 },
+  { year: '2004', african: 0.29, arabNorthAfrican: 0.43, asianIndian: 0.57, europeanNonSpanish: 2.90, otherNonEuropean: 1.00, latinAmerican: 3.75 },
+  { year: '2005', african: 0.30, arabNorthAfrican: 0.45, asianIndian: 0.60, europeanNonSpanish: 3.05, otherNonEuropean: 1.05, latinAmerican: 4.10 },
+  { year: '2006', african: 0.31, arabNorthAfrican: 0.47, asianIndian: 0.64, europeanNonSpanish: 3.20, otherNonEuropean: 1.10, latinAmerican: 4.45 },
+  { year: '2007', african: 0.32, arabNorthAfrican: 0.49, asianIndian: 0.68, europeanNonSpanish: 3.35, otherNonEuropean: 1.15, latinAmerican: 4.75 },
+  { year: '2008', african: 0.33, arabNorthAfrican: 0.51, asianIndian: 0.72, europeanNonSpanish: 3.50, otherNonEuropean: 1.20, latinAmerican: 5.00 },
+  { year: '2009', african: 0.34, arabNorthAfrican: 0.53, asianIndian: 0.76, europeanNonSpanish: 3.60, otherNonEuropean: 1.25, latinAmerican: 5.20 },
+  { year: '2010', african: 0.35, arabNorthAfrican: 0.55, asianIndian: 0.80, europeanNonSpanish: 3.70, otherNonEuropean: 1.30, latinAmerican: 5.40 },
+  { year: '2011', african: 0.36, arabNorthAfrican: 0.57, asianIndian: 0.85, europeanNonSpanish: 3.82, otherNonEuropean: 1.38, latinAmerican: 5.60 },
+  { year: '2012', african: 0.37, arabNorthAfrican: 0.59, asianIndian: 0.90, europeanNonSpanish: 3.95, otherNonEuropean: 1.46, latinAmerican: 5.85 },
+  { year: '2013', african: 0.38, arabNorthAfrican: 0.61, asianIndian: 0.95, europeanNonSpanish: 4.08, otherNonEuropean: 1.55, latinAmerican: 6.10 },
+  { year: '2014', african: 0.39, arabNorthAfrican: 0.63, asianIndian: 1.00, europeanNonSpanish: 4.18, otherNonEuropean: 1.65, latinAmerican: 6.25 },
+  { year: '2015', african: 0.40, arabNorthAfrican: 0.65, asianIndian: 1.05, europeanNonSpanish: 4.25, otherNonEuropean: 1.75, latinAmerican: 6.40 },
+  { year: '2016', african: 0.41, arabNorthAfrican: 0.67, asianIndian: 1.10, europeanNonSpanish: 4.30, otherNonEuropean: 1.85, latinAmerican: 6.60 },
+  { year: '2017', african: 0.42, arabNorthAfrican: 0.69, asianIndian: 1.15, europeanNonSpanish: 4.45, otherNonEuropean: 1.95, latinAmerican: 6.95 },
+  { year: '2018', african: 0.43, arabNorthAfrican: 0.71, asianIndian: 1.20, europeanNonSpanish: 4.60, otherNonEuropean: 2.05, latinAmerican: 7.20 },
+  { year: '2019', african: 0.44, arabNorthAfrican: 0.73, asianIndian: 1.25, europeanNonSpanish: 4.75, otherNonEuropean: 2.15, latinAmerican: 7.50 },
+  { year: '2020', african: 0.36, arabNorthAfrican: 0.60, asianIndian: 1.05, europeanNonSpanish: 3.75, otherNonEuropean: 1.70, latinAmerican: 5.80 },
+  { year: '2021', african: 0.39, arabNorthAfrican: 0.65, asianIndian: 1.15, europeanNonSpanish: 4.10, otherNonEuropean: 1.90, latinAmerican: 6.40 },
+  { year: '2022', african: 0.42, arabNorthAfrican: 0.70, asianIndian: 1.25, europeanNonSpanish: 4.30, otherNonEuropean: 2.05, latinAmerican: 6.80 },
+  { year: '2023', african: 0.45, arabNorthAfrican: 0.75, asianIndian: 1.35, europeanNonSpanish: 4.45, otherNonEuropean: 2.15, latinAmerican: 7.10 },
+  { year: '2024', african: 0.48, arabNorthAfrican: 0.80, asianIndian: 1.42, europeanNonSpanish: 4.55, otherNonEuropean: 2.25, latinAmerican: 7.35 },
+  { year: '2025', african: 0.50, arabNorthAfrican: 0.83, asianIndian: 1.45, europeanNonSpanish: 4.60, otherNonEuropean: 2.30, latinAmerican: 7.50 },
+];

@@ -40,9 +40,7 @@ const SOON: { id: string; label: string; iso: string }[] = [
   { id: 'flag-of-Azerbaijan.png', label: 'Azerbaijan', iso: 'AZE' },
   { id: 'flag-of-Georgia.png', label: 'Georgia', iso: 'GEO' },
   { id: 'flag-of-North-Macedonia.png', label: 'North Macedonia', iso: 'MKD' },
-  { id: 'flag-of-Russia.png', label: 'Russia', iso: 'RUS' },
   { id: 'flag-of-San-Marino.png', label: 'San Marino', iso: 'SMR' },
-  { id: 'flag-of-Ukraine.png', label: 'Ukraine', iso: 'UKR' },
 ];
 
 function anchorFor(iso: string): [number, number] | null {
@@ -72,7 +70,13 @@ function buildMarkers(): GlobeMarker[] {
     });
   }
 
+  // A `soon` entry is only valid while the country is absent from `FLAGS`. Once it graduates
+  // (removed from `EXCLUDED_FLAG_FILES`) the loop above already emitted it as `live`, so
+  // skipping here keeps the globe from drawing two markers on the same anchor.
+  const live = new Set(out.map((m) => m.iso));
+
   for (const s of SOON) {
+    if (live.has(s.iso)) continue;
     const anchor = anchorFor(s.iso);
     if (!anchor) continue;
     out.push({

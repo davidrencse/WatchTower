@@ -3,7 +3,7 @@ import {
   Crosshair,
   ScanLine,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import d3Logo from "simple-icons/icons/d3.svg";
 import eslintLogo from "simple-icons/icons/eslint.svg";
 import lucideLogo from "simple-icons/icons/lucide.svg";
@@ -15,11 +15,14 @@ import tailwindLogo from "simple-icons/icons/tailwindcss.svg";
 import typescriptLogo from "simple-icons/icons/typescript.svg";
 import vercelLogo from "simple-icons/icons/vercel.svg";
 import viteLogo from "simple-icons/icons/vite.svg";
+import { LEGAL_LINKS } from "../data/legalLinks";
 import "./HomeHero.css";
 
 type HomeHeroProps = {
   onExplore: () => void;
   onPrefetchAtlas?: () => void;
+  /** Open a legal page (`/privacy`, `/eula`) in-app rather than reloading the document. */
+  onOpenLegal?: (path: string) => void;
 };
 
 const intelligenceAreas = [
@@ -148,7 +151,17 @@ function TechStackCarousel() {
   );
 }
 
-export function HomeHero({ onExplore, onPrefetchAtlas }: HomeHeroProps) {
+export function HomeHero({ onExplore, onPrefetchAtlas, onOpenLegal }: HomeHeroProps) {
+  const handleLegalClick = (event: MouseEvent<HTMLAnchorElement>, path: string) => {
+    // Modified clicks and middle-click keep their native open-in-new-tab behaviour;
+    // a plain left-click routes in-app.
+    if (!onOpenLegal) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.button !== 0) return;
+    event.preventDefault();
+    onOpenLegal(path);
+  };
+
   return (
     <main className="wt-home">
       <div className="wt-home__landing">
@@ -229,19 +242,40 @@ export function HomeHero({ onExplore, onPrefetchAtlas }: HomeHeroProps) {
               <span>Open atlas</span>
               <ArrowRight aria-hidden />
             </button>
+
+            <nav className="wt-home__legal-actions" aria-label="Legal documents">
+              {LEGAL_LINKS.map((doc) => (
+                <a
+                  key={doc.id}
+                  href={doc.path}
+                  onClick={(event) => handleLegalClick(event, doc.path)}
+                >
+                  <span>{doc.id === "privacy" ? "Privacy policy" : "EULA / terms"}</span>
+                  <ArrowRight aria-hidden />
+                </a>
+              ))}
+            </nav>
           </div>
         </section>
 
-        <footer
-          className="wt-home__footer"
-          aria-label="Country data categories"
-        >
+        <footer className="wt-home__footer" aria-label="Site footer">
           <span className="wt-home__footer-label">Data categories</span>
           <ul>
             {intelligenceAreas.map((area) => (
               <li key={area}>{area}</li>
             ))}
           </ul>
+          <nav className="wt-home__footer-legal" aria-label="Legal">
+            {LEGAL_LINKS.map((doc) => (
+              <a
+                key={doc.id}
+                href={doc.path}
+                onClick={(event) => handleLegalClick(event, doc.path)}
+              >
+                {doc.id === "privacy" ? "Privacy policy" : "EULA / terms"}
+              </a>
+            ))}
+          </nav>
         </footer>
 
         <TechStackCarousel />

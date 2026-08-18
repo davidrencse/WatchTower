@@ -3,6 +3,7 @@ import { getChristianPopulation } from './christianPopulationData';
 import { getJewishPopulation } from './jewishPopulationData';
 import { getMuslimPopulation } from './muslimPopulationData';
 import type { CountryWideRow } from './parseCountriesWideCsv';
+import { formatMaxDigits, formatUsd2, formatWhole } from './numberFormat';
 
 function isBlankOrNa(v: string): boolean {
   return !v.trim() || v.trim().toUpperCase() === 'N/A';
@@ -15,10 +16,7 @@ function fmtGdpBillions(s: string): string {
   if (!Number.isFinite(n)) return s;
   const billions = n / 1e9;
   const digits = billions >= 100 ? 1 : 2;
-  const num = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: digits,
-  }).format(billions);
+  const num = formatMaxDigits(billions, digits);
   return `$${num} billion`;
 }
 
@@ -26,19 +24,14 @@ function fmtUsd2(s: string): string {
   if (isBlankOrNa(s)) return 'N/A';
   const n = Number(s);
   if (!Number.isFinite(n)) return s;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n);
+  return formatUsd2(n);
 }
 
 function fmtCount(s: string): string {
   if (isBlankOrNa(s)) return 'N/A';
   const n = Number(s);
   if (!Number.isFinite(n)) return s;
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+  return formatWhole(n);
 }
 
 function tile(

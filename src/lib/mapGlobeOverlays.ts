@@ -1,23 +1,48 @@
+import { MILITARY_BLOC_KEYS, type MilitaryBlocKey } from './militaryBaseIcon';
+import {
+  STRATEGIC_RADAR_MISSION_META,
+  STRATEGIC_RADAR_STATIONS,
+} from '../data/strategicRadarStations';
+import { AFRICA_MIGRATION_CORRIDORS_BY_ISO } from '../data/africaMigrationCorridors';
 import { EU_MIGRATION_CORRIDORS_BY_ISO } from '../data/euMigrationCorridors';
 import { EAST_ASIA_MIGRATION_CORRIDORS_BY_ISO } from '../data/eastAsiaMigrationCorridors';
 import { EXTRA_MIGRATION_CORRIDORS_BY_ISO } from '../data/extraMigrationCorridors';
 import { FRANCE_MIGRATION_CORRIDORS } from '../data/countries/france/franceMigrationCorridors';
 import { GERMANY_MIGRATION_CORRIDORS } from '../data/countries/germany/germanyMigrationCorridors';
 import type { GlobeMarker } from '../data/globeCountries';
+import { INDIA_MIGRATION_CORRIDORS_BY_ISO } from '../data/indiaMigrationCorridors';
+import { PAKISTAN_MIGRATION_CORRIDORS_BY_ISO } from '../data/pakistanMigrationCorridors';
 import { ITALY_MIGRATION_CORRIDORS } from '../data/countries/italy/italyMigrationCorridors';
+import {
+  estimateMigrationCorridorFlow,
+  formatAnnualMigrationFlow,
+  MIGRATION_FLOW_ESTIMATE_YEAR,
+} from '../data/migrationFlowEstimates';
 import {
   MIGRATION_TARGET_ISOS,
   type MigrationCorridor,
   type MigrationLegMode,
+  type MigrationRouteStatus,
   type MigrationTargetIso,
 } from '../data/migrationCorridors';
+import {
+  ENTRY_NODE_BY_ID,
+  ENTRY_NODE_KINDS,
+  MIGRATION_ENTRY_NODES,
+  MIGRATION_MICROEVENTS,
+} from '../data/migrationEntryNodes';
 import { UK_MIGRATION_CORRIDORS } from '../data/ukMigrationCorridors';
+import { GERMANY_MASS_SHOOTING_META } from '../data/germanyMassShootingMeta';
+// `../data/worldMicroEvents` is ~515 KB / 87 KB gzip of records — the largest single module on
+// the globe. It is loaded via a dynamic import inside `worldMicroEventsGeoJson()` so Rollup keeps
+// it out of the MapGlobe boot chunk; the layer only reveals at mid zoom, so the data downloads as
+// the camera approaches rather than on mount.
 import {
   WAR_CATEGORY_BY_ID,
   WAR_CONTESTED_POCKETS,
   WAR_CONTROL_ZONES,
   WAR_EVENTS,
-  WAR_FRONTLINE,
+  WAR_FRONTLINE_SEGMENTS,
   WAR_SETTLEMENTS,
   type WarControlZone,
 } from '../data/russoUkraineWar';
@@ -25,12 +50,36 @@ import {
   ISRAEL_IRAN_CATEGORY_BY_ID,
   ISRAEL_IRAN_EVENTS,
 } from '../data/israelIranWar';
+import {
+  WAR_DEFENSIVE_LINES,
+  WAR_FORMATIONS,
+  WAR_GARRISONS,
+  WAR_MILITARY_SITES,
+  WAR_SIDE_META,
+} from '../data/warOrderOfBattle';
+import { warSiteIconId, warUnitIconId } from './warUnitIcon';
+import { CYBER_CATEGORY_BY_ID, CYBER_EVENTS } from '../data/cyberEvents';
+import {
+  TRADE_CHOKEPOINTS,
+  TRADE_CHOKEPOINT_BY_ID,
+  TRADE_COMMODITY_META,
+  TRADE_LANES,
+  TRADE_PORTS,
+  TRADE_PORT_BY_CODE,
+} from '../data/maritimeTradeRoutes';
 import { EONET_CATEGORY_BY_ID, type EonetEventPoint } from '../data/eonetEvents';
 import { OSINT_CATEGORY_BY_ID, type OsintEventPoint } from '../data/osintEvents';
+import {
+  ANCESTRY_GROUP_META,
+  ANCESTRY_OVERLAY_ISOS,
+  REGION_ANCESTRY_BY_ISO,
+  dominantMinorityGroup,
+  minorityShareTotal,
+} from '../data/regionAncestryComposition';
 
 const MIGRATION_TARGET_SET = new Set<string>(MIGRATION_TARGET_ISOS);
 
-const MIGRATION_CORRIDORS_BY_ISO: Record<MigrationTargetIso, readonly MigrationCorridor[]> = {
+const REGIONAL_MIGRATION_CORRIDORS_BY_ISO: Record<MigrationTargetIso, readonly MigrationCorridor[]> = {
   ...EU_MIGRATION_CORRIDORS_BY_ISO,
   ...EXTRA_MIGRATION_CORRIDORS_BY_ISO,
   ...EAST_ASIA_MIGRATION_CORRIDORS_BY_ISO,
@@ -39,6 +88,24 @@ const MIGRATION_CORRIDORS_BY_ISO: Record<MigrationTargetIso, readonly MigrationC
   GBR: UK_MIGRATION_CORRIDORS,
   ITA: ITALY_MIGRATION_CORRIDORS,
 };
+
+/**
+ * Africa, India and Pakistan are cross-cutting origins rather than destination regions, so
+ * their corridors are curated per origin and appended to whichever destinations they reach.
+ */
+const ORIGIN_MIGRATION_CORRIDORS = [
+  INDIA_MIGRATION_CORRIDORS_BY_ISO,
+  PAKISTAN_MIGRATION_CORRIDORS_BY_ISO,
+  AFRICA_MIGRATION_CORRIDORS_BY_ISO,
+] as const;
+
+const MIGRATION_CORRIDORS_BY_ISO = MIGRATION_TARGET_ISOS.reduce((byIso, iso) => {
+  byIso[iso] = [
+    ...REGIONAL_MIGRATION_CORRIDORS_BY_ISO[iso],
+    ...ORIGIN_MIGRATION_CORRIDORS.flatMap((byOrigin) => byOrigin[iso] ?? []),
+  ];
+  return byIso;
+}, {} as Record<MigrationTargetIso, readonly MigrationCorridor[]>);
 
 const DEG = Math.PI / 180;
 
@@ -256,32 +323,351 @@ export async function countryShapesGeoJson(markers: GlobeMarker[]) {
   };
 }
 
+/** One admin-1 unit as baked by `scripts/bake-admin1-regions.mjs`. */
+type BakedAdmin1Unit = {
+  code: string;
+  name: string;
+  /** Natural Earth `region` — the level `REGION_ANCESTRY_BY_ISO` is keyed on. */
+  region: string;
+  a: [number, number];
+  r: number[][];
+};
+
+/**
+ * Per-region ancestry choropleth for the countries in {@link ANCESTRY_OVERLAY_ISOS}.
+ *
+ * Units are drawn at Natural Earth admin-1 granularity (Länder / départements / province)
+ * but coloured from region-level estimates, so France and Italy keep their fine internal
+ * outlines without needing a polygon union.
+ *
+ * Colour is the region's largest **non-European** group — European is the majority nearly
+ * everywhere, so shading by it would flatten the map to one tone. Fill strength follows the
+ * total non-European share. Both are denormalised into feature properties so paint stays a
+ * plain `['get', …]` lookup and no per-frame JS runs.
+ */
+export async function regionAncestryGeoJson() {
+  // With every country switched off there is nothing to colour, so skip the ~780 KB
+  // admin-1 geometry download rather than fetching it to produce an empty collection.
+  if (ANCESTRY_OVERLAY_ISOS.length === 0) {
+    return { type: 'FeatureCollection' as const, features: [] };
+  }
+
+  const baked = await loadGeo<Record<string, BakedAdmin1Unit[]>>('admin1-regions.json');
+  return {
+    type: 'FeatureCollection' as const,
+    features: ANCESTRY_OVERLAY_ISOS.flatMap((iso) => {
+      const units = baked[iso];
+      const regions = REGION_ANCESTRY_BY_ISO[iso];
+      if (!units || !regions) return [];
+
+      return units.flatMap((unit) => {
+        const composition = regions[unit.region];
+        if (!composition) return [];
+
+        const group = dominantMinorityGroup(composition.shares);
+        const minorityShare = minorityShareTotal(composition.shares);
+
+        return unit.r.map((ring, ringIndex) => ({
+          type: 'Feature' as const,
+          id: `${iso}-${unit.code ?? unit.name}-${ringIndex}`,
+          properties: {
+            iso,
+            code: unit.code,
+            unit: unit.name,
+            region: unit.region,
+            label: composition.label,
+            group,
+            groupLabel: ANCESTRY_GROUP_META[group].label,
+            color: ANCESTRY_GROUP_META[group].color,
+            minorityShare,
+            europeanShare: composition.shares.european,
+            foreignOriginShare: composition.foreignOriginShare,
+          },
+          geometry: {
+            type: 'Polygon' as const,
+            coordinates: [densify(closeRing(ring), 0.35)],
+          },
+        }));
+      });
+    }),
+  };
+}
+
 /** Every researched migration leg, grouped by destination and transport mode. */
 export function migrationCorridorsGeoJson() {
   return {
     type: 'FeatureCollection' as const,
-    features: MIGRATION_TARGET_ISOS.flatMap((targetIso) =>
-      MIGRATION_CORRIDORS_BY_ISO[targetIso].flatMap((corridor) =>
-        corridor.legs
-          .filter((leg) => leg.waypoints.length >= 2)
-          .map((leg, legIndex) => ({
+    features: MIGRATION_TARGET_ISOS.flatMap((targetIso) => {
+      const destinationCorridors = MIGRATION_CORRIDORS_BY_ISO[targetIso];
+      return destinationCorridors.flatMap((corridor) => {
+        const drawableLegs = corridor.legs.filter((leg) => leg.waypoints.length >= 2);
+        const longestLeg = drawableLegs.reduce(
+          (longest, leg, index) =>
+            leg.waypoints.length > drawableLegs[longest]?.waypoints.length ? index : longest,
+          0,
+        );
+        const estimate = estimateMigrationCorridorFlow(targetIso, corridor, destinationCorridors);
+        return drawableLegs.map((leg, legIndex) => ({
             type: 'Feature' as const,
             id: `${targetIso}-${corridor.id}-${legIndex}`,
             properties: {
               targetIso,
               corridorId: corridor.id,
               label: corridor.label,
+              shortRouteName: estimate.shortRouteName,
               status: corridor.status,
               mode: leg.mode,
+              labelLeg: legIndex === longestLeg,
+              annualEstimate: estimate.annualPeople,
+              annualEstimateLabel: formatAnnualMigrationFlow(estimate.annualPeople),
+              annualEstimateRange: `${estimate.lowerBound.toLocaleString('en-US')}–${estimate.upperBound.toLocaleString('en-US')} people/year`,
+              estimateYear: MIGRATION_FLOW_ESTIMATE_YEAR,
+              estimateMethod: estimate.method,
+              estimateSourceOrg: estimate.sourceOrganization,
+              estimateSourceTitle: estimate.sourceTitle,
+              sourceUrl: estimate.sourceUrl,
             },
             geometry: lineGeometry(
               densifiedLineParts(
                 leg.waypoints.map(([lng, lat]) => [lng, lat] as Position),
               ),
             ),
-          })),
+          }));
+      });
+    }),
+  };
+}
+
+/**
+ * Reported formations on both sides, anchored to the axis each is said to hold.
+ *
+ * `precision` rides on the feature so the hover card can print the caveat next to the name — a
+ * sector anchor must never be readable off the map as a unit location.
+ */
+export function warFormationsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: WAR_FORMATIONS.map((formation) => ({
+      type: 'Feature' as const,
+      id: formation.id,
+      properties: {
+        formationId: formation.id,
+        side: formation.side,
+        sideLabel: WAR_SIDE_META[formation.side].label,
+        color: WAR_SIDE_META[formation.side].color,
+        echelon: formation.echelon,
+        icon: warUnitIconId(formation.side, formation.echelon),
+        name: formation.name,
+        code: formation.code,
+        sector: formation.sector,
+        commander: formation.commander ?? '',
+        subordinates: formation.subordinates.join(' · '),
+        precision: formation.precision,
+        precisionLabel:
+          formation.precision === 'sector'
+            ? 'Reported sector — not a unit position'
+            : 'Published headquarters location',
+        note: formation.note,
+        sourceOrg: formation.sources[0]?.organization ?? '',
+        sourceUrl: formation.sources[0]?.url ?? '',
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [...formation.coordinate] as Position,
+      },
+    })),
+  };
+}
+
+/** Fortification belts, drawn schematically between the settlements reporting names. */
+export function warDefensiveLinesGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: WAR_DEFENSIVE_LINES.map((line) => ({
+      type: 'Feature' as const,
+      id: line.id,
+      properties: {
+        lineId: line.id,
+        side: line.side,
+        sideLabel: WAR_SIDE_META[line.side].label,
+        color: WAR_SIDE_META[line.side].color,
+        name: line.name,
+        status: line.status,
+        note: line.note,
+        sourceOrg: line.sources[0]?.organization ?? '',
+        sourceUrl: line.sources[0]?.url ?? '',
+      },
+      geometry: lineGeometry(
+        densifiedLineParts(
+          line.path.map(([lng, lat]) => [lng, lat] as Position),
+          0.2,
+        ),
       ),
-    ),
+    })),
+  };
+}
+
+/** Airfields, fleet bases and the two general staffs — long-published fixed infrastructure. */
+export function warMilitarySitesGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: WAR_MILITARY_SITES.map((site) => ({
+      type: 'Feature' as const,
+      id: site.id,
+      properties: {
+        siteId: site.id,
+        side: site.side,
+        sideLabel: WAR_SIDE_META[site.side].label,
+        color: WAR_SIDE_META[site.side].color,
+        kind: site.kind,
+        kindLabel:
+          site.kind === 'airbase'
+            ? 'Air base'
+            : site.kind === 'naval'
+              ? 'Naval base'
+              : 'Headquarters',
+        icon: warSiteIconId(site.side, site.kind),
+        name: site.name,
+        place: site.place,
+        note: site.note,
+        sourceOrg: site.sources[0]?.organization ?? '',
+        sourceUrl: site.sources[0]?.url ?? '',
+      },
+      geometry: { type: 'Point' as const, coordinates: [...site.coordinate] as Position },
+    })),
+  };
+}
+
+/**
+ * Home stations. Separate from the fixed-site layer because these are administrative basing
+ * facts, not theatre infrastructure — and because half of them are thousands of kilometres from
+ * Ukraine, so they need their own zoom band rather than appearing with the Donbas sites.
+ */
+export function warGarrisonsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: WAR_GARRISONS.map((garrison) => ({
+      type: 'Feature' as const,
+      id: garrison.id,
+      properties: {
+        garrisonId: garrison.id,
+        side: garrison.side,
+        sideLabel: WAR_SIDE_META[garrison.side].label,
+        color: WAR_SIDE_META[garrison.side].color,
+        icon: warSiteIconId(garrison.side, 'garrison'),
+        formation: garrison.formation,
+        code: garrison.code,
+        place: garrison.place,
+        committedTo: garrison.committedTo ?? '',
+        note: garrison.note,
+        sourceOrg: garrison.sources[0]?.organization ?? '',
+        sourceUrl: garrison.sources[0]?.url ?? '',
+      },
+      geometry: { type: 'Point' as const, coordinates: [...garrison.coordinate] as Position },
+    })),
+  };
+}
+
+/** Chokepoints read as one alert hue: they constrain every cargo family, not just one. */
+export const TRADE_CHOKEPOINT_COLOR = '#ff8f5e';
+/** Berths stay neutral so the lane colour leaving them is what carries the meaning. */
+export const TRADE_PORT_COLOR = '#dbe4ec';
+
+/**
+ * Major seaborne trade lanes, one feature per lane.
+ *
+ * Commodity colour is denormalised onto the feature so the paint expression is a plain
+ * `['get','color']` — the same trick every other point layer here uses to keep per-frame JS out
+ * of the render loop. Lane geometry is verified sea-only by `scripts/check-trade-routes.mjs`.
+ */
+export function tradeRoutesGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: TRADE_LANES.map((lane) => {
+      const from = TRADE_PORT_BY_CODE[lane.fromPort];
+      const to = TRADE_PORT_BY_CODE[lane.toPort];
+      return {
+        type: 'Feature' as const,
+        id: lane.id,
+        properties: {
+          laneId: lane.id,
+          label: lane.label,
+          commodity: lane.commodity,
+          commodityLabel: TRADE_COMMODITY_META[lane.commodity].label,
+          color: TRADE_COMMODITY_META[lane.commodity].color,
+          status: lane.status,
+          fromName: from?.name ?? lane.fromPort,
+          fromCountry: from?.country ?? '',
+          toName: to?.name ?? lane.toPort,
+          toCountry: to?.country ?? '',
+          distanceNm: lane.distanceNm,
+          volume: lane.volume,
+          note: lane.note,
+          chokepoints: lane.chokepoints
+            .map((id) => TRADE_CHOKEPOINT_BY_ID[id]?.name ?? id)
+            .join(' · '),
+          sourceOrg: lane.sources[0]?.organization ?? '',
+          sourceUrl: lane.sources[0]?.url ?? '',
+        },
+        geometry: lineGeometry(
+          densifiedLineParts(
+            lane.waypoints.map(([lng, lat]) => [lng, lat] as Position),
+            0.6,
+          ),
+        ),
+      };
+    }),
+  };
+}
+
+/** Straits and canals every lane above has to thread, with their transit volumes. */
+export function tradeChokepointsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: TRADE_CHOKEPOINTS.map((point) => ({
+      type: 'Feature' as const,
+      id: point.id,
+      properties: {
+        chokepointId: point.id,
+        code: point.code,
+        name: point.name,
+        volume: point.volume,
+        note: point.note,
+        color: TRADE_CHOKEPOINT_COLOR,
+        laneCount: TRADE_LANES.filter((lane) => lane.chokepoints.includes(point.id)).length,
+        sourceOrg: point.sources[0]?.organization ?? '',
+        sourceUrl: point.sources[0]?.url ?? '',
+      },
+      geometry: { type: 'Point' as const, coordinates: [...point.coordinate] as Position },
+    })),
+  };
+}
+
+/** The berths each lane runs between — one feature per port, deduplicated across lanes. */
+export function tradePortsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: TRADE_PORTS.map((port) => {
+      const lanes = TRADE_LANES.filter(
+        (lane) => lane.fromPort === port.code || lane.toPort === port.code,
+      );
+      return {
+        type: 'Feature' as const,
+        id: port.code,
+        properties: {
+          portCode: port.code,
+          name: port.name,
+          country: port.country,
+          iso3: port.iso3,
+          note: port.note,
+          // A port that anchors several lanes is a hub; the layer scales its dot by this.
+          laneCount: lanes.length,
+          commodities: [...new Set(lanes.map((lane) => lane.commodity))].join(','),
+          color: TRADE_PORT_COLOR,
+        },
+        geometry: { type: 'Point' as const, coordinates: [...port.coordinate] as Position },
+      };
+    }),
   };
 }
 
@@ -373,10 +759,227 @@ export function migrationLabelsGeoJson() {
   return { type: 'FeatureCollection' as const, features };
 }
 
+/**
+ * Facility-precision terminal detail — the quay, beach sector, border station, reception
+ * centre or district a corridor actually resolves into. Only meaningful once the camera is
+ * inside a city, so `MapGlobe` gates the layer at {@link ENTRY_NODE_MIN_ZOOM}. The kind colour
+ * is denormalised into properties so paint stays a `['get','color']` lookup.
+ */
+export function migrationEntryNodesGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: MIGRATION_ENTRY_NODES.map((entry) => {
+      const kind = ENTRY_NODE_KINDS[entry.kind];
+      return {
+        type: 'Feature' as const,
+        id: entry.id,
+        properties: {
+          nodeId: entry.id,
+          targetIso: entry.targetIso,
+          name: entry.name,
+          address: entry.address ?? '',
+          city: entry.city,
+          kind: entry.kind,
+          kindTitle: kind.title,
+          code: kind.code,
+          color: kind.color,
+          precision: entry.precision,
+          summary: entry.summary,
+          sourceOrg: entry.sources[0]?.organization ?? '',
+          sourceUrl: entry.sources[0]?.url ?? '',
+          // Sector coordinates are representative points, so the label says so rather than
+          // letting a reader take a dune centroid for a location.
+          detail: entry.precision === 'facility' ? 'FACILITY' : 'SECTOR · REPRESENTATIVE',
+        },
+        geometry: {
+          type: 'Point' as const,
+          coordinates: [entry.coordinate[0], entry.coordinate[1]] as Position,
+        },
+      };
+    }),
+  };
+}
+
+/**
+ * Reporting pinned to an entry node — mostly broadcast video. Offset slightly north-east of
+ * its node so the two markers do not stack at city zoom.
+ */
+export function migrationMicroEventsGeoJson() {
+  const features = [];
+  for (const event of MIGRATION_MICROEVENTS) {
+    const node = ENTRY_NODE_BY_ID.get(event.nodeId);
+    if (!node) continue;
+    // ~180 m at the equator; enough to unstack without moving the pin off its facility.
+    const offset = 0.0016;
+    features.push({
+      type: 'Feature' as const,
+      id: event.id,
+      properties: {
+        eventId: event.id,
+        nodeId: event.nodeId,
+        targetIso: event.targetIso,
+        headline: event.headline,
+        outlet: event.outlet,
+        date: event.date,
+        format: event.format,
+        videoId: event.videoId ?? '',
+        url: event.url,
+        summary: event.summary,
+        place: node.name,
+        color: event.format === 'video' ? '#e0483b' : '#d8c24a',
+        code: event.format === 'video' ? 'VID' : 'RPT',
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [node.coordinate[0] + offset, node.coordinate[1] + offset] as Position,
+      },
+    });
+  }
+  return { type: 'FeatureCollection' as const, features };
+}
+
+const MICROEVENT_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+/** `2026-08-04` → `4 Aug 2026`. Returns the input unchanged if it is not an ISO date. */
+function formatMicroEventDate(iso: string): string {
+  const parts = iso.split('-');
+  if (parts.length !== 3) return iso;
+  const month = MICROEVENT_MONTHS[Number(parts[1]) - 1];
+  if (!month) return iso;
+  return `${Number(parts[2])} ${month} ${parts[0]}`;
+}
+
+/**
+ * Worldwide news microevents, one dot per reported event. Coordinates are rendered exactly as
+ * stored. Coincident events deliberately remain coincident rather than being moved to invented
+ * nearby positions; their precision label explains whether the point is a site, area or national
+ * administrative anchor.
+ */
+export async function worldMicroEventsGeoJson() {
+  const { WORLD_MICROEVENTS, WORLD_MICROEVENT_CATEGORY_META, WORLD_MICROEVENT_PRECISION_LABEL } =
+    await import('../data/worldMicroEvents');
+  const features = WORLD_MICROEVENTS.map((event) => {
+    const meta = WORLD_MICROEVENT_CATEGORY_META[event.category];
+    const [lng, lat] = event.coordinate;
+
+    return {
+      type: 'Feature' as const,
+      id: event.id,
+      properties: {
+        eventId: event.id,
+        category: event.category,
+        categoryLabel: meta.label,
+        code: meta.code,
+        color: meta.color,
+        headline: event.headline,
+        summary: event.summary,
+        place: event.place,
+        date: event.date,
+        dateLabel: formatMicroEventDate(event.date),
+        precisionLabel: WORLD_MICROEVENT_PRECISION_LABEL[event.precision],
+        outlet: event.source,
+        url: event.url,
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [lng, lat] as Position,
+      },
+    };
+  });
+  return { type: 'FeatureCollection' as const, features };
+}
+
+/**
+ * Germany's sourced mass-shooting history as one point per incident.
+ *
+ * Several records share a settlement centroid. A deterministic spiral keeps every record visible
+ * and hoverable while staying inside the city-level precision the data promises. The incidents
+ * live in a dynamically imported module so their summaries and source URLs do not inflate the
+ * globe's boot chunk before a user approaches Germany.
+ */
+export async function germanyMassShootingsGeoJson() {
+  const { GERMANY_MASS_SHOOTINGS } = await import('../data/germanyMassShootings');
+  const seenAt = new Map<string, number>();
+  const features = GERMANY_MASS_SHOOTINGS.map((event) => {
+    const severity = event.killed > 0 ? 'fatal' : 'nonfatal';
+    const meta = GERMANY_MASS_SHOOTING_META[severity];
+    const [lng, lat] = event.coordinate;
+    const key = `${lng},${lat}`;
+    const repeat = seenAt.get(key) ?? 0;
+    seenAt.set(key, repeat + 1);
+    const angle = repeat * 2.399963;
+    const radius = repeat === 0 ? 0 : 0.012 * Math.sqrt(repeat);
+    const cosLat = Math.max(Math.cos((lat * Math.PI) / 180), 0.15);
+
+    return {
+      type: 'Feature' as const,
+      id: event.id,
+      properties: {
+        eventId: event.id,
+        severity,
+        categoryLabel: 'Mass shooting',
+        code: meta.code,
+        color: meta.color,
+        title: event.title,
+        summary: event.summary,
+        place: event.place,
+        date: event.date,
+        dateLabel: formatMicroEventDate(event.date),
+        casualtyLabel: `${event.killed} reported dead · ${event.injured} injured`,
+        precisionLabel:
+          event.precision === 'area'
+            ? 'Area-centroid plot — not an exact incident site'
+            : 'City-level plot — not an exact incident site',
+        outlet: event.source,
+        url: event.url,
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [
+          lng + (radius * Math.cos(angle)) / cosLat,
+          lat + radius * Math.sin(angle),
+        ] as Position,
+      },
+    };
+  });
+
+  return { type: 'FeatureCollection' as const, features };
+}
+
+/**
+ * Every entry node as a flat search target for the Recon locator — name, address and city
+ * folded into one lowercase haystack so a photo caption or a place name can be matched
+ * without pulling the whole dataset into the component.
+ */
+export function reconSearchTargets() {
+  return MIGRATION_ENTRY_NODES.map((entry) => ({
+    id: entry.id,
+    label: entry.name,
+    detail: [entry.address, entry.city].filter(Boolean).join(' · '),
+    coordinate: entry.coordinate,
+    haystack: [entry.name, entry.address ?? '', entry.city, entry.targetIso]
+      .join(' ')
+      .toLowerCase(),
+  }));
+}
+
 export interface CorridorPath {
   targetIso: MigrationTargetIso;
   corridorId: string;
-  status: string;
+  status: MigrationRouteStatus;
   /** Densified great-circle points for the whole corridor, first leg to last. */
   points: Position[];
   /** Transport mode active on the segment ending at the matching point index. */
@@ -443,8 +1046,17 @@ export interface SampledTraveller {
 export function sampleCorridor(path: CorridorPath, t: number): SampledTraveller {
   const target = Math.min(Math.max(t, 0), 1) * path.total;
 
-  let index = 1;
-  while (index < path.cumulative.length - 1 && path.cumulative[index] < target) index++;
+  // `cumulative` is sorted, and the traveller animation samples every corridor 18 times a frame
+  // (three travellers, each trailing five). Binary search instead of walking the polyline: the
+  // longest corridor carries 166 vertices, so the scan was the bulk of the per-frame cost.
+  let low = 1;
+  let high = path.cumulative.length - 1;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (path.cumulative[mid] < target) low = mid + 1;
+    else high = mid;
+  }
+  const index = low;
 
   const from = path.points[index - 1];
   const to = path.points[index];
@@ -535,24 +1147,26 @@ export function warSettlementsGeoJson() {
   };
 }
 
-/** The line of contact. Densified so it reads as one continuous front, not a chain of chords. */
+/**
+ * The line of contact. One feature per traced segment — the main run plus the arcs around the
+ * border salients north of Kharkiv and in Sumy — densified so each reads as a continuous front
+ * rather than a chain of chords.
+ */
 export function warFrontlineGeoJson() {
   return {
     type: 'FeatureCollection' as const,
-    features: [
-      {
-        type: 'Feature' as const,
-        id: 'war-frontline',
-        properties: { label: 'Line of contact' },
-        geometry: {
-          type: 'LineString' as const,
-          coordinates: densify(
-            WAR_FRONTLINE.map(([lng, lat]) => [lng, lat] as Position),
-            0.25,
-          ),
-        },
+    features: WAR_FRONTLINE_SEGMENTS.map((segment) => ({
+      type: 'Feature' as const,
+      id: `war-frontline-${segment.id}`,
+      properties: { label: segment.id, lengthKm: segment.lengthKm },
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: densify(
+          segment.path.map(([lng, lat]) => [lng, lat] as Position),
+          0.25,
+        ),
       },
-    ],
+    })),
   };
 }
 
@@ -668,6 +1282,45 @@ export function osintPointsGeoJson(points: OsintEventPoint[]) {
   };
 }
 
+// ── Cyberattacks / breaches ──────────────────────────────────────────────────
+
+/**
+ * Curated cyber micro-events. Static, so this is built once at source-registration time
+ * rather than pushed in from state like the live EONET / OSINT feeds.
+ *
+ * The category colour is denormalised into feature properties, matching every other point
+ * layer, so paint stays `['get','color']` and no per-frame JS runs.
+ */
+export function cyberEventsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: CYBER_EVENTS.map((event) => {
+      const category = CYBER_CATEGORY_BY_ID[event.categoryId];
+      return {
+        type: 'Feature' as const,
+        id: event.id,
+        properties: {
+          id: event.id,
+          categoryId: event.categoryId,
+          categoryTitle: category.title,
+          code: category.code,
+          color: category.color,
+          title: event.title,
+          summary: event.summary,
+          impact: event.impact,
+          placeName: event.placeName,
+          reported: event.reported,
+          sourceUrl: event.url,
+        },
+        geometry: {
+          type: 'Point' as const,
+          coordinates: [event.longitude, event.latitude] as Position,
+        },
+      };
+    }),
+  };
+}
+
 // ── Military installations ───────────────────────────────────────────────────
 
 /** One baked row from `/geo/military-bases.json` (see `scripts/bake-military-bases.mjs`). */
@@ -695,7 +1348,7 @@ interface MilitaryBaseRecord {
  * distinction the map is making is which power is present, not which flag flies over the gate.
  * Deliberately flatter than the alert pins — bases are standing infrastructure, not incidents.
  */
-const MILITARY_BLOC_COLOR: Record<string, string> = {
+export const MILITARY_BLOC_COLOR: Record<string, string> = {
   us: '#4d90d8',
   nato: '#4d90d8',
   cn: '#d4635a',
@@ -703,6 +1356,13 @@ const MILITARY_BLOC_COLOR: Record<string, string> = {
   prk: '#e0913f',
   other: '#9aa2ad',
 };
+
+/** Narrow a raw bloc code to a key that is guaranteed to have both a colour and an icon sprite. */
+function militaryBlocKey(bloc: string): MilitaryBlocKey {
+  return (MILITARY_BLOC_KEYS as readonly string[]).includes(bloc)
+    ? (bloc as MilitaryBlocKey)
+    : 'other';
+}
 
 /** The source's `A`/`N`/`I` codes, plus the 84 records that carry no type at all. */
 const MILITARY_TYPE_LABEL: Record<string, string> = {
@@ -761,12 +1421,42 @@ export async function militaryBasesGeoJson() {
           .join(' · '),
         hostName: row.h ?? '',
         bloc: row.b,
+        blocKey: militaryBlocKey(row.b),
         color: MILITARY_BLOC_COLOR[row.b] ?? MILITARY_BLOC_COLOR.other,
         url: row.w ? `https://en.wikipedia.org/wiki/${encodeURIComponent(row.w)}` : (row.u ?? ''),
       },
       geometry: {
         type: 'Point' as const,
         coordinates: row.g as Position,
+      },
+    })),
+  };
+}
+
+/** Publicly acknowledged fixed strategic-radar sites, kept in the boot bundle as 13 small points. */
+export function strategicRadarStationsGeoJson() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: STRATEGIC_RADAR_STATIONS.map((station) => ({
+      type: 'Feature' as const,
+      id: station.id,
+      properties: {
+        stationId: station.id,
+        name: station.name,
+        shortName: station.shortName,
+        system: station.system,
+        mission: station.mission,
+        missionLabel: STRATEGIC_RADAR_MISSION_META[station.mission].label,
+        operator: station.operator,
+        host: station.host,
+        note: station.note,
+        sourceOrg: station.sourceOrg,
+        sourceUrl: station.sourceUrl,
+        color: STRATEGIC_RADAR_MISSION_META[station.mission].color,
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [...station.coordinates] as Position,
       },
     })),
   };

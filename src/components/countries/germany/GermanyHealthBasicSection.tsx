@@ -7,7 +7,8 @@ import {
   GERMANY_HEALTH_BASIC_METRIC_ORDER,
   parseGermanyMetricTableCsv,
 } from '../../../lib/countries/germany/germanyHealthCsv';
-import { GOV_POLITICS_CARD_GRID, GovStatCard, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
+import { GOV_POLITICS_CARD_GRID, GovStatCard, GovernmentMetricGroup } from './GermanyGovernmentPoliticsBlocks';
+import { EmptyCsvNotice } from '../../EmptyCsvNotice';
 
 const CSV_URL = '/data/germany_health_statistics_basic.csv';
 
@@ -120,11 +121,7 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
   }
 
   if (groups.length === 0) {
-    return (
-      <p className="font-sans text-xs text-neutral-500">
-        No rows in <code className="text-neutral-400">{csvUrl.split('/').pop()}</code>.
-      </p>
-    );
+    return <EmptyCsvNotice csvUrl={csvUrl} />;
   }
 
   return (
@@ -141,7 +138,7 @@ export const GermanyHealthBasicSection = memo(function GermanyHealthBasicSection
               </Fragment>
             );
           }
-          return <Fragment key={metric}>{renderMetricGroup(g)}</Fragment>;
+          return <Fragment key={metric}>{GovernmentMetricGroup(g)}</Fragment>;
         })}
         {isGermany
           ? HEALTH_OVERVIEW_OECD_EXTRA_ROWS.map((row, i) => (

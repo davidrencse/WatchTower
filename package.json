@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prerender-seo.mjs && npm run check:bundle",
+    "build": "tsc -b && vite build && node scripts/prerender-seo.mjs && npm run check:bundle && npm run check:csp",
     "check:bundle": "node scripts/check-bundle-size.mjs",
+    "check:csp": "node scripts/check-csp.mjs",
+    "check:trade-routes": "node --experimental-strip-types scripts/check-trade-routes.mjs",
+    "check:war-oob": "node --experimental-strip-types scripts/check-war-oob.mjs",
     "lint": "eslint .",
     "audit:italy": "node scripts/audit-italy-dossier.mjs",
     "preview": "vite preview",
@@ -14,7 +17,9 @@
     "update:military-data": "node scripts/generate-military-data.mjs",
     "update:military-equipment": "node scripts/generate-military-equipment.mjs",
     "update:globe-geometry": "node scripts/bake-world-land.mjs && node scripts/bake-world-borders.mjs && node scripts/bake-country-shapes.mjs",
-    "update:military-bases": "node scripts/bake-military-bases.mjs"
+    "update:admin1-regions": "node --max-old-space-size=4096 scripts/bake-admin1-regions.mjs",
+    "update:military-bases": "node scripts/bake-military-bases.mjs",
+    "update:frontline": "node scripts/update-frontline.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

@@ -191,7 +191,7 @@ const AdvocateCardView = memo(function AdvocateCardView({ entry }: { entry: Advo
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
-              Jewish &amp; international links
+              Networks &amp; affiliations
             </p>
             <p className="mt-1 text-neutral-300">{entry.affiliations}</p>
           </div>

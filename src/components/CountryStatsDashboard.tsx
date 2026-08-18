@@ -1,4 +1,4 @@
-import { loadCsvText } from '../lib/csvCache';
+import { loadCsvText, parseCsvCached } from '../lib/csvCache';
 import {
   Fragment,
   lazy,
@@ -27,6 +27,12 @@ import {
   ITALY_HEALTH_BASIC_GROUP_COUNT,
   ITALY_HEALTH_EXTRAS_ENV_ROW_START_INDEX,
   ITALY_SUICIDE_RATE_SERIES,
+  SPAIN_HEALTH_EXTRA_CARDS,
+  SPAIN_HEALTH_BASIC_GROUP_COUNT,
+  SPAIN_HEALTH_EXTRAS_ENV_ROW_START_INDEX,
+  SPAIN_SUICIDE_RATE_SERIES,
+  SPAIN_TESTOSTERONE_MEN_SERIES,
+  SPAIN_LGBT_IDENTIFICATION_SERIES,
   ITALY_TESTOSTERONE_MEN_SERIES,
   ITALY_LGBT_IDENTIFICATION_SERIES,
 } from '../lib/countryDashboardSeries';
@@ -37,9 +43,8 @@ import {
   PercentRing,
   SourceLinks,
   STAT_GRID,
-  extractLeadingPercent,
-  isUnavailable,
 } from './statTilePrimitives';
+import { extractLeadingPercent, isUnavailable } from '../lib/statTileValues';
 import type { FlagEntry } from '../types/flag';
 import type { CountryStatMetric } from '../types/countryStats';
 import { collectSourceUrlsFromWideRow, wideRowToStatMetrics } from '../lib/countryStatsMetrics';
@@ -60,15 +65,20 @@ import { metricsFromGermanyBirthHealthCsv } from '../lib/countries/germany/germa
 import { metricsFromFranceBirthHealthCsv } from '../lib/countries/france/franceBirthHealthIndicators';
 import { crimeFromMergedRow, proxyFromMergedRow } from '../lib/mergedCountryStats';
 import type { CountryWideRow } from '../lib/parseCountriesWideCsv';
-import { indexCountriesByIso3, parseCountriesWideCsv } from '../lib/parseCountriesWideCsv';
+import {
+  blankCountryWideRow,
+  indexCountriesByIso3,
+  parseCountriesWideCsv,
+} from '../lib/parseCountriesWideCsv';
 import { collectCrimeSourceUrls } from '../lib/crimeBoxes';
 import { CollapsibleFlagSection } from './CollapsibleFlagSection';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import {
+  GermanyNewsPanel,
   GermanyNewsRail,
-  useCountryNews,
   type GermanyNewsRailSection,
 } from './countries/germany/GermanyNewsSidebar';
+import { useCountryNews } from '../hooks/useCountryNews';
 import { bucketGermanyNewsItems } from '../lib/countries/germany/germanyNews';
 import { GERMANY_LABOR_INCOME_GROUP_COUNT } from '../lib/countries/germany/germanyGovernmentPolitics';
 import { FRANCE_POLITICS_LEFTISM } from '../lib/countries/france/francePoliticsLeftism';
@@ -104,6 +114,16 @@ import {
 import { ITALY_POLITICS_RIGHT_WING } from '../lib/countries/italy/italyPoliticsRightWing';
 import { ITALY_WOMEN_LEFT_RIGHT_CHART } from '../lib/countries/italy/italyWomenPoliticalIdentification';
 import {
+  SPAIN_POLITICS_LEFTISM,
+  SPAIN_POLITICS_LEFTISM_GROUP_COUNT,
+} from '../lib/countries/spain/spainPoliticsLeftism';
+import {
+  SPAIN_POLITICS_RIGHT_WING,
+  SPAIN_POLITICS_RIGHT_WING_GROUP_COUNT,
+} from '../lib/countries/spain/spainPoliticsRightWing';
+import { SPAIN_POLITICS_ZIONISM_GROUP_COUNT } from '../lib/countries/spain/spainPoliticsZionism';
+import { SPAIN_BIRTH_RATES_BLOCK_COUNT } from '../lib/countries/spain/spainBirthRates';
+import {
   GERMANY_ABORTION_SECTION_GROUP_COUNT,
   GERMANY_HEALTH_BASIC_GROUP_COUNT,
   GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT,
@@ -120,6 +140,21 @@ import {
   ITALY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
 } from '../lib/countries/italy/italyEconomyStats';
 import { applyItalyDemographicsMetricOverrides } from '../lib/countries/italy/italyDemographicsStats';
+import { applySpainDemographicsMetricOverrides } from '../lib/countries/spain/spainDemographicsStats';
+import { SPAIN_ECONOMIC_STRUCTURAL_GROUP_COUNT } from '../lib/countries/spain/spainEconomyStats';
+import { SPAIN_POLICY_INFOGRAPHICS } from '../data/government/spainPolicyCards';
+import {
+  SPAIN_IMMIGRATION_POLICY_AREAS,
+  SPAIN_IMMIGRATION_POLICY_CONTEXT,
+} from '../data/government/spainImmigrationPolicies';
+import {
+  SPAIN_ABORTION_RATE_PER_1K_WOMEN_15_44,
+  SPAIN_ABORTION_RATE_SOURCE_URL,
+} from '../lib/countries/spain/spainAbortionRate';
+import {
+  SPAIN_ABORTION_TOTALS_SOURCES,
+  SPAIN_TOTAL_ABORTIONS_BY_YEAR,
+} from '../lib/countries/spain/spainAbortionStatistics';
 import { applyItalyBirthRateMetricOverrides } from '../lib/countries/italy/italyBirthHealthIndicators';
 import {
   GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT,
@@ -148,16 +183,35 @@ import {
 import {
   getStatSections,
   GERMANY_IMMIGRATION_TOP_METRICS,
+  GOVERNMENT_SPENDING_METRICS,
   treatAsGermany,
   type CustomSubsection,
   type MetricSubsection,
 } from '../lib/countryDashboardSections';
 import { militaryProfileFor } from '../data/military';
 import {
-  SpainDossierTemplateNotice,
   SpainRecordedCrimesTemplate,
   SpainVictimsTemplate,
 } from './countries/spain/SpainDossierTemplate';
+import {
+  asTemplateSlotMetric,
+  fillMissingTemplateSlots,
+  usesGermanyTemplate,
+} from '../lib/countryTemplateStatus';
+import { EstimateBlock, TemplateDossierNotice, TemplateGapBlock } from './TemplateGap';
+import {
+  broadStrokesFor,
+  broadStrokesLeftism,
+  broadStrokesRightWing,
+  governmentEstimateCards,
+  immigrationEstimateCards,
+  marriageEstimateCards,
+  tapWaterEstimateCards,
+  taxEstimateCards,
+  tradeEstimateCards,
+  type CountryBroadStrokes,
+} from '../data/countries/countryBroadStrokes';
+import { CountryEstimateCards } from './countries/template/CountryEstimateCards';
 
 /**
  * Section components are code-split so the initial dossier shell stays light.
@@ -198,6 +252,14 @@ const ItalyImmigrationSection = lazySection(() =>
 const GermanyGovernmentSection = lazySection(() =>
   import('./countries/germany/GermanyGovernmentSection').then((m) => ({ default: m.GermanyGovernmentSection })),
 );
+const SpainParliamentSection = lazySection(() =>
+  import('./countries/spain/SpainParliamentSection').then((m) => ({ default: m.SpainParliamentSection })),
+  760,
+);
+const SpainBirthRatesSection = lazySection(() =>
+  import('./countries/spain/SpainBirthRatesSection').then((m) => ({ default: m.SpainBirthRatesSection })),
+  1800,
+);
 const FranceGovernmentSection = lazySection(() =>
   import('./government/FranceGovernmentSection').then((m) => ({ default: m.FranceGovernmentSection })),
 );
@@ -231,6 +293,14 @@ const ItalyTapWaterSection = lazySection(() =>
 );
 /** Chemical blocks with Italian data so far: EE2, PFAS, atrazine, fluoride, BPA, pharma residues. */
 const ITALY_TAP_WATER_GROUP_COUNT = 6;
+const SpainTapWaterSection = lazySection(() =>
+  import('./countries/spain/SpainTapWaterSection').then((m) => ({ default: m.SpainTapWaterSection })),
+);
+/**
+ * Chemical blocks with Spanish data — main: EE2, PFAS, atrazine, fluoride, BPA, pharma
+ * residues; secondary: disinfection byproducts, microplastics, heavy metals, pesticides.
+ */
+const SPAIN_TAP_WATER_GROUP_COUNT = 10;
 const GermanyLgbtSection = lazySection(() =>
   import('./countries/germany/GermanyLgbtSection').then((m) => ({ default: m.GermanyLgbtSection })),
 );
@@ -246,11 +316,18 @@ const GermanyPoliticsZionismSection = lazySection(() =>
 const GermanyPoliticsOverviewCharts = lazySection(() =>
   import('./countries/germany/GermanyPoliticsOverviewCharts').then((m) => ({ default: m.GermanyPoliticsOverviewCharts })),
 );
+const SpainPoliticsOverview = lazySection(() =>
+  import('./countries/spain/SpainPoliticsOverview').then((m) => ({ default: m.SpainPoliticsOverview })),
+);
+const SPAIN_POLITICS_OVERVIEW_GROUP_COUNT = 4;
 const GermanyLaborIncomeSection = lazySection(() =>
   import('./countries/germany/GermanyLaborIncomeSection').then((m) => ({ default: m.GermanyLaborIncomeSection })),
 );
 const FranceLaborIncomeSection = lazySection(() =>
   import('./countries/france/FranceLaborIncomeSection').then((m) => ({ default: m.FranceLaborIncomeSection })),
+);
+const SpainLaborIncomeSection = lazySection(() =>
+  import('./countries/spain/SpainLaborIncomeSection').then((m) => ({ default: m.SpainLaborIncomeSection })),
 );
 const GermanyEconomicStructuralSection = lazySection(() =>
   import('./countries/germany/GermanyEconomicStructuralSection').then((m) => ({ default: m.GermanyEconomicStructuralSection })),
@@ -261,6 +338,9 @@ const FranceEconomicStructuralSection = lazySection(() =>
 const ItalyEconomicStructuralSection = lazySection(() =>
   import('./countries/italy/ItalyEconomicStructuralSection').then((m) => ({ default: m.ItalyEconomicStructuralSection })),
 );
+const SpainEconomicStructuralSection = lazySection(() =>
+  import('./countries/spain/SpainEconomicStructuralSection').then((m) => ({ default: m.SpainEconomicStructuralSection })),
+);
 const GermanyEconomicTaxesSection = lazySection(() =>
   import('./countries/germany/GermanyEconomicTaxesSection').then((m) => ({ default: m.GermanyEconomicTaxesSection })),
 );
@@ -270,11 +350,17 @@ const ItalyEconomicTaxesSection = lazySection(() =>
 const FranceEconomicTaxesSection = lazySection(() =>
   import('./countries/france/FranceEconomicTaxesSection').then((m) => ({ default: m.FranceEconomicTaxesSection })),
 );
+const SpainEconomicTaxesSection = lazySection(() =>
+  import('./countries/spain/SpainEconomicTaxesSection').then((m) => ({ default: m.SpainEconomicTaxesSection })),
+);
 const GermanyTradeSection = lazySection(() =>
   import('./countries/germany/GermanyTradeSection').then((m) => ({ default: m.GermanyTradeSection })),
 );
 const FranceTradeSection = lazySection(() =>
   import('./countries/france/FranceTradeSection').then((m) => ({ default: m.FranceTradeSection })),
+);
+const SpainTradeSection = lazySection(() =>
+  import('./countries/spain/SpainTradeSection').then((m) => ({ default: m.SpainTradeSection })),
 );
 const GermanyPopulationPyramid = lazySection(() =>
   import('./countries/germany/GermanyPopulationPyramid').then((m) => ({ default: m.GermanyPopulationPyramid })),
@@ -291,6 +377,14 @@ const ItalyFtseMibCarousel = lazySection(
   () => import('./countries/italy/ItalyFtseMibCarousel').then((m) => ({ default: m.ItalyFtseMibCarousel })),
   120,
 );
+const SpainIbex35Carousel = lazySection(
+  () => import('./countries/spain/SpainIbex35Carousel').then((m) => ({ default: m.SpainIbex35Carousel })),
+  120,
+);
+const RussiaMoexCarousel = lazySection(
+  () => import('./countries/russia/RussiaMoexCarousel').then((m) => ({ default: m.RussiaMoexCarousel })),
+  120,
+);
 const GermanyMarriagesSection = lazySection(() =>
   import('./countries/germany/GermanyMarriagesSection').then((m) => ({ default: m.GermanyMarriagesSection })),
 );
@@ -300,8 +394,14 @@ const ItalyMarriagesSection = lazySection(() =>
 const FranceMarriagesSection = lazySection(() =>
   import('./countries/france/FranceMarriagesSection').then((m) => ({ default: m.FranceMarriagesSection })),
 );
+const SpainMarriagesSection = lazySection(() =>
+  import('./countries/spain/SpainMarriagesSection').then((m) => ({ default: m.SpainMarriagesSection })),
+);
 const GermanySexualBehaviorSection = lazySection(() =>
   import('./countries/germany/GermanySexualBehaviorSection').then((m) => ({ default: m.GermanySexualBehaviorSection })),
+);
+const SpainSexualBehaviorSection = lazySection(() =>
+  import('./countries/spain/SpainSexualBehaviorSection').then((m) => ({ default: m.SpainSexualBehaviorSection })),
 );
 const FranceSexualBehaviorSection = lazySection(() =>
   import('./countries/france/FranceSexualBehaviorSection').then((m) => ({ default: m.FranceSexualBehaviorSection })),
@@ -317,6 +417,17 @@ const FOREIGN_STUDENTS_GERMANY_CSV_URL = '/data/germany_foreign_students.csv';
 const GERMANY_BIRTH_HEALTH_CSV_URL = '/data/germany_birth_health_indicators.csv';
 const CORRUPTION_LOST_CSV_URL = '/data/corruption_money_lost_modeled_estimates.csv';
 const MACRO_INDICATORS_CSV_URL = '/data/countries_latest_inflation_unemployment_interest_with_real_median_wage.csv';
+
+/**
+ * Cache key and text for the shared foreign-students table: the fetched copy when it has
+ * content, the bundled fallback otherwise. Both are stable for the session, so each is parsed
+ * once however many dossiers are visited.
+ */
+function foreignStudentsTable(fetched: string): [url: string, text: string] {
+  return fetched.trim()
+    ? [FOREIGN_STUDENTS_CSV_URL, fetched]
+    : ['bundled:foreign-students', fallbackForeignStudentsRaw];
+}
 
 /** Static public CSVs: prefer disk cache on repeat country views. */
 
@@ -358,6 +469,8 @@ const METRIC_ORDER = [
   'Childhood overweight and obesity (Germany)',
   'Childhood overweight and obesity (France)',
   'Childhood overweight and obesity (Italy)',
+  // Country-neutral form used by every template dossier (see `asTemplateSlotMetric`).
+  'Childhood overweight and obesity',
 ] as const;
 
 function ChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }) {
@@ -468,9 +581,14 @@ function ItalyChildhoodObesityBirthRatesTile({ row }: { row: CountryStatMetric }
 }
 
 function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; compact?: boolean }) {
-  let origins: { country: string; count: number | null; sharePct: number | null }[] = [];
+  let origins: {
+    country: string;
+    count: number | null;
+    sharePct: number | null;
+    shareLabel?: string;
+  }[] = [];
   try {
-    const parsed = JSON.parse(row.value) as { country: string; count: number | null; sharePct: number | null }[];
+    const parsed = JSON.parse(row.value) as typeof origins;
     if (Array.isArray(parsed)) origins = parsed.filter((o) => o.country);
   } catch {
     origins = [];
@@ -504,8 +622,8 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
                   <span className="font-medium">{o.country}</span>
                   {' — '}
                   <span>
-                    {o.count != null ? o.count.toLocaleString('en-US') : 'N/A'}
-                    {o.sharePct != null ? ` (${o.sharePct.toFixed(2)}%)` : ''}
+                    {o.count != null ? `${o.count.toLocaleString('en-US')} ` : ''}
+                    {o.shareLabel ?? (o.sharePct != null ? `(${o.sharePct.toFixed(2)}%)` : 'N/A')}
                   </span>
                 </li>
               ))}
@@ -533,8 +651,8 @@ function ForeignStudentsOriginTile({ row, compact }: { row: CountryStatMetric; c
                 <span className="font-medium">{o.country}</span>
                 {' — '}
                 <span>
-                  {o.count != null ? o.count.toLocaleString('en-US') : 'N/A'}
-                  {o.sharePct != null ? ` (${o.sharePct.toFixed(2)}%)` : ''}
+                  {o.count != null ? `${o.count.toLocaleString('en-US')} ` : ''}
+                  {o.shareLabel ?? (o.sharePct != null ? `(${o.sharePct.toFixed(2)}%)` : 'N/A')}
                 </span>
               </li>
             ))}
@@ -853,6 +971,8 @@ const GERMANY_IMMIGRATION_TREEMAP_COUNTRIES = 27;
 /** Treemap countries + top metric tiles + non-EU arrivals line chart. */
 const GERMANY_IMMIGRATION_SUBSECTION_COUNT =
   GERMANY_IMMIGRATION_TREEMAP_COUNTRIES + GERMANY_IMMIGRATION_TOP_METRICS.length + 1;
+/** Template dossiers: the top metric tiles, four broad-stroke cards, and one red gap marker. */
+const TEMPLATE_IMMIGRATION_SUBSECTION_COUNT = GERMANY_IMMIGRATION_TOP_METRICS.length + 5;
 
 
 type RenderStatTileOpts = {
@@ -932,6 +1052,34 @@ function FranceHealthExtrasGrid() {
       />
       <GermanyTestosteroneMenChartTile series={FRANCE_TESTOSTERONE_MEN_SERIES} />
       <GermanyLgbtPopulationIdentificationChartTile series={FRANCE_LGBT_IDENTIFICATION_SERIES} />
+    </div>
+  );
+}
+
+/** Spain's health extras: 18 cards (six full 3-column rows) plus the three trend charts. */
+function SpainHealthExtrasGrid() {
+  const split = SPAIN_HEALTH_EXTRAS_ENV_ROW_START_INDEX;
+  const cardsBeforeEnvRow = SPAIN_HEALTH_EXTRA_CARDS.slice(0, split);
+  const cardsEnvRowAndAfter = SPAIN_HEALTH_EXTRA_CARDS.slice(split);
+
+  return (
+    <div className="col-span-full flex flex-col gap-3">
+      <div className="grid grid-cols-1 auto-rows-fr items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {cardsBeforeEnvRow.map((card) => (
+          <GermanyBirthRatesExtraCardTile key={card.title} card={card} />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 auto-rows-fr items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {cardsEnvRowAndAfter.map((card) => (
+          <GermanyBirthRatesExtraCardTile key={card.title} card={card} />
+        ))}
+      </div>
+      <GermanySuicideRatesChartTile
+        series={SPAIN_SUICIDE_RATE_SERIES}
+        description="Rate per 100,000 inhabitants (INE / WHO; 2025 provisional trend estimate)"
+      />
+      <GermanyTestosteroneMenChartTile series={SPAIN_TESTOSTERONE_MEN_SERIES} />
+      <GermanyLgbtPopulationIdentificationChartTile series={SPAIN_LGBT_IDENTIFICATION_SERIES} />
     </div>
   );
 }
@@ -1185,6 +1333,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
   const effectiveCountryIso3 = (actualIso3 ?? iso3).toUpperCase();
   const isItaly = effectiveCountryIso3 === 'ITA';
   const isSpain = effectiveCountryIso3 === 'ESP';
+  // Every country now renders the Germany layout; `isTemplateDossier` says whether the content
+  // behind it is the country's own or still Germany's, which is what the red markers key off.
+  const isTemplateDossier = usesGermanyTemplate(effectiveCountryIso3);
+  const broadStrokes: CountryBroadStrokes | null = broadStrokesFor(effectiveCountryIso3);
   // Country driving the Crime → Statistics subsection. Identical to `iso3` by default.
   const effectiveCrimeIso3 = crimeIso3 ?? iso3;
   // Hand-curated military profile (Germany, France, Italy…); null falls back to the generic GFP
@@ -1205,6 +1357,9 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
       try {
         const upper = iso3.toUpperCase();
         const isDeu = treatAsGermany(iso3);
+        // Template countries share Germany's slot list but never its figures — see
+        // `asTemplateSlotMetric`, which blanks each value into a red "Data needed" tile.
+        const isTemplate = usesGermanyTemplate(upper);
 
         // These four tables are country-agnostic, so routing them through the shared cache
         // means switching countries re-reads them from memory instead of refetching.
@@ -1214,21 +1369,18 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
             loadCsvText(EXPENDITURES_CSV_URL),
             loadCsvText(CORRUPTION_LOST_CSV_URL),
             loadCsvText(MACRO_INDICATORS_CSV_URL),
-            isDeu ? Promise.resolve('') : loadCsvText(FOREIGN_STUDENTS_CSV_URL),
+            // Curated dossiers carry their own student figures; template countries still read the
+            // shared screenshot table, which has a real row for most of them.
+            isTemplate ? loadCsvText(FOREIGN_STUDENTS_CSV_URL) : Promise.resolve(''),
           ]);
         if (!mergedText.trim()) throw new Error('Could not load merged country data');
 
-        const parsedMerged = parseCountriesWideCsv(mergedText);
+        const parsedMerged = parseCsvCached(MERGED_CSV_URL, mergedText, parseCountriesWideCsv);
         const byIso = indexCountriesByIso3(parsedMerged);
-        const row = byIso.get(upper);
         if (cancelled) return;
-        if (!row) {
-          setError(`No statistics row for ISO3 “${iso3}”.`);
-          setOrdered(null);
-          setStatsRow(null);
-          setCrimeRow(null);
-          return;
-        }
+        // A country the shared table has no row for still renders the full template — every slot
+        // falls back to its placeholder rather than the page collapsing to an error.
+        const row = byIso.get(upper) ?? blankCountryWideRow(parsedMerged, upper, flag.label);
 
         const countryLabel = row.country || flag.label;
 
@@ -1238,31 +1390,34 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
 
         let corruptionRow: CountryWideRow | null = null;
         if (corruptionText) {
-          const corruptionRows = parseCountriesWideCsv(corruptionText);
+          const corruptionRows = parseCsvCached(CORRUPTION_LOST_CSV_URL, corruptionText, parseCountriesWideCsv);
           corruptionRow = findCorruptionLostRow(corruptionRows, countryLabel);
         }
 
         let expenditureMetrics: CountryStatMetric[] = [];
         if (expendituresText.trim()) {
-          const expendituresRows = parseCountriesWideCsv(expendituresText);
+          const expendituresRows = parseCsvCached(EXPENDITURES_CSV_URL, expendituresText, parseCountriesWideCsv);
           const eRow = findExpenditureRow(expendituresRows, row.country || flag.label);
-          if (isDeu) {
-            if (eRow) {
-              expenditureMetrics = metricsFromExpenditureRow(eRow, upper, corruptionRow);
-            } else {
-              expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
-            }
-          } else if (eRow) {
+          if (eRow) {
             expenditureMetrics = metricsFromExpenditureRow(eRow, upper, corruptionRow);
+          } else if (!isTemplate) {
+            // The Germany fallback hard-codes German welfare and aid figures, so it must never run
+            // for a template country — those slots become red placeholders below instead.
+            expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
           }
-        } else if (isDeu) {
+        } else if (!isTemplate) {
           expenditureMetrics = metricsGermanyGovernmentSpendingWithoutExpenditureCsv(corruptionRow, countryLabel);
         }
         insertLostToCorruptionMetric(expenditureMetrics, corruptionRow, countryLabel, upper);
+        if (isTemplate) {
+          // The Germany layout has a Foreign Aid tile that only Germany's own data fills; keep the
+          // slot visible and marked rather than letting the box vanish.
+          fillMissingTemplateSlots(expenditureMetrics, GOVERNMENT_SPENDING_METRICS, countryLabel);
+        }
 
         let macroMetrics: CountryStatMetric[] = metricsFromMacroIndicatorsRow(null, countryLabel);
         if (macroText.trim()) {
-          const macroRows = parseCountriesWideCsv(macroText);
+          const macroRows = parseCsvCached(MACRO_INDICATORS_CSV_URL, macroText, parseCountriesWideCsv);
           const macroRow = findMacroIndicatorsRow(macroRows, countryLabel);
           macroMetrics = metricsFromMacroIndicatorsRow(macroRow, countryLabel);
         }
@@ -1309,7 +1464,34 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
             : metricsFromGermanyBirthHealthCsv(bhText);
 
           const wideMetrics = wideRowToStatMetrics(row, upper, proxyFromMergedRow(row));
-          if (upper === 'ESP') {
+          if (isTemplate) {
+            // Germany's CSVs establish which slots exist and in what order; every value is then
+            // blanked so no German figure ever appears under another flag. Slots the country's own
+            // wide row already fills are dropped rather than duplicated.
+            const existingMetricNames = new Set(wideMetrics.map((metric) => metric.metric));
+            foreignStudentMetrics = foreignStudentMetrics
+              .map((metric) => asTemplateSlotMetric(metric, countryLabel))
+              .filter((metric) => !existingMetricNames.has(metric.metric));
+            birthHealthMetrics = birthHealthMetrics
+              .map((metric) => asTemplateSlotMetric(metric, countryLabel))
+              .filter((metric) => !existingMetricNames.has(metric.metric));
+
+            // The shared screenshot table does carry genuine foreign-student counts for most
+            // template countries — those overwrite the blanked slots they match.
+            const [fsUrl, fsText] = foreignStudentsTable(foreignStudentsMergedText);
+            const fsRow = findForeignStudentsRow(
+              parseCsvCached(fsUrl, fsText, parseCountriesWideCsv),
+              countryLabel,
+            );
+            if (fsRow) {
+              const real = new Map(
+                metricsFromForeignStudentsRow(fsRow).map((metric) => [metric.metric, metric]),
+              );
+              foreignStudentMetrics = foreignStudentMetrics.map(
+                (metric) => real.get(metric.metric) ?? metric,
+              );
+            }
+          } else if (upper === 'ESP') {
             const existingMetricNames = new Set(wideMetrics.map((metric) => metric.metric));
             const asSpainPlaceholder = (metric: CountryStatMetric): CountryStatMetric => ({
               ...metric,
@@ -1336,24 +1518,36 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
           }
 
           if (cancelled) return;
+          const assembled = [
+            ...wideMetrics,
+            ...macroMetrics,
+            ...expenditureMetrics,
+            ...foreignStudentMetrics,
+            ...birthHealthMetrics,
+          ];
+          if (isTemplate) {
+            // Several tiles (median age, military-aged males, the M:F ratio) exist only in
+            // Germany's own metric builder. Rather than let those boxes disappear, every slot the
+            // layout asks for is materialised here — as a red placeholder when nothing fills it.
+            const expected = getStatSections(iso3, upper).flatMap((s) => [
+              ...s.metrics,
+              ...(s.subsections ?? []).flatMap((sub) => ('metrics' in sub ? sub.metrics : [])),
+            ]);
+            fillMissingTemplateSlots(
+              assembled,
+              [...expected, ...GERMANY_IMMIGRATION_TOP_METRICS],
+              countryLabel,
+            );
+          }
           setStatsRow(row);
           setCrimeRow(crimeFromMergedRow(crimeSourceRow));
-          setOrdered(
-            orderMetrics([
-              ...wideMetrics,
-              ...macroMetrics,
-              ...expenditureMetrics,
-              ...foreignStudentMetrics,
-              ...birthHealthMetrics,
-            ]),
-          );
+          setOrdered(orderMetrics(assembled));
           setError(null);
           return;
         }
 
-        let fsText = foreignStudentsMergedText;
-        if (!fsText.trim()) fsText = fallbackForeignStudentsRaw;
-        const fsRows = parseCountriesWideCsv(fsText);
+        const [fsUrl, fsText] = foreignStudentsTable(foreignStudentsMergedText);
+        const fsRows = parseCsvCached(fsUrl, fsText, parseCountriesWideCsv);
         const fsRow = findForeignStudentsRow(fsRows, row.country || flag.label);
         if (fsRow) foreignStudentMetrics = metricsFromForeignStudentsRow(fsRow);
 
@@ -1403,8 +1597,11 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
         ),
       );
     }
+    if (isSpain) {
+      return applySpainDemographicsMetricOverrides(ordered);
+    }
     return ordered;
-  }, [ordered, iso3, isItaly]);
+  }, [ordered, iso3, isItaly, isSpain]);
 
   const sources = useMemo(() => {
     if (!displayOrdered) return [];
@@ -1459,6 +1656,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
   // France shares Germany's rich dashboard structure, but country identity still controls
   // bundled news and genuinely Germany-only chrome such as the DAX carousel.
   const isGermany = iso3.toUpperCase() === 'DEU';
+  const isRussia = effectiveCountryIso3 === 'RUS';
   const [sectionOrder, setSectionOrder] = useState<string[]>([...DRAGGABLE_TOP_SECTION_ORDER]);
   const [allExpanded, setAllExpanded] = useState(false);
   const [collapseSignal, setCollapseSignal] = useState(1);
@@ -1470,6 +1668,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
   const germanyNewsItems = useCountryNews(
     isGermany,
     isGermany ? null : countryCsvUrl(effectiveCountryIso3, 'news'),
+    isRussia,
   );
   const { germanyLeftNewsSections, germanyRightNewsSections } = useMemo(() => {
     const b = bucketGermanyNewsItems(germanyNewsItems);
@@ -1598,14 +1797,25 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     ribbonNavOpen
                       ? 'w-full max-w-none pt-[6.25rem] pb-8 sm:pt-[7rem] sm:pb-10'
                       : 'w-full max-w-none py-8 sm:py-10',
-                    germanyLeftRailVisible ? 'pl-2 sm:pl-3 2xl:pl-[13rem]' : 'pl-2 sm:pl-3',
-                    germanyRightRailVisible ? 'pr-2 sm:pr-3 2xl:pr-[13rem]' : 'pr-2 sm:pr-3',
+                    germanyLeftRailVisible
+                      ? 'pl-2 sm:pl-3 xl:pl-[11rem] 2xl:pl-[13rem]'
+                      : 'pl-2 sm:pl-3',
+                    germanyRightRailVisible
+                      ? 'pr-2 sm:pr-3 xl:pr-[11rem] 2xl:pr-[13rem]'
+                      : 'pr-2 sm:pr-3',
                   ].join(' ')
                 : ribbonNavOpen
                   ? 'mx-auto w-full max-w-6xl px-4 pt-[6.25rem] pb-8 sm:px-6 sm:pt-[7rem] sm:pb-10'
                   : 'mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10'
             }
           >
+        {germanyLeftRailVisible || germanyRightRailVisible ? (
+          <GermanyNewsPanel
+            sections={[...germanyLeftNewsSections, ...germanyRightNewsSections]}
+            countryLabel={flag.label}
+          />
+        ) : null}
+
         {isGermany ? (
           <div className="mb-8">
             <GermanyDaxCarousel />
@@ -1616,13 +1826,23 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
           <div className={'mb-8'}>
             <ItalyFtseMibCarousel />
           </div>
+        ) : isSpain ? (
+          <div className={'mb-8'}>
+            <SpainIbex35Carousel />
+          </div>
         ) : iso3.toUpperCase() === 'FRA' ? (
           <div className={'mb-8'}>
             <FranceCac40Carousel />
           </div>
+        ) : isRussia ? (
+          <div className="mb-8">
+            <RussiaMoexCarousel />
+          </div>
         ) : null}
 
-        {isSpain ? <SpainDossierTemplateNotice /> : null}
+        {isTemplateDossier && iso3.toUpperCase() !== 'RUS' ? (
+          <TemplateDossierNotice countryLabel={flag.label} />
+        ) : null}
 
         {error ? (
           <p className="rounded-md border border-line bg-surface-metric shadow-card p-6 font-sans text-sm text-red-400/90">
@@ -1760,20 +1980,28 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     ? 0
                     : isItaly
                       ? ITALY_HEALTH_BASIC_GROUP_COUNT + ITALY_HEALTH_EXTRA_CARDS.length + 3
-                      : iso3.toUpperCase() === 'FRA'
+                      : isSpain
+                        ? SPAIN_HEALTH_BASIC_GROUP_COUNT + SPAIN_HEALTH_EXTRA_CARDS.length + 3
+                        : iso3.toUpperCase() === 'FRA'
                         ? FRANCE_HEALTH_BASIC_GROUP_COUNT + FRANCE_HEALTH_EXTRA_CARDS.length + 3
-                        : treatAsGermany(iso3)
-                          ? GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length + 3
-                          : 0;
+                        : isTemplateDossier
+                          ? GERMANY_HEALTH_BASIC_GROUP_COUNT + 1
+                          : GERMANY_HEALTH_BASIC_GROUP_COUNT + GERMANY_BIRTH_RATES_EXTRA_CARDS.length + 3;
 
                 const germanyPoliticsOverviewChartCount =
-                  section.id === 'politics' && treatAsGermany(iso3)
-                    ? GERMANY_POLITICS_OVERVIEW_CHART_COUNT
-                    : 0;
+                  section.id !== 'politics'
+                    ? 0
+                    : isTemplateDossier
+                      ? 2 // government estimate block + the red attitude-chart gap marker
+                      : isSpain
+                        ? SPAIN_POLITICS_OVERVIEW_GROUP_COUNT
+                        : GERMANY_POLITICS_OVERVIEW_CHART_COUNT;
 
                 const economicStructuralCount =
                   section.id === 'economic'
-                    ? iso3.toUpperCase() === 'DEU'
+                    ? isSpain
+                      ? SPAIN_ECONOMIC_STRUCTURAL_GROUP_COUNT
+                      : iso3.toUpperCase() === 'DEU'
                       ? GERMANY_ECONOMIC_STRUCTURAL_GROUP_COUNT
                       : iso3.toUpperCase() === 'FRA'
                         ? isItaly
@@ -1789,23 +2017,51 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                   germanyPoliticsOverviewChartCount +
                   economicStructuralCount +
                   nestedBlocks.reduce((acc, b) => {
-                    if (b.type === 'germany_immigration') return acc + GERMANY_IMMIGRATION_SUBSECTION_COUNT;
-                    if (b.type === 'germany_marriages') return acc + GERMANY_MARRIAGES_GROUP_COUNT;
-                    if (b.type === 'germany_sexual_behavior') return acc + GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT;
-                    if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT + (isItaly ? 1 : 0);
-                    if (b.type === 'germany_economic_taxes') return acc + GERMANY_ECONOMIC_TAXES_GROUP_COUNT;
-                    if (b.type === 'germany_economy_trade') return acc + GERMANY_TRADE_GROUP_COUNT;
-                    if (b.type === 'germany_health_suppression') return acc + GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT;
-                    if (b.type === 'germany_lgbt_stats') return acc + GERMANY_LGBT_SECTION_GROUP_COUNT;
-                    if (b.type === 'germany_politics_leftism') return acc + GERMANY_POLITICS_LEFTISM_GROUP_COUNT;
-                    if (b.type === 'germany_politics_rightwing') return acc + GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT;
-                    if (b.type === 'germany_politics_zionism') return acc + GERMANY_POLITICS_ZIONISM_GROUP_COUNT;
-                    if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
-                    if (b.type === 'metrics' && b.sub.id === 'birth_rates' && treatAsGermany(iso3)) {
-                      return acc + b.subRows.length + 4;
+                    if (b.type === 'germany_immigration') {
+                      return acc + (isTemplateDossier ? TEMPLATE_IMMIGRATION_SUBSECTION_COUNT : GERMANY_IMMIGRATION_SUBSECTION_COUNT);
                     }
-                    if (b.type === 'metrics' && b.sub.id === 'government_spending' && treatAsGermany(iso3)) {
-                      return acc + b.subRows.length + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT;
+                    if (b.type === 'germany_marriages') {
+                      return acc + (isTemplateDossier ? 5 : isSpain ? 16 : GERMANY_MARRIAGES_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_sexual_behavior') {
+                      return acc + (isTemplateDossier ? 1 : GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_labor_income') return acc + GERMANY_LABOR_INCOME_GROUP_COUNT + (isItaly ? 1 : 0);
+                    if (b.type === 'germany_economic_taxes') return acc + (isTemplateDossier ? 6 : GERMANY_ECONOMIC_TAXES_GROUP_COUNT);
+                    if (b.type === 'germany_economy_trade') {
+                      return acc + (isSpain || !isTemplateDossier ? GERMANY_TRADE_GROUP_COUNT : 5);
+                    }
+                    if (b.type === 'germany_health_suppression') {
+                      return acc + (isTemplateDossier ? 3 : GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_lgbt_stats') return acc + GERMANY_LGBT_SECTION_GROUP_COUNT;
+                    if (b.type === 'germany_politics_leftism') {
+                      return acc + (isTemplateDossier
+                        ? 5
+                        : isSpain
+                          ? SPAIN_POLITICS_LEFTISM_GROUP_COUNT
+                          : GERMANY_POLITICS_LEFTISM_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_politics_rightwing') {
+                      return acc + (isTemplateDossier
+                        ? 7
+                        : isSpain
+                          ? SPAIN_POLITICS_RIGHT_WING_GROUP_COUNT
+                          : GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_politics_zionism') {
+                      return acc + (isTemplateDossier
+                        ? 1
+                        : isSpain
+                          ? SPAIN_POLITICS_ZIONISM_GROUP_COUNT
+                          : GERMANY_POLITICS_ZIONISM_GROUP_COUNT);
+                    }
+                    if (b.type === 'germany_abortion_stats') return acc + GERMANY_ABORTION_SECTION_GROUP_COUNT;
+                    if (b.type === 'metrics' && b.sub.id === 'birth_rates') {
+                      return acc + b.subRows.length + (isTemplateDossier ? 1 : 4);
+                    }
+                    if (b.type === 'metrics' && b.sub.id === 'government_spending') {
+                      return acc + b.subRows.length + (isTemplateDossier ? 1 : GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT);
                     }
                     if (b.type === 'metrics') return acc + b.subRows.length;
                     return acc;
@@ -1843,13 +2099,13 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             csvUrl={countryCsvUrl(effectiveCountryIso3, 'population_pyramid')}
                             countryLabel="Spain"
                           />
-                        ) : treatAsGermany(iso3) ? (
-                          <GermanyPopulationPyramid />
-                        ) : (
+                        ) : isTemplateDossier ? (
                           <GermanyPopulationPyramid
-                            csvUrl={countryCsvUrl(iso3, 'population_pyramid')}
+                            csvUrl={countryCsvUrl(effectiveCountryIso3, 'population_pyramid')}
                             countryLabel={flag.label}
                           />
+                        ) : (
+                          <GermanyPopulationPyramid />
                         )
                       ) : null}
                       {leadingRows.length > 0 ? (
@@ -1861,7 +2117,10 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                               ))}
                         </div>
                       ) : null}
-                      {section.id === 'economic' && (iso3.toUpperCase() === 'DEU' || isSpain) ? (
+                      {section.id === 'economic' && isSpain ? (
+                        <SpainEconomicStructuralSection />
+                      ) : null}
+                      {section.id === 'economic' && iso3.toUpperCase() === 'DEU' && !isSpain ? (
                         <GermanyEconomicStructuralSection />
                       ) : null}
                       {section.id === 'economic' && iso3.toUpperCase() === 'FRA' && !isItaly ? (
@@ -1894,49 +2153,71 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             <GermanyHealthBasicSection
                               csvUrl={countryCsvUrl(effectiveCountryIso3, 'health_statistics_basic')}
                               countryName="Spain"
-                              isGermany
+                              isGermany={false}
                             />
-                            <GermanyBirthRatesExtrasGrid />
+                            <SpainHealthExtrasGrid />
                           </div>
-                        ) : treatAsGermany(iso3) ? (
+                        ) : isTemplateDossier ? (
+                          <div className="flex flex-col gap-3">
+                            <GermanyHealthBasicSection
+                              csvUrl={countryCsvUrl(effectiveCountryIso3, 'health_statistics_basic')}
+                              countryName={flag.label}
+                              isGermany={false}
+                            />
+                            <TemplateGapBlock
+                              countryLabel={flag.label}
+                              panel="Health extras (suicide, testosterone, LGBT identification, environment)"
+                              detail={`These cards are Germany's own series. The slots are kept so the section keeps its full shape; each needs a ${flag.label} equivalent.`}
+                            />
+                          </div>
+                        ) : (
                           <div className="flex flex-col gap-3">
                             <GermanyHealthBasicSection />
                             <GermanyBirthRatesExtrasGrid />
                           </div>
-                        ) : (
-                          <div className="flex flex-col gap-3">
-                            <GermanyHealthBasicSection
-                              csvUrl={countryCsvUrl(iso3, 'health_statistics_basic')}
-                              countryName={flag.label}
-                              isGermany={false}
-                            />
-                          </div>
                         )
                       ) : null}
-                      {section.id === 'politics' && treatAsGermany(iso3) ? (
-                        <GermanyPoliticsOverviewCharts
-                          menLeftRightChart={isItaly ? ITALY_MEN_LEFT_RIGHT_CHART : undefined}
-                          womenLeftRightChart={isItaly ? ITALY_WOMEN_LEFT_RIGHT_CHART : undefined}
-                          israelSupportByGenderChart={
-                            isItaly ? ITALY_ISRAEL_SUPPORT_BY_GENDER_CHART : undefined
-                          }
-                          russiaUkraineOverallChart={
-                            isItaly ? ITALY_RUSSIA_UKRAINE_SUPPORT_CHART : undefined
-                          }
-                          russiaUkraineLeftWingChart={
-                            isItaly ? ITALY_RUSSIA_UKRAINE_LEFT_WING_CHART : undefined
-                          }
-                          russiaUkraineRightWingChart={
-                            isItaly ? ITALY_RUSSIA_UKRAINE_RIGHT_WING_CHART : undefined
-                          }
+                      {section.id === 'politics' && isTemplateDossier && broadStrokes ? (
+                        <EstimateBlock
+                          countryLabel={flag.label}
+                          panel="Government and legislature"
+                          detail={`Who governs ${flag.label}, on what mandate. Compiled from general reference knowledge as of mid-2026 — verify before publication.`}
+                        >
+                          <CountryEstimateCards cards={governmentEstimateCards(broadStrokes)} />
+                        </EstimateBlock>
+                      ) : null}
+                      {section.id === 'politics' && isTemplateDossier ? (
+                        <TemplateGapBlock
+                          countryLabel={flag.label}
+                          panel="Political attitude charts"
+                          detail={`The Germany dossier carries six polling charts here (men's and women's left–right identification, Israel support by gender, Russia–Ukraine support overall and by ideology). No comparable ${flag.label} survey series has been selected, so the slot is marked rather than dropped.`}
                         />
+                      ) : null}
+                      {section.id === 'politics' && !isTemplateDossier ? (
+                        isSpain ? (
+                          <SpainPoliticsOverview />
+                        ) : (
+                          <GermanyPoliticsOverviewCharts
+                            menLeftRightChart={isItaly ? ITALY_MEN_LEFT_RIGHT_CHART : undefined}
+                            womenLeftRightChart={isItaly ? ITALY_WOMEN_LEFT_RIGHT_CHART : undefined}
+                            israelSupportByGenderChart={isItaly ? ITALY_ISRAEL_SUPPORT_BY_GENDER_CHART : undefined}
+                            russiaUkraineOverallChart={isItaly ? ITALY_RUSSIA_UKRAINE_SUPPORT_CHART : undefined}
+                            russiaUkraineLeftWingChart={isItaly ? ITALY_RUSSIA_UKRAINE_LEFT_WING_CHART : undefined}
+                            russiaUkraineRightWingChart={isItaly ? ITALY_RUSSIA_UKRAINE_RIGHT_WING_CHART : undefined}
+                          />
+                        )
                       ) : null}
                       {nestedBlocks.map((block) =>
                         block.type === 'germany_immigration' ? (
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_IMMIGRATION_SUBSECTION_COUNT}
+                            count={
+                              isTemplateDossier
+                                ? TEMPLATE_IMMIGRATION_SUBSECTION_COUNT
+                                : GERMANY_IMMIGRATION_SUBSECTION_COUNT
+                            }
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -1963,6 +2244,19 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                 <FranceImmigrationSection />
                               ) : isSpain ? (
                                 <SpainImmigrationSection />
+                              ) : isTemplateDossier ? (
+                                <>
+                                  {broadStrokes ? (
+                                    <EstimateBlock countryLabel={flag.label} panel="Immigration profile">
+                                      <CountryEstimateCards cards={immigrationEstimateCards(broadStrokes)} />
+                                    </EstimateBlock>
+                                  ) : null}
+                                  <TemplateGapBlock
+                                    countryLabel={flag.label}
+                                    panel="Immigration detail (origin treemap, arrivals series, benefits, advocacy)"
+                                    detail={`Germany's immigration panel is built on its own national tables. The subsection is kept in place; it needs ${flag.label} arrival, origin and benefit series.`}
+                                  />
+                                </>
                               ) : (
                                 <GermanyImmigrationSection />
                               )}
@@ -1972,7 +2266,8 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_MARRIAGES_GROUP_COUNT}
+                            count={isTemplateDossier ? 5 : isSpain ? 16 : GERMANY_MARRIAGES_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -1981,8 +2276,23 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           >
                             {isItaly ? (
                               <ItalyMarriagesSection />
+                            ) : isSpain ? (
+                              <SpainMarriagesSection />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <FranceMarriagesSection />
+                            ) : isTemplateDossier ? (
+                              <div className="flex flex-col gap-3">
+                                {broadStrokes ? (
+                                  <EstimateBlock countryLabel={flag.label} panel="Marriage and family">
+                                    <CountryEstimateCards cards={marriageEstimateCards(broadStrokes)} />
+                                  </EstimateBlock>
+                                ) : null}
+                                <TemplateGapBlock
+                                  countryLabel={flag.label}
+                                  panel="Marriage detail (year series, mixed marriages, age structure)"
+                                  detail={`Germany's marriage panel runs off Destatis series. The subsection is retained; it needs the equivalent ${flag.label} registry tables.`}
+                                />
+                              </div>
                             ) : (
                               <GermanyMarriagesSection />
                             )}
@@ -1991,17 +2301,26 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT}
+                            count={isTemplateDossier ? 1 : GERMANY_SEXUAL_BEHAVIOR_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            {isItaly ? (
+                            {isSpain ? (
+                              <SpainSexualBehaviorSection />
+                            ) : isItaly ? (
                               <ItalySexualBehaviorSection />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <FranceSexualBehaviorSection />
+                            ) : isTemplateDossier ? (
+                              <TemplateGapBlock
+                                countryLabel={flag.label}
+                                panel="Sexual behaviour"
+                                detail={`Germany's panel is built from national survey microdata. No comparable ${flag.label} survey has been selected, so every slot here is outstanding — the subsection is kept rather than removed.`}
+                              />
                             ) : (
                               <GermanySexualBehaviorSection />
                             )}
@@ -2019,32 +2338,34 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           >
                             {/* Italy cannot reach the `iso3 === 'FRA'` overrides below (its `iso3`
                                 is 'ITA'), so it renders the plain Germany layout — as it did before. */}
-                            {treatAsGermany(iso3) ? (
-                              iso3.toUpperCase() === 'FRA' ? (
-                                <FranceLaborIncomeSection />
-                              ) : (
-                                <GermanyLaborIncomeSection
-                                  govCsvUrl={
-                                    isSpain ? countryCsvUrl(effectiveCountryIso3, 'government_politics') : undefined
-                                  }
-                                  laborCsvUrl={
-                                    isSpain ? countryCsvUrl(effectiveCountryIso3, 'labor_statistics') : undefined
-                                  }
-                                />
-                              )
-                            ) : (
+                            {isTemplateDossier ? (
+                              // Every template country has generated labour and government CSVs,
+                              // so this subsection is genuinely its own data — no red marker.
                               <GermanyLaborIncomeSection
-                                govCsvUrl={countryCsvUrl(iso3, 'government_politics')}
-                                laborCsvUrl={countryCsvUrl(iso3, 'labor_statistics')}
+                                govCsvUrl={countryCsvUrl(effectiveCountryIso3, 'government_politics')}
+                                laborCsvUrl={countryCsvUrl(effectiveCountryIso3, 'labor_statistics')}
                                 isGermany={false}
                               />
+                            ) : iso3.toUpperCase() === 'FRA' ? (
+                              <FranceLaborIncomeSection />
+                            ) : isSpain ? (
+                              // Spain keeps its generated CSVs wired and layers its own
+                              // income-distribution, earnings, remittances and residence-class
+                              // data over the panels that would otherwise render Germany's.
+                              <SpainLaborIncomeSection
+                                govCsvUrl={countryCsvUrl(effectiveCountryIso3, 'government_politics')}
+                                laborCsvUrl={countryCsvUrl(effectiveCountryIso3, 'labor_statistics')}
+                              />
+                            ) : (
+                              <GermanyLaborIncomeSection />
                             )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_economic_taxes' ? (
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_ECONOMIC_TAXES_GROUP_COUNT}
+                            count={isTemplateDossier ? 6 : GERMANY_ECONOMIC_TAXES_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -2055,6 +2376,21 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                               <ItalyEconomicTaxesSection />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <FranceEconomicTaxesSection />
+                            ) : isSpain ? (
+                              <SpainEconomicTaxesSection />
+                            ) : isTemplateDossier ? (
+                              <div className="flex flex-col gap-3">
+                                {broadStrokes ? (
+                                  <EstimateBlock countryLabel={flag.label} panel="Headline tax rates">
+                                    <CountryEstimateCards cards={taxEstimateCards(broadStrokes)} />
+                                  </EstimateBlock>
+                                ) : null}
+                                <TemplateGapBlock
+                                  countryLabel={flag.label}
+                                  panel="Tax detail (bracket tables, effective burden by income, net-pay calculator)"
+                                  detail={`Germany's tax panel is a full bracket model. The headline rates above are estimates; the detailed tables still need ${flag.label} sources.`}
+                                />
+                              </div>
                             ) : (
                               <GermanyEconomicTaxesSection />
                             )}
@@ -2063,7 +2399,8 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_TRADE_GROUP_COUNT}
+                            count={isSpain || !isTemplateDossier ? GERMANY_TRADE_GROUP_COUNT : 5}
+                            dataStatus={isTemplateDossier && !isSpain ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -2074,6 +2411,21 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                 previous `{...(isItaly ? ITALY_GENERAL_TRADE : {})}` spread was inert. */}
                             {iso3.toUpperCase() === 'FRA' ? (
                               <FranceTradeSection />
+                            ) : isSpain ? (
+                              <SpainTradeSection />
+                            ) : isTemplateDossier ? (
+                              <div className="flex flex-col gap-3">
+                                {broadStrokes ? (
+                                  <EstimateBlock countryLabel={flag.label} panel="Trade profile">
+                                    <CountryEstimateCards cards={tradeEstimateCards(broadStrokes)} />
+                                  </EstimateBlock>
+                                ) : null}
+                                <TemplateGapBlock
+                                  countryLabel={flag.label}
+                                  panel="Trade detail (partner-by-partner balances, commodity breakdown, year series)"
+                                  detail={`Germany's trade panel is built from Destatis bilateral tables. The profile above is an estimate; the detailed balances need ${flag.label} customs data.`}
+                                />
+                              </div>
                             ) : (
                               <GermanyTradeSection />
                             )}
@@ -2085,10 +2437,15 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             count={
                               isItaly
                                 ? ITALY_TAP_WATER_GROUP_COUNT
-                                : iso3.toUpperCase() === 'FRA'
-                                  ? FRANCE_TAP_WATER_GROUP_COUNT
-                                  : GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT
+                                : isSpain
+                                  ? SPAIN_TAP_WATER_GROUP_COUNT
+                                  : iso3.toUpperCase() === 'FRA'
+                                    ? FRANCE_TAP_WATER_GROUP_COUNT
+                                    : isTemplateDossier
+                                      ? 3
+                                      : GERMANY_HEALTH_SUPPRESSION_GROUP_COUNT
                             }
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -2097,8 +2454,23 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           >
                             {isItaly ? (
                               <ItalyTapWaterSection />
+                            ) : isSpain ? (
+                              <SpainTapWaterSection />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <FranceTapWaterSection />
+                            ) : isTemplateDossier ? (
+                              <div className="flex flex-col gap-3">
+                                {broadStrokes ? (
+                                  <EstimateBlock countryLabel={flag.label} panel="Drinking water regime">
+                                    <CountryEstimateCards cards={tapWaterEstimateCards(broadStrokes)} />
+                                  </EstimateBlock>
+                                ) : null}
+                                <TemplateGapBlock
+                                  countryLabel={flag.label}
+                                  panel="Contaminant measurements (EE2, PFAS, atrazine, fluoride, BPA, pharmaceutical residues)"
+                                  detail={`Germany's panel carries measured concentrations per chemical. Every one of those blocks is retained here and needs ${flag.label} monitoring data.`}
+                                />
+                              </div>
                             ) : (
                               <GermanyHealthSuppressionSection />
                             )}
@@ -2123,12 +2495,11 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   'gender_care_statistics',
                                 )}
                                 isGermany={false}
+                                // Must be the country name as written in the CSV's Country column
+                                // (`flag.label`), not the ISO-3 code — the parser filters rows on it,
+                                // so a code here silently yields an empty section.
                                 countryLabel={
-                                  isItaly
-                                    ? 'Italy'
-                                    : iso3.toUpperCase() === 'FRA'
-                                      ? 'France'
-                                      : iso3.toUpperCase()
+                                  isItaly ? 'Italy' : iso3.toUpperCase() === 'FRA' ? 'France' : flag.label
                                 }
                               />
                             )}
@@ -2137,7 +2508,12 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_POLITICS_LEFTISM_GROUP_COUNT}
+                            count={isTemplateDossier
+                              ? 5
+                              : isSpain
+                                ? SPAIN_POLITICS_LEFTISM_GROUP_COUNT
+                                : GERMANY_POLITICS_LEFTISM_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'estimate' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -2146,8 +2522,12 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           >
                             {isItaly ? (
                               <GermanyPoliticsLeftismSection {...ITALY_POLITICS_LEFTISM} />
+                            ) : isSpain ? (
+                              <GermanyPoliticsLeftismSection {...SPAIN_POLITICS_LEFTISM} />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <GermanyPoliticsLeftismSection {...FRANCE_POLITICS_LEFTISM} />
+                            ) : isTemplateDossier && broadStrokes ? (
+                              <GermanyPoliticsLeftismSection {...broadStrokesLeftism(broadStrokes)} />
                             ) : (
                               <GermanyPoliticsLeftismSection />
                             )}
@@ -2156,7 +2536,12 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT}
+                            count={isTemplateDossier
+                              ? 7
+                              : isSpain
+                                ? SPAIN_POLITICS_RIGHT_WING_GROUP_COUNT
+                                : GERMANY_POLITICS_RIGHT_WING_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'estimate' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
@@ -2165,8 +2550,12 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           >
                             {isItaly ? (
                               <GermanyPoliticsRightWingSection {...ITALY_POLITICS_RIGHT_WING} />
+                            ) : isSpain ? (
+                              <GermanyPoliticsRightWingSection {...SPAIN_POLITICS_RIGHT_WING} />
                             ) : iso3.toUpperCase() === 'FRA' ? (
                               <GermanyPoliticsRightWingSection {...FRANCE_POLITICS_RIGHTWING} />
+                            ) : isTemplateDossier && broadStrokes ? (
+                              <GermanyPoliticsRightWingSection {...broadStrokesRightWing(broadStrokes)} />
                             ) : (
                               <GermanyPoliticsRightWingSection />
                             )}
@@ -2175,14 +2564,27 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                           <CollapsibleFlagSection
                             key={block.sub.id}
                             title={block.sub.title}
-                            count={GERMANY_POLITICS_ZIONISM_GROUP_COUNT}
+                            count={isTemplateDossier
+                              ? 1
+                              : isSpain
+                                ? SPAIN_POLITICS_ZIONISM_GROUP_COUNT
+                                : GERMANY_POLITICS_ZIONISM_GROUP_COUNT}
+                            dataStatus={isTemplateDossier ? 'template' : undefined}
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
                             ribbonExpandKey={`sub:${section.id}:${block.sub.id}`}
                             collapseSignal={collapseSignal}
                             expandSignal={expandSignal}
                           >
-                            <GermanyPoliticsZionismSection iso3={iso3} actualIso3={effectiveCountryIso3} />
+                            {isTemplateDossier ? (
+                              <TemplateGapBlock
+                                countryLabel={flag.label}
+                                panel="Zionism (community size, organisations, corporate ties, incident counts, secret societies)"
+                                detail={`Germany's panel is entirely German — Zentralrat figures, RIAS incident counts, German-Israeli corporate ties. Showing it under ${flag.label} would be wrong, so the subsection is kept as a marked slot until ${flag.label} sources are gathered.`}
+                              />
+                            ) : (
+                              <GermanyPoliticsZionismSection iso3={iso3} actualIso3={effectiveCountryIso3} />
+                            )}
                           </CollapsibleFlagSection>
                         ) : block.type === 'germany_abortion_stats' ? (
                           <CollapsibleFlagSection
@@ -2195,7 +2597,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             collapseSignal={collapseSignal}
                               expandSignal={expandSignal}
                           >
-                            {iso3.toUpperCase() === 'DEU' ? (
+                            {effectiveCountryIso3 === 'DEU' ? (
                               <GermanyAbortionStatisticsSection />
                             ) : isItaly ? (
                               <GermanyAbortionStatisticsSection
@@ -2219,11 +2621,56 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   ],
                                 }}
                               />
+                            ) : isSpain ? (
+                              <GermanyAbortionStatisticsSection
+                                csvUrl={countryCsvUrl(effectiveCountryIso3, 'abortion_statistics')}
+                                 isGermany={false}
+                                 countryLabel="Spain"
+                                 totalAbortionsChart={{
+                                   title: 'TOTAL ABORTIONS IN SPAIN',
+                                   description:
+                                     'ANNUAL NATIONAL TOTALS (2000–2024), OFFICIAL MINISTRY OF HEALTH IVE DATA',
+                                   series: SPAIN_TOTAL_ABORTIONS_BY_YEAR,
+                                   sources: SPAIN_ABORTION_TOTALS_SOURCES,
+                                   note: '2025 is omitted because the official annual total has not yet been published.',
+                                 }}
+                                 abortionRateChart={{
+                                  data: SPAIN_ABORTION_RATE_PER_1K_WOMEN_15_44,
+                                  title: 'Abortion Rate per 1,000 Women of Reproductive Age (15–44 Years)',
+                                  description: 'Annual IVE Rate per 1,000 Women Aged 15–44 (2000–2024).',
+                                  seriesLabel: 'IVE rate per 1,000 women (15–44)',
+                                  valueDecimals: 2,
+                                  note:
+                                    'The Spanish Ministry of Health’s current national table confirms the recent series, including 10.40 in 2015 → 12.36 in 2024. 2025: N/A.',
+                                  source: {
+                                    label: 'Ministerio de Sanidad',
+                                    href: SPAIN_ABORTION_RATE_SOURCE_URL,
+                                  },
+                                }}
+                                priorLiveBirthCards={{
+                                  atLeastOneValue: '≈58,800 (57.0%)',
+                                  atLeastOneBody:
+                                    'Estimated 2023 abortions among women with at least one prior live birth.',
+                                  zeroValue: '≈44,300 (43.0%)',
+                                  zeroBody: 'Estimated 2023 abortions among women with no prior live births.',
+                                }}
+                                relationshipStatus={{
+                                  year: '2023',
+                                  rows: [
+                                    { label: 'Unmarried women', value: '≈70,100', share: '68.0%' },
+                                    { label: 'Married women', value: '≈29,900', share: '29.0%' },
+                                    { label: 'Widowed or divorced women', value: '≈3,100', share: '3.0%' },
+                                    { label: 'Total', value: '103,097', share: '100.0%' },
+                                  ],
+                                }}
+                              />
                             ) : (
                               <GermanyAbortionStatisticsSection
                                 csvUrl={countryCsvUrl(iso3, 'abortion_statistics')}
                                 isGermany={false}
-                                countryLabel={iso3.toUpperCase() === 'FRA' ? 'France' : iso3.toUpperCase()}
+                                // Country name as written in the CSV's Country column, not the ISO-3
+                                // code — the parser filters rows on it (see the LGBT block above).
+                                countryLabel={iso3.toUpperCase() === 'FRA' ? 'France' : flag.label}
                                 priorLiveBirthCards={
                                   iso3.toUpperCase() === 'FRA'
                                     ? {
@@ -2257,11 +2704,21 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                             key={block.sub.id}
                             title={block.sub.title}
                             count={
-                              block.subRows.length +
-                              (block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? 4 : 0)
-                              + (block.sub.id === 'government_spending' && treatAsGermany(iso3)
-                                ? block.subRows.length + 1 + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
-                                : 0)
+                              block.sub.id === 'birth_rates' && isSpain
+                                ? SPAIN_BIRTH_RATES_BLOCK_COUNT
+                                : block.subRows.length +
+                                  (block.sub.id === 'birth_rates' ? (isTemplateDossier ? 1 : 4) : 0) +
+                                  (block.sub.id === 'government_spending'
+                                    ? isTemplateDossier
+                                      ? 1
+                                      : block.subRows.length + 1 + GERMANY_GOV_SPENDING_EXTRA_CARD_COUNT
+                                    : 0)
+                            }
+                            dataStatus={
+                              isTemplateDossier &&
+                              (block.sub.id === 'birth_rates' || block.sub.id === 'government_spending')
+                                ? 'template'
+                                : undefined
                             }
                             defaultOpen
                             anchorId={`country-sub-${section.id}-${block.sub.id}`}
@@ -2276,7 +2733,15 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   : 'flex flex-col gap-4'
                               }
                             >
-                              {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
+                              {block.sub.id === 'birth_rates' && isTemplateDossier ? (
+                                <TemplateGapBlock
+                                  countryLabel={flag.label}
+                                  panel="Birth charts (total births, births by origin, mixed-origin births)"
+                                  detail={`Germany's three birth-series charts sit here. The slots are retained; each needs a ${flag.label} year series by parents' origin.`}
+                                />
+                              ) : null}
+                              {block.sub.id === 'birth_rates' && isSpain ? <SpainBirthRatesSection /> : null}
+                              {block.sub.id === 'birth_rates' && !isTemplateDossier && !isSpain ? (
                                 <>
                                   {isItaly ? (
                                     <GermanyBirthsLineChartTile
@@ -2337,7 +2802,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                   )}
                                 </>
                               ) : null}
-                              {block.sub.id === 'birth_rates' && treatAsGermany(iso3) ? (
+                              {block.sub.id === 'birth_rates' && treatAsGermany(iso3) && !isSpain ? (
                                 <>
                                   {/* Masonry (CSS columns): tiles pack by height so a very tall tile
                                       (childhood obesity) never strands short tiles beside it — no gaps. */}
@@ -2356,7 +2821,20 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                                     <GermanyBirthRatesEducationTile />
                                   ) : null}
                                 </>
-                              ) : block.sub.id === 'government_spending' && treatAsGermany(iso3) ? (
+                              ) : block.sub.id === 'government_spending' && isTemplateDossier ? (
+                                <div className="flex flex-col gap-3">
+                                  <div className={STAT_GRID}>
+                                    {block.subRows.map((row) => (
+                                      <Fragment key={row.metric}>{renderStatTile(row, { iso3 })}</Fragment>
+                                    ))}
+                                  </div>
+                                  <TemplateGapBlock
+                                    countryLabel={flag.label}
+                                    panel="Expenditure detail (total-spending chart, category breakdown by year)"
+                                    detail={`The tiles above come from ${flag.label}'s own expenditure row. Germany's total-spending chart and category selector are not shown, because they would render German figures — those slots need ${flag.label} budget tables.`}
+                                  />
+                                </div>
+                              ) : block.sub.id === 'government_spending' ? (
                                 <GermanyGovernmentSpendingDESection
                                   subRows={block.subRows}
                                   iso3={iso3}
@@ -2384,7 +2862,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
             >
               <CollapsibleFlagSection
                 title="Crime"
-                count={crimeRow ? (treatAsGermany(iso3) ? 49 : 4) : 0}
+                count={crimeRow ? 49 : isTemplateDossier ? 34 : 0}
                 defaultOpen
                 anchorId="country-section-crime"
                 ribbonExpandKey="main:crime"
@@ -2399,11 +2877,12 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                       crimeRow
                         ? effectiveCrimeIso3.toUpperCase() === 'ITA'
                           ? 33
-                          : treatAsGermany(iso3)
-                            ? 15 + 4 + 3
-                            : 4
-                        : 0
+                          : 15 + 4 + 3
+                        : isTemplateDossier
+                          ? 2
+                          : 0
                     }
+                    dataStatus={isTemplateDossier ? 'template' : undefined}
                     defaultOpen
                     anchorId="country-sub-crime-statistics"
                     ribbonExpandKey={'sub:crime:crime_statistics'}
@@ -2417,9 +2896,15 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                         <FranceTotalRecordedCrimesChart />
                       ) : effectiveCrimeIso3.toUpperCase() === 'ESP' ? (
                         <SpainRecordedCrimesTemplate />
-                      ) : treatAsGermany(effectiveCrimeIso3) ? (
+                      ) : isTemplateDossier ? (
+                        <TemplateGapBlock
+                          countryLabel={flag.label}
+                          panel="Recorded crimes and sexual violence trend"
+                          detail={`Germany's PKS year series sits in this slot. It is kept rather than removed; it needs a ${flag.label} recorded-crime series.`}
+                        />
+                      ) : (
                         <GermanyTotalRecordedCrimesChart />
-                      ) : null}
+                      )}
                       <CrimeMetricsSection crimeRow={crimeRow} iso3={effectiveCrimeIso3} />
                     </div>
                   </CollapsibleFlagSection>
@@ -2441,7 +2926,8 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                   ) : treatAsGermany(iso3) ? (
                     <CollapsibleFlagSection
                       title="Victims"
-                      count={25}
+                      count={isSpain ? 27 : isTemplateDossier ? 5 : 25}
+                      dataStatus={isTemplateDossier ? 'template' : undefined}
                       defaultOpen
                       anchorId="country-sub-crime-victims"
                       ribbonExpandKey="sub:crime:crime_victims"
@@ -2450,13 +2936,23 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                     >
                       <div className="flex flex-col gap-4">
                         <MissingPersonsVictimMetrics iso3={iso3} />
-                        {isSpain ? <SpainVictimsTemplate /> : <GermanyWhiteNativeVictimsChart iso3={iso3} />}
+                        {isSpain ? (
+                          <SpainVictimsTemplate />
+                        ) : isTemplateDossier ? (
+                          <TemplateGapBlock
+                            countryLabel={flag.label}
+                            panel="Victim statistics and notable incidents"
+                            detail={`Germany's victim breakdown (by sex, age and offence type) and its incident register occupy this slot. Both are retained and need ${flag.label} sources.`}
+                          />
+                        ) : (
+                          <GermanyWhiteNativeVictimsChart iso3={iso3} />
+                        )}
                       </div>
                     </CollapsibleFlagSection>
                   ) : null}
                   <CollapsibleFlagSection
                     title="Migrant data"
-                    count={isGermany || isSpain ? 16 : iso3.toUpperCase() === 'FRA' ? 15 : 7}
+                    count={isGermany ? 16 : isSpain || iso3.toUpperCase() === 'FRA' ? 15 : 7}
                     defaultOpen
                     anchorId="country-sub-crime-migrant"
                     ribbonExpandKey={'sub:crime:crime_migrant'}
@@ -2471,7 +2967,7 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                         expandSignal={expandSignal}
                         csvUrl={countryCsvUrl(effectiveCountryIso3, 'migrant_crime_requested_metrics')}
                         additionalCsvUrl={countryCsvUrl(effectiveCountryIso3, 'migrant_crime_additional_metrics')}
-                        isGermany={isSpain}
+                        isGermany={false}
                       />
                     )}
                   </CollapsibleFlagSection>
@@ -2500,21 +2996,33 @@ export function CountryStatsDashboard({ flag, iso3, actualIso3, onBack, crimeIso
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
                   csvUrl={countryCsvUrl(effectiveCountryIso3, 'government_politics')}
-                  isGermany
+                  isGermany={false}
+                  countryLabel="Spain"
+                  policyExperience={{
+                    cards: SPAIN_POLICY_INFOGRAPHICS,
+                    carouselLabel: 'Spanish policy changes by sector',
+                    immigrationContext: SPAIN_IMMIGRATION_POLICY_CONTEXT,
+                    immigrationAreas: SPAIN_IMMIGRATION_POLICY_AREAS,
+                  }}
+                  parliamentContent={<SpainParliamentSection />}
+                  parliamentCountOverride={4}
                 />
-              ) : treatAsGermany(iso3) ? (
+              ) : isTemplateDossier ? (
+                // Every template country has a generated government_politics CSV, so this section
+                // renders its own data — hence no red marker on the section itself.
                 <GermanyGovernmentSection
                   collapseSignal={collapseSignal}
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
+                  csvUrl={countryCsvUrl(effectiveCountryIso3, 'government_politics')}
+                  isGermany={false}
+                  countryLabel={flag.label}
                 />
               ) : (
                 <GermanyGovernmentSection
                   collapseSignal={collapseSignal}
                   expandSignal={expandSignal}
                   headerControls={sectionControls('government')}
-                  csvUrl={countryCsvUrl(iso3, 'government_politics')}
-                  isGermany={false}
                 />
               )}
             </div>

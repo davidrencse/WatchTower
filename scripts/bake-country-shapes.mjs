@@ -75,6 +75,14 @@ function centroid(ring) {
 
 const q = (n) => Math.round(n * 1000) / 1000; // ~0.001° quantization
 
+// Large mainland countries need a stricter default so their many tiny coastal islets do not
+// bloat the runtime payload. Keep country-specific exceptions for administratively significant
+// islands that fall just below that relative cutoff. China's 0.3% floor retains Hainan while
+// still excluding its much smaller offshore polygons.
+const MIN_ISLAND_AREA_RATIO_BY_ISO = {
+  CHN: 0.003,
+};
+
 const shapes = {};
 let totalOut = 0;
 for (const iso of NEED) {
@@ -85,7 +93,8 @@ for (const iso of NEED) {
   // outer rings with area; keep the biggest, plus any island bigger than threshold.
   const outers = polys.map((p) => ({ ring: p[0], area: ringArea(p[0]) }));
   const maxArea = Math.max(...outers.map((o) => o.area));
-  const areaThresh = Math.max(maxArea * 0.006, 0.008); // retain meaningful islands
+  const minIslandAreaRatio = MIN_ISLAND_AREA_RATIO_BY_ISO[iso] ?? 0.006;
+  const areaThresh = Math.max(maxArea * minIslandAreaRatio, 0.008); // retain meaningful islands
 
   const kept = outers
     .filter((o) => o.area === maxArea || o.area >= areaThresh)

@@ -1,4 +1,5 @@
 import type { GlobalEventStory } from './globalEventNews';
+import { formatShortDate } from '../lib/numberFormat';
 
 export type ConflictEvent = {
   id: string;
@@ -45,11 +46,7 @@ export function conflictEventToStory(event: ConflictEvent): GlobalEventStory {
   const parsed = new Date(event.publishedAt);
   const published = Number.isNaN(parsed.getTime())
     ? 'Live'
-    : new Intl.DateTimeFormat('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }).format(parsed);
+    : formatShortDate(parsed);
 
   return {
     id: `liveuamap:${event.id}`,

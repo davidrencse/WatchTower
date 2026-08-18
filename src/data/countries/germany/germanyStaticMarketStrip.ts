@@ -3,16 +3,19 @@
  * 
  */
 
-export type GermanyStockStripRow = {
+export type StockStripRow = {
   ticker: string;
   companyName: string;
-  priceEur: number;
-  changeEur: number;
+  price: number;
+  change: number;
   changePercent: number;
   highlight?: string;
-  /** Seven closing values (oldest → newest), last = priceEur */
+  /** Seven closing values (oldest → newest), last = price. */
   history: { close: number }[];
 };
+
+/** Retained for the existing country data modules that import the original type name. */
+export type GermanyStockStripRow = StockStripRow;
 
 function buildWeekSpark(last: number, changePercent: number, phase: number): { close: number }[] {
   const prev = last / (1 + changePercent / 100);
@@ -30,19 +33,19 @@ function buildWeekSpark(last: number, changePercent: number, phase: number): { c
 function row(
   ticker: string,
   companyName: string,
-  priceEur: number,
-  changeEur: number,
+  price: number,
+  change: number,
   changePercent: number,
   highlight?: string,
 ): GermanyStockStripRow {
   return {
     ticker,
     companyName,
-    priceEur,
-    changeEur,
+    price,
+    change,
     changePercent,
     highlight,
-    history: buildWeekSpark(priceEur, changePercent, ticker.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 0.01),
+    history: buildWeekSpark(price, changePercent, ticker.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 0.01),
   };
 }
 

@@ -110,9 +110,11 @@ function buildSeatRows(rows: GermanyGovernmentPoliticsRow[]): BundestagSeatRow[]
 
 type Props = {
   rows: GermanyGovernmentPoliticsRow[];
+  countryLabel?: string;
+  isGermany?: boolean;
 };
 
-export function GermanyBundestagSeatsVisualization({ rows }: Props) {
+export function GermanyBundestagSeatsVisualization({ rows, countryLabel = 'Germany', isGermany = true }: Props) {
   const parties = useMemo(() => buildSeatRows(rows), [rows]);
   const [activeParty, setActiveParty] = useState<string | null>(null);
   const total = useMemo(() => parties.reduce((s, p) => s + p.seats, 0), [parties]);
@@ -146,12 +148,14 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
               Seat distribution
             </CardTitle>
             <CardDescription className={`font-sans text-[11px] text-neutral-500 ${UC_META}`}>
-              {refYear} Federal Election, Germany
+              {isGermany ? `${refYear} Federal Election, Germany` : `${refYear} legislature, ${countryLabel}`}
             </CardDescription>
-            <CardDescription className={`font-sans text-[11px] text-neutral-500 ${UC_META}`}>Final Result</CardDescription>
+            <CardDescription className={`font-sans text-[11px] text-neutral-500 ${UC_META}`}>
+              {isGermany ? 'Final Result' : 'Dataset snapshot'}
+            </CardDescription>
           </div>
           <Badge variant="outline" className={`w-fit shrink-0 border-neutral-700 text-neutral-400 ${UC_META}`}>
-            Final Result
+            {isGermany ? 'Final Result' : 'Dataset snapshot'}
           </Badge>
         </div>
       </CardHeader>
@@ -185,10 +189,10 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
               );
             })}
             <text x={cx} y={cy - rInner + 2} textAnchor="middle" className="fill-white font-sans text-[22px] font-semibold">
-              {total.toLocaleString('de-DE')}
+              {total.toLocaleString(isGermany ? 'de-DE' : 'en-US')}
             </text>
             <text x={cx} y={cy - rInner + 22} textAnchor="middle" className={`fill-neutral-400 font-sans text-[11px] ${UC_META}`}>
-              Sitze
+              {isGermany ? 'Sitze' : 'Seats'}
             </text>
           </svg>
         </div>
@@ -212,11 +216,15 @@ export function GermanyBundestagSeatsVisualization({ rows }: Props) {
         </div>
 
         <p className={`mt-3 text-center font-sans text-[11px] leading-relaxed text-neutral-400 ${UC_META}`}>
-          {selected ? `${selected.label}: ${selected.seats.toLocaleString('de-DE')} seats` : 'Hover a party segment to inspect seat counts'}
+          {selected
+            ? `${selected.label}: ${selected.seats.toLocaleString(isGermany ? 'de-DE' : 'en-US')} seats`
+            : 'Hover a party segment to inspect seat counts'}
         </p>
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className={`font-sans text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>© Die Bundeswahlleiterin, Wiesbaden {refYear}</p>
+          <p className={`font-sans text-[10px] leading-relaxed text-neutral-600 ${UC_META}`}>
+            {isGermany ? `© Die Bundeswahlleiterin, Wiesbaden ${refYear}` : `${countryLabel} · ${refYear}`}
+          </p>
           {sourceUrl ? (
             <a
               href={sourceUrl}

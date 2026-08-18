@@ -165,6 +165,14 @@ export type MarriageRatesRow = {
   avgAgeWomen: number;
 };
 
+export type MarriageRatesChartRow = {
+  year: string;
+  totalMarriages: number | null;
+  crudeMarriageRate: number | null;
+  avgAgeMen: number | null;
+  avgAgeWomen: number | null;
+};
+
 /** National marriage volumes, crude rate, and mean age at marriage (2000–2025). */
 const MARRIAGE_RATES_SERIES: readonly MarriageRatesRow[] = [
   { year: '2000', totalMarriages: 418550, crudeMarriageRate: 5.1, avgAgeMen: 31.3, avgAgeWomen: 28.5 },
@@ -309,7 +317,7 @@ function MarriagePieCard({
   );
 }
 
-function MarriageSummaryCard({ title, value }: { title: string; value: string }) {
+export function MarriageSummaryCard({ title, value }: { title: string; value: string }) {
   return (
     <Card className="overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
@@ -502,7 +510,37 @@ function MarriageDetailedDataTableCard({
   );
 }
 
-function LgbtSummaryRow({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
+export type LgbtMarriageLabels = {
+  totalSummary: string;
+  maleSummary: string;
+  femaleSummary: string;
+  pieTitle: string;
+  trendTitle: string;
+  totalSeries: string;
+  maleSeries: string;
+  femaleSeries: string;
+};
+
+const DEFAULT_LGBT_MARRIAGE_LABELS: LgbtMarriageLabels = {
+  totalSummary: 'Total LGBT marriages',
+  maleSummary: 'Total gay marriages',
+  femaleSummary: 'Total lesbian marriages',
+  pieTitle: 'LGBT unions split (pie)',
+  trendTitle: 'LGBT unions trend (line)',
+  totalSeries: 'Total same-sex unions',
+  maleSeries: 'Gay (male-male)',
+  femaleSeries: 'Lesbian (female-female)',
+};
+
+function LgbtSummaryRow({
+  series = LGBT_SERIES,
+  labels = DEFAULT_LGBT_MARRIAGE_LABELS,
+  approximateTotals = true,
+}: {
+  series?: readonly LgbtUnionRow[];
+  labels?: LgbtMarriageLabels;
+  approximateTotals?: boolean;
+}) {
   const totals = series.reduce(
     (acc, row) => {
       if (row.year === '2000') return acc;
@@ -513,17 +551,26 @@ function LgbtSummaryRow({ series = LGBT_SERIES }: { series?: readonly LgbtUnionR
     },
     { total: 0, gay: 0, lesbian: 0 },
   );
+  const prefix = approximateTotals ? '~' : '';
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      <MarriageSummaryCard title="Total LGBT marriages" value={`~${totals.total.toLocaleString('en-US')}`} />
-      <MarriageSummaryCard title="Total gay marriages" value={`~${totals.gay.toLocaleString('en-US')}`} />
-      <MarriageSummaryCard title="Total lesbian marriages" value={`~${totals.lesbian.toLocaleString('en-US')}`} />
+      <MarriageSummaryCard title={labels.totalSummary} value={`${prefix}${totals.total.toLocaleString('en-US')}`} />
+      <MarriageSummaryCard title={labels.maleSummary} value={`${prefix}${totals.gay.toLocaleString('en-US')}`} />
+      <MarriageSummaryCard title={labels.femaleSummary} value={`${prefix}${totals.lesbian.toLocaleString('en-US')}`} />
     </div>
   );
 }
 
-function LgbtPieCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
+function LgbtPieCard({
+  series = LGBT_SERIES,
+  labels = DEFAULT_LGBT_MARRIAGE_LABELS,
+  rangeLabel = '2001–2025',
+}: {
+  series?: readonly LgbtUnionRow[];
+  labels?: LgbtMarriageLabels;
+  rangeLabel?: string;
+}) {
   const totals = series.reduce(
     (acc, row) => {
       if (row.year === '2000') return acc;
@@ -534,8 +581,8 @@ function LgbtPieCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[
     { gay: 0, lesbian: 0 },
   );
   const pieData = [
-    { name: 'Gay (male-male)', value: totals.gay },
-    { name: 'Lesbian (female-female)', value: totals.lesbian },
+    { name: labels.maleSeries, value: totals.gay },
+    { name: labels.femaleSeries, value: totals.lesbian },
   ];
   const pieConfig: ChartConfig = {
     gay: { label: 'Gay (male-male)', color: '#22c55e' },
@@ -544,8 +591,8 @@ function LgbtPieCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[
   return (
     <Card className="overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
-        <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">LGBT unions split (pie)</CardTitle>
-        <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">Aggregated 2001-2025</CardDescription>
+        <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">{labels.pieTitle}</CardTitle>
+        <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">Aggregated {rangeLabel}</CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ChartContainer config={pieConfig} className="h-[280px] w-full">
@@ -565,11 +612,17 @@ function LgbtPieCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[
   );
 }
 
-function LgbtLineCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow[] }) {
+function LgbtLineCard({
+  series = LGBT_SERIES,
+  labels = DEFAULT_LGBT_MARRIAGE_LABELS,
+}: {
+  series?: readonly LgbtUnionRow[];
+  labels?: LgbtMarriageLabels;
+}) {
   return (
     <Card className="col-span-full overflow-hidden border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-3 pb-2">
-        <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">LGBT unions trend (line)</CardTitle>
+        <CardTitle className="text-sm font-semibold text-neutral-100 uppercase tracking-[0.05em]">{labels.trendTitle}</CardTitle>
         <CardDescription className="text-[10px] uppercase tracking-[0.03em] text-neutral-500">Yearly totals by union type</CardDescription>
       </CardHeader>
       <CardContent className="p-3 pt-0">
@@ -584,9 +637,9 @@ function LgbtLineCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow
                 content={<ChartTooltipContent className="rounded-md" formatter={(value) => Number(value).toLocaleString('en-US')} labelFormatter={(label, payload) => `Year ${String(label)} - ${(payload as ReadonlyArray<{ payload?: { type?: string } }> | undefined)?.[0]?.payload?.type ?? ''}`} />}
               />
               <Legend wrapperStyle={{ fontSize: '11px', color: 'rgba(212,212,212,0.9)' }} iconType="line" />
-              <Line type="monotone" dataKey="total" name="Total same-sex unions" stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="gay" name="Gay (male-male)" stroke="#22c55e" strokeWidth={2} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="lesbian" name="Lesbian (female-female)" stroke="#60a5fa" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="total" name={labels.totalSeries} stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="gay" name={labels.maleSeries} stroke="#22c55e" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="lesbian" name={labels.femaleSeries} stroke="#60a5fa" strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -595,11 +648,46 @@ function LgbtLineCard({ series = LGBT_SERIES }: { series?: readonly LgbtUnionRow
   );
 }
 
+export function LgbtMarriagesSection({
+  series = LGBT_SERIES,
+  sourceNote,
+  sectionTitle = 'LGBT marriages',
+  rangeLabel = '2001–2025',
+  labels = DEFAULT_LGBT_MARRIAGE_LABELS,
+  approximateTotals = true,
+}: {
+  series?: readonly LgbtUnionRow[];
+  sourceNote?: ReactNode;
+  sectionTitle?: string;
+  rangeLabel?: string;
+  labels?: LgbtMarriageLabels;
+  approximateTotals?: boolean;
+}) {
+  return (
+    <CollapsibleFlagSection title={sectionTitle} count={5} defaultOpen>
+      <div className="flex flex-col gap-3">
+        <LgbtSummaryRow
+          series={series}
+          labels={labels}
+          approximateTotals={approximateTotals}
+        />
+        <LgbtPieCard series={series} labels={labels} rangeLabel={rangeLabel} />
+        <LgbtLineCard series={series} labels={labels} />
+        {sourceNote ? (
+          <div className="font-sans text-[10px] leading-relaxed text-neutral-500">
+            {sourceNote}
+          </div>
+        ) : null}
+      </div>
+    </CollapsibleFlagSection>
+  );
+}
+
 function MarriageRatesVolumeCrudeCard({
   series = MARRIAGE_RATES_SERIES,
   sourceNote,
 }: {
-  series?: readonly MarriageRatesRow[];
+  series?: readonly MarriageRatesChartRow[];
   sourceNote?: ReactNode;
 }) {
   return (
@@ -641,6 +729,7 @@ function MarriageRatesVolumeCrudeCard({
                     className="rounded-md"
                     labelFormatter={(label) => `Year ${String(label)}`}
                     formatter={(value) => {
+                      if (value == null) return '—';
                       const n = Number(value);
                       if (Number.isNaN(n)) return String(value ?? '');
                       if (n > 200) return n.toLocaleString('en-US');
@@ -676,7 +765,7 @@ function MarriageRatesAgeLineCard({
   series = MARRIAGE_RATES_SERIES,
   sourceNote,
 }: {
-  series?: readonly MarriageRatesRow[];
+  series?: readonly MarriageRatesChartRow[];
   sourceNote?: ReactNode;
 }) {
   return (
@@ -706,6 +795,7 @@ function MarriageRatesAgeLineCard({
                     className="rounded-md"
                     labelFormatter={(label) => `Year ${String(label)}`}
                     formatter={(value) => {
+                      if (value == null) return '—';
                       const n = Number(value);
                       return Number.isNaN(n) ? String(value ?? '') : `${n.toFixed(1)} yrs`;
                     }}
@@ -740,7 +830,7 @@ function buildMarriageLineConfig(nativeAdj: string, self: 'F' | 'M', spouse: 'F'
 
 type GermanyMarriagesSectionProps = {
   /** "Marriage rates" charts (total marriages, crude rate, mean age) — defaults to Germany. */
-  marriageRatesSeries?: readonly MarriageRatesRow[];
+  marriageRatesSeries?: readonly MarriageRatesChartRow[];
   /** Mixed-marriage series (native woman + foreign man) — defaults to Germany. */
   femaleSeries?: readonly MarriageTrendRow[];
   /** Mixed-marriage series (native man + foreign woman) — defaults to Germany. */
@@ -927,18 +1017,7 @@ export const GermanyMarriagesSection = memo(function GermanyMarriagesSection({
       </CollapsibleFlagSection>
 
       {showLgbt ? (
-        <CollapsibleFlagSection title="LGBT marriages" count={5} defaultOpen>
-          <div className="flex flex-col gap-3">
-            <LgbtSummaryRow series={lgbtSeries} />
-            <LgbtPieCard series={lgbtSeries} />
-            <LgbtLineCard series={lgbtSeries} />
-            {lgbtSourceNote ? (
-              <div className="font-sans text-[10px] leading-relaxed text-neutral-500">
-                {lgbtSourceNote}
-              </div>
-            ) : null}
-          </div>
-        </CollapsibleFlagSection>
+        <LgbtMarriagesSection series={lgbtSeries} sourceNote={lgbtSourceNote} />
       ) : null}
     </div>
   );

@@ -13,6 +13,9 @@ export default tseslint.config(
       '.impeccable/**',
       'Assets/**',
       'public/**',
+      // `osint/` is a self-contained Next.js app with its own eslint.config.mjs and Next
+      // plugins. Linting it from here fails on rules this config has no plugin for.
+      'osint/**',
     ],
   },
   {

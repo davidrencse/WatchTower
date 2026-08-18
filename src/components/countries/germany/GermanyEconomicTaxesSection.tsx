@@ -117,7 +117,7 @@ function TaxReferenceTable({
           <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">{description}</CardDescription>
         ) : null}
       </CardHeader>
-      <CardContent className="p-0 px-3 pb-3 pt-0">{children}</CardContent>
+      <CardContent className="overflow-x-auto p-0 px-3 pb-3 pt-0">{children}</CardContent>
     </Card>
   );
 }
@@ -351,13 +351,13 @@ export const GermanyEconomicTaxesSection = memo(function GermanyEconomicTaxesSec
         </TaxReferenceTable>
 
         <TaxReferenceTable title={socialTitle} description={socialDescription}>
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow className="border-white/[0.06] hover:bg-transparent">
-                <TableHead className="h-9 text-[10px] uppercase text-neutral-400">Type</TableHead>
-                <TableHead className="h-9 text-[10px] uppercase text-neutral-400">Employee %</TableHead>
-                <TableHead className="h-9 text-[10px] uppercase text-neutral-400">Employer %</TableHead>
-                <TableHead className="h-9 text-[10px] uppercase text-neutral-400">Total %</TableHead>
+                <TableHead className="h-9 w-[40%] text-[10px] uppercase text-neutral-400">Type</TableHead>
+                <TableHead className="h-9 px-0.5 text-center text-[10px] uppercase text-neutral-400 sm:px-3">Worker %</TableHead>
+                <TableHead className="h-9 px-0.5 text-center text-[10px] uppercase text-neutral-400 sm:px-3">Company %</TableHead>
+                <TableHead className="h-9 px-0.5 text-center text-[10px] uppercase text-neutral-400 sm:px-3">Total %</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

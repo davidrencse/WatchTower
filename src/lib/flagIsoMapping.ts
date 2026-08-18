@@ -2,9 +2,10 @@
  * Maps `flag-of-*.png` ids to ISO 3166-1 alpha-3 codes present in
  * `Assets/Data/shared/centralized_merged_country_stats.csv` (or legacy screenshot CSV).
  *
- * The East Asia four (CHN / JPN / KOR / TWN) are mapped for the globe and routing even though
- * the shared CSV has no rows for them yet — their pages render the "to be completed" template
- * until the datasets land. See {@link EAST_ASIA_ISO3}.
+ * Being mapped here is what makes a country routable, drawn on the globe, *and* rendered with the
+ * Germany-derived dashboard layout — `SelectedFlagView` keys off nothing else. A country whose
+ * CSVs are absent still gets the full layout, with the template's labeled placeholders standing
+ * in; the East Asia four (CHN / JPN / KOR / TWN) are the current example.
  */
 export const FLAG_ID_TO_ISO3: Record<string, string> = {
   'flag-of-Australia.png': 'AUS',
@@ -59,9 +60,6 @@ export const FLAG_ID_TO_ISO3: Record<string, string> = {
   'flag-of-South-Korea.png': 'KOR',
   'flag-of-Taiwan.png': 'TWN',
 };
-
-/** East Asia set — mapped and drawn on the globe, but with no dossier data behind them yet. */
-export const EAST_ASIA_ISO3: ReadonlySet<string> = new Set(['CHN', 'JPN', 'KOR', 'TWN']);
 
 export function getIso3ForFlagId(flagId: string): string | undefined {
   return FLAG_ID_TO_ISO3[flagId];

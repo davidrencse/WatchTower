@@ -1,13 +1,20 @@
 /** Shared dashboard layout for CountryStatsDashboard (metrics grouping). */
 
 /**
- * Countries that render the full Germany-derived dashboard layout (ribbon nav,
- * subsections, and every statistic slot). Country datasets override the template
- * where available; missing values remain visible as labeled placeholders.
+ * Every routable country renders the full Germany-derived dashboard layout — ribbon nav, all
+ * subsections, and every statistic slot.
+ *
+ * This used to be a four-country allowlist. It is now unconditional: the layout *is* the template,
+ * and provenance is expressed separately by `usesGermanyTemplate` in `lib/countryTemplateStatus`,
+ * which drives the red "Data needed" outlines on panels that still show Germany-bundled content.
+ * Country datasets override the template wherever they exist; a missing value stays visible as a
+ * labeled red placeholder rather than collapsing the section.
+ *
+ * Kept as a function (rather than inlining `true`) because it names the intent at ~35 call sites
+ * and marks exactly which branches assume the rich layout.
  */
-export function treatAsGermany(iso3: string): boolean {
-  const u = iso3.toUpperCase();
-  return u === 'DEU' || u === 'FRA' || u === 'ITA' || u === 'ESP';
+export function treatAsGermany(_iso3: string): boolean {
+  return true;
 }
 
 /** Expenditure tiles (nested under Economic → Government spending). */
@@ -108,6 +115,26 @@ export const BIRTH_RATES_SUBSECTION_METRICS_DEFAULT = [
   'Immigrant birth rate',
 ] as const;
 
+/**
+ * Template countries: Germany's full slot list with the Germany-named obesity slot replaced by its
+ * country-neutral form (see `asTemplateSlotMetric`). Slots with no country figure still appear —
+ * as red "Data needed" tiles.
+ */
+export const BIRTH_RATES_SUBSECTION_METRICS_TEMPLATE = [
+  'Total birth rate',
+  'White (native) birth rate',
+  'Immigrant birth rate',
+  'Migrant background M:F ratio',
+  'Births to foreign-born mothers',
+  'Infant mortality rate',
+  'Child mortality rate',
+  'Contraceptive use',
+  'Abortion rate',
+  'Teen birth rate',
+  'Mean age of mothers at childbirth',
+  'Childhood overweight and obesity',
+] as const;
+
 export function getPopulationSectionMetrics(iso3: string): string[] {
   if (!treatAsGermany(iso3)) return [...POPULATION_SECTION_METRICS];
   return POPULATION_SECTION_METRICS.filter((m) => !GERMANY_IMMIGRATION_METRICS_SET.has(m));
@@ -205,7 +232,9 @@ export function getStatSections(iso3: string, actualIso3 = iso3): StatSectionDef
                   ? [...BIRTH_RATES_SUBSECTION_METRICS_ESP]
                   : upper === 'FRA'
                   ? [...BIRTH_RATES_SUBSECTION_METRICS_FRA]
-                  : [...BIRTH_RATES_SUBSECTION_METRICS_DEU],
+                  : upper === 'DEU'
+                  ? [...BIRTH_RATES_SUBSECTION_METRICS_DEU]
+                  : [...BIRTH_RATES_SUBSECTION_METRICS_TEMPLATE],
             },
             { id: 'sexual_behavior', title: 'Sexual Behavior', kind: 'germany_sexual_behavior' as const },
           ]

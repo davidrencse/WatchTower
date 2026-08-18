@@ -1,3 +1,5 @@
+import { safeExternalUrl } from '../lib/safeUrl';
+
 const HN_API_ROOT = 'https://hacker-news.firebaseio.com/v0';
 const HN_WEB_ROOT = 'https://news.ycombinator.com';
 
@@ -46,7 +48,9 @@ function normalizeStory(item: HackerNewsApiItem): HackerNewsStory | null {
   }
 
   const discussionUrl = `${HN_WEB_ROOT}/item?id=${item.id}`;
-  const url = item.url || discussionUrl;
+  // `item.url` is whatever the submitter typed. Fall back to the HN thread rather than
+  // rendering an unvetted scheme into an href.
+  const url = safeExternalUrl(item.url) ?? discussionUrl;
 
   return {
     id: item.id,
@@ -79,22 +83,32 @@ export async function fetchHackerNewsTopStories(
     .filter((id): id is number => typeof id === 'number')
     .slice(0, Math.max(limit * 2, limit));
 
-  const results = await Promise.allSettled(
-    candidateIds.map(async (id) => {
-      const response = await fetch(`${HN_API_ROOT}/item/${id}.json`, { signal });
-      if (!response.ok) return null;
-      return normalizeStory((await response.json()) as HackerNewsApiItem);
-    }),
-  );
+  const stories: HackerNewsStory[] = [];
+  let cursor = 0;
 
-  const stories = results
-    .filter(
-      (result): result is PromiseFulfilledResult<HackerNewsStory | null> =>
-        result.status === 'fulfilled',
-    )
-    .map((result) => result.value)
-    .filter((story): story is HackerNewsStory => story !== null)
-    .slice(0, limit);
+  // The old implementation fetched 2Ã— the requested story count up front, then discarded half
+  // of the responses. Top stories are normally valid, so load exactly what is needed first and
+  // request a small repair batch only when deleted/dead entries leave a gap.
+  while (stories.length < limit && cursor < candidateIds.length) {
+    const missing = limit - stories.length;
+    const batchSize = cursor === 0 ? missing : Math.min(Math.max(missing, 2), 4);
+    const batch = candidateIds.slice(cursor, cursor + batchSize);
+    cursor += batch.length;
+
+    const results = await Promise.allSettled(
+      batch.map(async (id) => {
+        const response = await fetch(`${HN_API_ROOT}/item/${id}.json`, { signal });
+        if (!response.ok) return null;
+        return normalizeStory((await response.json()) as HackerNewsApiItem);
+      }),
+    );
+    signal.throwIfAborted();
+
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) stories.push(result.value);
+      if (stories.length === limit) break;
+    }
+  }
 
   if (stories.length === 0) {
     throw new Error('No Hacker News stories are available');

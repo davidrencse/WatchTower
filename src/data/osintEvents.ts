@@ -12,6 +12,8 @@
  * SAMPLE, never passing illustrative pins off as live intelligence.
  */
 
+import { safeExternalUrl } from '../lib/safeUrl';
+
 export type OsintCategoryId =
   | 'strikes'
   | 'clashes'
@@ -137,8 +139,9 @@ function normalizePin(pin: OsintPin): OsintEventPoint | null {
     latitude,
     date: pin.createdAt ? String(pin.createdAt) : new Date().toISOString(),
     placeName: pin.placeName ? String(pin.placeName) : '',
-    sourceUrl:
-      typeof pin.postUrl === 'string' && pin.postUrl ? pin.postUrl : 'https://x.com/',
+    // Pins come from the ingestion service over the network — vet the scheme before this
+    // reaches a link. Anything that is not http(s) degrades to the X home page.
+    sourceUrl: safeExternalUrl(pin.postUrl) ?? 'https://x.com/',
     engagement: likes + retweets,
   };
 }

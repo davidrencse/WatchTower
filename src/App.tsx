@@ -3,25 +3,50 @@ import { AppLayout } from './components/AppLayout';
 import { CustomCursor } from './components/CustomCursor';
 import { GalleryViewToggle, type GalleryView } from './components/GalleryViewToggle';
 import { HomeHero } from './components/HomeHero';
-import { SelectedFlagView, prefetchCountryDashboard } from './components/SelectedFlagView';
 import { WatchtowerSceneBackground } from './components/WatchtowerSceneBackground';
-import { useTheme } from './context/ThemeContext';
+import { useTheme } from './context/themeContext';
 import { FLAGS } from './data/flags';
 import { usePrefetchFlagImages } from './hooks/usePrefetchFlagImages';
+import { loadCountryStatsDashboard } from './lib/countryDashboardLoader';
 import { flagIdHasCountryStats } from './lib/flagIsoMapping';
 import { flagForPath, pathForFlag } from './lib/countryRoute';
+import { legalLinkForPath } from './lib/legalRoute';
+import type { LegalLink } from './data/legalLinks';
 import type { FlagEntry } from './types/flag';
 
 const HERO_EXIT_MS = 400;
 const SITE_ORIGIN = (import.meta.env.VITE_SITE_URL || 'https://watchtower.app').replace(/\/+$/, '');
-const loadCountryGlobe = () => import('./components/MapGlobe');
+// MapGlobe loads MapLibre at mount time. Start both chunks together so entering the atlas does
+// not serialize the globe module and the much larger map runtime into a network waterfall.
+const loadCountryGlobe = () =>
+  Promise.all([import('./components/MapGlobe'), import('maplibre-gl')]).then(
+    ([globeModule]) => globeModule,
+  );
 const loadFlagGallery = () => import('./components/FlagGallery');
+let selectedFlagViewPromise: Promise<typeof import('./components/SelectedFlagView')> | null = null;
+const loadSelectedFlagView = () => {
+  selectedFlagViewPromise ??= import('./components/SelectedFlagView');
+  return selectedFlagViewPromise;
+};
 const CountryGlobe = lazy(() =>
   loadCountryGlobe().then((module) => ({ default: module.CountryGlobe })),
 );
 const FlagGallery = lazy(() =>
   loadFlagGallery().then((module) => ({ default: module.FlagGallery })),
 );
+const SelectedFlagView = lazy(() =>
+  loadSelectedFlagView().then((module) => ({ default: module.SelectedFlagView })),
+);
+// Legal pages are static prose reached from the footer — code-split so they cost the atlas
+// nothing, and rendered without the hero/gallery/globe machinery underneath them.
+const LegalPage = lazy(() =>
+  import('./components/LegalPage').then((module) => ({ default: module.LegalPage })),
+);
+
+function prefetchCountryDashboard(): void {
+  void loadSelectedFlagView();
+  void loadCountryStatsDashboard();
+}
 
 function GlobeLoadingState() {
   return (
@@ -53,6 +78,9 @@ function App() {
   // Restore the view from the URL on first paint so a refresh or a shared `/france` link opens
   // straight to that dossier (with the gallery behind it for Back), skipping the intro hero.
   const initialFlag = typeof window !== 'undefined' ? flagForPath(window.location.pathname) : null;
+  const initialLegal =
+    typeof window !== 'undefined' ? legalLinkForPath(window.location.pathname) : null;
+  const [legalDoc, setLegalDoc] = useState<LegalLink | null>(initialLegal);
   const [stage, setStage] = useState<'home' | 'gallery'>(initialFlag ? 'gallery' : 'home');
   const [heroExiting, setHeroExiting] = useState(false);
   const [selected, setSelected] = useState<FlagEntry | null>(initialFlag);
@@ -90,9 +118,9 @@ function App() {
   }, [stage]);
 
   useEffect(() => {
-    // The home surface and globe own a fixed viewport. Country dossiers return
-    // scrolling to the document.
-    if (!selected) {
+    // The home surface and globe own a fixed viewport. Country dossiers and the legal
+    // pages are long-form and return scrolling to the document.
+    if (!selected && !legalDoc) {
       document.documentElement.style.overflow = 'hidden';
     } else {
       document.documentElement.style.overflow = '';
@@ -100,7 +128,7 @@ function App() {
     return () => {
       document.documentElement.style.overflow = '';
     };
-  }, [stage, selected]);
+  }, [stage, selected, legalDoc]);
 
   // Keep the browser URL in step with the selected country so every dossier is a shareable,
   // refreshable page (`/germany`, `/france`, …). Selecting a country pushes a history entry;
@@ -108,18 +136,25 @@ function App() {
   // path guard skips redundant writes and prevents a feedback loop with the popstate handler.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const targetPath = selected ? pathForFlag(selected) : '/';
+    // Legal pages own the URL while open, so they are resolved ahead of the country slug —
+    // otherwise this effect would immediately rewrite `/privacy` back to `/`.
+    const targetPath = legalDoc ? legalDoc.path : selected ? pathForFlag(selected) : '/';
     if (window.location.pathname === targetPath) return;
-    if (selected) {
+    if (legalDoc) {
+      window.history.pushState({ legalId: legalDoc.id }, '', targetPath);
+    } else if (selected) {
       window.history.pushState({ flagId: selected.id }, '', targetPath);
     } else {
       window.history.replaceState({ flagId: null }, '', targetPath);
     }
-  }, [selected]);
+  }, [selected, legalDoc]);
 
   // Browser back/forward (and any external history navigation) restore the matching country.
   useEffect(() => {
     const onPopState = () => {
+      const doc = legalLinkForPath(window.location.pathname);
+      setLegalDoc(doc);
+      if (doc) return;
       const flag = flagForPath(window.location.pathname);
       setSelected(flag);
       if (flag) {
@@ -133,8 +168,12 @@ function App() {
 
   // Keep route-specific discovery metadata aligned with the shareable country URL.
   useEffect(() => {
-    const title = selected ? `${selected.label} · WatchTower` : 'WatchTower';
-    const routePath = selected ? pathForFlag(selected) : '/';
+    const title = legalDoc
+      ? `${legalDoc.title} · WatchTower`
+      : selected
+        ? `${selected.label} · WatchTower`
+        : 'WatchTower';
+    const routePath = legalDoc ? legalDoc.path : selected ? pathForFlag(selected) : '/';
     const canonicalUrl = `${SITE_ORIGIN}${routePath}`;
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     const openGraphUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
@@ -144,7 +183,16 @@ function App() {
     canonical?.setAttribute('href', canonicalUrl);
     openGraphUrl?.setAttribute('content', canonicalUrl);
     openGraphTitle?.setAttribute('content', title);
-  }, [selected]);
+  }, [selected, legalDoc]);
+
+  const openLegal = useCallback((path: string) => {
+    const doc = legalLinkForPath(path);
+    if (!doc) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    setLegalDoc(doc);
+  }, []);
+
+  const closeLegal = useCallback(() => setLegalDoc(null), []);
 
   const selectFlag = useCallback((flag: FlagEntry) => {
     if (Date.now() < suppressGallerySelectUntil.current) return;
@@ -157,6 +205,21 @@ function App() {
 
   const showGallery = stage === 'gallery' && !selected;
   const showHeroOverlay = (stage === 'home' || heroExiting) && !selected;
+
+  // A legal page replaces the whole surface: no hero, gallery or globe underneath it, so
+  // dismissing it restores whichever stage the reader came from.
+  if (legalDoc) {
+    return (
+      <>
+        <CustomCursor />
+        <AppLayout showHeader={false}>
+          <Suspense fallback={<div className="min-h-[100dvh] bg-black" aria-hidden />}>
+            <LegalPage docId={legalDoc.id} onBack={closeLegal} onNavigate={openLegal} />
+          </Suspense>
+        </AppLayout>
+      </>
+    );
+  }
 
   return (
     <>
@@ -201,7 +264,9 @@ function App() {
       ) : null}
       {selected ? (
         <AppLayout showHeader={false}>
-          <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
+          <Suspense fallback={<div className="min-h-[100dvh] bg-black" aria-hidden />}>
+            <SelectedFlagView flag={selected} onBack={() => setSelected(null)} />
+          </Suspense>
         </AppLayout>
       ) : null}
       {showHeroOverlay ? (
@@ -212,6 +277,7 @@ function App() {
               onPrefetchAtlas={() => {
                 void loadCountryGlobe();
               }}
+              onOpenLegal={openLegal}
             />
           </div>
         </div>

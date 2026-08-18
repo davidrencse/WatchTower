@@ -53,8 +53,32 @@ export function loadCsvText(url: string): Promise<string> {
   return request;
 }
 
+/** Parsed results, keyed by URL then by parser identity. */
+const parsed = new Map<string, Map<unknown, unknown>>();
+
 /**
  * Parse a CSV once per (url, parser) pair. `parse` must be a stable module-level function —
  * an inline arrow would be a new identity on every call and defeat the cache.
+ *
+ * The shared country-agnostic tables (the merged stats table alone is ~190 KB) were re-parsed
+ * from cached text on every country navigation. The text cache above saved the request; this
+ * saves the parse, so switching dossiers no longer re-walks the same characters.
  */
+export function parseCsvCached<T>(url: string, text: string, parse: (raw: string) => T): T {
+  let byParser = parsed.get(url);
+  if (!byParser) {
+    byParser = new Map();
+    parsed.set(url, byParser);
+  }
+  if (byParser.has(parse)) return byParser.get(parse) as T;
+  const result = parse(text);
+  byParser.set(parse, result);
+  return result;
+}
+
 /** Testing/debug escape hatch — drops every cached table. */
+export function clearCsvCache(): void {
+  textRequests.clear();
+  settledText.clear();
+  parsed.clear();
+}

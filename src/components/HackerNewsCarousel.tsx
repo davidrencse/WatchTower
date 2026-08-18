@@ -2,11 +2,12 @@ import {
   ExternalLink,
   MessageSquare,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchHackerNewsTopStories,
   type HackerNewsStory,
 } from '../data/hackerNews';
+import { scheduleIdleTask } from '../lib/idleTask';
 import './HackerNewsCarousel.css';
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
@@ -68,7 +69,11 @@ function StorySet({
   );
 }
 
-export function HackerNewsCarousel() {
+/**
+ * Props-free, and mounted inside the globe, whose state changes on every hover sample — so it
+ * is memoised to stay out of that re-render path entirely.
+ */
+export const HackerNewsCarousel = memo(function HackerNewsCarousel() {
   const requestRef = useRef<AbortController | null>(null);
   const [stories, setStories] = useState<HackerNewsStory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,12 +100,15 @@ export function HackerNewsCarousel() {
   }, []);
 
   useEffect(() => {
-    void loadStories();
+    // The globe, country geometry and interaction handlers own startup. The news rail is useful
+    // context, but it should not compete with the first usable map frame for network or CPU.
+    const cancelInitialLoad = scheduleIdleTask(() => void loadStories(), 1200);
     const refreshTimer = window.setInterval(() => {
       if (!document.hidden) void loadStories();
     }, REFRESH_INTERVAL_MS);
 
     return () => {
+      cancelInitialLoad();
       window.clearInterval(refreshTimer);
       requestRef.current?.abort();
     };
@@ -149,4 +157,4 @@ export function HackerNewsCarousel() {
       </span>
     </section>
   );
-}
+});

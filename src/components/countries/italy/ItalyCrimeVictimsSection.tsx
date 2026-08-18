@@ -497,7 +497,7 @@ const INCIDENTS: readonly Incident[] = [
     sourceLabel: 'ANSA',
     sourceUrl: 'https://www.ansa.it/sito/notizie/cronaca/2018/10/19/stupri-rimini-conferma-16-anni-butungu_f30dcd7c-42b6-4494-910c-46fb2ecda197.html',
     image: {
-      src: '/incidents/rimini-attacks.jpg',
+      src: '/incidents/rimini-attacks.webp',
       alt: 'The Rimini seafront',
       credit: 'Rimini seafront — RiminiCity, CC BY-SA 3.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Rimini_Montage.jpg',
@@ -563,7 +563,7 @@ const INCIDENTS: readonly Incident[] = [
     sourceLabel: 'ANSA',
     sourceUrl: 'https://www.ansa.it/english/news/2024/11/08/all-six-defendants-convicted-of-palermo-gang-rape_96e53e84-6457-4296-a65c-ec84a27ac7b4.html',
     image: {
-      src: '/incidents/palermo-group-assault.jpg',
+      src: '/incidents/palermo-group-assault.webp',
       alt: 'The Foro Italico seafront park in Palermo',
       credit: 'Foro Italico, Palermo — Dedda71, CC BY 3.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Foro_Italico_10.jpg',
@@ -605,7 +605,7 @@ const INCIDENTS: readonly Incident[] = [
     sourceLabel: 'ANSA',
     sourceUrl: 'https://www.ansa.it/sicilia/notizie/2026/04/10/violenza-sessuale-di-gruppo-a-catania-tre-condanne-e-unassoluzione_da768ba5-72ee-49f8-bf8d-adb7bc9527a2.html',
     image: {
-      src: '/incidents/catania-villa-bellini.jpg',
+      src: '/incidents/catania-villa-bellini.webp',
       alt: 'Villa Bellini park in Catania',
       credit: 'Villa Bellini, Catania — Unukorno, CC BY 3.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Catania_Parco_Villa_Bellini.jpg',

@@ -2,6 +2,7 @@ import { useCsvText } from '../../../hooks/useCsvText';
 import { memo, useMemo, useState } from 'react';
 import germanyMigrantCrimeRaw from '../../../../Assets/Data/countries/Germany/germany_migrant_crime_requested_metrics.csv?raw';
 import germanyMigrantCrimeAdditionalRaw from '../../../../Assets/Data/countries/Germany/germany_migrant_crime_additional_metrics.csv?raw';
+import { formatCompact, formatGrouped, formatWhole } from '../../../lib/numberFormat';
 import { parseCsvRows } from '../../../lib/csv';
 import { CollapsibleFlagSection } from '../../CollapsibleFlagSection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
@@ -506,7 +507,7 @@ export function GermanyYearlyDeportationsChart({
               />
               <YAxis
                 tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                  formatCompact(Number(value))
                 }
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -596,85 +597,113 @@ export function GermanyDeportationReentryChart({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
-        <ChartContainer config={resolvedConfig} className="h-[360px] w-full font-sans">
-          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
-            <ComposedChart data={[...series]} margin={{ top: 8, right: 12, left: 2, bottom: 8 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis
-                dataKey="year"
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                yAxisId="count"
-                tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
-                }
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-                width={44}
-              />
-              <YAxis
-                yAxisId="pct"
-                orientation="right"
-                tickFormatter={(v) => `${v}%`}
-                tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
-                axisLine={false}
-                tickLine={false}
-                width={40}
-              />
-              <ChartTooltip
-                cursor={{ fill: 'rgba(255,255,255,0.06)' }}
-                content={
-                  <ChartTooltipContent
-                    className="rounded-md"
-                    labelFormatter={(label) => `Year ${label}`}
-                    formatter={(value, name) => {
-                      if (String(name).includes('returned')) {
-                        return Number(value).toLocaleString('en-US');
-                      }
-                      return `${Number(value).toFixed(1)}%`;
-                    }}
-                  />
-                }
-              />
-              <Legend
-                wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
-                formatter={(value) => (
-                  <span className="text-neutral-400">
-                    {resolvedConfig[value as keyof typeof resolvedConfig]?.label ??
-                      String(value)}
-                  </span>
-                )}
-              />
-              <Bar
-                yAxisId="count"
-                dataKey="returnedCount"
-                name="returnedCount"
-                fill={resolvedConfig.returnedCount.color}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={28}
-                isAnimationActive={false}
-              />
-              <Line
-                yAxisId="pct"
-                type="monotone"
-                dataKey="returnPct"
-                name="returnPct"
-                stroke={resolvedConfig.returnPct.color}
-                strokeWidth={2.25}
-                dot={{ r: 2 }}
-                activeDot={{ r: 4 }}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </ChartContainer>
+        <div
+          role="img"
+          aria-label={`${title ?? `Immigrants who returned to ${countryLabel} after deportation`}. ${description ?? 'Bars show returned immigrants and the line shows their share of all deportees by year.'}`}
+        >
+          <ChartContainer config={resolvedConfig} className="h-[360px] w-full font-sans">
+            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 240 }}>
+              <ComposedChart
+                accessibilityLayer
+                data={[...series]}
+                margin={{ top: 8, right: 12, left: 2, bottom: 8 }}
+              >
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  yAxisId="count"
+                  tickFormatter={(value) =>
+                    formatCompact(Number(value))
+                  }
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={44}
+                />
+                <YAxis
+                  yAxisId="pct"
+                  orientation="right"
+                  tickFormatter={(v) => `${v}%`}
+                  tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={40}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.06)' }}
+                  content={
+                    <ChartTooltipContent
+                      className="rounded-md"
+                      labelFormatter={(label) => `Year ${label}`}
+                      formatter={(value, _name, item) => {
+                        if (String((item as { dataKey?: unknown } | undefined)?.dataKey) === 'returnedCount') {
+                          return Number(value).toLocaleString('en-US');
+                        }
+                        return `${Number(value).toFixed(1)}%`;
+                      }}
+                    />
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 10, paddingTop: 6 }}
+                  formatter={(value) => (
+                    <span className="text-neutral-400">
+                      {resolvedConfig[value as keyof typeof resolvedConfig]?.label ??
+                        String(value)}
+                    </span>
+                  )}
+                />
+                <Bar
+                  yAxisId="count"
+                  dataKey="returnedCount"
+                  name="returnedCount"
+                  fill={resolvedConfig.returnedCount.color}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={28}
+                  isAnimationActive={false}
+                />
+                <Line
+                  yAxisId="pct"
+                  type="monotone"
+                  dataKey="returnPct"
+                  name="returnPct"
+                  stroke={resolvedConfig.returnPct.color}
+                  strokeWidth={2.25}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
+        <table className="sr-only">
+          <caption>{title ?? `Immigrants who returned to ${countryLabel} after deportation`}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col">{barLabel}</th>
+              <th scope="col">{lineLabel}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {series.map((row) => (
+              <tr key={row.year}>
+                <th scope="row">{row.year}</th>
+                <td>{row.returnedCount.toLocaleString('en-US')}</td>
+                <td>{row.returnPct.toFixed(1)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         <p className="text-center font-sans text-[10px] leading-relaxed text-neutral-600">
-          Total ({reentryFirstYear}–{reentryLastYear}): ~{reentryTotalReturned.toLocaleString('en-US')}{' '}
-          {summaryCountLabel} · ~{reentryOverallPct.toFixed(1)}% {summaryPctLabel}.
+          Total ({reentryFirstYear}–{reentryLastYear}): {reentryTotalReturned.toLocaleString('en-US')}{' '}
+          {summaryCountLabel} · estimated {reentryOverallPct.toFixed(1)}% {summaryPctLabel}.
         </p>
         {sourceNote ? (
           <p className="font-sans text-[10px] leading-relaxed text-neutral-600">{sourceNote}</p>
@@ -687,11 +716,13 @@ export function GermanyDeportationReentryChart({
 export function GermanyDeportationTrendChart({
   series = DEPORTATION_TREND_SERIES,
   countryLabel = 'Germany',
+  title,
   description = 'Cumulative deported migrants (left axis) and deportation rate per 100k migrants (right axis). Hover a series to focus it.',
   sourceNote,
 }: {
   series?: readonly DeportationTrendRow[];
   countryLabel?: string;
+  title?: string;
   description?: string;
   sourceNote?: string;
 } = {}) {
@@ -720,7 +751,7 @@ export function GermanyDeportationTrendChart({
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
       <CardHeader className="space-y-1 p-4 pb-2 sm:p-5 sm:pb-3">
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-          Migrant deportations ({countryLabel}, {trendFirst?.year}-{trendLast?.year})
+          {title ?? `Migrant deportations (${countryLabel}, ${trendFirst?.year}-${trendLast?.year})`}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
           {description}
@@ -747,7 +778,7 @@ export function GermanyDeportationTrendChart({
                 <YAxis
                   yAxisId="cumulative"
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                    formatCompact(Number(value))
                   }
                   tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                   axisLine={false}
@@ -757,7 +788,7 @@ export function GermanyDeportationTrendChart({
                 <YAxis
                   yAxisId="rate"
                   orientation="right"
-                  tickFormatter={(value) => new Intl.NumberFormat('en-US').format(Number(value))}
+                  tickFormatter={(value) => formatGrouped(Number(value))}
                   tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                   axisLine={false}
                   tickLine={false}
@@ -1001,7 +1032,7 @@ function GermanyNonGermanSuspectsChart({ metricKey }: { metricKey: NonGermanCrim
               />
               <YAxis
                 tickFormatter={(value) =>
-                  new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                  formatCompact(Number(value))
                 }
                 tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                 axisLine={false}
@@ -1081,7 +1112,7 @@ function GermanyCrimeSuspectsByBackgroundChart() {
                 />
                 <YAxis
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                    formatCompact(Number(value))
                   }
                   tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                   axisLine={false}
@@ -1248,7 +1279,7 @@ function GermanyMigrantCrimeInteractiveTrendChart() {
                 />
                 <YAxis
                   tickFormatter={(value) =>
-                    new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value))
+                    formatCompact(Number(value))
                   }
                   tick={{ fill: 'rgba(163,163,163,0.9)', fontSize: 10, fontFamily: 'ui-sans-serif' }}
                   axisLine={false}
@@ -1380,7 +1411,7 @@ function parseCount(s: string): number | null {
 }
 
 function fmtCount(n: number): string {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+  return formatWhole(n);
 }
 
 function formatAdditionalValue(valueRaw: string, unitRaw: string): string {

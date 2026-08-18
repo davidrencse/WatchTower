@@ -49,6 +49,20 @@ import {
   ITALY_FISCAL_SUPPORT_BY_YEAR,
   italyFiscalSupportRowForYear,
 } from '../lib/countries/italy/italyFiscalSupportByYear';
+import { SPAIN_GENERAL_GOVERNMENT_EXPENDITURE_SERIES } from '../lib/countries/spain/spainGeneralGovernmentExpenditure';
+import {
+  spainGovernmentExpenditureCategoryRowForYear,
+  type SpainGovernmentExpenditureCategoryKey,
+} from '../lib/countries/spain/spainGovernmentExpenditureByCategory';
+import {
+  spainGovSpendRowForYear,
+  type SpainGovSpendingYearRow,
+} from '../lib/countries/spain/spainGovernmentSpendingByYear';
+import { spainFiscalSupportRowForYear } from '../lib/countries/spain/spainFiscalSupportByYear';
+import {
+  SPAIN_CORRUPTION_LOST_BY_YEAR,
+  spainCorruptionLostRowForYear,
+} from '../lib/countries/spain/spainCorruptionLostByYear';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import {
@@ -68,6 +82,15 @@ import {
 function govSpendLeadRowForYear(year: number, iso3: string) {
   if (iso3.toUpperCase() === 'ITA') {
     return italyFiscalSupportRowForYear(year);
+  }
+  if (iso3.toUpperCase() === 'ESP') {
+    const r = spainFiscalSupportRowForYear(year);
+    return {
+      immigrationWelfareBn: r.immigrationWelfareBn,
+      moneyToFamiliesBn: r.moneyToFamiliesBn,
+      totalImmigrantsRefugeesBn: r.totalImmigrantsRefugeesBn,
+      foreignAidOdaBn: r.foreignAidOdaBn,
+    };
   }
   if (iso3.toUpperCase() === 'FRA') {
     const r = franceFiscalSupportRowForYear(year);
@@ -90,13 +113,51 @@ function govSpendLeadRowForYear(year: number, iso3: string) {
 const ITALY_FISCAL_MODELLED_NOTE =
   'Modeled estimate. Italy does not publish a consolidated annual series for this measure; the 2000–2025 trend here is constructed, not an official statistic, and carries no source link.';
 
-function ItalyModelledEstimateNote({ show }: { show: boolean }) {
-  if (!show) return null;
+/**
+ * Spain's three immigration-transfer columns are modeled the same way Italy's are, but
+ * they are interpolated between figures the Spanish state has actually published, so the
+ * note names them. Spain's ODA and corruption figures are *not* covered by this note —
+ * those carry their own provenance (see `spainFiscalSupportByYear`).
+ */
+const SPAIN_FISCAL_MODELLED_NOTE =
+  'Modeled estimate. Spain publishes no consolidated annual series for immigration-related transfers; this trend is interpolated between published anchors — the Secretaría de Estado de Migraciones budget (€481M in 2019, €814M in 2023) and the Ingreso Mínimo Vital caseload at a 17.5% foreign-national share — and is not itself an official statistic.';
+
+/**
+ * Spain's corruption figures are a model over *published* inputs, which is a different
+ * claim from Italy's constructed trend — and a different basis from the German and French
+ * corruption series, so the note says not to read the three against each other.
+ */
+const SPAIN_CORRUPTION_MODEL_NOTE =
+  'Modeled from published inputs: Eurostat GDP × 5% × ((100 − CPI) ÷ 57), using Transparency International\'s CPI for each year (2000–2011 carry the 2012 score, the earliest on the comparable scale). Cross-check: Spain\'s CNMC put deficient-procurement overcost near 5% of GDP (~€48bn) in 2015; this model gives €40.1bn. An order-of-magnitude cost estimate, not money traced out of a budget — and not comparable with the other countries\' corruption series here, which use different bases.';
+
+const SPAIN_CORRUPTION_SOURCE_URL =
+  'https://www.transparency.org/en/countries/spain|https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp/default/table|https://blogs.worldbank.org/en/governance/what-are-costs-corruption';
+
+const SPAIN_ODA_SOURCE_URL =
+  'https://data.worldbank.org/indicator/DC.ODA.TOTL.CD?locations=ES|https://www.oecd.org/en/publications/development-co-operation-profiles_04b376d7-en/spain_63702c87-en.html';
+
+const GOV_SPEND_COUNTRY_LABEL: Record<string, string> = {
+  DEU: 'Germany',
+  FRA: 'France',
+  ITA: 'Italy',
+  ESP: 'Spain',
+};
+
+function FiscalEstimateNote({ text }: { text: string | null }) {
+  if (!text) return null;
   return (
     <div className="mt-3 border-t border-white/[0.06] pt-3">
-      <p className="font-sans text-[10px] leading-relaxed text-amber-200/70">{ITALY_FISCAL_MODELLED_NOTE}</p>
+      <p className="font-sans text-[10px] leading-relaxed text-amber-200/70">{text}</p>
     </div>
   );
+}
+
+/** The lead / foreign-aid tiles share one caveat per country; null means "no caveat". */
+function fiscalModelledNoteFor(iso3: string): string | null {
+  const upper = iso3.toUpperCase();
+  if (upper === 'ITA') return ITALY_FISCAL_MODELLED_NOTE;
+  if (upper === 'ESP') return SPAIN_FISCAL_MODELLED_NOTE;
+  return null;
 }
 
 export function GermanyImmigrationWelfareYearTile({
@@ -109,8 +170,7 @@ export function GermanyImmigrationWelfareYearTile({
   iso3: string;
 }) {
   const data = useMemo(() => govSpendLeadRowForYear(selectedYear, iso3), [selectedYear, iso3]);
-  const countryLabel =
-    iso3.toUpperCase() === 'ITA' ? 'Italy' : iso3.toUpperCase() === 'FRA' ? 'France' : 'Germany';
+  const countryLabel = GOV_SPEND_COUNTRY_LABEL[iso3.toUpperCase()] ?? 'Germany';
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric shadow-card p-4 sm:p-5">
@@ -152,7 +212,7 @@ export function GermanyImmigrationWelfareYearTile({
         </div>
       ) : null}
       {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
-      <ItalyModelledEstimateNote show={iso3.toUpperCase() === 'ITA'} />
+      <FiscalEstimateNote text={fiscalModelledNoteFor(iso3)} />
     </article>
   );
 }
@@ -195,7 +255,23 @@ export function GermanyForeignAidYearTile({
           </div>
         ) : null}
         {sourceRow?.notes ? <NoteBlock text={sourceRow.notes} /> : null}
-        <ItalyModelledEstimateNote show={iso3.toUpperCase() === 'ITA'} />
+        {/* Spain's ODA is a real OECD-DAC series, so it gets a source link rather than the
+            modeled-estimate caveat the immigration-transfer columns carry. */}
+        {iso3.toUpperCase() === 'ESP' ? (
+          <>
+            <p className="mt-2 font-sans text-[10px] leading-relaxed text-neutral-500">
+              Net ODA provided (OECD-DAC via World Bank), converted at the ECB annual average
+              USD/EUR rate. 2025 is the DAC preliminary figure (US$5.1bn, 0.27% of GNI).
+            </p>
+            <div className="mt-2">
+              <SourceLinks
+                url={SPAIN_ODA_SOURCE_URL}
+                className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+              />
+            </div>
+          </>
+        ) : null}
+        <FiscalEstimateNote text={iso3.toUpperCase() === 'ITA' ? ITALY_FISCAL_MODELLED_NOTE : null} />
       </div>
     </article>
   );
@@ -357,6 +433,32 @@ const ITALY_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly ItalyGovernmentExpendit
   'socialProtection',
 ];
 
+const SPAIN_GOV_SPENDING_LINE_CONFIG = {
+  publicServices: { label: 'General public services', color: '#a855f7' },
+  defence: { label: 'Defence', color: '#ef4444' },
+  publicOrder: { label: 'Public order & safety', color: '#f97316' },
+  economicAffairs: { label: 'Economic affairs', color: '#84cc16' },
+  environment: { label: 'Environmental protection', color: '#14b8a6' },
+  housing: { label: 'Housing & community', color: '#06b6d4' },
+  health: { label: 'Health', color: '#60a5fa' },
+  cultureRecreation: { label: 'Recreation & culture', color: '#f43f5e' },
+  education: { label: 'Education', color: '#c084fc' },
+  socialProtection: { label: 'Social protection', color: '#22c55e' },
+} satisfies ChartConfig;
+
+const SPAIN_GOV_SPENDING_CATEGORY_SERIES_ORDER: readonly SpainGovernmentExpenditureCategoryKey[] = [
+  'publicServices',
+  'defence',
+  'publicOrder',
+  'economicAffairs',
+  'environment',
+  'housing',
+  'health',
+  'cultureRecreation',
+  'education',
+  'socialProtection',
+];
+
 const GERMANY_GOV_SPENDING_YEARS = Array.from({ length: 26 }, (_, i) => 2000 + i);
 
 /** 2025-calibrated ratios for cards without a dedicated series column. */
@@ -474,6 +576,48 @@ const ITALY_GOV_SPEND_CARD_DEFS: readonly ItalyGovSpendCardDef[] = [
   { label: 'Pensions', notes: 'Old-age pensions (COFOG GF10.02) — Italy\'s single largest outlay', color: '#eab308', getEurBn: (r) => r.pensions },
 ];
 
+/**
+ * Spain's twelve category cards. Like Italy's, every value is a real Eurostat figure for
+ * 2000–2024 — the nine spending columns come from the COFOG breakdown and reconcile to the
+ * total, and Pensions / Public investment / Housing are the actual GF10.02, P.51g and GF06
+ * series. 2025's COFOG columns are estimated (see `spainGovernmentExpenditureByCategory`).
+ */
+type SpainGovSpendCardDef = {
+  label: string;
+  notes: string;
+  color: string;
+  getEurBn: (row: SpainGovSpendingYearRow) => number;
+};
+
+const SPAIN_GOV_SPEND_CARD_DEFS: readonly SpainGovSpendCardDef[] = [
+  { label: 'Social Benefits & Social Protection', notes: 'Contributory and non-contributory pensions, unemployment, dependency and family benefits (COFOG GF10)', color: '#22c55e', getEurBn: (r) => r.socialProtection },
+  { label: 'Health', notes: 'Sistema Nacional de Salud — the regionally run public health service (GF07)', color: '#60a5fa', getEurBn: (r) => r.health },
+  { label: 'Education', notes: 'Schools, universities and research, overwhelmingly run by the autonomous communities (GF09)', color: '#c084fc', getEurBn: (r) => r.educationResearch },
+  { label: 'Defence / Military', notes: 'Armed forces and defence procurement (GF02). Excludes the special modernisation programmes booked under economic affairs', color: '#ef4444', getEurBn: (r) => r.defence },
+  { label: 'Transport & Infrastructure', notes: 'Roads, rail, ports and airports (COFOG GF04.5)', color: '#0ea5e9', getEurBn: (r) => r.transportInfrastructure },
+  { label: 'General Public Services & Administration', notes: 'Core administration and the regional financing system, excluding debt interest (GF01 net of interest)', color: '#a855f7', getEurBn: (r) => r.generalPublicServices },
+  { label: 'Interest Payments on Debt', notes: 'Interest on Spain\'s public debt (D.41 payable)', color: '#f97316', getEurBn: (r) => r.interestPayments },
+  { label: 'Housing & Community', notes: 'Housing and community amenities (GF06). Highlight box: this amount is already counted inside the "Other" card, not additional to it.', color: '#14b8a6', getEurBn: (r) => r.housing },
+  { label: 'Economic Affairs & Subsidies', notes: 'Industry, energy, agriculture and business support, excl. transport (GF04). The 2012 spike is the bank-restructuring cost booked here', color: '#84cc16', getEurBn: (r) => r.economicAffairsSubsidies },
+  { label: 'Other (Public Order, Environment, Housing, Culture)', notes: 'Public order & safety, environmental protection, housing & community and recreation/culture (GF03/05/06/08). Includes the Housing & Community card above, which is broken out separately — do not add the two together.', color: '#f43f5e', getEurBn: (r) => r.other },
+  { label: 'Public investment', notes: 'General government gross fixed capital formation (P.51g)', color: '#06b6d4', getEurBn: (r) => r.publicInvestment },
+  { label: 'Pensions', notes: 'Old-age pensions (COFOG GF10.02) — Spain\'s single largest outlay, and the fastest-growing', color: '#eab308', getEurBn: (r) => r.pensions },
+];
+
+function buildSpainGovSpendCategoryCardsForYear(row: SpainGovSpendingYearRow) {
+  const total = row.total;
+  return SPAIN_GOV_SPEND_CARD_DEFS.map((def) => {
+    const eurBn = def.getEurBn(row);
+    return {
+      label: def.label,
+      eurBn,
+      sharePct: total > 0 ? (eurBn / total) * 100 : 0,
+      notes: def.notes,
+      color: def.color,
+    };
+  });
+}
+
 function buildItalyGovSpendCategoryCardsForYear(row: ItalyGovSpendingYearRow) {
   const total = row.total;
   return ITALY_GOV_SPEND_CARD_DEFS.map((def) => {
@@ -489,6 +633,12 @@ function buildItalyGovSpendCategoryCardsForYear(row: ItalyGovSpendingYearRow) {
 }
 
 function govSpendRowForYear(year: number, iso3: string): GermanyGovSpendingSeriesRow {
+  // Spain's row is a superset of Germany's shape, so the shared context tiles can read it
+  // directly; the category cards still go through `buildSpainGovSpendCategoryCardsForYear`
+  // for the three columns Germany has no equivalent of.
+  if (iso3.toUpperCase() === 'ESP') {
+    return spainGovSpendRowForYear(year);
+  }
   if (iso3.toUpperCase() === 'FRA') {
     return {
       ...franceGovSpendRowForYear(year),
@@ -647,6 +797,17 @@ function ItalyGovernmentTotalExpenditureChart() {
   );
 }
 
+function SpainGovernmentTotalExpenditureChart() {
+  return (
+    <GovernmentTotalExpenditureChart
+      title="Total General Government Expenditure"
+      description="Billion Euros (€bn) – Official IGAE / Eurostat general government (S13) data · 2000–2025"
+      series={SPAIN_GENERAL_GOVERNMENT_EXPENDITURE_SERIES}
+      seriesLabel="Total General Government Expenditure"
+    />
+  );
+}
+
 function formatGovSpendingContextValue(key: (typeof GERMANY_GOV_SPENDING_CONTEXT_KEYS)[number], value: number): string {
   if (key === 'total') return `€${value.toFixed(1)}B`;
   if (key === 'gdpPerCapitaUsd') return `$${Math.round(value).toLocaleString('en-US')}`;
@@ -662,6 +823,9 @@ function govSpendingContextSubtitle(
 ): string {
   if (key === 'total' && isItaly) {
     return `ISTAT / Eurostat general government (S13) · ${year}`;
+  }
+  if (key === 'total' && iso3?.toUpperCase() === 'ESP') {
+    return `IGAE / Eurostat general government (S13) · ${year}`;
   }
   if (key === 'total' && iso3?.toUpperCase() === 'FRA') {
     return `INSEE / Eurostat general government (S13) · ${year}`;
@@ -690,8 +854,11 @@ function GermanyGovSpendingContextMetricTile({
   );
   const cfg = GERMANY_GOV_SPENDING_LINE_CONFIG[seriesKey];
   const value = row[seriesKey];
+  const isSpain = iso3.toUpperCase() === 'ESP';
   const label =
-    (isFrance || isItaly) && seriesKey === 'total' ? 'Total General Government Expenditure' : cfg.label;
+    (isFrance || isItaly || isSpain) && seriesKey === 'total'
+      ? 'Total General Government Expenditure'
+      : cfg.label;
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
@@ -754,13 +921,13 @@ function GermanyGovernmentSpendingCategoryCards({
   iso3: string;
   isItaly?: boolean;
 }) {
-  const cards = useMemo(
-    () =>
-      isItaly
-        ? buildItalyGovSpendCategoryCardsForYear(italyGovSpendRowForYear(selectedYear))
-        : buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear, iso3)),
-    [selectedYear, iso3, isItaly],
-  );
+  const cards = useMemo(() => {
+    if (isItaly) return buildItalyGovSpendCategoryCardsForYear(italyGovSpendRowForYear(selectedYear));
+    if (iso3.toUpperCase() === 'ESP') {
+      return buildSpainGovSpendCategoryCardsForYear(spainGovSpendRowForYear(selectedYear));
+    }
+    return buildGovSpendCategoryCardsForYear(govSpendRowForYear(selectedYear, iso3));
+  }, [selectedYear, iso3, isItaly]);
 
   return (
     <div className="col-span-full grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -813,6 +980,7 @@ function GermanyGovernmentSpendingCategoryLineChart({
   isItaly?: boolean;
 }) {
   const isFrance = iso3.toUpperCase() === 'FRA' && !isItaly;
+  const isSpain = iso3.toUpperCase() === 'ESP' && !isItaly;
   const yearButtonRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
   useEffect(() => {
@@ -832,8 +1000,33 @@ function GermanyGovernmentSpendingCategoryLineChart({
     () => (isItaly ? italyGovernmentExpenditureCategoryRowForYear(selectedYear) : null),
     [isItaly, selectedYear],
   );
+  const spainYearRow = useMemo(
+    () => (isSpain ? spainGovernmentExpenditureCategoryRowForYear(selectedYear) : null),
+    [isSpain, selectedYear],
+  );
 
   const { chartData, chartConfig, totalBn } = useMemo(() => {
+    if (isSpain) {
+      if (!spainYearRow) return { chartData: [], chartConfig: {}, totalBn: null };
+      const slices = SPAIN_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => ({
+        key,
+        name: String(SPAIN_GOV_SPENDING_LINE_CONFIG[key].label),
+        eurBn: spainYearRow[key],
+        fill: String(SPAIN_GOV_SPENDING_LINE_CONFIG[key].color),
+        paletteIndex: i,
+      })).filter((slice) => slice.eurBn > 0);
+      const data = slices.map((slice) => ({
+        ...slice,
+        pieValue: slice.eurBn,
+        pctOfTotal: spainYearRow.total > 0 ? (slice.eurBn / spainYearRow.total) * 100 : 0,
+      }));
+      const cfg = data.reduce<ChartConfig>((acc, row, i) => {
+        acc[`slice_${i}`] = { label: row.name, color: row.fill };
+        return acc;
+      }, {});
+      return { chartData: data, chartConfig: cfg, totalBn: spainYearRow.total };
+    }
+
     if (isItaly) {
       if (!italyYearRow) return { chartData: [], chartConfig: {}, totalBn: null };
       const slices = ITALY_GOV_SPENDING_CATEGORY_SERIES_ORDER.map((key, i) => ({
@@ -900,7 +1093,7 @@ function GermanyGovernmentSpendingCategoryLineChart({
     }, {});
 
     return { chartData: data, chartConfig: cfg, totalBn: yearRow.total };
-  }, [franceYearRow, italyYearRow, isFrance, isItaly, yearRow]);
+  }, [franceYearRow, italyYearRow, spainYearRow, isFrance, isItaly, isSpain, yearRow]);
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -908,21 +1101,25 @@ function GermanyGovernmentSpendingCategoryLineChart({
         <CardTitle className="font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-300">
           {isItaly
             ? 'Italy – Government Expenditure by Category (2000–2025)'
-            : isFrance
-              ? 'France – Government Expenditure by Category (2000–2025)'
-              : 'Government Expenditure By Category (2000-2025)'}
+            : isSpain
+              ? 'Spain – Government Expenditure by Category (2000–2025)'
+              : isFrance
+                ? 'France – Government Expenditure by Category (2000–2025)'
+                : 'Government Expenditure By Category (2000-2025)'}
         </CardTitle>
         <CardDescription className="font-sans text-[10px] font-medium text-neutral-400">
           {isItaly
             ? '€ billions, current prices — General Government, S13 · ISTAT / Eurostat COFOG · Select a year below (2025 provisional)'
-            : isFrance
-              ? '€ billions, current prices — General Government, S13 · Select a year below'
-              : 'Select a year below · pie and category cards update together (€bn)'}
+            : isSpain
+              ? '€ billions, current prices — General Government, S13 · IGAE / Eurostat COFOG · Select a year below (2025 estimated — Eurostat has not released COFOG for 2025)'
+              : isFrance
+                ? '€ billions, current prices — General Government, S13 · Select a year below'
+                : 'Select a year below · pie and category cards update together (€bn)'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
         <p className="text-center font-sans text-sm tabular-nums text-neutral-500">
-          {isFrance || isItaly ? 'Total General Government Expenditure' : 'Total expenditure'} ·{' '}
+          {isFrance || isItaly || isSpain ? 'Total General Government Expenditure' : 'Total expenditure'} ·{' '}
           <span className="font-semibold text-neutral-300">
             {totalBn == null ? 'Not available' : `€${totalBn.toFixed(isFrance ? 3 : 1)}B`}
           </span>
@@ -1058,17 +1255,19 @@ function GermanyCorruptionLostMetricTile({
   iso3: string;
 }) {
   const isItaly = iso3.toUpperCase() === 'ITA';
+  const isSpain = iso3.toUpperCase() === 'ESP';
   const row = useMemo(() => {
     if (isItaly) {
       const italyRow = italyFiscalSupportRowForYear(selectedYear);
       return { lostValue: italyRow.lostToCorruptionMn, pctGdp: null };
     }
-    const countryRow =
-      iso3.toUpperCase() === 'FRA'
+    const countryRow = isSpain
+      ? spainCorruptionLostRowForYear(selectedYear)
+      : iso3.toUpperCase() === 'FRA'
         ? franceCorruptionLostRowForYear(selectedYear)
         : germanyCorruptionLostRowForYear(selectedYear);
     return { lostValue: countryRow.lostBnEur, pctGdp: countryRow.pctGdp };
-  }, [selectedYear, iso3, isItaly]);
+  }, [selectedYear, iso3, isItaly, isSpain]);
 
   return (
     <article className="flex min-h-[148px] flex-col rounded-md border border-line bg-surface-metric p-4 shadow-card sm:p-5">
@@ -1087,7 +1286,19 @@ function GermanyCorruptionLostMetricTile({
       </div>
       {isItaly ? (
         <div className="mt-auto">
-          <ItalyModelledEstimateNote show />
+          <FiscalEstimateNote text={ITALY_FISCAL_MODELLED_NOTE} />
+        </div>
+      ) : isSpain ? (
+        // Spain's figure is a model over published inputs, so it gets both the source links
+        // for those inputs and a note spelling out the formula and its limits.
+        <div className="mt-auto">
+          <div className="pt-3">
+            <SourceLinks
+              url={SPAIN_CORRUPTION_SOURCE_URL}
+              className="inline-flex w-fit items-center gap-1 font-sans text-[10px] text-[var(--uk-accent)] hover:text-neutral-200"
+            />
+          </div>
+          <FiscalEstimateNote text={SPAIN_CORRUPTION_MODEL_NOTE} />
         </div>
       ) : (
         <div className="mt-auto pt-3">
@@ -1104,6 +1315,7 @@ function GermanyCorruptionLostMetricTile({
 function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: number; iso3: string }) {
   const isFrance = iso3.toUpperCase() === 'FRA';
   const isItaly = iso3.toUpperCase() === 'ITA';
+  const isSpain = iso3.toUpperCase() === 'ESP';
   const chartData = useMemo<readonly { year: number; lostDisplay: number; pctGdp: number | null }[]>(() => {
     if (isItaly) {
       return ITALY_FISCAL_SUPPORT_BY_YEAR.map((r) => ({
@@ -1112,13 +1324,18 @@ function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: numb
         pctGdp: null,
       }));
     }
-    return (isFrance ? FRANCE_CORRUPTION_LOST_BY_YEAR : GERMANY_CORRUPTION_LOST_BY_YEAR).map((r) => ({
+    const series = isSpain
+      ? SPAIN_CORRUPTION_LOST_BY_YEAR
+      : isFrance
+        ? FRANCE_CORRUPTION_LOST_BY_YEAR
+        : GERMANY_CORRUPTION_LOST_BY_YEAR;
+    return series.map((r) => ({
       year: r.year,
       lostDisplay: r.lostBnEur,
       pctGdp: r.pctGdp,
     }));
-  }, [isFrance, isItaly]);
-  const countryLabel = isItaly ? 'Italy' : isFrance ? 'France' : 'Germany';
+  }, [isFrance, isItaly, isSpain]);
+  const countryLabel = GOV_SPEND_COUNTRY_LABEL[iso3.toUpperCase()] ?? 'Germany';
 
   return (
     <Card className="col-span-full border-line bg-surface-metric shadow-card">
@@ -1131,6 +1348,7 @@ function GermanyCorruptionLostChart({ selectedYear, iso3 }: { selectedYear: numb
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 p-4 pt-0 sm:p-5 sm:pt-0">
+        {isSpain ? <FiscalEstimateNote text={SPAIN_CORRUPTION_MODEL_NOTE} /> : null}
         <ChartContainer
           config={isItaly ? ITALY_CORRUPTION_LOST_CHART_CONFIG : GERMANY_CORRUPTION_LOST_CHART_CONFIG}
           className="h-[280px] w-full sm:h-[320px]"
@@ -1259,7 +1477,8 @@ export function GermanyGovernmentSpendingDESection({
 }) {
   const isFrance = iso3.toUpperCase() === 'FRA';
   const isItaly = actualIso3?.toUpperCase() === 'ITA';
-  const fiscalIso3 = isItaly ? 'ITA' : iso3;
+  const isSpain = !isItaly && (actualIso3?.toUpperCase() ?? iso3.toUpperCase()) === 'ESP';
+  const fiscalIso3 = isItaly ? 'ITA' : isSpain ? 'ESP' : iso3;
   const [selectedYear, setSelectedYear] = useState(() => (isFrance && !isItaly ? 2024 : 2025));
 
   useEffect(() => {
@@ -1273,6 +1492,8 @@ export function GermanyGovernmentSpendingDESection({
     <div className="flex flex-col gap-4">
       {isItaly ? (
         <ItalyGovernmentTotalExpenditureChart />
+      ) : isSpain ? (
+        <SpainGovernmentTotalExpenditureChart />
       ) : isFrance ? (
         <FranceGovernmentTotalExpenditureChart />
       ) : (
@@ -1286,15 +1507,17 @@ export function GermanyGovernmentSpendingDESection({
       />
 
       <div className={STAT_GRID}>
+        {/* Italy's and Spain's immigration figures are modeled, so they deliberately drop the
+            expenditure-CSV source row — a link there would imply the numbers came from it. */}
         <GermanyImmigrationWelfareYearTile
           selectedYear={selectedYear}
-          sourceRow={isItaly ? undefined : immigrationRow}
+          sourceRow={isItaly || isSpain ? undefined : immigrationRow}
           iso3={fiscalIso3}
         />
         <GermanyCorruptionLostMetricTile selectedYear={selectedYear} iso3={fiscalIso3} />
         <GermanyForeignAidYearTile
           selectedYear={selectedYear}
-          sourceRow={isItaly ? undefined : foreignAidRow}
+          sourceRow={isItaly || isSpain ? undefined : foreignAidRow}
           iso3={fiscalIso3}
         />
       </div>

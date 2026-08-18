@@ -1,6 +1,8 @@
 import { useCsvText } from '../../../hooks/useCsvText';
 import { Fragment, memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { formatGrouped } from '../../../lib/numberFormat';
 import germanyGovernmentCsvRaw from '../../../../Assets/Data/countries/Germany/government/germany_government_politics.csv?raw';
+import spainGovernmentCsvRaw from '../../../../Assets/Data/countries/Spain/generated/esp_government_politics.csv?raw';
 import { GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT } from '../../../data/countries/germany/germanyImmigrationPolicies';
 import {
   clusterRowsByMetric,
@@ -13,14 +15,24 @@ import {
 import { GermanyBundestagSeatsVisualization } from './GermanyBundestagSeatsVisualization';
 import { GermanyImmigrationPoliciesSection } from './GermanyImmigrationPoliciesSection';
 import { GermanyPolicyCarousel } from './GermanyPolicyCarousel';
+import { SpainCitizenshipBlocks } from '../../government/SpainCitizenshipBlocks';
+import { SPAIN_CITIZENSHIP_BLOCK_COUNT } from '../../../data/government/spainCitizenship';
+import { PolicyCarousel } from '../../government/PolicyCarousel';
+import { ImmigrationPoliciesPanel } from '../../government/ImmigrationPoliciesPanel';
+import type { PolicyInfographic } from '../../../data/government/policyCards';
+import type {
+  ImmigrationPolicyArea,
+  ImmigrationPolicyContext,
+} from '../../../data/government/immigrationPolicies';
 import {
   GOV_POLITICS_CARD_GRID,
   GovStatCard,
   NaturalizationsPriorNationalityDataGrid,
-  renderMetricGroup,
-  splitUrls,
+  GovernmentMetricGroup,
 } from './GermanyGovernmentPoliticsBlocks';
+import { splitUrls } from '../../../lib/countries/germany/germanyGovernmentPoliticsFormat';
 import { CollapsibleFlagSection } from '../../CollapsibleFlagSection';
+import { TemplateGapBlock } from '../../TemplateGap';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from '../../ui/chart';
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
@@ -71,7 +83,7 @@ const PARTY_MEMBERSHIP_DATA: PartyMembershipPoint[] = [
 ];
 
 function formatMembers(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
+  return formatGrouped(value);
 }
 
 function GovernmentPartyMembershipChart() {
@@ -177,9 +189,14 @@ function GovernmentPartyMembershipChart() {
 function OverviewBlock({
   rows,
   coalitionSeatTotal,
+  isGermany = true,
+  countryLabel,
 }: {
   rows: GermanyGovernmentPoliticsRow[];
   coalitionSeatTotal?: GermanyGovernmentPoliticsRow;
+  /** False for a dossier reading another country's CSV — hides Germany-only visuals. */
+  isGermany?: boolean;
+  countryLabel?: string;
 }) {
   const byMetric = useMemo(() => {
     const m = new Map<string, GermanyGovernmentPoliticsRow>();
@@ -209,7 +226,7 @@ function OverviewBlock({
           <CardHeader className="p-3">
             <CardTitle className={`text-sm text-neutral-100 ${UC_TITLE}`}>Head of government</CardTitle>
             <CardDescription className={`text-[10px] text-neutral-500 ${UC_META}`}>
-              Chancellor, party, and ideology (from dataset)
+              Head of government, party, and ideology (from dataset)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 p-3 pt-0 font-sans text-sm text-neutral-200">
@@ -255,12 +272,28 @@ function OverviewBlock({
         ) : null}
       </div>
 
-      <GovernmentPartyMembershipChart />
+      {isGermany ? (
+        <GovernmentPartyMembershipChart />
+      ) : (
+        <TemplateGapBlock
+          countryLabel={countryLabel ?? 'This country'}
+          panel="Party membership trends"
+          detail={`The chart in this slot is Germany's own 1950–2022 party-membership series. It is not shown here because the figures would be German; the slot needs a ${countryLabel ?? 'national'} membership series.`}
+        />
+      )}
     </div>
   );
 }
 
-function ParliamentGroups({ groups, isGermany = true }: { groups: GermanyGovernmentPoliticsRow[][]; isGermany?: boolean }) {
+function ParliamentGroups({
+  groups,
+  isGermany = true,
+  countryLabel = 'Germany',
+}: {
+  groups: GermanyGovernmentPoliticsRow[][];
+  isGermany?: boolean;
+  countryLabel?: string;
+}) {
   const totalSeatsGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'total seats');
   const majorityThresholdGroup = groups.find((g) => g[0]!.metric.trim().toLowerCase() === 'majority threshold');
   const trustInCivilServiceRow: GermanyGovernmentPoliticsRow = {
@@ -317,7 +350,7 @@ function ParliamentGroups({ groups, isGermany = true }: { groups: GermanyGovernm
     if (m === 'seats by party') {
       out.push(
         <div key="seats-by-party" className="col-span-1 sm:col-span-2 lg:col-span-3">
-          <GermanyBundestagSeatsVisualization rows={g} />
+          <GermanyBundestagSeatsVisualization rows={g} countryLabel={countryLabel} isGermany={isGermany} />
         </div>,
       );
       continue;
@@ -339,7 +372,7 @@ function ParliamentGroups({ groups, isGermany = true }: { groups: GermanyGovernm
         </div>,
       );
     }
-    out.push(<Fragment key={g[0]!.metric}>{renderMetricGroup(g)}</Fragment>);
+    out.push(<Fragment key={g[0]!.metric}>{GovernmentMetricGroup(g)}</Fragment>);
     if (isGermany && m === 'perceived corruption') {
       out.push(
         <GovStatCard key="trust-in-civil-service" row={trustInCivilServiceRow} title="Trust in Civil Service" />,
@@ -819,7 +852,7 @@ function CitizenshipGroups({ groups }: { groups: GermanyGovernmentPoliticsRow[][
         <GovStatCard row={naturalizationRefusalRateRow} title="Naturalization Refusal Rate" />
       </div>
 
-      <div className={GOV_POLITICS_CARD_GRID}>{remainingGroups.map((g) => renderMetricGroup(g))}</div>
+      <div className={GOV_POLITICS_CARD_GRID}>{remainingGroups.map((g) => GovernmentMetricGroup(g))}</div>
     </div>
   );
 }
@@ -830,6 +863,10 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
   headerControls,
   csvUrl = CSV_URL,
   isGermany = true,
+  countryLabel,
+  policyExperience,
+  parliamentContent,
+  parliamentCountOverride,
 }: {
   collapseSignal?: number;
   expandSignal?: number;
@@ -838,10 +875,23 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
   csvUrl?: string;
   /** Germany also renders bundled manual cards, policy carousel and polling charts. */
   isGermany?: boolean;
+  /** Country name, used in the red markers shown where a Germany-only visual is withheld. */
+  countryLabel?: string;
+  /** Country-specific content rendered in Germany's Policies carousel and nested immigration layout. */
+  policyExperience?: {
+    cards: PolicyInfographic[];
+    carouselLabel: string;
+    immigrationContext: ImmigrationPolicyContext;
+    immigrationAreas: readonly ImmigrationPolicyArea[];
+  };
+  /** Country-specific researched Parliament content replacing the generated metric grid. */
+  parliamentContent?: ReactNode;
+  /** Number of visible information blocks exposed by `parliamentContent`. */
+  parliamentCountOverride?: number;
 }) {
   const { text: raw, error: loadError } = useCsvText(
     csvUrl,
-    isGermany ? germanyGovernmentCsvRaw : '',
+    isGermany ? germanyGovernmentCsvRaw : countryLabel === 'Spain' ? spainGovernmentCsvRaw : '',
     'Failed to load government data.',
   );
 
@@ -856,7 +906,22 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
     [germanyRows],
   );
 
-  const outerCount = useMemo(() => countGovernmentSectionStats(allRows), [allRows]);
+  const outerCount = useMemo(() => {
+    let baseCount = countGovernmentSectionStats(allRows);
+    if (countryLabel === 'Spain') {
+      const csvCitizenshipGroupCount = clusterRowsByMetric(rowsForSubsection(germanyRows, 'Citizenship')).length;
+      baseCount = baseCount - csvCitizenshipGroupCount + SPAIN_CITIZENSHIP_BLOCK_COUNT;
+    }
+    if (parliamentContent != null && parliamentCountOverride != null) {
+      const csvParliamentGroupCount = clusterRowsByMetric(rowsForSubsection(germanyRows, 'Parliament')).length;
+      baseCount = baseCount - csvParliamentGroupCount + parliamentCountOverride;
+    }
+    if (!policyExperience) return baseCount;
+
+    const csvPolicyGroupCount = clusterRowsByMetric(rowsForSubsection(germanyRows, 'Policies')).length;
+    const countryPolicyCount = policyExperience.cards.length + policyExperience.immigrationAreas.length + 1;
+    return baseCount - csvPolicyGroupCount - GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT + countryPolicyCount;
+  }, [allRows, countryLabel, germanyRows, parliamentContent, parliamentCountOverride, policyExperience]);
 
   const sanity = useMemo(() => {
     if (allRows.length === 0) return 'CSV parsed 0 rows — check file and headers.';
@@ -878,20 +943,29 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
       <div className="flex flex-col gap-4">
         {loadError ? <p className="font-sans text-xs text-amber-500/90">{loadError}</p> : null}
         {sanity ? <p className="font-sans text-xs text-neutral-500">{sanity}</p> : null}
-        <OverviewBlock rows={overviewRows} coalitionSeatTotal={coalitionSeatTotalOverviewRow} />
+        <OverviewBlock
+          rows={overviewRows}
+          coalitionSeatTotal={coalitionSeatTotalOverviewRow}
+          isGermany={isGermany}
+          countryLabel={countryLabel}
+        />
 
         {SUBSECTIONS.map(({ id, title, key }) => {
           const sorted = rowsForSubsection(germanyRows, key);
           const groups = clusterRowsByMetric(sorted);
           if (groups.length === 0) return null;
           const subsectionCount =
-            key === 'Citizenship' && isGermany
-              ? groups.length + 5
+            key === 'Citizenship' && countryLabel === 'Spain'
+              ? SPAIN_CITIZENSHIP_BLOCK_COUNT
+              : key === 'Citizenship' && isGermany
+                ? groups.length + 5
               : key === 'Parliament'
-                ? groups.length
+                ? (parliamentContent != null && parliamentCountOverride != null ? parliamentCountOverride : groups.length)
                 : key === 'Policies' && isGermany
                   ? groups.length + GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT
-                  : groups.length;
+                  : key === 'Policies' && policyExperience
+                    ? policyExperience.cards.length + policyExperience.immigrationAreas.length + 1
+                    : groups.length;
           return (
             <CollapsibleFlagSection
               key={id}
@@ -904,26 +978,45 @@ export const GermanyGovernmentSection = memo(function GermanyGovernmentSection({
               collapseSignal={collapseSignal}
               expandSignal={expandSignal}
             >
-              {key === 'Parliament' ? (
-                <ParliamentGroups groups={groups} isGermany={isGermany} />
-              ) : key === 'Policies' && isGermany ? (
+              {key === 'Parliament' && parliamentContent != null ? (
+                parliamentContent
+              ) : key === 'Parliament' ? (
+                <ParliamentGroups groups={groups} isGermany={isGermany} countryLabel={countryLabel} />
+              ) : key === 'Policies' && (isGermany || policyExperience) ? (
                 <div className="flex flex-col gap-3">
-                  <GermanyPolicyCarousel policyRows={sorted} />
+                  {isGermany ? (
+                    <GermanyPolicyCarousel policyRows={sorted} />
+                  ) : policyExperience ? (
+                    <PolicyCarousel cards={policyExperience.cards} label={policyExperience.carouselLabel} />
+                  ) : null}
                   <CollapsibleFlagSection
                     title="Immigration Policies"
-                    count={GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT}
+                    count={
+                      isGermany
+                        ? GERMANY_IMMIGRATION_POLICIES_SUBSECTION_COUNT
+                        : (policyExperience?.immigrationAreas.length ?? 0) + 1
+                    }
                     defaultOpen
                     uppercaseTitle
                     collapseSignal={collapseSignal}
                     expandSignal={expandSignal}
                   >
-                    <GermanyImmigrationPoliciesSection />
+                    {isGermany ? (
+                      <GermanyImmigrationPoliciesSection />
+                    ) : policyExperience ? (
+                      <ImmigrationPoliciesPanel
+                        context={policyExperience.immigrationContext}
+                        areas={policyExperience.immigrationAreas}
+                      />
+                    ) : null}
                   </CollapsibleFlagSection>
                 </div>
+              ) : key === 'Citizenship' && countryLabel === 'Spain' ? (
+                <SpainCitizenshipBlocks />
               ) : key === 'Citizenship' && isGermany ? (
                 <CitizenshipGroups groups={groups} />
               ) : (
-                <div className={GOV_POLITICS_CARD_GRID}>{groups.map((g) => renderMetricGroup(g))}</div>
+                <div className={GOV_POLITICS_CARD_GRID}>{groups.map((g) => GovernmentMetricGroup(g))}</div>
               )}
             </CollapsibleFlagSection>
           );

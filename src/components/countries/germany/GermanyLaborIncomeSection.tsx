@@ -15,7 +15,7 @@ import {
   type GermanyLaborCsvRow,
 } from '../../../lib/countries/germany/germanyLaborStatistics';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { GOV_POLITICS_CARD_GRID, renderMetricGroup } from './GermanyGovernmentPoliticsBlocks';
+import { GOV_POLITICS_CARD_GRID, GovernmentMetricGroup } from './GermanyGovernmentPoliticsBlocks';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../../ui/chart';
 import {
   GermanyImmigrantBenefitsSection,
@@ -304,11 +304,15 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   const remittancesChartData = remittancesChart?.data ?? REMITTANCES_OUTFLOW_BY_ORIGIN_2025;
   const remittancesChartHeightClass =
     remittancesChartData.length > 10 ? 'h-[520px] sm:h-[620px]' : 'h-[320px] sm:h-[360px]';
+  const showIncomeDistribution = isGermany || incomeDistribution != null;
+  const showNationalityCharts =
+    isGermany || incomeNationalityChart != null || fiscalNationalityChart != null || remittancesChart != null;
+  const showImmigrantBenefits = isGermany || immigrantBenefits != null;
 
   if (loadError) {
     return (
       <div className="flex flex-col gap-6">
-        {isGermany ? (
+        {showIncomeDistribution ? (
           <GermanyIncomeDistributionSection
             groups={incomeDistribution?.groups}
             caption={incomeDistribution?.caption}
@@ -316,7 +320,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           />
         ) : null}
         <p className="font-sans text-xs text-amber-500/90">{loadError}</p>
-        {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
+        {showImmigrantBenefits ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
       </div>
     );
   }
@@ -327,7 +331,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
   if (!hasGov && !hasLaborFile) {
     return (
       <div className="flex flex-col gap-6">
-        {isGermany ? (
+        {showIncomeDistribution ? (
           <GermanyIncomeDistributionSection
             groups={incomeDistribution?.groups}
             caption={incomeDistribution?.caption}
@@ -343,14 +347,14 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
             <code className="text-neutral-400">{laborCsvUrl.split('/').pop()}</code>.
           </p>
         )}
-        {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
+        {showImmigrantBenefits ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      {isGermany ? (
+      {showIncomeDistribution ? (
           <GermanyIncomeDistributionSection
             groups={incomeDistribution?.groups}
             caption={incomeDistribution?.caption}
@@ -365,7 +369,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           </p>
           <div className={GOV_POLITICS_CARD_GRID}>
             {govGroups.map((g) => (
-              <Fragment key={`gov-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
+              <Fragment key={`gov-${g[0]!.metric}`}>{GovernmentMetricGroup(g)}</Fragment>
             ))}
           </div>
           {govRowsOverride ? null : (
@@ -385,25 +389,25 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
           {laborYouthGroups.length > 0 ? (
             <div className={GOV_POLITICS_CARD_GRID}>
               {laborYouthGroups.map((g) => (
-                <Fragment key={`lab-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
+                <Fragment key={`lab-${g[0]!.metric}`}>{GovernmentMetricGroup(g)}</Fragment>
               ))}
             </div>
           ) : null}
           {laborLfprGroups.length > 0 ? (
             <div className={GOV_POLITICS_CARD_GRID}>
               {laborLfprGroups.map((g) => (
-                <Fragment key={`lab-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
+                <Fragment key={`lab-${g[0]!.metric}`}>{GovernmentMetricGroup(g)}</Fragment>
               ))}
             </div>
           ) : null}
           {laborTripleRowGroups.length > 0 ? (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               {laborTripleRowGroups.map((g) => (
-                <Fragment key={`lab-triple-${g[0]!.metric}`}>{renderMetricGroup(g)}</Fragment>
+                <Fragment key={`lab-triple-${g[0]!.metric}`}>{GovernmentMetricGroup(g)}</Fragment>
               ))}
             </div>
           ) : null}
-          {isGermany ? (
+          {showNationalityCharts ? (
           <>
           <Card className="overflow-hidden border-line bg-surface-metric sm:col-span-2 lg:col-span-3">
             <CardHeader className="p-4 pb-2">
@@ -655,7 +659,7 @@ export const GermanyLaborIncomeSection = memo(function GermanyLaborIncomeSection
         </div>
       ) : null}
 
-      {isGermany ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
+      {showImmigrantBenefits ? <GermanyImmigrantBenefitsSection {...immigrantBenefits} /> : null}
     </div>
   );
 });

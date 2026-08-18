@@ -49,7 +49,7 @@ const NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       { label: 'BBC', url: 'https://www.bbc.com/news/world-europe-35231046' },
     ],
     image: {
-      src: '/incidents/cologne-nye.jpg',
+      src: '/incidents/cologne-nye.webp',
       alt: 'Cologne central station (Köln Hauptbahnhof)',
       credit: 'Köln Hauptbahnhof — Neuwieser, CC BY-SA 2.0 / Wikimedia Commons',
       creditUrl: 'https://commons.wikimedia.org/wiki/File:Koeln_Hauptbahnhof_Luftaufnahme.jpg',
@@ -93,7 +93,7 @@ const NOTABLE_INCIDENTS: readonly NotableIncident[] = [
       },
     ],
     image: {
-      src: '/incidents/hamburg-stadtpark-2020.jpg',
+      src: '/incidents/hamburg-stadtpark-2020.webp',
       alt: 'Hamburg Stadtpark',
       credit: 'Hamburg Stadtpark — Ajepbah, CC BY-SA 3.0 de / Wikimedia Commons',
       creditUrl:
@@ -197,7 +197,7 @@ const NOTABLE_INCIDENTS: readonly NotableIncident[] = [
     victims: 'Lone women and girls using station environments (counts vary by incident).',
     sourceFallback: 'Cologne Police annual reports and DW investigations.',
     image: {
-      src: '/incidents/cologne-duesseldorf-stations.jpg',
+      src: '/incidents/cologne-duesseldorf-stations.webp',
       alt: 'Düsseldorf central station (Düsseldorf Hauptbahnhof)',
       credit: 'Düsseldorf Hauptbahnhof — Christian A. Schröder (ChristianSchd), CC BY-SA 4.0 / Wikimedia Commons',
       creditUrl:
@@ -250,14 +250,242 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** Spain incident register: documented cases with court, Interior Ministry, or public-broadcaster sourcing. */
+const SPAIN_NOTABLE_INCIDENTS: readonly NotableIncident[] = [
+  {
+    id: 'spain-madrid-11m',
+    rank: 1,
+    year: '2004',
+    location: 'Madrid commuter trains (11-M)',
+    dateDetail: '11 March 2004',
+    locationDetail: 'Commuter trains near Atocha, El Pozo, Santa Eugenia, and Calle Téllez, Madrid',
+    description: 'Coordinated bombings of four commuter trains killed 193 people and injured more than 2,000.',
+    expandedOverview:
+      'Ten bombs exploded aboard four packed commuter trains during the morning rush hour. Spain’s Interior Ministry records 193 deaths and 2,084 injured passengers, making 11-M the deadliest terrorist attack in modern Spanish history.',
+    perpetrators: 'Members and collaborators of a jihadist cell; several principal suspects died in the Leganés explosion.',
+    victims: '193 people killed and 2,084 injured.',
+    outcome:
+      'The Audiencia Nacional convicted multiple defendants. José Emilio Suárez Trashorras received 34,715 years, subject to a 40-year maximum term of actual imprisonment.',
+    sourceLinks: [
+      {
+        label: 'Spain Ministry of the Interior — twentieth-anniversary record',
+        url: 'https://www.interior.gob.es/opencms/en/detail-pages/article/Grande-Marlaska-El-11M-la-sociedad-espanola-volvio-a-demostrar-que-no-hay-terrorismo-capaz-de-doblegarla/',
+      },
+      {
+        label: 'Spanish Judiciary — Suárez Trashorras sentence record',
+        url: 'https://www.poderjudicial.es/portal/site/cgpj/menuitem.65d2c4456b6ddb628e635fc1dc432ea0/?lang_choosen=en&perfil=0&vgnextchannel=be4105063580d210VgnVCM1000006f48ac0aRCRD&vgnextfmt=default&vgnextlocale=en&vgnextoid=3d6ee02a62ecb510VgnVCM1000006f48ac0aRCRD',
+      },
+    ],
+  },
+  {
+    id: 'spain-barcelona-cambrils-17a',
+    rank: 2,
+    year: '2017',
+    location: 'Barcelona and Cambrils (17-A)',
+    dateDetail: '17–18 August 2017',
+    locationDetail: 'La Rambla, Barcelona, and the seafront at Cambrils, Tarragona',
+    description: 'Vehicle and knife attacks by a jihadist cell killed 16 people and injured more than 140.',
+    expandedOverview:
+      'A van was driven into pedestrians on Barcelona’s La Rambla. Hours later, members of the same cell carried out a second vehicle-and-knife attack in Cambrils. The attacks followed an accidental explosion at the cell’s bomb-making site in Alcanar.',
+    perpetrators: 'A jihadist cell based in Catalonia; the direct attackers were killed by police.',
+    victims: '16 people killed and more than 140 injured across Barcelona and Cambrils.',
+    outcome:
+      'The three surviving cell members were convicted of offences including membership of a terrorist organisation, explosives manufacture, and collaboration; they were not convicted as direct perpetrators of the killings.',
+    sourceLinks: [
+      {
+        label: 'Spain Ministry of the Interior — victim recognition',
+        url: 'https://www.interior.gob.es/opencms/es/detalle/articulo/Concesion-de-la-Gran-Cruz-de-la-Real-Orden-de-Reconocimiento-Civil-a-nueve-victimas-de-los-atentados-yihadistas-de-Barcelona/',
+      },
+      {
+        label: 'RTVE — Supreme Court review and case summary',
+        url: 'https://www.rtve.es/noticias/20231115/tribunal-supremo-revisa-sentencia-atentados-del-17a-cataluna-por-recursos-victimas/2460996.shtml',
+      },
+    ],
+  },
+  {
+    id: 'spain-alcasser',
+    rank: 3,
+    year: '1992',
+    location: 'Alcàsser / Tous, Valencia',
+    dateDetail: '13 November 1992; bodies located 27 January 1993',
+    locationDetail: 'The teenagers disappeared near Alcàsser; their bodies were found near Tous, Valencia',
+    description: 'Three teenage girls were abducted, sexually assaulted, tortured, and murdered.',
+    expandedOverview:
+      'Miriam García, Antonia “Toñi” Gómez, and Desirée Hernández disappeared while travelling to a nightclub near their home town. Their bodies were discovered in a rural grave seventy-five days later.',
+    perpetrators: 'Miguel Ricart was convicted; alleged co-offender Antonio Anglés remains missing.',
+    victims: 'Miriam García, 14; Antonia Gómez, 15; and Desirée Hernández, 14.',
+    outcome:
+      'Ricart was sentenced to 170 years, with the then-applicable statutory limit governing actual time served. He was released in 2013 after sentence-law changes; Anglés has not been tried.',
+    sourceLinks: [
+      {
+        label: 'El País — 1997 conviction report',
+        url: 'https://elpais.com/diario/1997/09/06/espana/873496814_850215.html',
+      },
+      {
+        label: 'Spanish Judiciary — 2013 release ruling',
+        url: 'https://www.poderjudicial.es/portal/site/cgpj/menuitem.65d2c4456b6ddb628e635fc1dc432ea0/?lang_choosen=en&perfil=0&vgnextchannel=05bc3da6cbe0a210VgnVCM100000cb34e20aRCRD&vgnextfmt=default&vgnextlocale=en&vgnextoid=43801179413b2410VgnVCM1000006f48ac0aRCRD',
+      },
+    ],
+  },
+  {
+    id: 'spain-ana-orantes',
+    rank: 4,
+    year: '1997',
+    location: 'Cúllar Vega, Granada',
+    dateDetail: '17 December 1997',
+    locationDetail: 'The victim’s home in Cúllar Vega, Granada',
+    description: 'Ana Orantes was murdered by her former husband days after publicly recounting decades of abuse.',
+    expandedOverview:
+      'Ana Orantes appeared on a Canal Sur television programme and described the physical and psychological abuse she had endured during her marriage. Thirteen days later, her former husband attacked and set her on fire at her home.',
+    perpetrators: 'José Parejo, her former husband.',
+    victims: 'Ana Orantes, 60.',
+    outcome:
+      'A Granada jury found Parejo guilty of murder. The case became a national catalyst for reform of Spain’s institutional response to domestic and gender-based violence.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — domestic-violence judicial study',
+        url: 'https://www.poderjudicial.es/stfls/CGPJ/FORMACI%C3%93N%20CONTINUA/PLAN%20ESTATAL/MATERIALES%20DOCENTES/FICHERO/EX0307%202003%20I%20Encuentro%20violencia%20dom%C3%A9stica.pdf',
+      },
+    ],
+  },
+  {
+    id: 'spain-marta-del-castillo',
+    rank: 5,
+    year: '2009',
+    location: 'Seville',
+    dateDetail: '24 January 2009',
+    locationDetail: 'An apartment on Calle León XIII, Seville',
+    description: 'Seventeen-year-old Marta del Castillo was murdered; her body has never been recovered.',
+    expandedOverview:
+      'Marta del Castillo disappeared after visiting Miguel Carcaño. Carcaño gave changing accounts of the killing and disposal of her body, prompting repeated searches at multiple locations. Her remains have not been found.',
+    perpetrators: 'Miguel Carcaño was convicted of murder; other adult defendants were acquitted in the principal trial.',
+    victims: 'Marta del Castillo, 17.',
+    outcome:
+      'The Audiencia Provincial de Sevilla sentenced Carcaño to 20 years in prison for murder and ordered compensation for Marta’s parents and sisters.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — trial judgment summary',
+        url: 'https://www.poderjudicial.es/cgpj/en/Judiciary/Novelties/Caso-Marta--La-Audiencia-condena-a-Carcano-por-asesinato-a-20-anos-de-prision',
+      },
+    ],
+  },
+  {
+    id: 'spain-asunta-basterra',
+    rank: 6,
+    year: '2013',
+    location: 'Santiago de Compostela / Teo',
+    dateDetail: '21 September 2013',
+    locationDetail: 'Santiago de Compostela and a rural track in Teo, A Coruña',
+    description: 'Twelve-year-old Asunta Basterra was drugged and suffocated; her body was left on a rural track.',
+    expandedOverview:
+      'Asunta Basterra’s parents reported her missing, and her body was found hours later near Teo. The prosecution established that she had been given a high dose of lorazepam before being asphyxiated.',
+    perpetrators: 'Her adoptive parents, Rosario Porto and Alfonso Basterra.',
+    victims: 'Asunta Basterra, 12.',
+    outcome:
+      'Both parents were convicted of murder and sentenced to 18 years in prison. Spain’s Supreme Court confirmed the convictions.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — Supreme Court confirmation',
+        url: 'https://www.poderjudicial.es/portal/site/cgpj/menuitem.65d2c4456b6ddb628e635fc1dc432ea0/?perfil=3&vgnextchannel=cd63939ae5821310VgnVCM1000006f48ac0aRCRD&vgnextfmt=default&vgnextlocale=es&vgnextoid=c870a305893b7510VgnVCM1000006f48ac0aRCRD',
+      },
+    ],
+  },
+  {
+    id: 'spain-la-manada-pamplona',
+    rank: 7,
+    year: '2016',
+    location: 'Pamplona — San Fermín',
+    dateDetail: '7 July 2016',
+    locationDetail: 'A building entrance in central Pamplona during the San Fermín festival',
+    description: 'Five men sexually assaulted an 18-year-old woman during the San Fermín festival.',
+    expandedOverview:
+      'The group, widely known as “La Manada,” took the victim into a building entrance and subjected her to repeated sexual acts. The initial legal classification prompted nationwide protests and scrutiny of Spain’s sexual-offence law.',
+    perpetrators: 'Five adult men acting together.',
+    victims: 'One 18-year-old woman.',
+    outcome:
+      'In 2019, Spain’s Supreme Court reclassified the crime as continuous rape and sentenced each defendant to 15 years in prison.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — Supreme Court ruling',
+        url: 'https://www.poderjudicial.es/cgpj/es/Poder-Judicial/Tribunal-Supremo/Noticias-Judiciales/Comunicado-de-la-Sala-Segunda-del-Tribunal-Supremo-sobre-el-recurso-de-casacion-396-2019',
+      },
+    ],
+  },
+  {
+    id: 'spain-diana-quer',
+    rank: 8,
+    year: '2016',
+    location: 'A Pobra do Caramiñal / Rianxo',
+    dateDetail: '22 August 2016',
+    locationDetail: 'Abducted in A Pobra do Caramiñal; body concealed in an abandoned warehouse in Rianxo, A Coruña',
+    description: 'Eighteen-year-old Diana Quer was abducted, sexually assaulted, murdered, and concealed in a well.',
+    expandedOverview:
+      'Diana Quer was forced into a car while walking home. The offender took her to an isolated warehouse, committed acts against her sexual freedom, strangled her, and concealed her body in a water-filled well.',
+    perpetrators: 'José Enrique Abuín Gey, known as “El Chicle.”',
+    victims: 'Diana Quer, 18.',
+    outcome:
+      'The Supreme Court confirmed permanent reviewable imprisonment for murder committed after an offence against the victim’s sexual freedom.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — Supreme Court confirmation',
+        url: 'https://www.poderjudicial.es/cgpj/es/Poder-Judicial/Tribunal-Supremo/Noticias-Judiciales/ci.El-Tribunal-Supremo-confirma-la-prision-permanente-revisable-al-autor-del-asesinato-de-Diana-Quer.formato3',
+      },
+    ],
+  },
+  {
+    id: 'spain-gabriel-cruz',
+    rank: 9,
+    year: '2018',
+    location: 'Níjar, Almería',
+    dateDetail: '27 February 2018',
+    locationDetail: 'Las Hortichuelas / Rodalquilar, Níjar, Almería',
+    description: 'Eight-year-old Gabriel Cruz was killed and hidden during an eleven-day missing-child search.',
+    expandedOverview:
+      'Gabriel disappeared while walking between relatives’ homes. Ana Julia Quezada, his father’s partner, killed him and concealed his body, then participated publicly in the search before police recovered the body from her vehicle.',
+    perpetrators: 'Ana Julia Quezada, the partner of Gabriel’s father.',
+    victims: 'Gabriel Cruz, 8.',
+    outcome:
+      'Quezada was convicted of murder with treachery and sentenced to permanent reviewable imprisonment. The Supreme Court confirmed the sentence in 2020.',
+    sourceLinks: [
+      {
+        label: 'RTVE — Supreme Court confirmation',
+        url: 'https://www.rtve.es/noticias/20201216/supremo-confirma-prision-permanente-revisable-para-ana-julia-quezada/2060269.shtml',
+      },
+    ],
+  },
+  {
+    id: 'spain-samuel-luiz',
+    rank: 10,
+    year: '2021',
+    location: 'A Coruña seafront',
+    dateDetail: '3 July 2021',
+    locationDetail: 'Near a pub on the A Coruña seafront',
+    description: 'Samuel Luiz was fatally beaten during a prolonged group attack after a confrontation over a phone.',
+    expandedOverview:
+      'The attack began when one assailant wrongly believed Samuel was recording him during a video call. Samuel was punched, kicked, chased, and repeatedly attacked by members of the group until he collapsed from fatal injuries.',
+    perpetrators: 'Three men ultimately convicted as the principal authors; a fourth first-instance defendant was later acquitted for lack of proof.',
+    victims: 'Samuel Luiz Muñiz, 24.',
+    outcome:
+      'The Supreme Court confirmed prison terms of 20 to 24 years for the three authors in 2025. One sentence included an aggravating circumstance for discrimination based on perceived sexual orientation.',
+    sourceLinks: [
+      {
+        label: 'Spanish Judiciary — Supreme Court confirmation',
+        url: 'https://www.poderjudicial.es/portal/site/cgpj/menuitem.65d2c4456b6ddb628e635fc1dc432ea0/?perfil=0&vgnextchannel=ae0d512f8032a210VgnVCM100000cb34e20aRCRD&vgnextfmt=default&vgnextlocale=en&vgnextoid=cac3ce5177a6b910VgnVCM1000004648ac0aRCRD',
+      },
+    ],
+  },
+];
+
 export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVictimsNotableIncidents({
   iso3,
 }: {
   iso3?: string;
 }) {
-  const isFrance = iso3?.toUpperCase() === 'FRA';
-  const incidents = isFrance ? FRANCE_NOTABLE_INCIDENTS : NOTABLE_INCIDENTS;
-  const countryName = isFrance ? 'France' : 'Germany';
+  const upperIso = iso3?.toUpperCase();
+  const isFrance = upperIso === 'FRA';
+  const isSpain = upperIso === 'ESP';
+  const incidents = isSpain ? SPAIN_NOTABLE_INCIDENTS : isFrance ? FRANCE_NOTABLE_INCIDENTS : NOTABLE_INCIDENTS;
+  const countryName = isSpain ? 'Spain' : isFrance ? 'France' : 'Germany';
 
   const [sortKey, setSortKey] = useState<SortKey>('rank');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -320,11 +548,13 @@ export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVic
               Notable incidents (reported)
             </CardTitle>
             <CardDescription className="font-sans text-[10px] leading-snug text-neutral-500">
-              Sort by column. Expand a case for timeline, narrative, outcome, and sources.
+              {sorted.length > 0
+                ? 'Sort by column. Expand a case for timeline, narrative, outcome, and sources.'
+                : `No ${countryName} cases have been researched and sourced yet.`}
             </CardDescription>
           </div>
           <div
-            className="flex flex-wrap gap-2 sm:shrink-0 sm:justify-end"
+            className={cn('flex flex-wrap gap-2 sm:shrink-0 sm:justify-end', sorted.length === 0 && 'hidden')}
             role="toolbar"
             aria-label="Sort incidents"
           >
@@ -359,6 +589,17 @@ export const GermanyCrimeVictimsNotableIncidents = memo(function GermanyCrimeVic
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 p-4 pt-4 sm:p-5 sm:pt-4">
+        {sorted.length === 0 ? (
+          <div className="rounded-md border border-dashed border-line bg-surface-metric p-4 shadow-card sm:p-5">
+            <p className="font-sans text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+              Awaiting sourced cases
+            </p>
+            <p className="mt-2 font-sans text-[11px] leading-relaxed text-neutral-400">
+              Each case in this panel carries a dated timeline, perpetrator and victim detail, legal outcome, and
+              linked sources. {countryName} entries appear here once they meet that standard.
+            </p>
+          </div>
+        ) : null}
         <ul className="flex flex-col gap-4">
           {sorted.map((row) => {
             const open = expandedId === row.id;

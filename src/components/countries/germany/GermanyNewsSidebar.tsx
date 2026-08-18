@@ -1,10 +1,7 @@
-import { useCsvText } from '../../../hooks/useCsvText';
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import newsCsvRaw from '../../../../Assets/Data/countries/Germany/news.csv?raw';
 import {
   GERMANY_NEWS_TOPIC_LABEL,
   faviconUrlForHostname,
-  parseGermanyNewsCsv,
   wordpressMshotsImageUrl,
   type GermanyNewsItem,
 } from '../../../lib/countries/germany/germanyNews';
@@ -123,26 +120,14 @@ function NewsRow({ item }: { item: GermanyNewsItem }) {
   );
 }
 
-export function useBundledGermanyNews(enabled: boolean): GermanyNewsItem[] {
-  return useMemo(() => {
-    if (!enabled) return [];
-    return parseGermanyNewsCsv(newsCsvRaw);
-  }, [enabled]);
-}
-
-/**
- * News feed for any country. Germany uses its bundled CSV (rich, real headlines);
- * every other country fetches its generated per-country feed at `csvUrl`.
- */
-export function useCountryNews(isGermany: boolean, csvUrl: string | null): GermanyNewsItem[] {
-  const bundled = useBundledGermanyNews(isGermany);
-  const { text } = useCsvText(isGermany ? '' : csvUrl ?? '');
-  const fetched = useMemo(() => (text.trim() ? parseGermanyNewsCsv(text) : []), [text]);
-  return isGermany ? bundled : fetched;
-}
-
-function CollapsibleNewsSection({ section }: { section: GermanyNewsRailSection }) {
-  const [open, setOpen] = useState(true);
+function CollapsibleNewsSection({
+  section,
+  defaultOpen = true,
+}: {
+  section: GermanyNewsRailSection;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   const id = useId();
   const panelId = `${id}-panel`;
 
@@ -183,6 +168,36 @@ type GermanyNewsRailProps = {
   countryLabel?: string;
 };
 
+type GermanyNewsPanelProps = {
+  sections: GermanyNewsRailSection[];
+  countryLabel?: string;
+};
+
+/** Compact access to the same news feed when the fixed desktop rails are hidden. */
+export function GermanyNewsPanel({ sections, countryLabel = 'Germany' }: GermanyNewsPanelProps) {
+  const nonEmpty = sections.filter((section) => section.items.length > 0);
+  if (nonEmpty.length === 0) return null;
+
+  return (
+    <section
+      className="mb-6 overflow-hidden rounded-md border border-line bg-surface-rail shadow-soft xl:hidden"
+      aria-label={`${countryLabel} related articles`}
+    >
+      <div className="border-b border-line bg-black/20 px-3 py-2 shadow-inset">
+        <h2 className="text-[11px] font-bold leading-tight tracking-tight text-white">Related articles</h2>
+        <p className="mt-0.5 font-sans text-[11px] uppercase tracking-[0.12em] text-neutral-500">
+          {countryLabel} · {nonEmpty.reduce((total, section) => total + section.items.length, 0)} reports
+        </p>
+      </div>
+      <div>
+        {nonEmpty.map((section) => (
+          <CollapsibleNewsSection key={section.heading} section={section} defaultOpen={false} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function GermanyNewsRail({ side, sections, countryLabel = 'Germany' }: GermanyNewsRailProps) {
   const border = side === 'left' ? 'border-r border-line' : 'border-l border-line';
   const edge = side === 'left' ? 'left-0' : 'right-0';
@@ -190,7 +205,7 @@ export function GermanyNewsRail({ side, sections, countryLabel = 'Germany' }: Ge
 
   return (
     <aside
-      className={`fixed ${edge} top-16 bottom-0 z-40 hidden w-[13rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft 2xl:flex ${border}`}
+      className={`fixed ${edge} top-16 bottom-0 z-40 hidden w-[11rem] shrink-0 flex-col overflow-hidden bg-surface-rail shadow-soft xl:flex 2xl:w-[13rem] ${border}`}
       aria-label={
         side === 'left'
           ? `${countryLabel} news, economy and immigration`

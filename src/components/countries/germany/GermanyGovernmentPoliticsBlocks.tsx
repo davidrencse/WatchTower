@@ -4,6 +4,11 @@ import { cn } from '../../../lib/utils';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { ChartContainer, type ChartConfig } from '../../ui/chart';
 import type { GermanyGovernmentPoliticsRow } from '../../../lib/countries/germany/germanyGovernmentPolitics';
+import {
+  formatValueDisplay,
+  metaParts,
+  splitUrls,
+} from '../../../lib/countries/germany/germanyGovernmentPoliticsFormat';
 
 /** Metric titles and primary labels: all caps for government / economic politics data cards. */
 const UC_TITLE = 'uppercase tracking-[0.05em]';
@@ -31,37 +36,6 @@ const LABOR_DISTRIBUTION_DISPLAY_TITLES: Record<string, string> = {
 };
 
 const METRIC_SUBTITLES: Record<string, string> = {};
-
-export function splitUrls(urlField: string): string[] {
-  return String(urlField ?? '')
-    .split('|')
-    .map((u) => u.trim())
-    .filter(Boolean);
-}
-
-export function formatValueDisplay(row: GermanyGovernmentPoliticsRow): string {
-  const v = row.value.trim();
-  if (!v) return 'N/A';
-  const unit = row.unit.trim().toLowerCase();
-  if (unit === 'percent' || unit.endsWith('percent')) {
-    const n = parseFloat(v.replace(/,/g, ''));
-    return Number.isFinite(n) ? `${n % 1 === 0 ? n.toFixed(0) : n.toFixed(1)}%` : v;
-  }
-  const asNum = Number(v.replace(/,/g, ''));
-  if (Number.isFinite(asNum) && String(v).includes(',')) {
-    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(asNum);
-  }
-  if (Number.isFinite(asNum) && /^[\d.]+$/.test(v)) {
-    return asNum % 1 !== 0 ? asNum.toLocaleString('en-US', { maximumFractionDigits: 4 }) : asNum.toLocaleString('en-US');
-  }
-  return v;
-}
-
-export function metaParts(row: GermanyGovernmentPoliticsRow): string {
-  return [row.referenceYear ? `Year: ${row.referenceYear}` : null, row.unit ? `Unit: ${row.unit}` : null]
-    .filter(Boolean)
-    .join(' · ');
-}
 
 export function GovStatCard({ row, title }: { row: GermanyGovernmentPoliticsRow; title?: string }) {
   const urls = splitUrls(row.sourceUrl);
@@ -550,7 +524,7 @@ export function GovMetricTable({ metric, rows }: { metric: string; rows: Germany
   );
 }
 
-export function renderMetricGroup(rows: GermanyGovernmentPoliticsRow[]) {
+export function GovernmentMetricGroup(rows: GermanyGovernmentPoliticsRow[]) {
   const first = rows[0]!;
   const multi =
     rows.length > 1 || Boolean(first.breakdown?.trim()) || Boolean(first.submetric?.trim());
